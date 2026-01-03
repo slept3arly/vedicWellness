@@ -90,7 +90,7 @@ const mobileMenuItemVariants = {
         ? "45px"   // scrolled + menu open
           : "50px"   // scrolled + menu closed
           : "0px",     // top of page
-      height: menuOpen ? "200px" : "75px",
+      height: menuOpen ? "215px" : "75px",
       }}
 
       transition={{
@@ -115,11 +115,11 @@ const mobileMenuItemVariants = {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 1 }}
           onClick={() => handleNav("/")}
-          className="px-4 text-2xl cursor-pointer font-bold tracking-tighter text-left"
+          className="px-4 text-2xl cursor-pointer font-bold tracking-tighter text-left leading-none"
         >
           <span className="text-white">Vedic</span>
           <span className="text-green-500 italic">WELLNESS</span>
-          <div className="text-[8px] px-7 uppercase tracking-widest text-green-400">
+          <div className="text-[8px] mt-0.5 px-7 uppercase tracking-widest text-green-400">
             A Division of Innovia Drugs
           </div>
         </motion.button>
@@ -131,9 +131,9 @@ const mobileMenuItemVariants = {
           aria-label="Toggle menu"
         >
           <div className="space-y-1">
-            <span className="block h-[2px] w-6 bg-white" />
-            <span className="block h-[2px] w-6 bg-white" />
-            <span className="block h-[2px] w-6 bg-white" />
+            <span className="block h-[3.5px] w-7 bg-white" />
+            <span className="block h-[2.5px] w-7 bg-white" />
+            <span className="block h-[1.5px] w-7 bg-white" />
           </div>
         </button>
 
@@ -171,7 +171,7 @@ const mobileMenuItemVariants = {
     initial="closed"
     animate="open"
     exit="closed"
-    className="flex flex-col md:hidden px-6 pb-4 gap-4"
+    className="flex flex-col md:hidden py-3 px-6 pb-4 gap-4"
   >
 
           {[
