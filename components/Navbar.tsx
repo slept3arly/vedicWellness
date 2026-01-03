@@ -14,7 +14,7 @@ export default function Navbar() {
   const { scrollY } = useScroll();
 
   // ---- Scroll-based pill animation
-  const rawWidth = useTransform(scrollY, [0, 100], ["100%", "85%"]);
+  const rawScale = useTransform(scrollY, [0, 100], [1, 0.85]);
   const rawRadius = useTransform(scrollY, [0, 100], ["0px", "50px"]);
   const rawPadding = useTransform(scrollY, [0, 100], ["20px", "15px"]);
   const rawTop = useTransform(scrollY, [0, 100], ["0px", "25px"]);
@@ -23,7 +23,7 @@ export default function Navbar() {
     "0px 10px 30px rgba(0,0,0,0.3)",
   ]);
 
-  const width = useSpring(rawWidth, { stiffness: 300, damping: 20 });
+  const scaleX = useSpring(rawScale, { stiffness: 300, damping: 30 });
   const borderRadius = useSpring(rawRadius, { stiffness: 300, damping: 20 });
   const padding = useSpring(rawPadding, { stiffness: 300, damping: 20 });
   const top = useSpring(rawTop, { stiffness: 300, damping: 20 });
@@ -46,7 +46,7 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      style={{ width, borderRadius, padding, top, boxShadow }}
+      style={{ scaleX, borderRadius, padding, top, boxShadow }}
       className="
         fixed left-1/2 -translate-x-1/2 z-50
         flex justify-between items-center
