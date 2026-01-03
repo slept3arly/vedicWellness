@@ -3,6 +3,8 @@
 
 import Hero from "@/components/Hero";
 import Section from "@/components/Section";
+import Carousel from "@/components/BottomNavbar";
+
 import { motion } from "framer-motion";
 
 export default function Home() {
