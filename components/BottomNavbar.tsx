@@ -2,6 +2,7 @@
 
 import { motion, useScroll } from "framer-motion";
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function BottomNavbar() {
   const { scrollY } = useScroll();
@@ -33,19 +34,34 @@ export default function BottomNavbar() {
         shadow-lg
       "
     >
-      {/* CALL */}
-      <ActionButton href="tel:+919466835259">
-        📞
-      </ActionButton>
-
       {/* WHATSAPP */}
       <ActionButton href="https://wa.me/919466835259">
-        💬
+        <Image
+          src="/whatsapp.png"
+          alt="Call"
+          width={22}
+          height={22}
+        />
+      </ActionButton>
+      
+      {/* CALL */}
+      <ActionButton href="tel:+919466835259">
+        <Image
+          src="/phone.png"
+          alt="Call"
+          width={22}
+          height={22}
+        />
       </ActionButton>
 
       {/* FACEBOOK */}
       <ActionButton href="https://www.facebook.com/innoviadrugs267/">
-        <p className="">F</p>
+        <Image
+          src="/facebook.png"
+          alt="Call"
+          width={22}
+          height={22}
+        />
       </ActionButton>
     </motion.div>
   );
