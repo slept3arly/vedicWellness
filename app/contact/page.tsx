@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 export default function About() {
   return (    
-    <div className="flex flex-col min-h-screen items-center gap-3 py-25 px-4">
+    <div className="flex flex-col min-h-screen items-center gap-3 py-40 px-4">
       
       <motion.h1
         initial={{ opacity: 0, y: 30 }}
