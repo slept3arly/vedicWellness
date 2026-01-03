@@ -48,7 +48,7 @@ export default function Navbar() {
     <motion.nav
       style={{ scaleX, borderRadius, padding, top, boxShadow }}
       className="
-        origin-center
+      fixed origin-center
       flex justify-between items-center
       bg-gray-500/80 backdrop-blur
       text-white
