@@ -99,8 +99,8 @@ useEffect(() => {
       animate={{
       borderRadius: scrolled
         ? menuOpen
-        ? "45px"   // scrolled + menu open
-          : "50px"   // scrolled + menu closed
+        ? "30px"   // scrolled + menu open
+          : "25px"   // scrolled + menu closed
           : "0px",     // top of page
       height: menuOpen ? "110px" : "75px",
       }}
@@ -183,7 +183,7 @@ useEffect(() => {
     initial="closed"
     animate="open"
     exit="closed"
-    className="flex flex-row md:hidden w-full items-center justify-center py-3 pb-4 gap-15"
+    className="flex flex-row md:hidden w-full items-center justify-center py-4 pb-4 gap-10"
   >
 
           {[
