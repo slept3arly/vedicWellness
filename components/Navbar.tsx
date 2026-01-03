@@ -67,8 +67,8 @@ export default function Navbar() {
 
       transition={{
         type: "spring",
-        stiffness: 260,
-        damping: 25,
+        stiffness: 300,
+        damping: 30,
       }}
       className="
         fixed left-1/2 -translate-x-1/2 z-50
@@ -91,7 +91,7 @@ export default function Navbar() {
         >
           <span className="text-white">Vedic</span>
           <span className="text-green-500 italic">WELLNESS</span>
-          <div className="text-[8px] px-9 uppercase tracking-widest text-green-400">
+          <div className="text-[8px] px-8 uppercase tracking-widest text-green-400">
             A Division of Innovia Drugs
           </div>
         </motion.button>
@@ -138,7 +138,7 @@ export default function Navbar() {
 
       {/* MOBILE MENU (INSIDE PILL) */}
       {menuOpen && (
-        <div className="flex flex-col md:hidden pb-2 gap-4">
+        <div className="flex flex-row items-center md:hidden pb-2 gap-4">
           {[
             { label: "Home", path: "/" },
             { label: "About", path: "/about" },
