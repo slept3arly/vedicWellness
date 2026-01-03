@@ -28,7 +28,7 @@ export default function Navbar() {
   const borderRadius = useSpring(rawRadius, { stiffness: 300, damping: 20 });
   const padding = useSpring(rawPadding, { stiffness: 300, damping: 20 });
   const top = useSpring(rawTop, { stiffness: 300, damping: 20 });
-  const boxShadow = useSpring(rawShadow, { stiffness: 300, damping: 20 });
+  
 
   // ---- SMART NAV HANDLER
   const handleNav = (path: string) => {
@@ -47,7 +47,7 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      style={{ width, borderRadius, padding, top, boxShadow }}
+      style={{ width, borderRadius, padding, top }}
       className="
         fixed left-1/2 -translate-x-1/2 z-50
         flex justify-between items-center
