@@ -112,7 +112,7 @@ useEffect(() => {
         flex-col
         md:flex-row md:items-center
         flex justify-between
-        bg-gray-500/80 
+        bg-gray-500/80 backdrop-blur
         text-white
         overflow-hidden
       "
