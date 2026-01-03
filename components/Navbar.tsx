@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import {  useEffect, useState } from "react";
 
 import {
   motion,
@@ -15,15 +15,16 @@ export default function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { scrollY } = useScroll();
+  const [scrolled, setScrolled] = useState(false);
 
   // ---- Scroll-based pill animation
   const rawWidth = useTransform(scrollY, [0, 100], ["100%", "85%"]);
-  const rawRadius = useTransform(scrollY, [0, 100], ["0px", "50px"]);
+  //const rawRadius = useTransform(scrollY, [0, 100], ["0px", "50px"]);
   const rawPadding = useTransform(scrollY, [0, 100], ["20px", "15px"]);
   const rawTop = useTransform(scrollY, [0, 100], ["0px", "25px"]);
 
   const width = useSpring(rawWidth, { stiffness: 300, damping: 20 });
-  const borderRadius = useSpring(rawRadius, { stiffness: 300, damping: 20 });
+  //const borderRadius = useSpring(rawRadius, { stiffness: 300, damping: 20 });
   const padding = useSpring(rawPadding, { stiffness: 300, damping: 20 });
   const top = useSpring(rawTop, { stiffness: 300, damping: 20 });
   
@@ -43,10 +44,32 @@ export default function Navbar() {
       ? "text-white font-semibold"
       : "text-gray-300 hover:text-white";
 
+  useEffect(() => {
+  const unsubscribe = scrollY.on("change", (y) => {
+    setScrolled(y > 80); // threshold
+  });
+
+  return () => unsubscribe();
+}, [scrollY]);
+
+
   return (
     <motion.nav
-      style={{ width, borderRadius, padding, top }}
-      
+      style={{ width, padding, top }}
+      animate={{
+      borderRadius: scrolled
+        ? menuOpen
+        ? "45px"   // scrolled + menu open
+          : "50px"   // scrolled + menu closed
+          : "0px",     // top of page
+
+      }}
+
+      transition={{
+        type: "spring",
+        stiffness: 260,
+        damping: 25,
+      }}
       className="
         fixed left-1/2 -translate-x-1/2 z-50
         flex-col
@@ -115,7 +138,7 @@ export default function Navbar() {
 
       {/* MOBILE MENU (INSIDE PILL) */}
       {menuOpen && (
-        <div className="flex flex-row px-70 jmd:hidden pb-2 gap-4">
+        <div className="flex flex-col md:hidden pb-2 gap-4">
           {[
             { label: "Home", path: "/" },
             { label: "About", path: "/about" },
