@@ -16,6 +16,34 @@ export default function Navbar() {
   const router = useRouter();
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
+  const mobileMenuVariants = {
+  closed: {
+    opacity: 0,
+    transition: {
+      staggerChildren: 0,
+      staggerDirection: -1,
+    },
+  },
+  open: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.08,
+      delayChildren: 0.12,
+    },
+  },
+};
+
+const mobileMenuItemVariants = {
+  closed: {
+    opacity: 0,
+    y: -8,
+  },
+  open: {
+    opacity: 1,
+    y: 0,
+  },
+};
+
 
   // ---- Scroll-based pill animation
   const rawWidth = useTransform(scrollY, [0, 100], ["100%", "85%"]);
@@ -62,7 +90,7 @@ export default function Navbar() {
         ? "45px"   // scrolled + menu open
           : "50px"   // scrolled + menu closed
           : "0px",     // top of page
-
+      height: menuOpen ? "200px" : "75px",
       }}
 
       transition={{
@@ -75,7 +103,7 @@ export default function Navbar() {
         flex-col
         md:flex-row md:items-center
         flex justify-between
-        bg-gray-500/80 backdrop-blur
+        bg-gray-500/80 
         text-white
         overflow-hidden
       "
@@ -138,7 +166,14 @@ export default function Navbar() {
 
       {/* MOBILE MENU (INSIDE PILL) */}
       {menuOpen && (
-        <div className="flex flex-col items-center md:hidden pb-2 gap-4">
+  <motion.div
+    variants={mobileMenuVariants}
+    initial="closed"
+    animate="open"
+    exit="closed"
+    className="flex flex-col md:hidden px-6 pb-4 gap-4"
+  >
+
           {[
             { label: "Home", path: "/" },
             { label: "About", path: "/about" },
@@ -148,8 +183,9 @@ export default function Navbar() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 1 }}
               key={path}
+              variants={mobileMenuItemVariants}
               onClick={() => handleNav(path)}
-              className={`text-lg cursor-pointer ${
+              className={`text-lg cursor-pointer text-left${
                 pathname === path
                   ? "text-white font-semibold"
                   : "text-gray-300"
@@ -158,7 +194,7 @@ export default function Navbar() {
               {label}
             </motion.button>
           ))}
-        </div>
+        </motion.div>
       )}
     </motion.nav>
   );
