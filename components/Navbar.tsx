@@ -128,7 +128,7 @@ useEffect(() => {
         >
           <span className="text-white">Vedic</span>
           <span className="text-green-500 italic">WELLNESS</span>
-          <div className="text-[8px] mt-1 uppercase tracking-widest text-green-400">
+          <div className="text-[8px] mt-1 px-7 uppercase tracking-widest text-green-400">
             A Division of Innovia Drugs
           </div>
         </motion.button>
