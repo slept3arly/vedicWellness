@@ -9,9 +9,8 @@ export default function BottomNavbar() {
 
   useEffect(() => {
     const unsubscribe = scrollY.on("change", (y) => {
-      setVisible(y > 400); // 👈 threshold (adjust)
+      setVisible(y > 400);
     });
-
     return () => unsubscribe();
   }, [scrollY]);
 
@@ -28,42 +27,56 @@ export default function BottomNavbar() {
         fixed bottom-6 left-1/2 -translate-x-1/2
         z-50
         flex items-center gap-6
-        px-6 py-3
+        px-3 py-3
         bg-white/70 backdrop-blur-md
         rounded-full
         shadow-lg
       "
     >
-      {/* Progress */}
-      <div className="h-2 w-14 rounded-full bg-gray-300 overflow-hidden">
-        <div className="h-full w-1/2 bg-gray-600 rounded-full" />
-      </div>
+      {/* CALL */}
+      <ActionButton href="tel:+919466835259">
+        📞
+      </ActionButton>
 
-      {/* Dots */}
-      <div className="flex gap-2">
-        {[...Array(5)].map((_, i) => (
-          <span
-            key={i}
-            className={`h-2 w-2 rounded-full ${
-              i === 2 ? "bg-gray-700" : "bg-gray-400"
-            }`}
-          />
-        ))}
-      </div>
+      {/* WHATSAPP */}
+      <ActionButton href="https://wa.me/919466835259">
+        💬
+      </ActionButton>
 
-      {/* Action */}
-      <button
-        className="
-          h-10 w-10
-          rounded-full
-          bg-gray-200
-          flex items-center justify-center
-          hover:bg-gray-300
-          transition
-        "
-      >
-        ▶
-      </button>
+      {/* FACEBOOK */}
+      <ActionButton href="https://www.facebook.com/innoviadrugs267/">
+        <p className="">F</p>
+      </ActionButton>
     </motion.div>
+  );
+}
+
+/* Reusable button */
+function ActionButton({
+  href,
+  children,
+}: {
+  href: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      className="
+        h-8 w-8
+        flex items-center justify-center
+        rounded-full
+        bg-gray-200
+        text-xl
+        cursor-pointer
+        select-none
+      "
+    >
+      {children}
+    </motion.a>
   );
 }
