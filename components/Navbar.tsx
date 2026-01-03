@@ -80,6 +80,18 @@ const mobileMenuItemVariants = {
   return () => unsubscribe();
 }, [scrollY]);
 
+useEffect(() => {
+  const handleResize = () => {
+    if (window.innerWidth >= 768) {
+      setMenuOpen(false);
+    }
+  };
+
+  window.addEventListener("resize", handleResize);
+  return () => window.removeEventListener("resize", handleResize);
+}, []);
+
+
 
   return (
     <motion.nav
@@ -90,7 +102,7 @@ const mobileMenuItemVariants = {
         ? "45px"   // scrolled + menu open
           : "50px"   // scrolled + menu closed
           : "0px",     // top of page
-      height: menuOpen ? "215px" : "75px",
+      height: menuOpen ? "110px" : "75px",
       }}
 
       transition={{
@@ -171,7 +183,7 @@ const mobileMenuItemVariants = {
     initial="closed"
     animate="open"
     exit="closed"
-    className="flex flex-col md:hidden py-3 px-6 pb-4 gap-4"
+    className="flex flex-row md:hidden w-full items-center justify-center py-3 pb-4 gap-15"
   >
 
           {[
