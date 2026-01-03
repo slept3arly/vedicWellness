@@ -68,7 +68,7 @@ export default function Navbar() {
         >
           <span className="text-white">Vedic</span>
           <span className="text-green-500 italic">WELLNESS</span>
-          <div className="text-[8px] uppercase tracking-widest text-green-400">
+          <div className="text-[8px] px-9 uppercase tracking-widest text-green-400">
             A Division of Innovia Drugs
           </div>
         </motion.button>
@@ -115,23 +115,25 @@ export default function Navbar() {
 
       {/* MOBILE MENU (INSIDE PILL) */}
       {menuOpen && (
-        <div className="flex flex-col md:hidden px-6 pb-4 gap-4">
+        <div className="flex flex-row px-70 jmd:hidden pb-2 gap-4">
           {[
             { label: "Home", path: "/" },
             { label: "About", path: "/about" },
             { label: "Contact", path: "/contact" },
           ].map(({ label, path }) => (
-            <button
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 1 }}
               key={path}
               onClick={() => handleNav(path)}
-              className={`text-left text-lg cursor-pointer ${
+              className={`text-lg cursor-pointer ${
                 pathname === path
                   ? "text-white font-semibold"
                   : "text-gray-300"
               }`}
             >
               {label}
-            </button>
+            </motion.button>
           ))}
         </div>
       )}
