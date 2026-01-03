@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
+
 import {
   motion,
   useScroll,
@@ -14,7 +15,7 @@ export default function Navbar() {
   const { scrollY } = useScroll();
 
   // ---- Scroll-based pill animation
-  const rawScale = useTransform(scrollY, [0, 100], [1, 0.85]);
+  const rawWidth = useTransform(scrollY, [0, 100], ["100%", "85%"]);
   const rawRadius = useTransform(scrollY, [0, 100], ["0px", "50px"]);
   const rawPadding = useTransform(scrollY, [0, 100], ["20px", "15px"]);
   const rawTop = useTransform(scrollY, [0, 100], ["0px", "25px"]);
@@ -23,7 +24,7 @@ export default function Navbar() {
     "0px 10px 30px rgba(0,0,0,0.3)",
   ]);
 
-  const scaleX = useSpring(rawScale, { stiffness: 300, damping: 30 });
+  const width = useSpring(rawWidth, { stiffness: 300, damping: 20 });
   const borderRadius = useSpring(rawRadius, { stiffness: 300, damping: 20 });
   const padding = useSpring(rawPadding, { stiffness: 300, damping: 20 });
   const top = useSpring(rawTop, { stiffness: 300, damping: 20 });
@@ -46,14 +47,12 @@ export default function Navbar() {
 
   return (
     <motion.nav
-      style={{ scaleX, borderRadius, padding, top, boxShadow }}
+      style={{ width, borderRadius, padding, top, boxShadow }}
       className="
-      fixed origin-center
-      flex justify-between items-center
-      bg-gray-500/80 backdrop-blur
-      text-white
-      px-6 py-3
-      max-w-6xl w-full
+        fixed left-1/2 -translate-x-1/2 z-50
+        flex justify-between items-center
+        bg-gray-500/80 backdrop-blur
+        text-white
       "
     >
       {/* LOGO */}
