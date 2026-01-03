@@ -48,10 +48,12 @@ export default function Navbar() {
     <motion.nav
       style={{ scaleX, borderRadius, padding, top, boxShadow }}
       className="
-        fixed left-1/2 -translate-x-1/2 z-50
-        flex justify-between items-center
-        bg-gray-500/80 backdrop-blur
-        text-white
+        origin-center
+      flex justify-between items-center
+      bg-gray-500/80 backdrop-blur
+      text-white
+      px-6 py-3
+      max-w-6xl w-full
       "
     >
       {/* LOGO */}
