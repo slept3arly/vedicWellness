@@ -128,7 +128,7 @@ useEffect(() => {
         >
           <span className="text-white">Vedic</span>
           <span className="text-green-500 italic">WELLNESS</span>
-          <div className="text-[8px] mt-1 px-7 uppercase tracking-widest text-green-400">
+          <div className="text-[8px] mt-1 uppercase tracking-widest text-green-400">
             A Division of Innovia Drugs
           </div>
         </motion.button>
@@ -177,7 +177,7 @@ useEffect(() => {
       initial="closed"
       animate="open"
       exit="closed"
-      className="flex flex-row md:hidden w-full items-center justify-center py-4 pb-4 gap-10"
+      className="flex flex-row md:hidden w-full items-center justify-center py-4 pb-4 gap-5"
   >
 
           {[
