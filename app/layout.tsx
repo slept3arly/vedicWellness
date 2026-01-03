@@ -29,7 +29,7 @@ export default function RootLayout({
       <body>
         <Navbar />
         {children}
-        <BottomNavbar /> {/* Bottom navbar */}
+        <BottomNavbar /> 
       </body>
     </html>
   );
