@@ -2,6 +2,8 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import {  useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
+import { useCallback } from 'react';
 
 import {
   motion,
@@ -17,32 +19,15 @@ export default function Navbar() {
   const { scrollY } = useScroll();
   const [scrolled, setScrolled] = useState(false);
   const mobileMenuVariants = {
-  closed: {
-    opacity: 0,
-    transition: {
-      staggerChildren: 0,
-      staggerDirection: -1,
-    },
-  },
-  open: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.12,
-    },
-  },
+  closed: { opacity: 0, transition: { staggerChildren: 0, staggerDirection: -1 } },
+  open: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.12 } },
 };
 
 const mobileMenuItemVariants = {
-  closed: {
-    opacity: 0,
-    y: -8,
-  },
-  open: {
-    opacity: 1,
-    y: 0,
-  },
+  closed: { opacity: 0, y: -8 },
+  open: { opacity: 1, y: 0 },
 };
+
 
 
   // ---- Scroll-based pill animation
@@ -56,15 +41,25 @@ const mobileMenuItemVariants = {
   const padding = useSpring(rawPadding, { stiffness: 300, damping: 20 });
   const top = useSpring(rawTop, { stiffness: 300, damping: 20 });
   
+  const NAV_LINKS = [
+  { label: "Home", path: "/" },
+  { label: "About", path: "/about" },
+  { label: "Contact", path: "/contact" },
+];
+
 
   // ---- SMART NAV HANDLER
-  const handleNav = (path: string) => {
+  const handleNav = useCallback(
+  (path: string) => {
     if (pathname === path) {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       router.push(path);
     }
-  };
+  },
+  [pathname, router]
+);
+
 
   // ---- ACTIVE LINK STYLES
   const linkClass = (path: string) =>
@@ -73,11 +68,17 @@ const mobileMenuItemVariants = {
       : "text-gray-300 hover:text-white";
 
   useEffect(() => {
+  let last = false;
+
   const unsubscribe = scrollY.on("change", (y) => {
-    setScrolled(y > 80); // threshold
+    const next = y > 80;
+    if (next !== last) {
+      last = next;
+      setScrolled(next);
+    }
   });
 
-  return () => unsubscribe();
+  return unsubscribe;
 }, [scrollY]);
 
 useEffect(() => {
@@ -97,12 +98,8 @@ useEffect(() => {
     <motion.nav
       style={{ width, padding, top }}
       animate={{
-      borderRadius: scrolled
-        ? menuOpen
-        ? "30px"   // scrolled + menu open
-          : "25px"   // scrolled + menu closed
-          : "0px",     // top of page
-      height: menuOpen ? "110px" : "75px",
+      borderRadius: scrolled ? (menuOpen ? "30px" : "24px") : "0px",
+      height: menuOpen ? "115px" : "75px",
       }}
 
       transition={{
@@ -131,7 +128,7 @@ useEffect(() => {
         >
           <span className="text-white">Vedic</span>
           <span className="text-green-500 italic">WELLNESS</span>
-          <div className="text-[8px] mt-0.5 px-7 uppercase tracking-widest text-green-400">
+          <div className="text-[8px] mt-1 px-7 uppercase tracking-widest text-green-400">
             A Division of Innovia Drugs
           </div>
         </motion.button>
@@ -151,11 +148,7 @@ useEffect(() => {
 
         {/* DESKTOP LINKS */}
         <div className="hidden md:flex gap-6 px-6 text-base">
-          {[
-            { label: "Home", path: "/" },
-            { label: "About", path: "/about" },
-            { label: "Contact", path: "/contact" },
-          ].map(({ label, path }) => (
+          {NAV_LINKS.map(({ label, path }) => (
             <motion.button
               key={path}
               whileHover={{ scale: 1.05 }}
@@ -177,13 +170,14 @@ useEffect(() => {
       </div>
 
       {/* MOBILE MENU (INSIDE PILL) */}
+      <AnimatePresence>
       {menuOpen && (
-  <motion.div
-    variants={mobileMenuVariants}
-    initial="closed"
-    animate="open"
-    exit="closed"
-    className="flex flex-row md:hidden w-full items-center justify-center py-4 pb-4 gap-10"
+        <motion.div
+      variants={mobileMenuVariants}
+      initial="closed"
+      animate="open"
+      exit="closed"
+      className="flex flex-row md:hidden w-full items-center justify-center py-4 pb-4 gap-10"
   >
 
           {[
@@ -208,6 +202,7 @@ useEffect(() => {
           ))}
         </motion.div>
       )}
+      </AnimatePresence>
     </motion.nav>
   );
 }
