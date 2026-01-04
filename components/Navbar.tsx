@@ -153,9 +153,9 @@ export default function Navbar() {
         fixed left-1/2 -translate-x-1/2 z-50
         flex flex-col md:flex-row md:items-center
         justify-between
-        backdrop-blur overflow-hidden
+         overflow-hidden
         transition-colors duration-300
-        ${isDark ? "bg-gray-400/80" : "bg-gray-800/80"}
+        ${isDark ? "bg-gray-400/100" : "bg-gray-800/100"}
       `}
     >
       {/* ================= TOP ROW ================= */}
@@ -224,8 +224,6 @@ export default function Navbar() {
               justify-items-center
               py-4
 "
-
-
           >
             {NAV_LINKS.map(({ label, path }) => (
               <motion.button

@@ -3,12 +3,16 @@
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useTheme } from "next-themes";
 import Image from "next/image";
-import { useRef } from "react";
+import { useRef, useEffect, useState } from "react";
 
 export default function Hero() {
   const ref = useRef<HTMLDivElement>(null);
   const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+  const isDark = mounted && resolvedTheme === "dark";
+
   const { scrollYProgress } = useScroll({
     target: ref,
     offset: ["start start", "end start"],
@@ -27,7 +31,7 @@ export default function Hero() {
         className="absolute inset-0 z-0"
       >
         <Image
-          src="/"   // make sure this exists in /public
+          src="/main.jpg"
           alt="Hero background"
           fill
           priority
@@ -35,11 +39,15 @@ export default function Hero() {
         />
 
         {/* 🔹 THEME-AWARE OVERLAY */}
-        <div
-          className={`absolute inset-0 
-            ${isDark ? "bg-gradient-to-b from-slate-950/0 via-slate-950/40 to-slate-950" : "bg-gradient-to-b from-white/0 via-white/10 via-white/ to-white/50"}
-            `}
-        />
+        {mounted && (
+          <div
+            className={`absolute inset-0 bg-gradient-to-b ${
+              isDark
+                ? "from-slate-950/0 via-slate-950/40 to-slate-950"
+                : "from-white/0 via-white/20 to-white"
+            }`}
+          />
+        )}
       </motion.div>
 
       {/* 🔹 CONTENT */}
