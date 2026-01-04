@@ -44,6 +44,7 @@ const mobileMenuItemVariants = {
   const NAV_LINKS = [
   { label: "Home", path: "/" },
   { label: "About", path: "/about" },
+  { label: "Our Products", path: "/products" },
   { label: "Contact", path: "/contact" },
 ];
 
@@ -180,11 +181,7 @@ useEffect(() => {
       className="flex flex-row md:hidden w-full items-center justify-center py-4 pb-4 gap-5"
   >
 
-          {[
-            { label: "Home", path: "/" },
-            { label: "About", path: "/about" },
-            { label: "Contact", path: "/contact" },
-          ].map(({ label, path }) => (
+          {NAV_LINKS.map(({ label, path }) => (
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 1 }}
