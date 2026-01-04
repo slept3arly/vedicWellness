@@ -33,6 +33,29 @@ function ActionButton({
   );
 }
 
+function ScrollToTopButton() {
+  return (
+    <motion.button
+      onClick={() =>
+        window.scrollTo({ top: 0, behavior: "smooth" })
+      }
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+      className="
+        h-10 w-10
+        rounded-full
+        bg-white/70 backdrop-blur-md
+        shadow-lg
+        flex items-center justify-center
+        cursor-pointer
+      "
+      aria-label="Scroll to top"
+    >
+      ↑
+    </motion.button>
+  );
+}
+
 export default function BottomNavbar() {
   const { scrollY } = useScroll();
   const [visible, setVisible] = useState(false);
@@ -45,8 +68,10 @@ export default function BottomNavbar() {
   }, [scrollY]);
 
   return (
-    <AnimatePresence>
-      {visible && (
+  <AnimatePresence>
+    {visible && (
+      <>
+        {/* MAIN CENTER PILL */}
         <motion.div
           key="bottom-bar"
           initial={{ y: 60, opacity: 0, scale: 0.96 }}
@@ -80,7 +105,29 @@ export default function BottomNavbar() {
             <Image src="/facebook.png" alt="Facebook" width={22} height={22} />
           </ActionButton>
         </motion.div>
-      )}
-    </AnimatePresence>
-  );
+
+        {/* SCROLL TO TOP BUTTON (RIGHT) */}
+        <motion.div
+          key="scroll-top"
+          initial={{ y: 60, opacity: 0, scale: 0.96 }}
+          animate={{ y: 0, opacity: 1, scale: 1 }}
+          exit={{ y: 60, opacity: 0, scale: 0.96 }}
+          transition={{
+            type: "spring",
+            stiffness: 200,
+            damping: 15,
+            mass: 1.1,
+            delay: 0.05, // subtle stagger from main pill
+          }}
+          className="
+            fixed bottom-8 right-6
+            z-50
+          "
+        >
+          <ScrollToTopButton />
+        </motion.div>
+      </>
+    )}
+  </AnimatePresence>
+);
 }

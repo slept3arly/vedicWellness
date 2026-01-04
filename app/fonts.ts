@@ -25,8 +25,7 @@ export const playfair = Playfair_Display({
   display: "swap",
 });
 
-export const notoSerifExtraCondensed = localFont({
+export const noto = localFont({
   src: "../public/fonts/NotoSerif_ExtraCondensed-Regular.woff2",
-  variable: "--font-noto-serif-extra-condensed",
-  display: "swap",
+  variable: "--font-noto",
 });

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import BottomNavbar from "@/components/BottomNavbar";
-import { notoSerifExtraCondensed } from "./fonts";
+import { noto } from "./fonts";
 
 export const metadata: Metadata = {
   title: "Vedic Wellness",
@@ -16,7 +16,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={notoSerifExtraCondensed.variable}>
+      <body className={noto.variable}>
         <Navbar />
         {children}
         <BottomNavbar />
