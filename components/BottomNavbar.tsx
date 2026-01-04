@@ -1,12 +1,17 @@
 "use client";
 
+/* =========================
+   Imports
+   ========================= */
 import { motion, AnimatePresence, useScroll } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 
-/* Reusable Action Button */
-function ActionButton({
+/* =========================
+   Reusable Action Button
+   ========================= */
+const ActionButton = memo(function ActionButton({
   href,
   children,
 }: {
@@ -32,14 +37,22 @@ function ActionButton({
       {children}
     </motion.a>
   );
-}
+});
 
-function ScrollToTopButton({ isDark }: { isDark: boolean }) {
+/* =========================
+   Scroll To Top Button
+   ========================= */
+const ScrollToTopButton = memo(function ScrollToTopButton({
+  isDark,
+}: {
+  isDark: boolean;
+}) {
   return (
     <motion.button
       onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
+      aria-label="Scroll to top"
       className={`
         h-10 w-10
         rounded-full
@@ -50,13 +63,15 @@ function ScrollToTopButton({ isDark }: { isDark: boolean }) {
         transition-colors duration-300
         ${isDark ? "bg-gray-400/80 text-white" : "bg-gray-800/80 text-white"}
       `}
-      aria-label="Scroll to top"
     >
       ↑
     </motion.button>
   );
-}
+});
 
+/* =========================
+   Bottom Navbar Component
+   ========================= */
 export default function BottomNavbar() {
   const { scrollY } = useScroll();
   const { resolvedTheme } = useTheme();
@@ -66,26 +81,35 @@ export default function BottomNavbar() {
   const [mounted, setMounted] = useState(false);
   const [visible, setVisible] = useState(false);
 
-  // Prevent hydration mismatch
+  /* Prevent hydration mismatch */
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Scroll visibility
-  useEffect(() => {
-    const unsubscribe = scrollY.on("change", (y) => {
-      setVisible(y > 400);
+  /* Toggle visibility based on scroll position */
+  /* Toggle visibility based on scroll position */
+useEffect(() => {
+  const unsubscribe = scrollY.on("change", (y) => {
+    setVisible((prev) => {
+      const next = y > 400;
+      return prev !== next ? next : prev;
     });
-    return () => unsubscribe();
-  }, [scrollY]);
+  });
 
+  return () => unsubscribe();
+}, [scrollY]);
+
+
+  /* Avoid rendering until mounted */
   if (!mounted) return null;
 
   return (
     <AnimatePresence>
       {visible && (
         <>
-          {/* CENTER PILL */}
+          {/* =========================
+              Center Floating Action Bar
+             ========================= */}
           <motion.div
             key="bottom-bar"
             initial={{ y: 60, opacity: 0, scale: 0.96 }}
@@ -109,19 +133,37 @@ export default function BottomNavbar() {
             `}
           >
             <ActionButton href="https://wa.me/919466835259">
-              <Image src="/whatsapp.png" alt="WhatsApp" width={22} height={22} />
+              <Image
+                src="/whatsapp.png"
+                alt="WhatsApp"
+                width={22}
+                height={22}
+                priority={false}
+              />
             </ActionButton>
 
             <ActionButton href="tel:+919466835259">
-              <Image src="/phone.png" alt="Call" width={22} height={22} />
+              <Image
+                src="/phone.png"
+                alt="Call"
+                width={22}
+                height={22}
+              />
             </ActionButton>
 
             <ActionButton href="https://www.facebook.com/innoviadrugs267/">
-              <Image src="/facebook.png" alt="Facebook" width={22} height={22} />
+              <Image
+                src="/facebook.png"
+                alt="Facebook"
+                width={22}
+                height={22}
+              />
             </ActionButton>
           </motion.div>
 
-          {/* SCROLL TO TOP */}
+          {/* =========================
+              Scroll To Top Button
+             ========================= */}
           <motion.div
             key="scroll-top"
             initial={{ y: 60, opacity: 0, scale: 0.96 }}

@@ -1,143 +1,175 @@
 "use client";
 
+/* ===================== Imports ===================== */
 import { usePathname, useRouter } from "next/navigation";
-import {  useEffect, useState } from "react";
-import { AnimatePresence } from "framer-motion";
-import { useCallback } from 'react';
+import { useEffect, useState, useCallback } from "react";
 import { useTheme } from "next-themes";
-
 import {
   motion,
   useScroll,
   useTransform,
   useSpring,
+  AnimatePresence,
+  useReducedMotion
 } from "framer-motion";
 
-export default function Navbar() {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
-  const { scrollY } = useScroll();
-  const [scrolled, setScrolled] = useState(false);
-  const mobileMenuVariants = {
-  closed: { opacity: 0, transition: { staggerChildren: 0, staggerDirection: -1 } },
-  open: { opacity: 1, transition: { staggerChildren: 0.08, delayChildren: 0.12 } },
-};
+/* ===================== Constants ===================== */
 
-const mobileMenuItemVariants = {
-  closed: { opacity: 0, y: -8 },
-  open: { opacity: 1, y: 0 },
-};
-
-
-
-  // ---- Scroll-based pill animation
-  const rawWidth = useTransform(scrollY, [0, 100], ["100%", "85%"]);
-  const rawPadding = useTransform(scrollY, [0, 100], ["20px", "15px"]);
-  const rawTop = useTransform(scrollY, [0, 100], ["0px", "25px"]);
-
-  const width = useSpring(rawWidth, { stiffness: 300, damping: 20 });
-  const padding = useSpring(rawPadding, { stiffness: 300, damping: 20 });
-  const top = useSpring(rawTop, { stiffness: 300, damping: 20 });
-  
-  const NAV_LINKS = [
+// Navigation links
+const NAV_LINKS = [
   { label: "Home", path: "/" },
   { label: "About", path: "/about" },
   { label: "Our Products", path: "/products" },
   { label: "Contact", path: "/contact" },
 ];
 
-  const { resolvedTheme, setTheme } = useTheme();
+// Mobile menu container animation
+const mobileMenuVariants = {
+  closed: {
+    opacity: 0,
+    transition: { staggerChildren: 0, staggerDirection: -1 },
+  },
+  open: {
+    opacity: 1,
+    transition: { staggerChildren: 0.08, delayChildren: 0.12 },
+  },
+};
+
+// Individual mobile menu item animation
+const mobileMenuItemVariants = {
+  closed: { opacity: 0, y: -8 },
+  open: { opacity: 1, y: 0 },
+};
+
+/* ===================== Component ===================== */
+
+export default function Navbar() {
+  /* ---------- Router / Path ---------- */
+  const pathname = usePathname();
+  const router = useRouter();
+
+  /* ---------- Theme ---------- */
+  const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === "dark";
 
+  /* ---------- State ---------- */
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // ---- SMART NAV HANDLER
+  /* ---------- Scroll Animations ---------- */
+  const { scrollY } = useScroll();
+
+  const rawWidth = useTransform(scrollY, [0, 100], ["100%", "85%"]);
+  const rawPadding = useTransform(scrollY, [0, 100], ["20px", "15px"]);
+  const rawTop = useTransform(scrollY, [0, 100], ["0px", "25px"]);
+  const prefersReducedMotion = useReducedMotion();
+  const width = useSpring(rawWidth, {
+    stiffness: prefersReducedMotion ? 120 : 300,
+    damping: prefersReducedMotion ? 25 : 20,
+  });
+  const padding = useSpring(rawPadding, { stiffness: 300, damping: 20 });
+  const top = useSpring(rawTop, { stiffness: 300, damping: 20 });
+
+  /* ===================== Handlers ===================== */
+
+  // Smart navigation handler (scroll to top if already on page)
   const handleNav = useCallback(
-  (path: string) => {
-    if (pathname === path) {
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else {
-      router.push(path);
-    }
-  },
-  [pathname, router]
-);
+    (path: string) => {
+      if (pathname === path) {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } else {
+        router.push(path);
+      }
+    },
+    [pathname, router]
+  );
 
-
-
-  // ---- ACTIVE LINK STYLES
+  // Active link styles
   const linkClass = (path: string) =>
     pathname === path
       ? "text-white font-semibold"
       : "text-gray-300 hover:text-white";
 
+  /* ===================== Effects ===================== */
+
+  // Scroll threshold detection (avoids unnecessary re-renders)
   useEffect(() => {
-  let last = false;
+    NAV_LINKS.forEach(({ path }) => {
+      router.prefetch(path);
+      });
+    }, [router]);
 
-  const unsubscribe = scrollY.on("change", (y) => {
-    const next = y > 80;
-    if (next !== last) {
-      last = next;
-      setScrolled(next);
-    }
-  });
+  useEffect(() => {
+    let last = false;
 
-  return unsubscribe;
-}, [scrollY]);
+    const unsubscribe = scrollY.on("change", (y) => {
+      const next = y > 80;
+      if (next !== last) {
+        last = next;
+        setScrolled(next);
+      }
+    });
 
-useEffect(() => {
-  const handleResize = () => {
-    if (window.innerWidth >= 768) {
-      setMenuOpen(false);
-    }
-  };
+    return unsubscribe;
+  }, [scrollY]);
 
-  window.addEventListener("resize", handleResize);
-  return () => window.removeEventListener("resize", handleResize);
-}, []);
+  // Close mobile menu on desktop resize
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) setMenuOpen(false);
+    };
 
-const [mounted, setMounted] = useState(false);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
-useEffect(() => {
-  setMounted(true);
-}, []);
+  // Prevent hydration mismatch (next-themes)
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
-if (!mounted) return null;
+  if (!mounted) return null;
 
+  /* ===================== Render ===================== */
 
   return (
     <motion.nav
-      style={{ width, padding, top }}
+      style={{
+      width,
+      padding,
+      top,
+      willChange: "transform, width, padding, top",
+      transform: "translateZ(0)",
+      }}
       animate={{
-      borderRadius: scrolled ? (menuOpen ? "35px" : "35px") : "0px",
-      height: scrolled ? (menuOpen ? "115px" : "65px") : (!menuOpen ? "75px" : "115px"),
+        borderRadius: scrolled ? "35px" : "0px",
+        height: scrolled
+          ? menuOpen
+            ? "115px"
+            : "65px"
+          : menuOpen
+          ? "115px"
+          : "75px",
       }}
-
-      transition={{
-        type: "spring",
-        stiffness: 300,
-        damping: 30,
-      }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={`
         fixed left-1/2 -translate-x-1/2 z-50
-        flex flex-col
-        md:flex-row md:items-center
+        flex flex-col md:flex-row md:items-center
         justify-between
-        backdrop-blur
-        overflow-hidden
+        backdrop-blur overflow-hidden
         transition-colors duration-300
-        ${isDark? "bg-gray-400/80"  : "bg-gray-800/80 "}
+        ${isDark ? "bg-gray-400/80" : "bg-gray-800/80"}
       `}
-
     >
-      {/* TOP ROW */}
+      {/* ================= TOP ROW ================= */}
       <div className="flex items-center justify-between w-full">
-        {/* LOGO */}
+        {/* Logo */}
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 1 }}
           onClick={() => handleNav("/")}
-          className="px-4 text-2xl cursor-pointer font-bold tracking-tighter text-left leading-none"
+          className="px-4 text-2xl font-bold tracking-tighter text-left leading-none"
         >
           <span className="text-white">Vedic</span>
           <span className="text-green-500 italic">WELLNESS</span>
@@ -146,10 +178,10 @@ if (!mounted) return null;
           </div>
         </motion.button>
 
-        {/* HAMBURGER (mobile only) */}
+        {/* Mobile Hamburger */}
         <button
           onClick={() => setMenuOpen((prev) => !prev)}
-          className="md:hidden px-4 cursor-pointer"
+          className="md:hidden px-4"
           aria-label="Toggle menu"
         >
           <div className="space-y-1">
@@ -159,18 +191,17 @@ if (!mounted) return null;
           </div>
         </button>
 
-        {/* DESKTOP LINKS */}
+        {/* Desktop Navigation */}
         <div className="hidden md:flex gap-6 px-6 text-base">
           {NAV_LINKS.map(({ label, path }) => (
             <motion.button
               key={path}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 1 }}
+              //whileHover={{ scale: 1.05 }}
+              //whileTap={{ scale: 1 }}
               onClick={() => handleNav(path)}
-              className={`relative pb-1 cursor-pointer ${linkClass(path)}`}
+              className={`relative pb-1 ${linkClass(path)}`}
             >
               {label}
-
               {pathname === path && (
                 <motion.div
                   layoutId="navbar-underline"
@@ -182,35 +213,34 @@ if (!mounted) return null;
         </div>
       </div>
 
-      {/* MOBILE MENU (INSIDE PILL) */}
+      {/* ================= MOBILE MENU ================= */}
       <AnimatePresence>
-      {menuOpen && (
-        <motion.div
-      variants={mobileMenuVariants}
-      initial="closed"
-      animate="open"
-      exit="closed"
-      className="flex flex-row md:hidden w-full items-center justify-center py-4 pb-4 gap-3"
-  >
-
-          {NAV_LINKS.map(({ label, path }) => (
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 1 }}
-              key={path}
-              variants={mobileMenuItemVariants}
-              onClick={() => handleNav(path)}
-              className={`text-lg cursor-pointer text-left ${
-                pathname === path
-                  ? "text-white font-semibold"
-                  : "text-gray-300"
-              }`}
-            >
-              {label}
-            </motion.button>
-          ))}
-        </motion.div>
-      )}
+        {menuOpen && (
+          <motion.div
+            variants={mobileMenuVariants}
+            initial="closed"
+            animate="open"
+            exit="closed"
+            className="flex md:hidden w-full justify-center gap-3 py-4"
+          >
+            {NAV_LINKS.map(({ label, path }) => (
+              <motion.button
+                key={path}
+                variants={mobileMenuItemVariants}
+                //whileHover={{ scale: 1.05 }}
+                //whileTap={{ scale: 1 }}
+                onClick={() => handleNav(path)}
+                className={`text-lg ${
+                  pathname === path
+                    ? "text-white font-semibold"
+                    : "text-gray-300"
+                }`}
+              >
+                {label}
+              </motion.button>
+            ))}
+          </motion.div>
+        )}
       </AnimatePresence>
     </motion.nav>
   );
