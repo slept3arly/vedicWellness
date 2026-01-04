@@ -18,9 +18,10 @@ import {
 // Navigation links
 const NAV_LINKS = [
   { label: "Home", path: "/" },
+  { label: "Blogs", path: "/blogs" },
   { label: "About", path: "/about" },
   { label: "Our Products", path: "/products" },
-  { label: "Contact", path: "/contact" },
+  { label: "Contact Us", path: "/contact" },
 ];
 
 // Mobile menu container animation
@@ -144,13 +145,8 @@ export default function Navbar() {
       }}
       animate={{
         borderRadius: scrolled ? "35px" : "0px",
-        height: scrolled
-          ? menuOpen
-            ? "115px"
-            : "65px"
-          : menuOpen
-          ? "115px"
-          : "75px",
+        height: menuOpen ? "150px" : scrolled ? "65px" : "75px",
+
       }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={`
@@ -221,7 +217,15 @@ export default function Navbar() {
             initial="closed"
             animate="open"
             exit="closed"
-            className="flex md:hidden w-full justify-center gap-3 py-4"
+            className="
+              grid md:hidden
+              grid-cols-2 sm:grid-cols-3
+              gap-x-6 gap-y-3
+              justify-items-center
+              py-4
+"
+
+
           >
             {NAV_LINKS.map(({ label, path }) => (
               <motion.button
