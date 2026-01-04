@@ -4,6 +4,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {  useEffect, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import { useCallback } from 'react';
+import { useTheme } from "next-themes";
 
 import {
   motion,
@@ -46,6 +47,9 @@ const mobileMenuItemVariants = {
   { label: "Contact", path: "/contact" },
 ];
 
+  const { resolvedTheme, setTheme } = useTheme();
+  const isDark = resolvedTheme === "dark";
+
 
   // ---- SMART NAV HANDLER
   const handleNav = useCallback(
@@ -58,6 +62,7 @@ const mobileMenuItemVariants = {
   },
   [pathname, router]
 );
+
 
 
   // ---- ACTIVE LINK STYLES
@@ -91,6 +96,13 @@ useEffect(() => {
   return () => window.removeEventListener("resize", handleResize);
 }, []);
 
+const [mounted, setMounted] = useState(false);
+
+useEffect(() => {
+  setMounted(true);
+}, []);
+
+if (!mounted) return null;
 
 
   return (
@@ -106,15 +118,17 @@ useEffect(() => {
         stiffness: 300,
         damping: 30,
       }}
-      className="
+      className={`
         fixed left-1/2 -translate-x-1/2 z-50
-        flex-col
+        flex flex-col
         md:flex-row md:items-center
-        flex justify-between
-        bg-gray-500/80 backdrop-blur
-        text-white
+        justify-between
+        backdrop-blur
         overflow-hidden
-      "
+        transition-colors duration-300
+        ${isDark? "bg-gray-400/80"  : "bg-gray-800/80 "}
+      `}
+
     >
       {/* TOP ROW */}
       <div className="flex items-center justify-between w-full">

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import BottomNavbar from "@/components/BottomNavbar";
-import { noto } from "./fonts";
+import { ThemeProvider } from "next-themes";
 
 export const metadata: Metadata = {
   title: "Vedic Wellness",
@@ -15,12 +15,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <body className={noto.variable}>
+    <html lang="en" suppressHydrationWarning>
+      <body>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+        >
         <Navbar />
         {children}
         <BottomNavbar />
+        </ThemeProvider>
       </body>
+
     </html>
   );
 }
