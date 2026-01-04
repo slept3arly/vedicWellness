@@ -72,6 +72,8 @@ export default function Navbar() {
   const padding = useSpring(rawPadding, { stiffness: 300, damping: 20 });
   const top = useSpring(rawTop, { stiffness: 300, damping: 20 });
 
+
+
   /* ===================== Handlers ===================== */
 
   // Smart navigation handler (scroll to top if already on page)
@@ -142,12 +144,14 @@ export default function Navbar() {
       top,
       willChange: "transform, width, padding, top",
       transform: "translateZ(0)",
+      
       }}
       animate={{
         borderRadius: scrolled ? "35px" : "0px",
-        height: menuOpen ? "175px" : scrolled ? "65px" : "75px",
+        height: menuOpen ? "150px" : scrolled ? "65px" : "75px",
 
       }}
+      
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={`
         fixed left-1/2 -translate-x-1/2 z-50
@@ -169,7 +173,7 @@ export default function Navbar() {
         >
           <span className="text-white">Vedic</span>
           <span className="text-green-500 italic">WELLNESS</span>
-          <div className="text-[8px] mt-1 px-7 uppercase tracking-widest text-green-400">
+          <div className="text-[8px] mt-1.5 px-7 uppercase tracking-widest text-green-400">
             A Division of Innovia Drugs
           </div>
         </motion.button>
@@ -217,13 +221,12 @@ export default function Navbar() {
             initial="closed"
             animate="open"
             exit="closed"
-            className="
-              grid md:hidden
-              grid-cols-3
-              gap-x-6 gap-y-3
-              justify-items-center
-              py-4
-"
+            className="grid md:hidden
+            grid-cols-3
+            gap-y-2
+            justify-items-center
+            px-15
+            "
           >
             {NAV_LINKS.map(({ label, path }) => (
               <motion.button
