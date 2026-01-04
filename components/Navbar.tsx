@@ -145,7 +145,7 @@ export default function Navbar() {
       }}
       animate={{
         borderRadius: scrolled ? "35px" : "0px",
-        height: menuOpen ? "150px" : scrolled ? "65px" : "75px",
+        height: menuOpen ? "165px" : scrolled ? "65px" : "75px",
 
       }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -153,9 +153,9 @@ export default function Navbar() {
         fixed left-1/2 -translate-x-1/2 z-50
         flex flex-col md:flex-row md:items-center
         justify-between
-         overflow-hidden
+        backdrop-blur overflow-hidden
         transition-colors duration-300
-        ${isDark ? "bg-gray-400/100" : "bg-gray-800/100"}
+        ${isDark ? "bg-gray-400/80" : "bg-gray-800/80"}
       `}
     >
       {/* ================= TOP ROW ================= */}
