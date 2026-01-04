@@ -20,8 +20,8 @@ const NAV_LINKS = [
   { label: "Home", path: "/" },
   { label: "Blogs", path: "/blogs" },
   { label: "About", path: "/about" },
-  { label: "Our Products", path: "/products" },
-  { label: "Contact Us", path: "/contact" },
+  { label: "Products", path: "/products" },
+  { label: "Contact", path: "/contact" },
 ];
 
 // Mobile menu container animation
@@ -145,7 +145,7 @@ export default function Navbar() {
       }}
       animate={{
         borderRadius: scrolled ? "35px" : "0px",
-        height: menuOpen ? "165px" : scrolled ? "65px" : "75px",
+        height: menuOpen ? "175px" : scrolled ? "65px" : "75px",
 
       }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
