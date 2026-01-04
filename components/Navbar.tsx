@@ -148,7 +148,7 @@ export default function Navbar() {
       }}
       animate={{
         borderRadius: scrolled ? "35px" : "0px",
-        height: menuOpen ? "150px" : scrolled ? "65px" : "75px",
+        height: menuOpen ? "300px" : scrolled ? "65px" : "75px",
 
       }}
       
@@ -221,11 +221,12 @@ export default function Navbar() {
             initial="closed"
             animate="open"
             exit="closed"
-            className="grid md:hidden
-            grid-cols-3
-            gap-y-2
-            justify-items-center
-            px-15
+            className="flex flex-col md:hidden
+    items-start
+    justify-start
+    gap-2
+    px-8
+    py-6
             "
           >
             {NAV_LINKS.map(({ label, path }) => (
