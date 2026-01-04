@@ -219,7 +219,7 @@ export default function Navbar() {
             exit="closed"
             className="
               grid md:hidden
-              grid-cols-2 sm:grid-cols-3
+              grid-cols-3
               gap-x-6 gap-y-3
               justify-items-center
               py-4
