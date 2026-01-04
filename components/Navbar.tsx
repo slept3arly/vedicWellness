@@ -32,12 +32,10 @@ const mobileMenuItemVariants = {
 
   // ---- Scroll-based pill animation
   const rawWidth = useTransform(scrollY, [0, 100], ["100%", "85%"]);
-  //const rawRadius = useTransform(scrollY, [0, 100], ["0px", "50px"]);
   const rawPadding = useTransform(scrollY, [0, 100], ["20px", "15px"]);
   const rawTop = useTransform(scrollY, [0, 100], ["0px", "25px"]);
 
   const width = useSpring(rawWidth, { stiffness: 300, damping: 20 });
-  //const borderRadius = useSpring(rawRadius, { stiffness: 300, damping: 20 });
   const padding = useSpring(rawPadding, { stiffness: 300, damping: 20 });
   const top = useSpring(rawTop, { stiffness: 300, damping: 20 });
   
@@ -99,8 +97,8 @@ useEffect(() => {
     <motion.nav
       style={{ width, padding, top }}
       animate={{
-      borderRadius: scrolled ? (menuOpen ? "30px" : "24px") : "0px",
-      height: menuOpen ? "115px" : "75px",
+      borderRadius: scrolled ? (menuOpen ? "35px" : "35px") : "0px",
+      height: scrolled ? (menuOpen ? "115px" : "65px") : (!menuOpen ? "75px" : "115px"),
       }}
 
       transition={{
@@ -141,9 +139,9 @@ useEffect(() => {
           aria-label="Toggle menu"
         >
           <div className="space-y-1">
-            <span className="block h-[3.5px] w-7 bg-white" />
+            <span className="block h-[2px] w-7 bg-white" />
             <span className="block h-[2.5px] w-7 bg-white" />
-            <span className="block h-[1.5px] w-7 bg-white" />
+            <span className="block h-[2.5px] w-7 bg-white" />
           </div>
         </button>
 
@@ -178,7 +176,7 @@ useEffect(() => {
       initial="closed"
       animate="open"
       exit="closed"
-      className="flex flex-row md:hidden w-full items-center justify-center py-4 pb-4 gap-5"
+      className="flex flex-row md:hidden w-full items-center justify-center py-4 pb-4 gap-3"
   >
 
           {NAV_LINKS.map(({ label, path }) => (
@@ -188,7 +186,7 @@ useEffect(() => {
               key={path}
               variants={mobileMenuItemVariants}
               onClick={() => handleNav(path)}
-              className={`text-lg cursor-pointer text-left${
+              className={`text-lg cursor-pointer text-left ${
                 pathname === path
                   ? "text-white font-semibold"
                   : "text-gray-300"

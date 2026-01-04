@@ -1,15 +1,12 @@
 "use client";
 
-
 import Hero from "@/components/Hero";
 import Section from "@/components/Section";
-import Carousel from "@/components/BottomNavbar";
-
 import { motion } from "framer-motion";
 
 export default function Home() {
   return (
-    <div>
+    <div  className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50">
       
       <main>
           <motion.div
