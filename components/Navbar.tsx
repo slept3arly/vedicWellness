@@ -62,7 +62,12 @@ export default function Navbar() {
   const { scrollY } = useScroll();
 
   const rawWidth = useTransform(scrollY, [0, 100], ["100%", "85%"]);
-  const rawPadding = useTransform(scrollY, [0, 100], ["20px", "15px"]);
+ const rawPadding = useTransform(
+  scrollY,
+  [0, 100],
+  ["20px", "15px"]
+);
+
   const rawTop = useTransform(scrollY, [0, 100], ["0px", "25px"]);
   const prefersReducedMotion = useReducedMotion();
   const width = useSpring(rawWidth, {
@@ -147,10 +152,10 @@ export default function Navbar() {
       
       }}
       animate={{
-        borderRadius: scrolled ? "35px" : "0px",
-        height: menuOpen ? "300px" : scrolled ? "65px" : "75px",
+  borderRadius: scrolled ? "35px" : "0px",
+  height: menuOpen ? "340px" : scrolled ? "90px" : "100px",
+}}
 
-      }}
       
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={`
@@ -171,11 +176,12 @@ export default function Navbar() {
           onClick={() => handleNav("/")}
           className="px-4 text-2xl font-bold tracking-tighter text-left leading-none"
         >
-          <span className="text-white">Vedic</span>
-          <span className="text-green-500 italic">WELLNESS</span>
-          <div className="text-[8px] mt-1.5 px-7 uppercase tracking-widest text-green-400">
-            A Division of Innovia Drugs
-          </div>
+          <img
+              src="/logo.svg"
+              alt="Vedic Wellness"
+              className="h-15 w-auto"
+              />
+
         </motion.button>
 
         {/* Mobile Hamburger */}
