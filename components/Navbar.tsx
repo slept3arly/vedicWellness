@@ -179,7 +179,7 @@ export default function Navbar() {
           <img
               src="/logo.svg"
               alt="Vedic Wellness"
-              className="h-15 w-auto"
+              className="h-15 w-auto brightness-135"
               />
 
         </motion.button>
