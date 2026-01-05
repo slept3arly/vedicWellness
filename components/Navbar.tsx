@@ -60,14 +60,8 @@ export default function Navbar() {
 
   /* ---------- Scroll Animations ---------- */
   const { scrollY } = useScroll();
-
   const rawWidth = useTransform(scrollY, [0, 100], ["100%", "85%"]);
- const rawPadding = useTransform(
-  scrollY,
-  [0, 100],
-  ["20px", "15px"]
-);
-
+  const rawPadding = useTransform(scrollY,[0, 100],["20px", "15px"]);
   const rawTop = useTransform(scrollY, [0, 100], ["0px", "25px"]);
   const prefersReducedMotion = useReducedMotion();
   const width = useSpring(rawWidth, {
@@ -153,7 +147,7 @@ export default function Navbar() {
       }}
       animate={{
   borderRadius: scrolled ? "35px" : "0px",
-  height: menuOpen ? "340px" : scrolled ? "90px" : "100px",
+  height: menuOpen ? "340px" : scrolled ? "80px" : "90px",
 }}
 
       
@@ -179,7 +173,7 @@ export default function Navbar() {
           <img
               src="/logo.svg"
               alt="Vedic Wellness"
-              className="h-15 w-auto brightness-135"
+              className="h-13 w-auto brightness-125"
               />
 
         </motion.button>
