@@ -1,253 +1,146 @@
-"use client";
+"use client"
 
-/* ===================== Imports ===================== */
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState, useCallback } from "react";
-import { useTheme } from "next-themes";
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  AnimatePresence,
-  useReducedMotion
-} from "framer-motion";
+import { usePathname, useRouter } from "next/navigation"
+import { useEffect, useState } from "react"
+import { useTheme } from "next-themes"
 
-/* ===================== Constants ===================== */
-
-// Navigation links
 const NAV_LINKS = [
   { label: "Home", path: "/" },
   { label: "Blogs", path: "/blogs" },
   { label: "About", path: "/about" },
-  { label: "Products", path: "/products" },
-  { label: "Contact", path: "/contact" },
-];
-
-// Mobile menu container animation
-const mobileMenuVariants = {
-  closed: {
-    opacity: 0,
-    transition: { staggerChildren: 0, staggerDirection: -1 },
-  },
-  open: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.12 },
-  },
-};
-
-// Individual mobile menu item animation
-const mobileMenuItemVariants = {
-  closed: { opacity: 0, y: -8 },
-  open: { opacity: 1, y: 0 },
-};
-
-/* ===================== Component ===================== */
+  { label: "Our Products", path: "/products" },
+  { label: "Contact Us", path: "/contact" },
+]
 
 export default function Navbar() {
-  /* ---------- Router / Path ---------- */
-  const pathname = usePathname();
-  const router = useRouter();
+  const pathname = usePathname()
+  const router = useRouter()
+  const { resolvedTheme, systemTheme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
+  const theme = resolvedTheme || systemTheme || "light"
+  const [scrollY, setScrollY] = useState(0)
 
-  /* ---------- Theme ---------- */
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  useEffect(() => {
+    let ticking = false
 
-  /* ---------- State ---------- */
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  /* ---------- Scroll Animations ---------- */
-  const { scrollY } = useScroll();
-  const rawWidth = useTransform(scrollY, [0, 100], ["100%", "85%"]);
-  const rawPadding = useTransform(scrollY,[0, 100],["20px", "15px"]);
-  const rawTop = useTransform(scrollY, [0, 100], ["0px", "25px"]);
-  const prefersReducedMotion = useReducedMotion();
-  const width = useSpring(rawWidth, {
-    stiffness: prefersReducedMotion ? 120 : 300,
-    damping: prefersReducedMotion ? 25 : 20,
-  });
-  const padding = useSpring(rawPadding, { stiffness: 300, damping: 20 });
-  const top = useSpring(rawTop, { stiffness: 300, damping: 20 });
-
-
-
-  /* ===================== Handlers ===================== */
-
-  // Smart navigation handler (scroll to top if already on page)
-  const handleNav = useCallback(
-    (path: string) => {
-      if (pathname === path) {
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } else {
-        router.push(path);
+    const onScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setScrollY(window.scrollY)
+          ticking = false
+        })
+        ticking = true
       }
-    },
-    [pathname, router]
-  );
+    }
 
-  // Active link styles
-  const linkClass = (path: string) =>
-    pathname === path
-      ? "text-white font-semibold"
-      : "text-gray-300 hover:text-white";
-
-  /* ===================== Effects ===================== */
-
-  // Scroll threshold detection (avoids unnecessary re-renders)
-  useEffect(() => {
-    NAV_LINKS.forEach(({ path }) => {
-      router.prefetch(path);
-      });
-    }, [router]);
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
 
   useEffect(() => {
-    let last = false;
+    setMounted(true)
+  }, [])
 
-    const unsubscribe = scrollY.on("change", (y) => {
-      const next = y > 80;
-      if (next !== last) {
-        last = next;
-        setScrolled(next);
-      }
-    });
+  const handleLinkClick = (path: string) => {
+    if (pathname === path) {
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    } else {
+      router.push(path)
+    }
+    setMobileOpen(false)
+  }
 
-    return unsubscribe;
-  }, [scrollY]);
+  if (!mounted) return null
 
-  // Close mobile menu on desktop resize
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 768) setMenuOpen(false);
-    };
-
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  // Prevent hydration mismatch (next-themes)
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
-  /* ===================== Render ===================== */
+  const scrolled100 = scrollY > 100
 
   return (
-    <motion.nav
-      style={{
-      width,
-      padding,
-      top,
-      willChange: "transform, width, padding, top",
-      transform: "translateZ(0)",
-      
-      }}
-      animate={{
-  borderRadius: scrolled ? "35px" : "0px",
-  height: menuOpen ? "340px" : scrolled ? "80px" : "90px",
-}}
+    <>
+      {/* Spacer for fixed navbar */}
+      <div className="" />
 
-      
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className={`
-        fixed left-1/2 -translate-x-1/2 z-50
-        flex flex-col md:flex-row md:items-center
-        justify-between
-        backdrop-blur overflow-hidden
-        transition-colors duration-300
-        ${isDark ? "bg-gray-400/80" : "bg-gray-800/80"}
-      `}
-    >
-      {/* ================= TOP ROW ================= */}
-      <div className="flex items-center justify-between w-full">
-        {/* Logo */}
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 1 }}
-          onClick={() => handleNav("/")}
-          className="px-4 text-2xl font-bold tracking-tighter text-left leading-none"
-        >
-          <img
-              src="/logo.svg"
-              alt="Vedic Wellness"
-              className="h-13 w-auto brightness-125"
-              />
+      <nav
+        className={`
+          fixed z-50 left-1/2 -translate-x-1/2
+          transition-all duration-500 ease-in-out px-2
+          rounded-full h-20 shadow-lg backdrop-blur-md
+          ${scrolled100 ? "top-6 w-[85%] max-w-4xl" : "top-4 w-[95%] max-w-6xl"}
+          ${theme === "dark" ? "bg-gray-400/80" : "bg-gray-800/80"}
+        `}
+      >
 
-        </motion.button>
-
-        {/* Mobile Hamburger */}
-        <button
-          onClick={() => setMenuOpen((prev) => !prev)}
-          className="md:hidden px-4"
-          aria-label="Toggle menu"
-        >
-          <div className="space-y-1">
-            <span className="block h-[2px] w-7 bg-white" />
-            <span className="block h-[2.5px] w-7 bg-white" />
-            <span className="block h-[2.5px] w-7 bg-white" />
-          </div>
-        </button>
-
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex gap-6 px-6 text-base">
-          {NAV_LINKS.map(({ label, path }) => (
-            <motion.button
-              key={path}
-              //whileHover={{ scale: 1.05 }}
-              //whileTap={{ scale: 1 }}
-              onClick={() => handleNav(path)}
-              className={`relative pb-1 ${linkClass(path)}`}
-            >
-              {label}
-              {pathname === path && (
-                <motion.div
-                  layoutId="navbar-underline"
-                  className="absolute left-0 right-0 -bottom-1 h-[2px] bg-green-400 rounded-full"
-                />
-              )}
-            </motion.button>
-          ))}
-        </div>
-      </div>
-
-      {/* ================= MOBILE MENU ================= */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            variants={mobileMenuVariants}
-            initial="closed"
-            animate="open"
-            exit="closed"
-            className="flex flex-col md:hidden
-    items-start
-    justify-start
-    gap-2
-    px-8
-    py-6
-            "
+        <div className="flex items-center justify-between h-full px-4 md:px-6 lg:px-8">
+          {/* Logo */}
+          <button
+            onClick={() => handleLinkClick("/")}
+            className="flex flex-col items-start gap-0.5 font-bold tracking-tight text-lg md:text-xl lg:text-2xl whitespace-nowrap"
           >
+            <img src="/logo.svg" alt="Vedic Wellness" className="h-[52px] w-auto brightness-125" draggable={false} />
+          </button>
+
+          {/* Desktop Menu */}
+          <div className="hidden lg:flex items-center gap-8 text-base font-medium">
             {NAV_LINKS.map(({ label, path }) => (
-              <motion.button
+              <button
                 key={path}
-                variants={mobileMenuItemVariants}
-                //whileHover={{ scale: 1.05 }}
-                //whileTap={{ scale: 1 }}
-                onClick={() => handleNav(path)}
-                className={`text-lg ${
+                onClick={() => handleLinkClick(path)}
+                className={`relative pb-1 transition-colors ${
                   pathname === path
-                    ? "text-white font-semibold"
-                    : "text-gray-300"
+                    ? "text-white"
+                    : theme === "dark"
+                      ? "text-gray-300 hover:text-white"
+                      : "text-gray-700 hover:text-gray-900"
                 }`}
               >
                 {label}
-              </motion.button>
+                {pathname === path && (
+                  <div className="absolute left-0 right-0 bottom-0 h-0.5 bg-emerald-400 rounded-full" />
+                )}
+              </button>
             ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.nav>
-  );
+          </div>
+
+          {/* Mobile Menu Button */}
+          <button onClick={() => setMobileOpen(!mobileOpen)} className="lg:hidden p-2" aria-label="Toggle menu">
+            <div className={`space-y-1.5 transition-all ${mobileOpen ? "opacity-70" : ""}`}>
+              <span
+                className={`block h-0.5 w-6 bg-current transition-all ${mobileOpen ? "rotate-45 translate-y-1" : ""}`}
+              />
+              <span className={`block h-0.5 w-6 bg-current transition-all ${mobileOpen ? "opacity-0" : ""}`} />
+              <span
+                className={`block h-0.5 w-6 bg-current transition-all ${mobileOpen ? "-rotate-45 -translate-y-1" : ""}`}
+              />
+            </div>
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        <div
+          className={`
+            lg:hidden overflow-hidden transition-all duration-300 ease-out
+            ${mobileOpen ? "max-h-96 opacity-100 py-4" : "max-h-0 opacity-0 py-0"}
+          `}
+        >
+          <div className="flex flex-col items-center gap-3 px-6 pt-2">
+            {NAV_LINKS.map(({ label, path }) => (
+              <button
+                key={path}
+                onClick={() => handleLinkClick(path)}
+                className={`text-base font-medium transition-colors ${
+                  pathname === path
+                    ? "text-emerald-400"
+                    : theme === "dark"
+                      ? "text-gray-300 hover:text-white"
+                      : "text-gray-400 hover:text-white"
+                }`}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </nav>
+    </>
+  )
 }

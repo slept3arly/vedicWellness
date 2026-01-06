@@ -1,12 +1,14 @@
-"use client";
+"use client"
+
+import type React from "react"
 
 /* =========================
    Imports
    ========================= */
-import { motion, AnimatePresence, useScroll } from "framer-motion";
-import { useEffect, useState, memo } from "react";
-import Image from "next/image";
-import { useTheme } from "next-themes";
+import { motion, AnimatePresence, useScroll } from "framer-motion"
+import { useEffect, useState, memo } from "react"
+import Image from "next/image"
+import { useTheme } from "next-themes"
 
 /* =========================
    Reusable Action Button
@@ -15,8 +17,8 @@ const ActionButton = memo(function ActionButton({
   href,
   children,
 }: {
-  href: string;
-  children: React.ReactNode;
+  href: string
+  children: React.ReactNode
 }) {
   return (
     <motion.a
@@ -36,8 +38,8 @@ const ActionButton = memo(function ActionButton({
     >
       {children}
     </motion.a>
-  );
-});
+  )
+})
 
 /* =========================
    Scroll To Top Button
@@ -45,7 +47,7 @@ const ActionButton = memo(function ActionButton({
 const ScrollToTopButton = memo(function ScrollToTopButton({
   isDark,
 }: {
-  isDark: boolean;
+  isDark: boolean
 }) {
   return (
     <motion.button
@@ -66,42 +68,40 @@ const ScrollToTopButton = memo(function ScrollToTopButton({
     >
       ↑
     </motion.button>
-  );
-});
+  )
+})
 
 /* =========================
    Bottom Navbar Component
    ========================= */
 export default function BottomNavbar() {
-  const { scrollY } = useScroll();
-  const { resolvedTheme } = useTheme();
+  const { scrollY } = useScroll()
+  const { resolvedTheme } = useTheme()
 
-  const isDark = resolvedTheme === "dark";
+  const isDark = resolvedTheme === "dark"
 
-  const [mounted, setMounted] = useState(false);
-  const [visible, setVisible] = useState(false);
+  const [mounted, setMounted] = useState(false)
+  const [visible, setVisible] = useState(false)
 
   /* Prevent hydration mismatch */
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    setMounted(true)
+  }, [])
 
   /* Toggle visibility based on scroll position */
-  /* Toggle visibility based on scroll position */
-useEffect(() => {
-  const unsubscribe = scrollY.on("change", (y) => {
-    setVisible((prev) => {
-      const next = y > 400;
-      return prev !== next ? next : prev;
-    });
-  });
+  useEffect(() => {
+    const unsubscribe = scrollY.on("change", (y) => {
+      setVisible((prev) => {
+        const next = y > 400
+        return prev !== next ? next : prev
+      })
+    })
 
-  return () => unsubscribe();
-}, [scrollY]);
-
+    return () => unsubscribe()
+  }, [scrollY])
 
   /* Avoid rendering until mounted */
-  if (!mounted) return null;
+  if (!mounted) return null
 
   return (
     <AnimatePresence>
@@ -122,43 +122,33 @@ useEffect(() => {
               mass: 1.1,
             }}
             className={`
-              fixed bottom-6 left-1/2 -translate-x-1/2 z-50
-              flex items-center gap-4
-              px-3 py-3
-              rounded-full
-              shadow-lg
-              backdrop-blur-md
-              transition-colors duration-300
-              ${isDark ? "bg-gray-400/80" : "bg-gray-800/80"}
+              fixed bottom-6 inset-x-0 z-50
+              flex items-center justify-center
             `}
           >
-            <ActionButton href="https://wa.me/919466835259">
-              <Image
-                src="/whatsapp.png"
-                alt="WhatsApp"
-                width={22}
-                height={22}
-                priority={false}
-              />
-            </ActionButton>
+            <div
+              className={`
+                flex items-center gap-4
+                px-3 py-3
+                rounded-full
+                shadow-lg
+                backdrop-blur-md
+                transition-colors duration-300
+                ${isDark ? "bg-gray-400/80" : "bg-gray-800/80"}
+              `}
+            >
+              <ActionButton href="https://wa.me/919466835259">
+                <Image src="/whatsapp.png" alt="WhatsApp" width={22} height={22} priority={false} />
+              </ActionButton>
 
-            <ActionButton href="tel:+919466835259">
-              <Image
-                src="/phone.png"
-                alt="Call"
-                width={22}
-                height={22}
-              />
-            </ActionButton>
+              <ActionButton href="tel:+919466835259">
+                <Image src="/phone.png" alt="Call" width={22} height={22} />
+              </ActionButton>
 
-            <ActionButton href="https://www.facebook.com/innoviadrugs267/">
-              <Image
-                src="/facebook.png"
-                alt="Facebook"
-                width={22}
-                height={22}
-              />
-            </ActionButton>
+              <ActionButton href="https://www.facebook.com/innoviadrugs267/">
+                <Image src="/facebook.png" alt="Facebook" width={22} height={22} />
+              </ActionButton>
+            </div>
           </motion.div>
 
           {/* =========================
@@ -183,5 +173,5 @@ useEffect(() => {
         </>
       )}
     </AnimatePresence>
-  );
+  )
 }
