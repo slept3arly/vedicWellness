@@ -124,7 +124,7 @@ export default function BottomNavbar() {
               mass: 1.1,
             }}
             className="
-              fixed bottom-6 inset-x-0 z-50
+              fixed bottom-8 inset-x-0 z-50
               flex items-center justify-center
             "
           >
@@ -169,7 +169,7 @@ export default function BottomNavbar() {
               mass: 1.1,
               delay: 0.05,
             }}
-            className="fixed bottom-8 right-6 z-50"
+            className="fixed bottom-10 right-6 z-50"
           >
             <ScrollToTopButton isDark={isDark} />
           </motion.div>

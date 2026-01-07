@@ -1,20 +1,73 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+/*###########################################*/
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
-
+/*###########################################*/
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
 }
+/*###########################################*/
+.ribbon-loader {
+  width: 48px;
+  height: 48px;
 
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 999px;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.25);
+}
+/*###########################################*/
+.ribbon-loader::after {
+  content: "";
+  width: 48px;
+  height: 48px;
+
+  border-radius: 50%;
+  border: 5px solid rgba(255, 255, 255, 0.25);
+  border-top-color: rgba(255, 255, 255, 0.9);
+
+  animation:
+    appleSpin 0.8s linear infinite,
+    appleFade 2.2s ease-in-out infinite;
+}
+/*###########################################*/
+@keyframes appleSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/*###########################################*/
+@keyframes appleFade {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+/*###########################################*/
+@keyframes appleSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/*###########################################*/
 body {
   background: var(--background);
   color: var(--foreground);
 }
+/*###########################################*/
