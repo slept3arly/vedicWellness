@@ -63,7 +63,9 @@ const ScrollToTopButton = memo(function ScrollToTopButton({
         flex items-center justify-center
         cursor-pointer
         transition-colors duration-300
-        ${isDark ? "bg-gray-400/80 text-white" : "bg-gray-800/80 text-white"}
+        text-white
+        bg-gray-800/80
+        dark:bg-gray-400/80
       `}
     >
       ↑
@@ -121,10 +123,10 @@ export default function BottomNavbar() {
               damping: 15,
               mass: 1.1,
             }}
-            className={`
+            className="
               fixed bottom-6 inset-x-0 z-50
               flex items-center justify-center
-            `}
+            "
           >
             <div
               className={`
@@ -134,11 +136,12 @@ export default function BottomNavbar() {
                 shadow-lg
                 backdrop-blur-md
                 transition-colors duration-300
-                ${isDark ? "bg-gray-400/80" : "bg-gray-800/80"}
+                bg-gray-800/80
+                dark:bg-gray-400/80
               `}
             >
               <ActionButton href="https://wa.me/919466835259">
-                <Image src="/whatsapp.png" alt="WhatsApp" width={22} height={22} priority={false} />
+                <Image src="/whatsapp.png" alt="WhatsApp" width={22} height={22} />
               </ActionButton>
 
               <ActionButton href="tel:+919466835259">
