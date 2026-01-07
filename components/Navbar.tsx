@@ -148,7 +148,7 @@ export default function Navbar() {
               onMouseLeave={() => setHoveredItem(null)}
               className={`
                 group flex items-center justify-between
-                py-2 text-lg font-bold text-gray-400
+                py-4 text-4xl font-bold text-gray-400
                 hover:text-gray-100
                 transition-all duration-300 ease-out
                 ${menuOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-y-6"}
