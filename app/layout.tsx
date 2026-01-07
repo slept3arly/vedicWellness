@@ -1,18 +1,19 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import Navbar from "@/components/Navbar";
-import BottomNavbar from "@/components/BottomNavbar";
-import { ThemeProvider } from "next-themes";
-/*###########################################*/
+import type { Metadata } from "next"
+import "./globals.css"
+import Navbar from "@/components/Navbar"
+import BottomNavbar from "@/components/BottomNavbar"
+import { ThemeProvider } from "next-themes"
+import { MenuProvider } from "@/components/MenuContext" // ✅ ADD THIS
+
 export const metadata: Metadata = {
   title: "Vedic Wellness",
   description: "A Basic Website",
-};
-/*###########################################*/
+}
+
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -22,11 +23,14 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
         >
-          <Navbar />
-          {children}
-          <BottomNavbar />
+          {/* ✅ Shared menu state lives here */}
+          <MenuProvider>
+            <Navbar />
+            {children}
+            <BottomNavbar />
+          </MenuProvider>
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

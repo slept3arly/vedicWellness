@@ -1,18 +1,15 @@
 "use client"
 
 import type React from "react"
-
-/* =========================
-   Imports
-   ========================= */
 import { motion, AnimatePresence, useScroll } from "framer-motion"
 import { useEffect, useState, memo } from "react"
 import Image from "next/image"
 import { useTheme } from "next-themes"
+import { useMenu } from "@/components/MenuContext"
 
-/* =========================
+/* =========================================================
    Reusable Action Button
-   ========================= */
+   ========================================================= */
 const ActionButton = memo(function ActionButton({
   href,
   children,
@@ -41,9 +38,9 @@ const ActionButton = memo(function ActionButton({
   )
 })
 
-/* =========================
+/* =========================================================
    Scroll To Top Button
-   ========================= */
+   ========================================================= */
 const ScrollToTopButton = memo(function ScrollToTopButton({
   isDark,
 }: {
@@ -55,7 +52,7 @@ const ScrollToTopButton = memo(function ScrollToTopButton({
       whileHover={{ scale: 1.1 }}
       whileTap={{ scale: 0.9 }}
       aria-label="Scroll to top"
-      className={`
+      className="
         h-10 w-10
         rounded-full
         backdrop-blur
@@ -65,32 +62,41 @@ const ScrollToTopButton = memo(function ScrollToTopButton({
         transition-colors duration-300
         text-white
         bg-gray-800/80
-        dark:bg-gray-400/80
-      `}
+      "
     >
       ↑
     </motion.button>
   )
 })
 
-/* =========================
+/* =========================================================
    Bottom Navbar Component
-   ========================= */
+   ========================================================= */
 export default function BottomNavbar() {
-  const { scrollY } = useScroll()
-  const { resolvedTheme } = useTheme()
+  /* Shared fullscreen menu state */
+  const { menuOpen } = useMenu()
 
+  /* Scroll position (Framer Motion) */
+  const { scrollY } = useScroll()
+
+  /* Theme (used for future theming flexibility) */
+  const { resolvedTheme } = useTheme()
   const isDark = resolvedTheme === "dark"
 
+  /* Mount & visibility state */
   const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
 
-  /* Prevent hydration mismatch */
+  /* ---------------------------------------------------------
+     Prevent hydration mismatch
+     --------------------------------------------------------- */
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  /* Toggle visibility based on scroll position */
+  /* ---------------------------------------------------------
+     Toggle bottom navbar visibility based on scroll position
+     --------------------------------------------------------- */
   useEffect(() => {
     const unsubscribe = scrollY.on("change", (y) => {
       setVisible((prev) => {
@@ -109,13 +115,18 @@ export default function BottomNavbar() {
     <AnimatePresence>
       {visible && (
         <>
-          {/* =========================
+          {/* =================================================
               Center Floating Action Bar
-             ========================= */}
+             ================================================= */}
           <motion.div
             key="bottom-bar"
             initial={{ y: 60, opacity: 0, scale: 0.96 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
+            animate={{
+              y: menuOpen ? 60 : 0,
+              opacity: menuOpen ? 0 : 1,
+              scale: menuOpen ? 0.96 : 1,
+              pointerEvents: menuOpen ? "none" : "auto",
+            }}
             exit={{ y: 60, opacity: 0, scale: 0.96 }}
             transition={{
               type: "spring",
@@ -129,7 +140,7 @@ export default function BottomNavbar() {
             "
           >
             <div
-              className={`
+              className="
                 flex items-center gap-4
                 px-3 py-3
                 rounded-full
@@ -137,8 +148,7 @@ export default function BottomNavbar() {
                 backdrop-blur-md
                 transition-colors duration-300
                 bg-gray-800/80
-                dark:bg-gray-400/80
-              `}
+              "
             >
               <ActionButton href="https://wa.me/919466835259">
                 <Image src="/whatsapp.png" alt="WhatsApp" width={22} height={22} />
@@ -154,13 +164,18 @@ export default function BottomNavbar() {
             </div>
           </motion.div>
 
-          {/* =========================
+          {/* =================================================
               Scroll To Top Button
-             ========================= */}
+             ================================================= */}
           <motion.div
             key="scroll-top"
             initial={{ y: 60, opacity: 0, scale: 0.96 }}
-            animate={{ y: 0, opacity: 1, scale: 1 }}
+            animate={{
+              y: menuOpen ? 60 : 0,
+              opacity: menuOpen ? 0 : 1,
+              scale: menuOpen ? 0.96 : 1,
+              pointerEvents: menuOpen ? "none" : "auto",
+            }}
             exit={{ y: 60, opacity: 0, scale: 0.96 }}
             transition={{
               type: "spring",
