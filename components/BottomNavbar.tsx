@@ -150,16 +150,16 @@ export default function BottomNavbar() {
                 bg-gray-800/80
               "
             >
-              <ActionButton href="https://wa.me/919466835259">
-                <Image src="/whatsapp.png" alt="WhatsApp" width={22} height={22} />
+              <ActionButton href="https://wa.me/917206867795">
+                <Image src="/whatsapp.svg" alt="WhatsApp" width={26} height={26} />
               </ActionButton>
 
-              <ActionButton href="tel:+919466835259">
-                <Image src="/phone.png" alt="Call" width={22} height={22} />
+              <ActionButton href="tel:+917206867795">
+                <Image src="/phone.svg" alt="Call" width={20} height={20} />
               </ActionButton>
 
-              <ActionButton href="https://www.facebook.com/innoviadrugs267/">
-                <Image src="/facebook.png" alt="Facebook" width={22} height={22} />
+              <ActionButton href="https://www.facebook.com/vedicwellnessid/">
+                <Image src="/facebook.svg" alt="Facebook" width={23} height={23} />
               </ActionButton>
             </div>
           </motion.div>
