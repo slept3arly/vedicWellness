@@ -65,7 +65,7 @@ export default function Navbar() {
           fixed z-50 left-1/2 -translate-x-1/2
           transition-all duration-500 ease-in-out px-2
           rounded-full h-20 shadow-lg backdrop-blur-md
-          ${scrolled100 ? "top-6 w-[85%] max-w-4xl" : "top-4 w-[95%] max-w-6xl"}
+          ${scrolled100 ? "top-8 w-[80%] max-w-5xl" : "top-4 w-[90%] max-w-7xl"}
           ${theme === "dark" ? "bg-gray-400/80" : "bg-gray-800/80"}
         `}
       >
