@@ -129,16 +129,15 @@ export default function Navbar() {
           fixed inset-0 z-50
           bg-gray-800/90
           transition-opacity duration-300 ease-out
+          will-change-transform
           ${menuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}
         `}
         style={{
           backdropFilter: "blur(6px)",
-          clipPath: menuOpen ? "inset(0 0 0 0)" : "inset(0 0 100% 0)",
-          transition: "clip-path 300ms ease-out",
         }}
       >
         {/* Menu items */}
-        <div className="flex flex-col pt-28 px-8 max-w-2xl">
+        <div className="flex flex-col pt-28 px-12 max-w-2xl">
           {NAV_LINKS.map(({ label, path }, i) => (
             <Link
               key={path}
@@ -149,9 +148,9 @@ export default function Navbar() {
               className={`
                 group flex items-center justify-between
                 py-4 text-4xl font-bold text-gray-400
-                hover:text-gray-100
-                transition-all duration-300 ease-out
-                ${menuOpen ? "opacity-100 translate-x-0" : "opacity-0 translate-y-6"}
+                ${pathname === path ? "text-white" : "text-gray-400 hover:text-gray-100"}
+                transition duration-300 ease-in
+                ${menuOpen ? "opacity-100 translate-x-0" : "opacity-0 -translate-y-i"}
               `}
               style={{ transitionDelay: `${i * 70}ms` }}
             >
