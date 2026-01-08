@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar"
 import BottomNavbar from "@/components/BottomNavbar"
 import { ThemeProvider } from "next-themes"
 import { MenuProvider } from "@/components/MenuContext" // ✅ ADD THIS
+import { SpeedInsights } from "@vercel/speed-insights/next"
 import { inter, spaceGrotesk, playfair } from "./fonts";
 
 export const metadata: Metadata = {
@@ -31,6 +32,7 @@ export default function RootLayout({
             <BottomNavbar />
           </MenuProvider>
         </ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   )
