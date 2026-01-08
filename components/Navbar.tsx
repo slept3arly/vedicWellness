@@ -66,7 +66,7 @@ export default function Navbar() {
         className={`
           fixed left-1/2 -translate-x-1/2 z-40
           h-20
-          bg-gray-800/80
+          bg-neutral-900/75
           backdrop-blur-md
           shadow-lg
           transition-all duration-300 ease-out
@@ -127,7 +127,7 @@ export default function Navbar() {
       <div
         className={`
           fixed inset-0 z-50
-          bg-gray-800/90
+          bg-neutral-800/90
           transition-opacity duration-300 ease-out
           will-change-transform
           ${menuOpen ? "opacity-100 visible" : "opacity-0 invisible pointer-events-none"}

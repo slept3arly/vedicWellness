@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar"
 import BottomNavbar from "@/components/BottomNavbar"
 import { ThemeProvider } from "next-themes"
 import { MenuProvider } from "@/components/MenuContext" // ✅ ADD THIS
+import { inter, spaceGrotesk, playfair } from "./fonts";
 
 export const metadata: Metadata = {
   title: "Vedic Wellness",
@@ -16,7 +17,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning  className={`${inter.variable} ${spaceGrotesk.variable} ${playfair.variable}`}>
       <body>
         <ThemeProvider
           attribute="class"

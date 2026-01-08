@@ -61,7 +61,7 @@ const ScrollToTopButton = memo(function ScrollToTopButton({
         cursor-pointer
         transition-colors duration-300
         text-white
-        bg-gray-800/80
+        bg-neutral-800/75
       "
     >
       ↑
@@ -147,7 +147,7 @@ export default function BottomNavbar() {
                 shadow-lg
                 backdrop-blur-md
                 transition-colors duration-300
-                bg-gray-800/80
+                bg-neutral-800/75
               "
             >
               <ActionButton href="https://wa.me/917206867795">
