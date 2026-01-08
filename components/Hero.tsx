@@ -24,7 +24,7 @@ export default function Hero() {
 
       {/* MOBILE CONTENT */}
       <div className="relative z-10 flex flex-col pt-40">
-        <div className="flex flex-row font-heading px-10 gap-1">
+        <div className="flex flex-row flex-nowrap whitespace-nowrap font-heading px-10 gap-1 text-2xl sm:text-3xl">
           <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -46,27 +46,27 @@ export default function Hero() {
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.4, delay: 0.1 }}
           className="tracking-tighter italic font-semibold text-black dark:text-white text-right px-10 pb-10 font-heading"
           >
             A Division of Innovia Drugs
         </motion.h2>
 
         <motion.h3
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.6 }}
-          className="text-2xl italic text-black dark:text-white text-left px-24 font-quote"
+          className="text-2xl italic text-black dark:text-white text-left px-8 font-quote"
         >
           Innovating Ayurveda,
 
         </motion.h3>
         
         <motion.h3
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4, delay: 0.6 }}
-          className="text-2xl italic text-black dark:text-white text-right px-24 font-quote pb-40"
+          className="text-2xl italic text-black dark:text-white text-right px-8 font-quote pb-40"
         >
           Preserving Tradition
 
