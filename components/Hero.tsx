@@ -13,9 +13,6 @@ export default function Hero() {
     target: ref,
     offset: ["start start", "end start"],
   });
-
-  const imageOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-
   
   return (
     <section
@@ -25,7 +22,7 @@ export default function Hero() {
 
       {/* MOBILE CONTENT */}
       <div className="relative z-10 flex flex-col pt-40">
-        <div className="flex flex-row text-[clamp(1.5rem,5vw,2.5rem)] whitespace-nowrap font-heading px-10 gap-1 text-2xl sm:text-3xl">
+        <div className="flex flex-row flex-nowrap whitespace-nowrap font-heading px-10 gap-1 text-3xl sm:text-xl md:text-2xl">
           <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
