@@ -70,7 +70,7 @@ export default function Navbar() {
           backdrop-blur-md
           shadow-lg
           transition-all duration-300 ease-out
-          ${scrolled100 ? "top-8 w-[80%] max-w-5xl" : "top-4 w-[90%] max-w-7xl"}
+          ${scrolled100 ? "top-8 w-[80%] max-w-4xl" : "top-4 w-[90%] max-w-5xl"}
           ${menuOpen ? "rounded-2xl" : "rounded-full"}
           ${menuOpen ? "opacity-0 -translate-y-4 pointer-events-none" : "opacity-100 translate-y-0"}
         `}
