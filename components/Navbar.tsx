@@ -60,10 +60,10 @@ export default function Navbar() {
       <nav
         className={`
           fixed z-40
-          top-3 left-3 right-3 h-16 pb-1
+          top-3 left-3 right-3 h-16 pb-1 
           lg:h-20 lg:top-5 lg:left-9 lg:right-9
           bg-neutral-900/75 backdrop-blur-md shadow-lg
-          transition-all duration-300 ease-out
+          rounded-lg
           ${menuOpen ? "rounded-2xl" : "rounded-lg"}
           ${
             menuOpen
