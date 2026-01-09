@@ -61,6 +61,7 @@ export default function Navbar() {
         className={`
           fixed z-40
           top-3 left-3 right-3 h-16 pb-1
+          lg:h-20 lg:top-5 lg:left-9 lg:right-9
           bg-neutral-900/75 backdrop-blur-md shadow-lg
           transition-all duration-300 ease-out
           ${menuOpen ? "rounded-2xl" : "rounded-lg"}
@@ -72,7 +73,7 @@ export default function Navbar() {
         `}
       >
         {/* GRID LAYOUT */}
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-full px-3">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-full px-4 lg:px-8">
           {/* ---------- LEFT: Mobile Menu + Desktop Nav ---------- */}
           <div className="flex items-center gap-6 pt-1">
             {/* Mobile Menu Button */}
@@ -82,20 +83,20 @@ export default function Navbar() {
               className="
                 lg:hidden
                 relative flex items-center gap-3
-                h-9 px-4
+                h-8 px-3
                 rounded
                 text-gray-300
-                bg-neutral-800/50
+                bg-neutral-600/75 backdrop-blur-md
                 hover:bg-neutral-600/50
               "
             >
               {/* Hamburger Icon */}
-              <span className="relative block w-6 h-4">
+              <span className="relative block w-5 h-4">
                 <span className="absolute top-1 left-0 w-6 h-0.5 bg-current" />
-                <span className="absolute top-3 left-0 w-6 h-0.5 bg-current" />
+                <span className="absolute top-3 left-0 w-6 h-0.5 -translate-y-0.5 bg-current" />
               </span>
 
-              <span className="text-sm font-medium">Menu</span>
+              <span className="text-lg font-thin">Menu</span>
             </button>
 
             {/* Desktop Navigation */}
@@ -123,13 +124,13 @@ export default function Navbar() {
                 width={160}
                 height={52}
                 priority
-                className="h-[38px] w-auto brightness-150"
+                className="h-[40px] w-auto brightness-150 lg:h-[48px]"
               />
             </Link>
           </div>
 
           {/* ---------- RIGHT: Auth Buttons ---------- */}
-          <div className="flex items-center justify-end gap-2">
+          <div className="flex items-center justify-end gap-2 pt-1">
             {/* Login */}
             <Link
               href="/login"
