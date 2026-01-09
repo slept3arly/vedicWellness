@@ -59,11 +59,11 @@ export default function Navbar() {
       {/* ================= NAVBAR ================= */}
       <nav
         className={`
-          fixed left-1/2 -translate-x-1/2 z-40
-          top-4 h-20 w-[90%]
+          fixed z-40
+          top-3 left-3 right-3 h-16 pb-1
           bg-neutral-900/75 backdrop-blur-md shadow-lg
           transition-all duration-300 ease-out
-          ${menuOpen ? "rounded-2xl" : "rounded-full"}
+          ${menuOpen ? "rounded-2xl" : "rounded-lg"}
           ${
             menuOpen
               ? "opacity-0 -translate-y-4 pointer-events-none"
@@ -72,9 +72,9 @@ export default function Navbar() {
         `}
       >
         {/* GRID LAYOUT */}
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-full px-6">
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center h-full px-3">
           {/* ---------- LEFT: Mobile Menu + Desktop Nav ---------- */}
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-6 pt-1">
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMenuOpen(true)}
@@ -123,7 +123,7 @@ export default function Navbar() {
                 width={160}
                 height={52}
                 priority
-                className="h-[44px] w-auto brightness-150"
+                className="h-[38px] w-auto brightness-150"
               />
             </Link>
           </div>
