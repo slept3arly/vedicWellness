@@ -1,9 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useMenu } from "@/components/MenuContext"
 
 export default function MarqueeBanner() {
   const [collapsed, setCollapsed] = useState(false)
+  const { menuOpen } = useMenu()
 
   useEffect(() => {
     const onScroll = () => {
@@ -20,7 +22,8 @@ export default function MarqueeBanner() {
         absolute left-3 right-3 lg:left-9 lg:right-9
         top-[5rem] lg:top-[6.5rem]
         transition-transform duration-300 ease-out
-        ${collapsed ? "-translate-y-16  lg:-translate-y-20" : "translate-y-0"}
+        ${collapsed ? "-translate-y-16 lg:-translate-y-20" : "translate-y-0"}
+        ${menuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}
       `}
     >
       <div className="overflow-hidden rounded-lg bg-[#84eb4b]">

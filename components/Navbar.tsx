@@ -21,7 +21,6 @@ const NAV_LINKS = [
 export default function Navbar() {
   const pathname = usePathname()
   const { menuOpen, setMenuOpen } = useMenu()
-
   const [scrollY, setScrollY] = useState(0)
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
@@ -65,11 +64,7 @@ export default function Navbar() {
           bg-neutral-900/75 backdrop-blur-md shadow-lg
           rounded-lg
           ${menuOpen ? "rounded-2xl" : "rounded-lg"}
-          ${
-            menuOpen
-              ? "opacity-0 -translate-y-4 pointer-events-none"
-              : "opacity-100 translate-y-0"
-          }
+          ${menuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}
         `}
       >
         {/* GRID LAYOUT */}
