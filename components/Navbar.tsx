@@ -83,20 +83,17 @@ export default function Navbar() {
               className="
                 lg:hidden
                 relative flex items-center gap-3
-                h-8 px-3
+                h-8 px-2
                 rounded
                 text-gray-300
-                bg-neutral-600/75 backdrop-blur-md
-                hover:bg-neutral-600/50
               "
             >
               {/* Hamburger Icon */}
               <span className="relative block w-5 h-4">
-                <span className="absolute top-1 left-0 w-6 h-0.5 bg-current" />
-                <span className="absolute top-3 left-0 w-6 h-0.5 -translate-y-0.5 bg-current" />
+                <span className="absolute top-0 left-0 w-6 h-0.5 bg-current" />
+                <span className="absolute top-1 left-0 w-6 h-0.5 translate-y-0.5 bg-current" />
+                <span className="absolute top-3 left-0 w-6 h-0.5 bg-current" />
               </span>
-
-              <span className="text-lg font-thin">Menu</span>
             </button>
 
             {/* Desktop Navigation */}
