@@ -1,57 +1,57 @@
 "use client"
 
-import type React from "react"
-import { motion, AnimatePresence, useScroll } from "framer-motion"
-import { useEffect, useState, memo } from "react"
+import React, { memo, useEffect, useState } from "react"
 import Image from "next/image"
-import { useTheme } from "next-themes"
 import { useMenu } from "@/components/MenuContext"
 
 /* =========================================================
-   Reusable Action Button
+   Reusable Social Link Button (Accessible)
    ========================================================= */
-const ActionButton = memo(function ActionButton({
+const SocialButton = memo(function SocialButton({
   href,
-  children,
+  ariaLabel,
+  iconSrc,
+  iconAlt,
+  width,
+  height,
 }: {
   href: string
-  children: React.ReactNode
+  ariaLabel: string
+  iconSrc: string
+  iconAlt?: string
+  width: number
+  height: number
 }) {
   return (
-    <motion.a
+    <a
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
+      aria-label={ariaLabel}
       className="
-        h-8 w-8
+        h-9 w-8
         flex items-center justify-center
         rounded-full
-        bg-gray-200
-        cursor-pointer
-        select-none
+        cursor-pointer select-none
+        transition-transform duration-200
+        hover:scale-110 active:scale-95
       "
     >
-      {children}
-    </motion.a>
+      {/* Decorative icon: we rely on aria-label for meaning */}
+      <Image src={iconSrc} alt={iconAlt ?? ""} width={width} height={height} />
+    </a>
   )
 })
 
 /* =========================================================
-   Scroll To Top Button
+   Scroll To Top Button (Accessible)
    ========================================================= */
-const ScrollToTopButton = memo(function ScrollToTopButton({
-  isDark,
-}: {
-  isDark: boolean
-}) {
+const ScrollToTopButton = memo(function ScrollToTopButton() {
   return (
-    <motion.button
-      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-      whileHover={{ scale: 1.1 }}
-      whileTap={{ scale: 0.9 }}
+    <button
+      type="button"
       aria-label="Scroll to top"
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
       className="
         h-10 w-10
         rounded-full
@@ -59,137 +59,106 @@ const ScrollToTopButton = memo(function ScrollToTopButton({
         shadow-lg
         flex items-center justify-center
         cursor-pointer
-        transition-colors duration-300
+        transition-transform duration-200
+        hover:scale-110 active:scale-95
         text-white
         bg-neutral-800/75
       "
     >
       ↑
-    </motion.button>
+    </button>
   )
 })
 
 /* =========================================================
-   Bottom Navbar Component
+   Bottom Floating Social Bar + Scroll Top
+   - Appears after user scrolls down
+   - Hides when fullscreen menu is open
    ========================================================= */
 export default function BottomNavbar() {
-  /* Shared fullscreen menu state */
   const { menuOpen } = useMenu()
-
-  /* Scroll position (Framer Motion) */
-  const { scrollY } = useScroll()
-
-  /* Theme (used for future theming flexibility) */
-  const { resolvedTheme } = useTheme()
-  const isDark = resolvedTheme === "dark"
-
-  /* Mount & visibility state */
-  const [mounted, setMounted] = useState(false)
   const [visible, setVisible] = useState(false)
 
   /* ---------------------------------------------------------
-     Prevent hydration mismatch
+     Show/Hide widget after scrolling down
      --------------------------------------------------------- */
   useEffect(() => {
-    setMounted(true)
+    const onScroll = () => {
+      const shouldBeVisible = window.scrollY > 100
+      setVisible((prev) => (prev !== shouldBeVisible ? shouldBeVisible : prev))
+    }
+
+    onScroll() // set initial state
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
   }, [])
 
   /* ---------------------------------------------------------
-     Toggle bottom navbar visibility based on scroll position
+     If not visible OR menu is open, hide widgets
      --------------------------------------------------------- */
-  useEffect(() => {
-    const unsubscribe = scrollY.on("change", (y) => {
-      setVisible((prev) => {
-        const next = y > 100
-        return prev !== next ? next : prev
-      })
-    })
-
-    return () => unsubscribe()
-  }, [scrollY])
-
-  /* Avoid rendering until mounted */
-  if (!mounted) return null
+  const shouldShow = visible && !menuOpen
 
   return (
-    <AnimatePresence>
-      {visible && (
-        <>
-          {/* =================================================
-              Center Floating Action Bar
-             ================================================= */}
-          <motion.div
-            key="bottom-bar"
-            initial={{ y: 60, opacity: 0, scale: 0.96 }}
-            animate={{
-              y: menuOpen ? 60 : 0,
-              opacity: menuOpen ? 0 : 1,
-              scale: menuOpen ? 0.96 : 1,
-              pointerEvents: menuOpen ? "none" : "auto",
-            }}
-            exit={{ y: 60, opacity: 0, scale: 0.96 }}
-            transition={{
-              type: "spring",
-              stiffness: 200,
-              damping: 15,
-              mass: 1.1,
-            }}
-            className="
-              fixed bottom-8 inset-x-0 z-50
-              flex items-center justify-center
-            "
-          >
-            <div
-              className="
-                flex items-center gap-4
-                px-3 py-3
-                rounded-full
-                shadow-lg
-                backdrop-blur-md
-                transition-colors duration-300
-                bg-neutral-800/75
-              "
-            >
-              <ActionButton href="https://wa.me/917206867795">
-                <Image src="/whatsapp.svg" alt="WhatsApp" width={26} height={26} />
-              </ActionButton>
+    <>
+      {/* =================================================
+          Center Floating Social Action Bar
+         ================================================= */}
+      <div
+        className={`
+          fixed bottom-6 right-5 z-50
+          flex items-center justify-center
+          transition-all duration-300
+          ${shouldShow ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6 pointer-events-none"}
+        `}
+      >
+        <div
+          className="
+            flex flex-col items-center gap-2
+            px-2 py-2
+            rounded-full
+            shadow-lg
+            backdrop-blur-md
+            bg-neutral-800/75
+          "
+        >
+          <SocialButton
+            href="https://wa.me/917206867795"
+            ariaLabel="Chat with us on WhatsApp"
+            iconSrc="/whatsapp.svg"
+            width={28}
+            height={32}
+          />
 
-              <ActionButton href="tel:+917206867795">
-                <Image src="/phone.svg" alt="Call" width={20} height={20} />
-              </ActionButton>
+          <SocialButton
+            href="https://www.instagram.com/innoviadrugs267?igsh=Y2VqYjhkanFwczFv"
+            ariaLabel="Visit our Instagram profile"
+            iconSrc="/instagram.svg"
+            width={32}
+            height={32}
+          />
 
-              <ActionButton href="https://www.facebook.com/vedicwellnessid/">
-                <Image src="/facebook.svg" alt="Facebook" width={23} height={23} />
-              </ActionButton>
-            </div>
-          </motion.div>
+          <SocialButton
+            href="https://www.facebook.com/vedicwellnessid/"
+            ariaLabel="Visit our Facebook page"
+            iconSrc="/facebook.svg"
+            width={26}
+            height={26}
+          />
+        </div>
+      </div>
 
-          {/* =================================================
-              Scroll To Top Button
-             ================================================= */}
-          <motion.div
-            key="scroll-top"
-            initial={{ y: 60, opacity: 0, scale: 0.96 }}
-            animate={{
-              y: menuOpen ? 60 : 0,
-              opacity: menuOpen ? 0 : 1,
-              scale: menuOpen ? 0.96 : 1,
-              pointerEvents: menuOpen ? "none" : "auto",
-            }}
-            exit={{ y: 60, opacity: 0, scale: 0.96 }}
-            transition={{
-              type: "spring",
-              stiffness: 200,
-              damping: 15,
-              mass: 1.1,
-              delay: 0.05,
-            }}
-            className="fixed bottom-10 right-6 z-50"
-          >
-            <ScrollToTopButton isDark={isDark} />
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+      {/* =================================================
+          Scroll To Top Button
+         ================================================= */}
+      <div
+        className={`
+          fixed bottom-44 right-6 z-50
+          transition-all duration-300 delay-75
+          ${shouldShow ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6 pointer-events-none"}
+        `}
+      >
+        <ScrollToTopButton />
+      </div>
+    </>
   )
 }
