@@ -14,6 +14,16 @@
   }
 }
 /*###########################################*/
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 48s linear infinite;
+}
+
+/*###########################################*/
 .ribbon-loader {
   width: 48px;
   height: 48px;

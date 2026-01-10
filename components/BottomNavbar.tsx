@@ -100,7 +100,7 @@ export default function BottomNavbar() {
   useEffect(() => {
     const unsubscribe = scrollY.on("change", (y) => {
       setVisible((prev) => {
-        const next = y > 400
+        const next = y > 100
         return prev !== next ? next : prev
       })
     })

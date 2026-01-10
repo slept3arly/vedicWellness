@@ -1,11 +1,11 @@
-import ProductsClient from "./ProductsClient"
+import { prisma } from "@/lib/prisma";
+import ProductsClient from "./ProductsClient";
 
-// TEMP: force loading (for testing)
-//async function slowRender() {
-//  await new Promise((resolve) => setTimeout(resolve, 2000))
-//}
+export default async function ProductsPage() {
+  const products = await prisma.product.findMany({
+    where: { published: true },
+    orderBy: { createdAt: "desc" },
+  });
 
-export default async function BlogsPage() {
-//  await slowRender() // ← REMOVE later
-  return <ProductsClient />
+  return <ProductsClient products={products} />;
 }
