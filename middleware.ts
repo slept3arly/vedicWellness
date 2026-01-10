@@ -5,8 +5,22 @@ import { auth } from "@/auth";
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // ✅ always allow admin login page
+  // ✅ allow NextAuth API routes
+  if (pathname.startsWith("/api/auth")) {
+    return NextResponse.next();
+  }
+
+  // ✅ allow admin login page
   if (pathname.startsWith("/admin/login")) {
+    return NextResponse.next();
+  }
+
+  // ✅ allow static files
+  if (
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon.ico") ||
+    pathname.startsWith("/images")
+  ) {
     return NextResponse.next();
   }
 
