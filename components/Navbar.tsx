@@ -173,7 +173,7 @@ export default function Navbar() {
               onMouseLeave={() => setHoveredItem(null)}
               className={`
                 group flex items-center justify-between
-                py-4 text-4xl font-bold
+                py-3 text-3xl font-bold
                 ${
                   pathname === path
                     ? "text-white"
@@ -211,7 +211,7 @@ export default function Navbar() {
         onClick={() => setMenuOpen(false)}
         aria-label="Close menu"
         className={`
-          fixed top-9 left-12 z-[60]
+          fixed top-6 left-6 z-[60]
           w-11 h-11 rounded-full
           flex items-center justify-center
           text-gray-400 hover:text-gray-100
