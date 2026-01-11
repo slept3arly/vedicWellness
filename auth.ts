@@ -6,8 +6,14 @@ import { prisma } from "@/lib/prisma";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
-
-  session: { strategy: "jwt" },
+  session: {
+  strategy: "jwt",
+  maxAge: 60 * 10, // 10 mins
+  updateAge: 60,   // refresh token every 60 secs while active
+},
+jwt: {
+  maxAge: 60 * 10,
+},
 
   providers: [
     Credentials({

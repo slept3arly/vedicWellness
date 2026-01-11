@@ -35,18 +35,14 @@ export default function AdminLoginForm() {
   const res = await signIn("credentials", {
     email,
     password,
-    redirect: false,     // ✅ keeps response object
     callbackUrl: "/admin",
+    redirect: false,// ✅ keeps response object
   });
 
   if (!res || res.error) {
     setError("Wrong email or password");
     return;
   }
-
-  // ✅ manually go to admin once cookie exists
-  router.replace("/admin");
-  router.refresh();
 } catch (err) {
   setError("Something went wrong. Try again.");
 } finally {
