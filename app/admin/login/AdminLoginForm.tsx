@@ -1,59 +1,50 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 
 export default function AdminLoginForm() {
-  const router = useRouter();
-
-  // -----------------------------
-  // State
-  // -----------------------------
   const [error, setError] = useState<string>("");
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // -----------------------------
-  // Submit Handler
-  // -----------------------------
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // ✅ Prevent double submit
     if (isLoading) return;
 
     setError("");
     setIsLoading(true);
 
-    // Read input values
     const formData = new FormData(e.currentTarget);
     const email = String(formData.get("email"));
     const password = String(formData.get("password"));
 
     try {
-  const res = await signIn("credentials", {
-    email,
-    password,
-    callbackUrl: "/admin",
-    redirect: false,// ✅ keeps response object
-  });
+      // ✅ Keep redirect:false so we can read error reliably
+      const res = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
 
-  if (!res || res.error) {
-    setError("Wrong email or password");
-    return;
-  }
-} catch (err) {
-  setError("Something went wrong. Try again.");
-} finally {
-  setIsLoading(false);
-}
-};
+      // ❌ Invalid credentials
+      if (!res || res.error) {
+        setError("Wrong email or password");
+        setIsLoading(false);
+        return;
+      }
+
+      // ✅ IMPORTANT: hard redirect fixes mobile cookie/session timing issues
+      window.location.href = "/admin";
+    } catch (err) {
+      setError("Something went wrong. Try again.");
+      setIsLoading(false);
+    }
+  };
 
   return (
     <form
       onSubmit={handleSubmit}
-      // Center EVERYTHING
       className="mx-center mt-10 flex w-full max-w-md flex-col items-center gap-5"
     >
       {/* Email Input */}
@@ -77,7 +68,6 @@ export default function AdminLoginForm() {
           disabled={isLoading}
         />
 
-        {/* Toggle Password Visibility */}
         <button
           type="button"
           onClick={() => setShowPassword((prev) => !prev)}
