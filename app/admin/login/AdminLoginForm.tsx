@@ -64,7 +64,7 @@ export default function AdminLoginForm() {
     >
       {/* Email Input */}
       <input
-        className="w-full rounded-md bg-white/10 px-4 py-3 text-lg text-white placeholder-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-[#84eb4b] disabled:opacity-60"
+        className="w-full rounded-md bg-neutral-900/90 px-4 py-3 text-lg text-white placeholder-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-[#84eb4b] disabled:opacity-60"
         name="email"
         type="email"
         placeholder="Email"
@@ -75,7 +75,7 @@ export default function AdminLoginForm() {
       {/* Password Field + Toggle Button */}
       <div className="relative w-full">
         <input
-          className="w-full rounded-md bg-white/10 px-4 py-3 pr-24 text-lg text-white placeholder-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-[#84eb4b] disabled:opacity-60"
+          className="w-full rounded-md bg-neutral-900/90 px-4 py-3 pr-24 text-lg text-white placeholder-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-[#84eb4b] disabled:opacity-60"
           name="password"
           type={showPassword ? "text" : "password"}
           placeholder="Password"
