@@ -4,6 +4,9 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true,
+
   session: { strategy: "jwt" },
 
   providers: [
@@ -15,22 +18,33 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
 
       async authorize(credentials) {
-        const email = credentials?.email?.toString().toLowerCase();
-        const password = credentials?.password?.toString();
+        try {
+          const email = credentials?.email?.toString().toLowerCase().trim();
+          const password = credentials?.password?.toString();
 
-        if (!email || !password) return null;
+          // Missing fields
+          if (!email || !password) return null;
 
-        // ✅ only allow your email to login
-        const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase();
-        if (!adminEmail || email !== adminEmail) return null;
+          // Only allow your admin email
+          const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
+          if (!adminEmail) {
+            console.error("ADMIN_EMAIL env missing");
+            return null;
+          }
 
-        const user = await prisma.user.findFirst({ where: { email } });
-        if (!user) return null;
+          if (email !== adminEmail) return null;
 
-        const ok = await bcrypt.compare(password, user.password);
-        if (!ok) return null;
+          const user = await prisma.user.findFirst({ where: { email } });
+          if (!user) return null;
 
-        return { id: user.id, email: user.email };
+          const ok = await bcrypt.compare(password, user.password);
+          if (!ok) return null;
+
+          return { id: user.id, email: user.email };
+        } catch (err) {
+          console.error("Authorize error:", err);
+          return null;
+        }
       },
     }),
   ],

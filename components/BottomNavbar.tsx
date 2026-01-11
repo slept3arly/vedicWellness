@@ -113,7 +113,7 @@ export default function BottomNavbar() {
           className="
             flex flex-col items-center gap-2
             px-2 py-2
-            rounded-full
+            rounded-full w-auto h-auto
             bg-neutral-900/75 backdrop-blur-md shadow-lg
           "
         >
@@ -122,7 +122,7 @@ export default function BottomNavbar() {
             ariaLabel="Chat with us on WhatsApp"
             iconSrc="/whatsapp.svg"
             width={28}
-            height={32}
+            height={28}
           />
 
           <SocialButton
