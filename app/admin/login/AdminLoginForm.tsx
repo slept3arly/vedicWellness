@@ -32,29 +32,27 @@ export default function AdminLoginForm() {
     const password = String(formData.get("password"));
 
     try {
-      // Login using NextAuth credentials provider
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      });
+  const res = await signIn("credentials", {
+    email,
+    password,
+    redirect: false,     // ✅ keeps response object
+    callbackUrl: "/admin",
+  });
 
-      console.log("SIGNIN RESPONSE:", res);
+  if (!res || res.error) {
+    setError("Wrong email or password");
+    return;
+  }
 
-      // ✅ Reliable check: if error exists → invalid login
-      if (!res || res.error) {
-        setError("Wrong email or password");
-        return;
-      }
-
-      // ✅ Successful login → go to admin
-      router.replace("/admin");
-    } catch (err) {
-      setError("Something went wrong. Try again.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // ✅ manually go to admin once cookie exists
+  router.replace("/admin");
+  router.refresh();
+} catch (err) {
+  setError("Something went wrong. Try again.");
+} finally {
+  setIsLoading(false);
+}
+};
 
   return (
     <form
