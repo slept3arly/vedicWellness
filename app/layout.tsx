@@ -10,8 +10,14 @@ import GlobalBackground from "@/components/GlobalBackground"; // ✅ add this
 
 export const metadata: Metadata = {
   title: "Vedic Wellness",
-  description: "A Basic Website"
+  description: "A Basic Website",
+  icons: {
+    icon: [
+      { url: "/v-cropped.svg", type: "image/svg+xml" }, // modern
+    ],
+  },
 };
+
 
 export default function RootLayout({
   children
