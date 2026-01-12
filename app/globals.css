@@ -81,3 +81,56 @@ body {
   color: var(--foreground);
 }
 /*###########################################*/
+
+/* GPU friendly animated blobs */
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(50px); /* ✅ reduce blur cost */
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  opacity: 0.55;
+}
+
+.blob-a {
+  width: 420px;
+  height: 420px;
+  top: -120px;
+  left: -120px;
+  background: rgba(34, 197, 94, 0.35);
+  animation: floatA 18s ease-in-out infinite;
+}
+
+.blob-b {
+  width: 380px;
+  height: 380px;
+  bottom: -140px;
+  right: -140px;
+  background: rgba(16, 185, 129, 0.25);
+  animation: floatB 22s ease-in-out infinite;
+}
+
+@keyframes floatA {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(50px, 35px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+@keyframes floatB {
+  0%   { transform: translate3d(0, 0, 0); }
+  50%  { transform: translate3d(-40px, -55px, 0); }
+  100% { transform: translate3d(0, 0, 0); }
+}
+
+/* Dark mode tuning */
+.dark .blob {
+  opacity: 0.35;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .blob-a,
+  .blob-b {
+    animation: none !important;
+  }
+}
