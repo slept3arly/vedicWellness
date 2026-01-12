@@ -37,7 +37,6 @@ const SocialButton = memo(function SocialButton({
         hover:scale-110 active:scale-95
       "
     >
-      {/* Decorative icon: we rely on aria-label for meaning */}
       <Image src={iconSrc} alt={iconAlt ?? ""} width={width} height={height} />
     </a>
   )
@@ -72,34 +71,55 @@ const ScrollToTopButton = memo(function ScrollToTopButton() {
    Bottom Floating Social Bar + Scroll Top
    - Appears after user scrolls down
    - Hides when fullscreen menu is open
+   - NEW: hides near bottom (mobile only)
    ========================================================= */
 export default function BottomNavbar() {
   const { menuOpen } = useMenu()
-  const [visible, setVisible] = useState(false)
 
-  /* ---------------------------------------------------------
-     Show/Hide widget after scrolling down
-     --------------------------------------------------------- */
+  const [visible, setVisible] = useState(false)
+  const [nearBottomMobile, setNearBottomMobile] = useState(false)
+
   useEffect(() => {
-    const onScroll = () => {
+    const BOTTOM_OFFSET = 60 // px: "near bottom" threshold
+    const MOBILE_QUERY = "(max-width: 768px)"
+
+    const isMobile = () => window.matchMedia(MOBILE_QUERY).matches
+
+    const check = () => {
+      // show/hide after scroll
       const shouldBeVisible = window.scrollY > 100
       setVisible((prev) => (prev !== shouldBeVisible ? shouldBeVisible : prev))
+
+      // near-bottom hide (mobile only)
+      if (isMobile()) {
+        const scrollPos = window.scrollY + window.innerHeight
+        const docHeight = document.documentElement.scrollHeight
+        const isNearBottom = docHeight - scrollPos <= BOTTOM_OFFSET
+
+        setNearBottomMobile((prev) => (prev !== isNearBottom ? isNearBottom : prev))
+      } else {
+        // ensure it never hides on desktop due to this rule
+        setNearBottomMobile(false)
+      }
     }
 
-    onScroll() // set initial state
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
+    check() // initial state
+    window.addEventListener("scroll", check, { passive: true })
+    window.addEventListener("resize", check, { passive: true })
+
+    return () => {
+      window.removeEventListener("scroll", check)
+      window.removeEventListener("resize", check)
+    }
   }, [])
 
-  /* ---------------------------------------------------------
-     If not visible OR menu is open, hide widgets
-     --------------------------------------------------------- */
-  const shouldShow = visible && !menuOpen
+  // if not visible OR menu open OR near bottom on mobile => hide
+  const shouldShow = visible && !menuOpen && !nearBottomMobile
 
   return (
     <>
       {/* =================================================
-          Center Floating Social Action Bar
+          Side Floating Social Action Bar
          ================================================= */}
       <div
         className={`
