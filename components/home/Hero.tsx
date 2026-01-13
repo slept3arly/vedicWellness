@@ -25,7 +25,7 @@ export default function Hero() {
               className="font-heading text-4xl font-extrabold leading-tight text-slate-900 dark:text-white sm:text-5xl"
             >
               Grow your pharma business with{" "}
-              <span className="text-green-600 dark:text-green-400">Vedic Wellness</span>
+              <span className="text-w dark:text-green-400">Vedic Wellness</span>
             </motion.h1>
 
             <motion.p variants={fadeUp} className="max-w-xl font-body text-lg text-slate-700 dark:text-slate-300">
@@ -37,7 +37,7 @@ export default function Hero() {
             <motion.div variants={fadeUp} className="flex flex-col gap-3 sm:flex-row">
               <a
                 href="#apply"
-                className="inline-flex items-center justify-center rounded-2xl bg-green-600 px-6 py-3 font-semibold text-white shadow-lg shadow-green-600/20 transition hover:bg-green-700"
+                className="inline-flex items-center justify-center rounded-2xl bg-[#039751] px-6 py-3 font-semibold text-white shadow-lg shadow-green-600/20 transition hover:bg-green-700"
               >
                 Apply for Franchise
               </a>
