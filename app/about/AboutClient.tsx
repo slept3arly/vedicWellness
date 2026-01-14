@@ -79,42 +79,57 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
 
   return (
     <motion.div
+      layout="position"   // ✅ IMPORTANT: only position, no size morph
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      viewport={{ once: false, amount: 0.2 }}
       transition={{ duration: 0.35, delay: index * 0.05 }}
-      className="rounded-3xl border border-slate-200 bg-white/60 shadow-xl backdrop-blur dark:border-slate-800 dark:bg-slate-900/40 overflow-hidden"
+      className="
+        rounded-3xl overflow-hidden
+        border border-slate-200
+        bg-white/70
+        shadow-lg
+        backdrop-blur-sm
+        dark:border-slate-800
+        dark:bg-slate-900/40
+        will-change-transform
+      "
     >
+      {/* Header */}
       <button
-        onClick={() => setOpen(!open)}
+        onClick={() => setOpen((v) => !v)}
         className="w-full flex items-center justify-between px-6 py-5 text-left"
       >
         <span className="font-heading font-bold text-base md:text-lg text-slate-900 dark:text-white">
           {faq.q}
         </span>
 
-        <motion.span
-          animate={{ rotate: open ? 45 : 0 }}
-          transition={{ duration: 0.2 }}
-          className="text-2xl font-bold text-slate-700 dark:text-slate-300"
+        <span
+          className={[
+            "text-2xl font-bold text-slate-700 dark:text-slate-300 transition-transform duration-200",
+            open ? "rotate-45" : "rotate-0",
+          ].join(" ")}
         >
           +
-        </motion.span>
+        </span>
       </button>
 
-      <motion.div
-        initial={false}
-        animate={{ height: open ? "auto" : 0, opacity: open ? 1 : 0 }}
-        transition={{ duration: 0.25 }}
-        className="px-6"
-      >
-        <div className="pb-5 font-body text-slate-700 dark:text-slate-300 leading-relaxed">
+      {/* Content */}
+      {open && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
+          className="px-6 pb-5 font-body text-slate-700 dark:text-slate-300 leading-relaxed"
+        >
           {faq.a}
-        </div>
-      </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }
+
+
 
 export default function AboutClient() {
   return (
