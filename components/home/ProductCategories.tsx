@@ -2,7 +2,10 @@
 
 import { motion } from "framer-motion";
 import { Layers } from "lucide-react";
-import { fadeUp, stagger } from "./animations";
+import { fadeUp, stagger } from "@/app/animations";
+
+import GlassCard from "@/components/ui/GlassCard";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 export default function ProductCategories() {
   const categories = [
@@ -23,14 +26,12 @@ export default function ProductCategories() {
         viewport={{ once: true, amount: 0.2 }}
         className="space-y-10"
       >
-        <motion.div variants={fadeUp} className="space-y-2">
-          <h2 className="font-heading text-3xl font-extrabold text-slate-900 dark:text-white">
-            Product Categories
-          </h2>
-          <p className="max-w-2xl font-body text-slate-600 dark:text-slate-300">
-            Explore high-demand Ayurvedic categories designed for strong sales
-            and repeat purchase.
-          </p>
+        <motion.div variants={fadeUp}>
+          <SectionHeading
+            title="Product Categories"
+            subtitle="Explore high-demand Ayurvedic categories designed for strong sales and repeat purchase."
+            align="left"
+          />
         </motion.div>
 
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -39,20 +40,26 @@ export default function ProductCategories() {
               key={c.title}
               variants={fadeUp}
               href="/products"
-              className="group rounded-3xl border border-slate-200 bg-white/60 p-6 text-center shadow-sm backdrop-blur transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/40"
+              className="group block"
             >
-              <div className="mb-4 inline-flex rounded-2xl bg-green-600/15 p-3 text-green-700 dark:text-green-300">
-                <Layers size={20} />
-              </div>
+              <GlassCard className="p-6 text-center shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                <div className="mb-4 inline-flex rounded-2xl bg-green-600/15 p-3 text-green-700 dark:text-green-300">
+                  <Layers size={20} />
+                </div>
 
-              <h3 className="font-heading text-lg font-bold">{c.title}</h3>
-              <p className="mt-2 font-body text-sm text-slate-600 dark:text-slate-300">
-                {c.count}
-              </p>
-              <p className="mt-4 inline-flex items-center gap-2 font-body text-sm font-semibold text-green-700 dark:text-green-300">
-                Explore{" "}
-                <span className="transition group-hover:translate-x-1">→</span>
-              </p>
+                <h3 className="font-heading text-lg font-bold text-slate-900 dark:text-white">
+                  {c.title}
+                </h3>
+
+                <p className="mt-2 font-body text-sm text-slate-600 dark:text-slate-300">
+                  {c.count}
+                </p>
+
+                <p className="mt-4 inline-flex items-center gap-2 font-body text-sm font-semibold text-green-700 dark:text-green-300">
+                  Explore{" "}
+                  <span className="transition group-hover:translate-x-1">→</span>
+                </p>
+              </GlassCard>
             </motion.a>
           ))}
         </div>

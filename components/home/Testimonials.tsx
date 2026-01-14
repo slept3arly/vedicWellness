@@ -1,7 +1,10 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { fadeUp, stagger } from "./animations";
+import { fadeUp, stagger } from "@/app/animations";
+
+import GlassCard from "@/components/ui/GlassCard";
+import SectionHeading from "@/components/ui/SectionHeading";
 
 export default function Testimonials() {
   const list = [
@@ -34,42 +37,43 @@ export default function Testimonials() {
         viewport={{ once: true, amount: 0.2 }}
         className="space-y-10"
       >
-        <motion.div variants={fadeUp} className="space-y-2">
-          <h2 className="font-heading text-3xl font-extrabold">Testimonials</h2>
-          <p className="max-w-2xl font-body text-slate-600 dark:text-slate-300">
-            Trusted by partners and distributors across India.
-          </p>
+        <motion.div variants={fadeUp}>
+          <SectionHeading
+            title="Testimonials"
+            subtitle="Trusted by partners and distributors across India."
+            align="left"
+          />
         </motion.div>
 
         <div className="grid gap-5 lg:grid-cols-3">
           {list.map((t) => (
-            <motion.div
-              key={t.city}
-              variants={fadeUp}
-              className="rounded-3xl border border-slate-200 bg-white/60 p-6 shadow-sm backdrop-blur transition hover:-translate-y-1 hover:shadow-lg dark:border-slate-800 dark:bg-slate-900/40"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-600/15 font-heading font-extrabold text-green-700 dark:text-green-300">
-                  {t.name[0]}
+            <motion.div key={t.city} variants={fadeUp}>
+              <GlassCard className="p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-600/15 font-heading font-extrabold text-green-700 dark:text-green-300">
+                    {t.name[0]}
+                  </div>
+
+                  <div>
+                    <p className="font-heading text-sm font-bold text-slate-900 dark:text-white">
+                      {t.name}
+                    </p>
+                    <p className="font-body text-xs text-slate-600 dark:text-slate-300">
+                      {t.city}
+                    </p>
+                  </div>
                 </div>
 
-                <div>
-                  <p className="font-heading text-sm font-bold">{t.name}</p>
-                  <p className="font-body text-xs text-slate-600 dark:text-slate-300">
-                    {t.city}
-                  </p>
+                <p className="mt-4 font-quote text-base italic text-slate-700 dark:text-slate-200">
+                  “{t.quote}”
+                </p>
+
+                <div className="mt-2 flex items-center gap-1 text-green-600 dark:text-green-400">
+                  {"★★★★★".split("").map((s, i) => (
+                    <span key={i}>{s}</span>
+                  ))}
                 </div>
-              </div>
-
-              <p className="mt-4 font-quote text-base italic text-slate-700 dark:text-slate-200">
-                “{t.quote}”
-              </p>
-
-              <div className="mt-2 items-center flex gap-1 text-green-600 dark:text-green-400">
-                {"★★★★★".split("").map((s, i) => (
-                  <span key={i}>{s}</span>
-                ))}
-              </div>
+              </GlassCard>
             </motion.div>
           ))}
         </div>

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { MessagesSquare } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 export default function CTABanner() {
   return (
@@ -24,20 +25,23 @@ export default function CTABanner() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
-            <a
-              href="#apply"
-              className="inline-flex items-center justify-center rounded-2xl bg-white px-6 py-3 font-semibold text-green-700 shadow-sm transition hover:bg-white/90"
-            >
-              Apply Now
+            <a href="#apply">
+              <Button
+                variant="secondary"
+                className="w-full bg-white text-green-700 hover:bg-white/90 sm:w-auto"
+              >
+                Apply Now
+              </Button>
             </a>
 
-            <a
-              href="https://wa.me/917206867795"
-              target="_blank"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-white/30 bg-white/10 px-6 py-3 font-semibold text-white backdrop-blur transition hover:bg-white/15"
-            >
-              <MessagesSquare size={16} />
-              WhatsApp Us
+            <a href="https://wa.me/917206867795" target="_blank">
+              <Button
+                variant="ghost"
+                className="w-full border-white/30 bg-white/10 text-white hover:bg-white/15 sm:w-auto"
+              >
+                <MessagesSquare size={16} />
+                WhatsApp Us
+              </Button>
             </a>
           </div>
         </div>
