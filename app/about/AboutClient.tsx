@@ -82,7 +82,7 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
       layout="position"   // ✅ IMPORTANT: only position, no size morph
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: false, amount: 0.2 }}
+      viewport={{ once: true }}
       transition={{ duration: 0.35, delay: index * 0.05 }}
       className="
         rounded-3xl overflow-hidden

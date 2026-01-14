@@ -64,7 +64,7 @@ export default function ContactPage() {
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.2 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.45 }}
           >
             <GlassCard className="p-6 md:p-8">
@@ -162,7 +162,7 @@ export default function ContactPage() {
           <motion.div
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: false, amount: 0.2 }}
+            viewport={{ once: true }}
             transition={{ duration: 0.45, delay: 0.05 }}
             className="space-y-6"
           >

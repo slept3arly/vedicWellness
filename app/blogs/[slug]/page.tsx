@@ -5,13 +5,15 @@ import GlassCard from "@/components/ui/GlassCard";
 import Chip from "@/components/ui/Chip";
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 // ✅ dynamic meta tags per blog
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug } = await params;
+
   const blog = await prisma.blog.findFirst({
-    where: { slug: params.slug, published: true },
+    where: { slug, published: true },
     select: { title: true, description: true },
   });
 
@@ -22,19 +24,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description:
       blog.description ??
       "Read the latest Ayurveda insights and franchise updates from Vedic Wellness.",
-    alternates: { canonical: `/blogs/${params.slug}` },
+    alternates: { canonical: `/blogs/${slug}` },
   };
 }
 
 export default async function BlogDetailsPage({ params }: Props) {
+  const { slug } = await params;
+
   const blog = await prisma.blog.findFirst({
-    where: { slug: params.slug, published: true },
+    where: { slug, published: true },
   });
 
   if (!blog) return notFound();
 
   // ✅ schema for THIS blog post
-  //_toggle baseUrl later when you buy domain_
   const baseUrl = "https://yourdomain.com";
 
   const jsonLd = {
@@ -72,6 +75,17 @@ export default async function BlogDetailsPage({ params }: Props) {
           <Chip>Ayurveda</Chip>
           <Chip>PCD Pharma</Chip>
         </div>
+
+        {/* ✅ Thumbnail (optional) */}
+        {blog.thumbnailUrl ? (
+          <div className="mt-6 overflow-hidden rounded-3xl border border-white/10">
+            <img
+              src={blog.thumbnailUrl}
+              alt={blog.title}
+              className="w-full max-h-[420px] object-cover"
+            />
+          </div>
+        ) : null}
 
         <GlassCard className="mt-6 p-7 md:p-10">
           <h1 className="font-heading text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">
