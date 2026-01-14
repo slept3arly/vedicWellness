@@ -1,7 +1,13 @@
 "use client";
 
-import Section from "@/components/Section";
 import { motion } from "framer-motion";
+import { Sparkles, BadgeCheck, Truck, MapPin } from "lucide-react";
+import Image from "next/image";
+
+import PageHeader from "@/components/ui/PageHeader";
+import GlassCard from "@/components/ui/GlassCard";
+import SectionHeading from "@/components/ui/SectionHeading";
+import Chip from "@/components/ui/Chip";
 
 type Product = {
   id: string;
@@ -15,80 +21,147 @@ type Product = {
 
 export default function ProductsClient({ products }: { products: Product[] }) {
   return (
-    <div className="flex flex-col items-center gap-3 py-40 px-4">
-      <div className="min-h-screen w-full max-w-5xl">
-        <motion.h1
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="text-4xl"
-        >
-          Our Products
-        </motion.h1>
+    <section className="relative overflow-hidden">
+      <div className="absolute inset-0 -z-10" />
 
-        <motion.h5
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, delay: 0.2 }}
-          className="text-1xl opacity-70"
-        >
-          Browse our Ayurvedic products
-        </motion.h5>
+      <div className="mx-auto max-w-7xl px-6 pt-10 pb-16 lg:pt-16 lg:pb-20">
+        <PageHeader
+          badge={
+            <p className="inline-flex mx-auto items-center gap-2 rounded-full border border-green-600/25 bg-green-500/10 px-4 py-2 text-sm font-medium text-green-800 dark:text-green-200">
+              <Sparkles size={16} />
+              Ayurvedic Products
+            </p>
+          }
+          title={
+            <>
+              Explore our{" "}
+              <span className="text-w dark:text-green-400">product range</span>
+            </>
+          }
+          subtitle="Premium Ayurvedic formulations designed for demand, trust and repeat customers — ideal for PCD pharma franchise partners."
+        />
 
-        {/* PRODUCTS GRID */}
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {products.map((p) => (
+        {/* Chips */}
+        <div className="mt-8 flex flex-wrap justify-center gap-3">
+          {["High Demand", "Premium Packaging", "PCD Ready", "Fast Dispatch"].map(
+            (t) => (
+              <Chip key={t}>{t}</Chip>
+            )
+          )}
+        </div>
+
+        {/* Trust strip */}
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
+          {[
+            {
+              title: "WHO-GMP Quality",
+              desc: "Consistent manufacturing standards",
+              icon: BadgeCheck,
+            },
+            {
+              title: "Fast Dispatch",
+              desc: "Quick packaging + shipping support",
+              icon: Truck,
+            },
+            {
+              title: "Monopoly Rights",
+              desc: "Area-based franchise availability",
+              icon: MapPin,
+            },
+          ].map((i) => (
             <div
-              key={p.id}
-              className="border border-neutral-800 rounded-2xl p-4 bg-black/30"
+              key={i.title}
+              className="rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-sm transition hover:shadow-md dark:border-slate-800 dark:bg-slate-950/40"
             >
-              {p.imageUrl ? (
-                <img
-                  src={p.imageUrl}
-                  alt={p.name}
-                  className="w-full h-44 object-cover rounded-xl"
-                />
-              ) : (
-                <div className="w-full h-44 bg-neutral-900 rounded-xl flex items-center justify-center opacity-60">
-                  No image
+              <div className="flex items-start gap-4">
+                <div className="rounded-2xl bg-green-600/15 p-3 text-green-700 dark:text-green-300">
+                  <i.icon size={22} />
                 </div>
-              )}
-
-              <div className="mt-4">
-                <h2 className="text-xl font-semibold">{p.name}</h2>
-
-                {p.price !== null ? (
-                  <p className="mt-1 opacity-80">₹{p.price}</p>
-                ) : (
-                  <p className="mt-1 opacity-50">Price not set</p>
-                )}
-
-                {p.description ? (
-                  <p className="mt-2 text-sm opacity-70">{p.description}</p>
-                ) : null}
+                <div className="space-y-1">
+                  <h3 className="font-heading text-base font-bold text-slate-900 dark:text-white">
+                    {i.title}
+                  </h3>
+                  <p className="font-body text-sm text-slate-600 dark:text-slate-300">
+                    {i.desc}
+                  </p>
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        {/* OLD SECTIONS (keep them if you want) */}
-        <div className="mt-20">
-          <Section
-            title="About Innovia"
-            text="Innovia Drugs is focused on building innovative healthcare solutions that improve lives."
+        <div className="mt-14">
+          <SectionHeading
+            title="Products Catalog"
+            subtitle="Browse our available Ayurvedic products"
           />
 
-          <Section
-            title="Our Mission"
-            text="We combine technology, research, and design to create modern digital healthcare experiences."
-          />
+          {/* PRODUCTS GRID */}
+          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {products.map((p, idx) => (
+              <motion.div
+                key={p.id}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: false, amount: 0.2 }}
+                transition={{ duration: 0.35, delay: idx * 0.03 }}
+              >
+                <GlassCard className="overflow-hidden">
+                  {/* Image */}
+                  <div className="relative h-44 w-full">
+                    {p.imageUrl ? (
+                      <Image
+                        src={p.imageUrl}
+                        alt={`${p.name} Ayurvedic Product`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                        priority={idx < 3} // ✅ helps LCP / CWV
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-slate-200/40 dark:bg-slate-800/40 flex items-center justify-center text-sm text-slate-600 dark:text-slate-300">
+                        No image
+                      </div>
+                    )}
+                  </div>
 
-          <Section
-            title="Why Choose Us"
-            text="Clean design, fast performance, and smooth user experiences built with modern tools."
-          />
+                  {/* Content */}
+                  <div className="p-6">
+                    <h2 className="font-heading text-lg font-extrabold text-slate-900 dark:text-white">
+                      {p.name}
+                    </h2>
+
+                    <p className="mt-1 font-body text-sm text-slate-600 dark:text-slate-300 line-clamp-2">
+                      {p.description || "High-demand Ayurvedic product."}
+                    </p>
+
+                    <div className="mt-4 flex items-center justify-between">
+                      <span className="font-semibold text-green-700 dark:text-green-300">
+                        {p.price !== null ? `₹${p.price}` : "Price on request"}
+                      </span>
+
+                      <span className="text-sm text-slate-600 dark:text-slate-300">
+                        View →
+                      </span>
+                    </div>
+                  </div>
+                </GlassCard>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Empty */}
+          {products.length === 0 ? (
+            <div className="mt-10">
+              <GlassCard className="p-8 text-center">
+                <p className="font-body text-slate-700 dark:text-slate-300">
+                  No products published yet.
+                </p>
+              </GlassCard>
+            </div>
+          ) : null}
         </div>
       </div>
-    </div>
+    </section>
   );
 }
