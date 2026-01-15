@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
@@ -22,18 +23,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 
   callbacks: {
-    /**
-     * ✅ This runs in middleware (Edge).
-     * Keep it lightweight: no DB calls.
-     */
     authorized({ auth, request }) {
       const isLoggedIn = !!auth?.user;
       const { pathname } = request.nextUrl;
 
-      // protect admin routes
       if (pathname.startsWith("/admin")) return isLoggedIn;
-
       return true;
+    },
+
+    async jwt({ token, user }) {
+      if (user) {
+        token.role = (user as any).role;
+        token.uid = (user as any).id;
+      }
+      return token;
+    },
+
+    async session({ session, token }) {
+      if (session.user) {
+        session.user.role = token.role as any;
+        session.user.id = token.uid as any;
+      }
+      return session;
     },
   },
 
@@ -52,18 +63,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           if (!email || !password) return null;
 
-          const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
-          if (!adminEmail) return null;
-
-          if (email !== adminEmail) return null;
-
-          const user = await prisma.user.findFirst({ where: { email } });
+          const user = await prisma.user.findUnique({ where: { email } });
           if (!user) return null;
 
           const ok = await bcrypt.compare(password, user.password);
           if (!ok) return null;
 
-          return { id: user.id, email: user.email };
+          return {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+          };
         } catch {
           return null;
         }

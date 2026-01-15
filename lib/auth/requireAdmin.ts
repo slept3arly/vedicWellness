@@ -8,10 +8,10 @@ export async function requireAdmin() {
     redirect("/login?next=/admin");
   }
 
-  // Temporary check until roles are implemented
-  if (session.user.email !== process.env.ADMIN_EMAIL) {
-    redirect("/");
-  }
+  const role = (session.user as any).role;
+
+  // ✅ RBAC gate
+  if (!["ADMIN", "EDITOR"].includes(role)) redirect("/");
 
   return session;
 }

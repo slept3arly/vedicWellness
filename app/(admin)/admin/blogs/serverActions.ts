@@ -2,9 +2,12 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 
 export async function createBlog(formData: FormData) {
+  await requireAdmin();
+
   const title = String(formData.get("title") ?? "");
   const slug = String(formData.get("slug") ?? "");
   const description = String(formData.get("description") ?? "");
@@ -28,6 +31,8 @@ export async function createBlog(formData: FormData) {
 }
 
 export async function updateBlog(formData: FormData) {
+  await requireAdmin();
+
   const id = String(formData.get("id") ?? "");
 
   const title = String(formData.get("title") ?? "");
@@ -67,6 +72,8 @@ export async function updateBlog(formData: FormData) {
 }
 
 export async function deleteBlog(formData: FormData) {
+  await requireAdmin();
+
   const id = String(formData.get("id") ?? "");
 
   const blog = await prisma.blog.findUnique({ where: { id } });
@@ -90,6 +97,8 @@ export async function deleteBlog(formData: FormData) {
 }
 
 export async function toggleBlogPublished(formData: FormData) {
+  await requireAdmin();
+
   const id = String(formData.get("id") ?? "");
   const published = String(formData.get("published") ?? "false") === "true";
 

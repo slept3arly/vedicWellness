@@ -8,9 +8,10 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
-// ✅ dynamic meta tags per blog
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+const slug = decodeURIComponent(rawSlug);
+
 
   const blog = await prisma.blog.findFirst({
     where: { slug, published: true },
@@ -29,7 +30,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function BlogDetailsPage({ params }: Props) {
-  const { slug } = await params;
+  const { slug: rawSlug } = await params;
+const slug = decodeURIComponent(rawSlug);
+
 
   const blog = await prisma.blog.findFirst({
     where: { slug, published: true },
@@ -37,7 +40,6 @@ export default async function BlogDetailsPage({ params }: Props) {
 
   if (!blog) return notFound();
 
-  // ✅ schema for THIS blog post
   const baseUrl = "https://yourdomain.com";
 
   const jsonLd = {
@@ -63,20 +65,17 @@ export default async function BlogDetailsPage({ params }: Props) {
       <div className="absolute inset-0 -z-10" />
 
       <div className="mx-auto max-w-5xl px-6 pt-10 pb-16 lg:pt-16 lg:pb-20">
-        {/* ✅ schema must be on page */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
 
-        {/* Top chips */}
         <div className="flex flex-wrap gap-3">
           <Chip>Blogs</Chip>
           <Chip>Ayurveda</Chip>
           <Chip>PCD Pharma</Chip>
         </div>
 
-        {/* ✅ Thumbnail (optional) */}
         {blog.thumbnailUrl ? (
           <div className="mt-6 overflow-hidden rounded-3xl border border-white/10">
             <img

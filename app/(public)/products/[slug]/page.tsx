@@ -8,12 +8,15 @@ import Chip from "@/components/ui/Chip";
 import Button from "@/components/ui/Button";
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { slug: rawSlug } = await params;
+  const slug = decodeURIComponent(rawSlug);
+
   const product = await prisma.product.findFirst({
-    where: { slug: params.slug, published: true },
+    where: { slug, published: true },
     select: { name: true, description: true, imageUrl: true },
   });
 
@@ -24,7 +27,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description:
       product.description ??
       "Explore this Ayurvedic product from Vedic Wellness (Innovia Drugs).",
-    alternates: { canonical: `/products/${params.slug}` },
+    alternates: { canonical: `/products/${slug}` },
     openGraph: product.imageUrl
       ? {
           title: product.name,
@@ -38,8 +41,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductDetailsPage({ params }: Props) {
+  const { slug: rawSlug } = await params;
+  const slug = decodeURIComponent(rawSlug);
+
   const product = await prisma.product.findFirst({
-    where: { slug: params.slug, published: true },
+    where: { slug, published: true },
   });
 
   if (!product) return notFound();
@@ -53,7 +59,8 @@ export default async function ProductDetailsPage({ params }: Props) {
     "@type": "Product",
     name: product.name,
     description:
-      product.description ?? "Ayurvedic product by Vedic Wellness (Innovia Drugs).",
+      product.description ??
+      "Ayurvedic product by Vedic Wellness (Innovia Drugs).",
     image: product.imageUrl ? [product.imageUrl] : undefined,
     brand: {
       "@type": "Brand",
@@ -132,14 +139,9 @@ export default async function ProductDetailsPage({ params }: Props) {
             </div>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <Button
-                variant="primary"
-                onClick={() =>
-                  window.open("https://wa.me/910000000000", "_blank")
-                }
-              >
-                Get Details on WhatsApp
-              </Button>
+              <a href="https://wa.me/910000000000" target="_blank" rel="noreferrer">
+                <Button variant="primary">Get Details on WhatsApp</Button>
+              </a>
 
               <Button variant="secondary">Download Catalog</Button>
             </div>

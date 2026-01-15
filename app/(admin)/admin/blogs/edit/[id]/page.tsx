@@ -1,10 +1,12 @@
 import { prisma } from "@/lib/db/prisma";
 import BlogEditForm from "./BlogEditForm";
 
-export default async function EditBlogPage(props: {
-  params: Promise<{ id: string }>;
+export default async function EditBlogPage({
+  params,
+}: {
+  params: { id: string };
 }) {
-  const { id } = await props.params;
+  const { id } = params;
 
   const blog = await prisma.blog.findFirst({
     where: { id },

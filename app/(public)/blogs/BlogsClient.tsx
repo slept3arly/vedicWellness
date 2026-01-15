@@ -66,7 +66,7 @@ export default function BlogsClient({ blogs }: { blogs: Blog[] }) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.35, delay: idx * 0.03 }}
               >
-                <Link href={`/blogs/${b.slug}`} className="block group">
+                <Link href={`/blogs/${encodeURIComponent(b.slug)}`} className="block group">
                   <GlassCard className="p-6 transition hover:shadow-2xl">
                     {b.thumbnailUrl ? (
                       <div className="mb-4 overflow-hidden rounded-2xl border border-white/10">

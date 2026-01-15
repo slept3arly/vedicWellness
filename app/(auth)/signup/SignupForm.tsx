@@ -1,19 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginForm() {
+export default function SignupForm() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const next =
+    searchParams.get("next") ||
+    searchParams.get("callbackUrl") ||
+    "/products";
+
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const searchParams = useSearchParams();
-  const callbackUrl =
-  searchParams.get("callbackUrl") ||
-  searchParams.get("next") ||
-  "/";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,20 +28,22 @@ export default function LoginForm() {
     const password = String(formData.get("password"));
 
     try {
-      const res = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, password }),
       });
 
-      if (!res || res.error) {
-        setError("Wrong email or password");
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        setError(data?.error || "Signup failed");
         setIsLoading(false);
         return;
       }
 
-      // hard redirect avoids mobile cookie timing issues
-      window.location.href = callbackUrl;
+      // ✅ redirect user to login, preserving next destination
+      router.push(`/login?next=${encodeURIComponent(next)}`);
     } catch {
       setError("Something went wrong. Try again.");
       setIsLoading(false);
@@ -66,7 +69,8 @@ export default function LoginForm() {
           className="w-full rounded-md bg-neutral-900/90 px-4 py-3 pr-24 text-lg text-white placeholder-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-[#84eb4b] disabled:opacity-60"
           name="password"
           type={showPassword ? "text" : "password"}
-          placeholder="Password"
+          placeholder="Password (min 8 chars)"
+          minLength={8}
           required
           disabled={isLoading}
         />
@@ -86,8 +90,18 @@ export default function LoginForm() {
         type="submit"
         disabled={isLoading}
       >
-        {isLoading ? "Signing in..." : "Sign in"}
+        {isLoading ? "Creating..." : "Create account"}
       </button>
+
+      <div className="text-center text-sm text-black/70 dark:text-white/70">
+        Already have an account?{" "}
+        <a
+          href="/login"
+          className="font-semibold text-[#039751] hover:text-[#84eb4b]"
+        >
+          Sign in
+        </a>
+      </div>
 
       {error ? (
         <div className="w-full rounded-md bg-red-600/90 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg">

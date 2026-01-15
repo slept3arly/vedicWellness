@@ -3,9 +3,12 @@
 import { prisma } from "@/lib/db/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 
 export async function createProduct(formData: FormData) {
+  await requireAdmin();
+
   const name = String(formData.get("name"));
   const slug = String(formData.get("slug"));
 
@@ -33,6 +36,8 @@ export async function createProduct(formData: FormData) {
 }
 
 export async function updateProduct(formData: FormData) {
+  await requireAdmin();
+
   const id = String(formData.get("id"));
   const name = String(formData.get("name"));
   const slug = String(formData.get("slug"));
@@ -77,6 +82,8 @@ export async function updateProduct(formData: FormData) {
 }
 
 export async function toggleProductPublished(formData: FormData) {
+  await requireAdmin();
+
   const id = String(formData.get("id"));
   const published = String(formData.get("published")) === "true";
 
@@ -90,6 +97,8 @@ export async function toggleProductPublished(formData: FormData) {
 }
 
 export async function deleteProduct(formData: FormData) {
+  await requireAdmin();
+
   const id = String(formData.get("id"));
 
   // ✅ get product first so we can delete image from R2

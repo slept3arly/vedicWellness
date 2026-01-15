@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Sparkles, BadgeCheck, Truck, MapPin } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 import PageHeader from "@/components/ui/PageHeader";
 import GlassCard from "@/components/ui/GlassCard";
@@ -106,6 +107,8 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.35, delay: idx * 0.03 }}
               >
+
+              <Link href={`/products/${encodeURIComponent(p.slug)}`} className="block">
                 <GlassCard className="overflow-hidden">
                   {/* Image */}
                   <div className="relative h-44 w-full">
@@ -146,6 +149,7 @@ export default function ProductsClient({ products }: { products: Product[] }) {
                     </div>
                   </div>
                 </GlassCard>
+              </Link>
               </motion.div>
             ))}
           </div>
