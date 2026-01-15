@@ -30,6 +30,20 @@ type FormState = {
   website: string; // honeypot
 };
 
+const disposableDomains = new Set([
+  "mailinator.com",
+  "guerrillamail.com",
+  "10minutemail.com",
+  "tempmail.com",
+  "yopmail.com",
+  "trashmail.com",
+  "getnada.com",
+  "dispostable.com",
+  "temp-mail.org",
+  "fakeinbox.com",
+]);
+
+
 type FieldErrors = Partial<
   Record<"name" | "phone" | "email" | "city" | "message", string>
 >;
@@ -82,10 +96,11 @@ export default function ContactPage() {
       ok = false;
     }
 
-    if (!form.phone.trim() || form.phone.trim().length < 7) {
-      setError("phone", "Please enter a valid phone number.");
-      ok = false;
-    }
+    if (!form.phone.trim() || form.phone.trim().length !== 10) {
+  setError("phone", "Phone number must be exactly 10 digits.");
+  ok = false;
+}
+
 
     if (!form.city.trim() || form.city.trim().length < 2) {
       setError("city", "Please enter your city/district.");
@@ -93,12 +108,19 @@ export default function ContactPage() {
     }
 
     if (!form.email.trim()) {
-      setError("email", "Email is required.");
-      ok = false;
-    } else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
-      setError("email", "Please enter a valid email.");
-      ok = false;
-    }
+  setError("email", "Email is required.");
+  ok = false;
+} else if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) {
+  setError("email", "Please enter a valid email.");
+  ok = false;
+} else {
+  const domain = form.email.trim().split("@")[1]?.toLowerCase();
+  if (domain && disposableDomains.has(domain)) {
+    setError("email", "Temporary emails are not allowed.");
+    ok = false;
+  }
+}
+
 
     if (!form.message.trim() || form.message.trim().length < 10) {
       setError("message", "Message must be at least 10 characters.");
@@ -195,7 +217,7 @@ export default function ContactPage() {
           }
           title={
             <>
-              Let’s connect with{" "}
+              Connect with{" "}
               <span className="text-w dark:text-green-400">Vedic Wellness</span>
             </>
           }
@@ -269,17 +291,24 @@ export default function ContactPage() {
                       Phone Number
                     </label>
                     <input
-                      type="tel"
-                      placeholder="+91 XXXXX XXXXX"
-                      value={form.phone}
-                      onChange={(e) => update("phone", e.target.value)}
-                      className={inputClass(!!fieldErrors.phone)}
-                    />
-                    {fieldErrors.phone && (
-                      <p className="mt-1 text-xs font-medium text-red-500">
-                        {fieldErrors.phone}
-                      </p>
-                    )}
+  type="tel"
+  placeholder="10-digit phone number"
+  value={form.phone}
+  onChange={(e) =>
+    update("phone", e.target.value.replace(/\D/g, "").slice(0, 10))
+  }
+  inputMode="numeric"
+  pattern="\d*"
+  maxLength={10}
+  className={inputClass(!!fieldErrors.phone)}
+/>
+
+{fieldErrors.phone && (
+  <p className="mt-1 text-xs font-medium text-red-600 dark:text-red-400">
+    {fieldErrors.phone}
+  </p>
+)}
+
                   </div>
                 </div>
 
