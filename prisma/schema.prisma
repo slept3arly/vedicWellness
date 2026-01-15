@@ -1,16 +1,14 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
 
-
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
+  url       = env("POSTGRES_URL")
+  directUrl = env("DATABASE_URL")
 }
 
 model Blog {
@@ -20,13 +18,11 @@ model Blog {
   description String?
   content     String?
   published   Boolean  @default(false)
-
-  thumbnailUrl String? // ✅ add this
+  thumbnailUrl String?
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
-
 
 model Product {
   id          String   @id @default(cuid())
@@ -51,11 +47,32 @@ model MarqueeItem {
   updatedAt DateTime @updatedAt
 }
 
+enum Role {
+  ADMIN
+  EDITOR
+  VIEWER
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
-  password  String   // hashed password
+  password  String
+  role      Role     @default(VIEWER)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
+model Lead {
+  id        String   @id @default(cuid())
+
+  name      String
+  email     String
+  phone     String?
+  message   String
+
+  ip        String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+}

@@ -1,5 +1,5 @@
 import { MetadataRoute } from "next";
-import { prisma } from "@/lib/prisma"; // adjust
+import { prisma } from "@/lib/db/prisma"; // adjust
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = "https://yourdomain.com";

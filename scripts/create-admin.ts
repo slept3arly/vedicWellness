@@ -1,25 +1,29 @@
 import "dotenv/config";
 
 import bcrypt from "bcryptjs";
-import { prisma } from "../lib/prisma";
-
-console.log("✅ Loaded env PRISMA_DATABASE_URL =", process.env.PRISMA_DATABASE_URL?.slice(0, 30));
-console.log("✅ Loaded env ADMIN_EMAIL =", process.env.ADMIN_EMAIL);
+import { prisma } from "../lib/db/prisma";
 
 async function main() {
-  const email = process.env.ADMIN_EMAIL?.toLowerCase();
+  const email = process.env.ADMIN_EMAIL!.toLowerCase().trim();
   const plainPassword = process.env.ADMIN_PASSWORD;
 
   if (!email || !plainPassword) {
     throw new Error("Missing ADMIN_EMAIL or ADMIN_PASSWORD in .env");
   }
 
-  const hashedPassword = await bcrypt.hash(plainPassword, 10);
+  const hashedPassword = await bcrypt.hash(plainPassword, 12);
 
   await prisma.user.upsert({
     where: { email },
-    update: { password: hashedPassword },
-    create: { email, password: hashedPassword },
+    update: {
+      password: hashedPassword,
+      role: "ADMIN", // ✅ ensure role always admin
+    },
+    create: {
+      email,
+      password: hashedPassword,
+      role: "ADMIN", // ✅ new user is admin
+    },
   });
 
   console.log("✅ Admin user created/updated:", email);
@@ -27,7 +31,7 @@ async function main() {
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("❌ Admin seed failed:", e);
     process.exit(1);
   })
   .finally(async () => {

@@ -3,7 +3,7 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { v4 as uuidv4 } from "uuid";
 
-import { r2 } from "@/lib/r2";
+import { r2 } from "@/lib/storage/r2/client";
 import { auth } from "@/auth";
 
 type Folder = "products" | "blogs" | "banners" | "categories";

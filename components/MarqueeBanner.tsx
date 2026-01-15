@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma";
+import { prisma } from "@/lib/db/prisma";
 
 export default async function MarqueeBanner() {
   const items = await prisma.marqueeItem.findMany({
