@@ -8,6 +8,7 @@ import { limits } from "@/lib/security/limits";
 import { verifyTurnstile } from "@/lib/security/turnstile";
 import { createLead } from "@/lib/db/lead";
 import { sanitizeText } from "@/lib/security/sanitize";
+import { hasMxRecord } from "@/lib/security/email";
 
 function getIpFromRequest(req: Request) {
   // Vercel / CF / proxies
@@ -52,6 +53,21 @@ export async function POST(req: Request) {
 
 
     const { name, email, phone, city, message, turnstileToken } = parsed.data;
+// ✅ Reject fake email domains (no MX records)
+const emailDomain = email.split("@")[1]?.toLowerCase();
+if (!emailDomain || !(await hasMxRecord(emailDomain))) {
+  return NextResponse.json(
+    {
+      error: "Please enter a valid email address.",
+      issues: {
+        fieldErrors: {
+          email: ["Email domain does not exist or cannot receive emails."],
+        },
+      },
+    },
+    { status: 400 }
+  );
+}
 
 
     // 5) Verify Turnstile
