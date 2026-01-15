@@ -1,5 +1,3 @@
-import "server-only";
-
 type CspOptions = {
   isDev?: boolean;
 };

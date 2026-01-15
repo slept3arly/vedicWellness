@@ -6,14 +6,36 @@ import { prisma } from "@/lib/db/prisma";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
+
   session: {
-  strategy: "jwt",
-  maxAge: 60 * 10, // 10 mins
-  updateAge: 60,   // refresh token every 60 secs while active
-},
-jwt: {
-  maxAge: 60 * 10,
-},
+    strategy: "jwt",
+    maxAge: 60 * 10,
+    updateAge: 60,
+  },
+
+  jwt: {
+    maxAge: 60 * 10,
+  },
+
+  pages: {
+    signIn: "/login",
+  },
+
+  callbacks: {
+    /**
+     * ✅ This runs in middleware (Edge).
+     * Keep it lightweight: no DB calls.
+     */
+    authorized({ auth, request }) {
+      const isLoggedIn = !!auth?.user;
+      const { pathname } = request.nextUrl;
+
+      // protect admin routes
+      if (pathname.startsWith("/admin")) return isLoggedIn;
+
+      return true;
+    },
+  },
 
   providers: [
     Credentials({
@@ -28,15 +50,10 @@ jwt: {
           const email = credentials?.email?.toString().toLowerCase().trim();
           const password = credentials?.password?.toString();
 
-          // Missing fields
           if (!email || !password) return null;
 
-          // Only allow your admin email
           const adminEmail = process.env.ADMIN_EMAIL?.toLowerCase().trim();
-          if (!adminEmail) {
-            console.error("ADMIN_EMAIL env missing");
-            return null;
-          }
+          if (!adminEmail) return null;
 
           if (email !== adminEmail) return null;
 
@@ -47,8 +64,7 @@ jwt: {
           if (!ok) return null;
 
           return { id: user.id, email: user.email };
-        } catch (err) {
-          console.error("Authorize error:", err);
+        } catch {
           return null;
         }
       },

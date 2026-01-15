@@ -10,7 +10,7 @@ export default function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
 
   const searchParams = useSearchParams();
-  const next = searchParams.get("next") || "/admin";
+  const callbackUrl = searchParams.get("callbackUrl") || "/admin";
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,7 +37,7 @@ export default function LoginForm() {
       }
 
       // hard redirect avoids mobile cookie timing issues
-      window.location.href = next;
+      window.location.href = callbackUrl;
     } catch {
       setError("Something went wrong. Try again.");
       setIsLoading(false);

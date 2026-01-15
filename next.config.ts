@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
+import { buildCspHeader } from "@/lib/security/csp";
 
 const nextConfig: NextConfig = {
-  poweredByHeader: false, // ✅ disables X-Powered-By
-
+  poweredByHeader: false,
   productionBrowserSourceMaps: false,
 
   images: {
@@ -15,6 +15,8 @@ const nextConfig: NextConfig = {
   },
 
   async headers() {
+    const isDev = process.env.NODE_ENV !== "production";
+
     return [
       {
         source: "/:path*",
@@ -26,6 +28,18 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value:
               "camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=()",
+          },
+
+          // ✅ works only over HTTPS (Vercel production yes)
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+
+          // ✅ CSP
+          {
+            key: "Content-Security-Policy",
+            value: buildCspHeader({ isDev }),
           },
         ],
       },
