@@ -1,8 +1,10 @@
 import { MetadataRoute } from "next";
-import { prisma } from "@/lib/db/prisma"; // adjust
+import { prisma } from "@/lib/db/prisma";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://yourdomain.com";
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+    "https://vedic-wellness.vercel.app";
 
   const blogs = await prisma.blog.findMany({
     where: { published: true },
