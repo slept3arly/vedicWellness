@@ -11,12 +11,17 @@ import RouteLoader from "@/components/RouteLoader";
 
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
   title: "Vedic Wellness",
   description: "A Basic Website",
   icons: {
     icon: [{ url: "/v-cropped.svg", type: "image/svg+xml" }],
   },
+  verification: {
+    google: "7j7lQFxzJjZu_dYzbYtTKEQi5MkqDWWCk96qaOEwTuM",
+  },
 };
+
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
