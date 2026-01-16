@@ -89,7 +89,7 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
         border border-slate-200
         bg-white/70
         shadow-lg
-        backdrop-blur-sm
+         -sm
         dark:border-slate-800
         dark:bg-slate-900/40
         will-change-transform
@@ -305,7 +305,7 @@ export default function AboutClient() {
               <div className="flex gap-3">
                 <Button
                   variant="primary"
-                  onClick={() => window.open("https://wa.me/910000000000", "_blank")}
+                  onClick={() => window.open("https://wa.me/9306025799", "_blank")}
                 >
                   WhatsApp Now
                 </Button>

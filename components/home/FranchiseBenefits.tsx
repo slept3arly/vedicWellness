@@ -40,7 +40,7 @@ export default function FranchiseBenefits() {
               <motion.li
                 key={b}
                 variants={fadeUp}
-                className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white/60 p-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/40"
+                className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white/60 p-4   dark:border-slate-800 dark:bg-slate-900/40"
               >
                 <CheckCircle2
                   className="mt-0.5 text-green-600 dark:text-green-400"
@@ -97,7 +97,7 @@ export default function FranchiseBenefits() {
             </div>
 
             <div className="mt-6">
-              <a href="#apply" className="block">
+              <a href="/contact" className="block">
                 <Button className="w-full" variant="primary">
                   Get Franchise Details
                 </Button>

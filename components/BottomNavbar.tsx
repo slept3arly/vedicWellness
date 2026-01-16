@@ -54,7 +54,7 @@ const ScrollToTopButton = memo(function ScrollToTopButton() {
       className="
         h-10 w-10
         rounded-full
-        bg-neutral-900/75 backdrop-blur-md shadow-lg
+        bg-neutral-900/75  -md shadow-lg
         flex items-center justify-center
         cursor-pointer
         transition-transform duration-200
@@ -134,19 +134,19 @@ export default function BottomNavbar() {
             flex flex-col items-center gap-2
             px-2 py-2
             rounded-full w-auto h-auto
-            bg-neutral-900/75 backdrop-blur-md shadow-lg
+            bg-neutral-900/75  -md shadow-lg
           "
         >
           <SocialButton
-            href="https://wa.me/917206867795"
+            href="https://wa.me/9306025799"
             ariaLabel="Chat with us on WhatsApp"
             iconSrc="/whatsapp.svg"
-            width={28}
-            height={28}
+            width={26}
+            height={26}
           />
 
           <SocialButton
-            href="https://www.instagram.com/innoviadrugs267?igsh=Y2VqYjhkanFwczFv"
+            href="https://www.instagram.com/vedicwellnessid"
             ariaLabel="Visit our Instagram profile"
             iconSrc="/instagram.svg"
             width={32}

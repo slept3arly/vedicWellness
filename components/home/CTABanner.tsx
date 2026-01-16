@@ -25,7 +25,7 @@ export default function CTABanner() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
-            <a href="#apply">
+            <a href="/contact">
               <Button
                 variant="secondary"
                 className="w-full bg-white text-green-700 hover:bg-white/90 sm:w-auto"
@@ -34,7 +34,7 @@ export default function CTABanner() {
               </Button>
             </a>
 
-            <a href="https://wa.me/917206867795" target="_blank">
+            <a href="https://wa.me/9306025799" target="_blank">
               <Button
                 variant="ghost"
                 className="w-full border-white/30 bg-white/10 text-white hover:bg-white/15 sm:w-auto"

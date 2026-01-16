@@ -55,21 +55,21 @@ export default function Hero() {
 
             {/* CTA */}
             <motion.div variants={fadeUp} className="flex flex-col gap-3 sm:flex-row">
-              <a href="#apply">
+              <a href="/contact">
                 <Button variant="primary" size="lg">
                   Apply for Franchise
                 </Button>
               </a>
 
               <div className="flex gap-3">
-                <a href="tel:+910000000000" className="flex-1">
+                <a href="tel:9306025799" className="flex-1">
                   <Button variant="secondary" className="w-full">
                     <PhoneCall size={18} />
                     Call
                   </Button>
                 </a>
 
-                <a href="https://wa.me/910000000000" target="_blank" className="flex-1">
+                <a href="https://wa.me/9306025799" target="_blank" className="flex-1">
                   <Button variant="ghost" className="w-full">
                     <MessagesSquare size={18} />
                     WhatsApp
@@ -148,7 +148,7 @@ export default function Hero() {
               </div>
             </GlassCard>
 
-            <div className="pointer-events-none absolute -top-4 -right-4 hidden rounded-2xl border border-green-600/25 bg-white/70 px-4 py-3 text-sm font-semibold text-green-800 shadow-lg backdrop-blur dark:bg-slate-900/40 dark:text-green-200 lg:block">
+            <div className="pointer-events-none absolute -top-4 -right-4 hidden rounded-2xl border border-green-600/25 bg-white/70 px-4 py-3 text-sm font-semibold text-green-800 shadow-lg   dark:bg-slate-900/40 dark:text-green-200 lg:block">
               Trusted Ayurvedic Franchise
             </div>
           </motion.div>

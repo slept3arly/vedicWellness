@@ -11,7 +11,7 @@ export default function Section({ title, text }: { title: string; text: string }
       transition={{ duration: 0.4, ease: "easeOut" }}
       className="
         w-full rounded-2xl p-6
-        border backdrop-blur-md
+        border  -md
         bg-white/70 border-black/10
         dark:bg-white/5 dark:border-white/10
       "

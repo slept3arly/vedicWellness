@@ -49,7 +49,7 @@ type FieldErrors = Partial<
 >;
 
 function inputClass(hasError: boolean) {
-  return `mt-2 w-full rounded-2xl border bg-white/70 px-4 py-3 text-slate-900 outline-none backdrop-blur transition dark:bg-slate-950/40 dark:text-white
+  return `mt-2 w-full rounded-2xl border bg-white/70 px-4 py-3 text-slate-900 outline-none   transition dark:bg-slate-950/40 dark:text-white
   ${
     hasError
       ? "border-red-500/70 focus:border-red-500/80"
@@ -406,7 +406,7 @@ export default function ContactPage() {
                     variant="ghost"
                     className="flex-1"
                     onClick={() =>
-                      window.open("https://wa.me/910000000000", "_blank")
+                      window.open("https://wa.me/9306025799", "_blank")
                     }
                   >
                     WhatsApp Instead
@@ -436,7 +436,7 @@ export default function ContactPage() {
               />
 
               <div className="mt-6 grid gap-4">
-                <div className="rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-950/40">
+                <div className="rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-sm   dark:border-slate-800 dark:bg-slate-950/40">
                   <div className="flex items-center gap-4">
                     <div className="rounded-2xl bg-green-600/15 p-3 text-green-700 dark:text-green-300">
                       <PhoneCall size={22} />
@@ -446,35 +446,35 @@ export default function ContactPage() {
                         Call Us
                       </p>
                       <p className="text-sm text-slate-600 dark:text-slate-300">
-                        +91 00000 00000
+                        +91 9306025799
                       </p>
                     </div>
                     <Button
                       variant="secondary"
-                      onClick={() => (window.location.href = "tel:+910000000000")}
+                      onClick={() => (window.location.href = "tel:9306025799")}
                     >
                       Call
                     </Button>
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-green-600/25 bg-green-500/10 p-5 shadow-sm backdrop-blur">
+                <div className="rounded-2xl border border-green-600/25 bg-green-500/10 p-5 shadow-sm  ">
                   <div className="flex items-center gap-4">
-                    <div className="rounded-2xl bg-white/20 p-3 text-green-800">
+                    <div className="rounded-2xl bg-green-600/15 p-3 text-green-700 dark:text-green-300">
                       <MessagesSquare size={22} />
                     </div>
                     <div className="flex-1">
-                      <p className="font-heading font-bold text-slate-900">
+                      <p className="font-heading font-bold text-slate-900 dark:text-white">
                         WhatsApp
                       </p>
-                      <p className="text-sm text-slate-700">
+                      <p className="text-sm text-slate-700 dark:text-slate-300">
                         Get product list instantly
                       </p>
                     </div>
                     <Button
                       variant="primary"
                       onClick={() =>
-                        window.open("https://wa.me/910000000000", "_blank")
+                        window.open("https://wa.me/9306025799", "_blank")
                       }
                     >
                       WhatsApp
@@ -482,7 +482,7 @@ export default function ContactPage() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-sm backdrop-blur dark:border-slate-800 dark:bg-slate-950/40">
+                <div className="rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-sm   dark:border-slate-800 dark:bg-slate-950/40">
                   <div className="flex items-center gap-4">
                     <div className="rounded-2xl bg-green-600/15 p-3 text-green-700 dark:text-green-300">
                       <Mail size={22} />
@@ -492,7 +492,7 @@ export default function ContactPage() {
                         Email
                       </p>
                       <p className="text-sm text-slate-600 dark:text-slate-300">
-                        support@vedicwellness.in
+                        vedicwellnessid@gmail.com
                       </p>
                     </div>
                   </div>
@@ -517,7 +517,7 @@ export default function ContactPage() {
                       Address
                     </p>
                     <p className="text-sm text-slate-600 dark:text-slate-300">
-                      Chandigarh, India (Innovia Drugs)
+                       Plot no. 149-150, Markanda Complex, Dhulkot, Ambala City
                     </p>
                   </div>
                 </div>
@@ -531,7 +531,7 @@ export default function ContactPage() {
                       Working Hours
                     </p>
                     <p className="text-sm text-slate-600 dark:text-slate-300">
-                      Mon – Sat: 10:00 AM – 6:00 PM
+                      Mon – Sat: 10:00 AM – 4:00 PM
                     </p>
                   </div>
                 </div>
