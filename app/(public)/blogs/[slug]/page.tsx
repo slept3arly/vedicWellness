@@ -40,7 +40,7 @@ const slug = decodeURIComponent(rawSlug);
 
   if (!blog) return notFound();
 
-  const baseUrl = "https://yourdomain.com";
+  const baseUrl = "https://vedic-wellness.vercel.app";
 
   const jsonLd = {
     "@context": "https://schema.org",

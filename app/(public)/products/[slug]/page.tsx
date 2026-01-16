@@ -51,7 +51,7 @@ export default async function ProductDetailsPage({ params }: Props) {
   if (!product) return notFound();
 
   // replace later when you buy domain
-  const baseUrl = "https://yourdomain.com";
+  const baseUrl = "https://vedic-wellness.vercel.app";
 
   // ✅ Product schema for rich results
   const jsonLd = {
