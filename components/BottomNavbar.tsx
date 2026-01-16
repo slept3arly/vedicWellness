@@ -57,6 +57,7 @@ const ScrollToTopButton = memo(function ScrollToTopButton() {
         bg-neutral-900/75  -md shadow-lg
         flex items-center justify-center
         cursor-pointer
+        will-change: transform
         transition-transform duration-200
         hover:scale-110 active:scale-95
         text-white
