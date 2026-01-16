@@ -110,7 +110,7 @@ export default function Hero() {
               <div className="grid gap-4">
                 <HeroCard
                   icon={BadgeCheck}
-                  title="WHO-GMP Quality Products"
+                  title="GMP Quality Products"
                   desc="Manufacturing & quality standards designed for consistent performance."
                 />
                 <HeroCard
