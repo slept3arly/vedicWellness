@@ -4,8 +4,11 @@ import { prisma } from "@/lib/db/prisma";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
+import { assertSameOriginAction } from "@/lib/security/csrf";
 
 export async function createMarqueeItem(formData: FormData) {
+  await requireAdmin();
+  await assertSameOriginAction();
   await requireAdmin();
 
   const text = String(formData.get("text") || "");
@@ -27,6 +30,8 @@ export async function createMarqueeItem(formData: FormData) {
 
 export async function deleteMarqueeItem(formData: FormData) {
   await requireAdmin();
+  await assertSameOriginAction();
+  await requireAdmin();
 
   const id = String(formData.get("id"));
   await prisma.marqueeItem.delete({ where: { id } });
@@ -36,6 +41,8 @@ export async function deleteMarqueeItem(formData: FormData) {
 }
 
 export async function toggleMarqueeItem(formData: FormData) {
+  await requireAdmin();
+  await assertSameOriginAction();
   await requireAdmin();
 
   const id = String(formData.get("id"));
@@ -53,6 +60,8 @@ export async function toggleMarqueeItem(formData: FormData) {
 }
 
 export async function updateMarqueeItem(formData: FormData) {
+  await requireAdmin();
+  await assertSameOriginAction();
   await requireAdmin();
 
   const id = String(formData.get("id"));
