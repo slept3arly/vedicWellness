@@ -406,7 +406,7 @@ export default function ContactPage() {
                     variant="ghost"
                     className="flex-1"
                     onClick={() =>
-                      window.open("https://wa.me/9306025799", "_blank")
+                      window.open("https://wa.me/+919306025799", "_blank")
                     }
                   >
                     WhatsApp Instead
