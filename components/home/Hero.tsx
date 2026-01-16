@@ -62,14 +62,14 @@ export default function Hero() {
               </a>
 
               <div className="flex gap-3">
-                <a href="tel:9306025799" className="flex-1">
+                <a href="tel:+919306025799" className="flex-1">
                   <Button variant="secondary" className="w-full">
                     <PhoneCall size={18} />
                     Call
                   </Button>
                 </a>
 
-                <a href="https://wa.me/9306025799" target="_blank" className="flex-1">
+                <a href="https://wa.me/+919306025799" target="_blank" className="flex-1">
                   <Button variant="ghost" className="w-full">
                     <MessagesSquare size={18} />
                     WhatsApp

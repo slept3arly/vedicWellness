@@ -305,7 +305,7 @@ export default function AboutClient() {
               <div className="flex gap-3">
                 <Button
                   variant="primary"
-                  onClick={() => window.open("https://wa.me/9306025799", "_blank")}
+                  onClick={() => window.open("https://wa.me/+919306025799", "_blank")}
                 >
                   WhatsApp Now
                 </Button>

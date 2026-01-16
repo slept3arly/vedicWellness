@@ -139,7 +139,7 @@ export default async function ProductDetailsPage({ params }: Props) {
             </div>
 
             <div className="mt-8 flex flex-col sm:flex-row gap-3">
-              <a href="https://wa.me/9306025799" target="_blank" rel="noreferrer">
+              <a href="https://wa.me/+919306025799" target="_blank" rel="noreferrer">
                 <Button variant="primary">Get Details on WhatsApp</Button>
               </a>
 

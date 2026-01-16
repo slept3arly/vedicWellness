@@ -451,7 +451,7 @@ export default function ContactPage() {
                     </div>
                     <Button
                       variant="secondary"
-                      onClick={() => (window.location.href = "tel:9306025799")}
+                      onClick={() => (window.location.href = "tel:+919306025799")}
                     >
                       Call
                     </Button>
@@ -474,7 +474,7 @@ export default function ContactPage() {
                     <Button
                       variant="primary"
                       onClick={() =>
-                        window.open("https://wa.me/9306025799", "_blank")
+                        window.open("https://wa.me/+919306025799", "_blank")
                       }
                     >
                       WhatsApp

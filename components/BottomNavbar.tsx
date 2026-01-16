@@ -138,7 +138,7 @@ export default function BottomNavbar() {
           "
         >
           <SocialButton
-            href="https://wa.me/9306025799"
+            href="https://wa.me/+919306025799"
             ariaLabel="Chat with us on WhatsApp"
             iconSrc="/whatsapp.svg"
             width={26}

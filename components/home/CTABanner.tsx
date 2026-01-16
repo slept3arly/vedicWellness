@@ -34,7 +34,7 @@ export default function CTABanner() {
               </Button>
             </a>
 
-            <a href="https://wa.me/9306025799" target="_blank">
+            <a href="https://wa.me/+919306025799" target="_blank">
               <Button
                 variant="ghost"
                 className="w-full border-white/30 bg-white/10 text-white hover:bg-white/15 sm:w-auto"
