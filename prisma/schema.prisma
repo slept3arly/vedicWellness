@@ -70,8 +70,30 @@ model Lead {
   phone     String?
   message   String
 
+  done      Boolean  @default(false)
+  doneAt    DateTime?
+
   ip        String?
   userAgent String?
 
   createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  createdAt  DateTime @default(now())
+
+  actorId    String
+  action     String
+  entityType String
+  entityId   String?
+
+  ip         String?
+  userAgent  String?
+
+  metadata   Json     @default("{}")
+
+  @@index([actorId, createdAt])
+  @@index([entityType, entityId])
+  @@index([action, createdAt])
 }

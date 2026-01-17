@@ -4,9 +4,9 @@ import ProductEditForm from "./ProductEditForm";
 export default async function EditProductPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const { id } = params;
+  const { id } = await params;
 
   const product = await prisma.product.findFirst({
     where: { id },

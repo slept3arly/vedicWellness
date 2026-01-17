@@ -13,6 +13,9 @@ export default function AdminNav() {
         <Link href="/admin/products">Products</Link>
         <Link href="/admin/blogs">Blogs</Link>
         <Link href="/admin/marquee">Marquee</Link>
+        <Link href="/admin/leads">Leads</Link>
+        <Link href="/admin/users">Users</Link>
+        <Link href="/admin/logs">Logs</Link>
       </div>
     </div>
   );

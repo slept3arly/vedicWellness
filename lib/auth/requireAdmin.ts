@@ -1,17 +1,23 @@
+import "server-only";
+
 import { redirect } from "next/navigation";
 import { getSession } from "./getSession";
+import type { Session } from "next-auth";
 
-export async function requireAdmin() {
+type AdminUser = NonNullable<Session["user"]> & {
+  id: string;
+  role: "ADMIN" | "EDITOR";
+};
+
+export async function requireAdmin(): Promise<AdminUser> {
   const session = await getSession();
 
-  if (!session?.user) {
-    redirect("/login?next=/admin");
-  }
+  if (!session?.user) redirect("/login?next=/admin");
 
-  const role = (session.user as any).role;
+  const user = session.user;
 
-  // ✅ RBAC gate
-  if (!["ADMIN", "EDITOR"].includes(role)) redirect("/");
+  if (!user.id) redirect("/login?next=/admin");
+  if (!user.role || !["ADMIN", "EDITOR"].includes(user.role)) redirect("/");
 
-  return session;
+  return user as AdminUser;
 }

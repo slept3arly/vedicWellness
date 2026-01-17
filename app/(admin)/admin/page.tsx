@@ -7,13 +7,22 @@ export default function AdminHomePage() {
 
       <ul style={{ marginTop: 16, display: "grid", gap: 10 }}>
         <li>
-          <Link href="/admin/products">📦 Products</Link>
+          <Link href="/admin/products">1 Products</Link>
         </li>
         <li>
-          <Link href="/admin/blogs">📝 Blogs</Link>
+          <Link href="/admin/blogs">2 Blogs</Link>
         </li>
         <li>
-          <Link href="/admin/marquee">📢 Marquee Banner</Link>
+          <Link href="/admin/marquee">3 Marquee Banner</Link>
+        </li>
+        <li>
+          <Link href="/admin/leads">4 Leads</Link>
+        </li>
+        <li>
+          <Link href="/admin/users">5 Users</Link>
+        </li>
+        <li>
+          <Link href="/admin/logs">6 Logs</Link>
         </li>
       </ul>
     </div>

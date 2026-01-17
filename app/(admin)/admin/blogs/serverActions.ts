@@ -2,60 +2,83 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 import { assertSameOriginAction } from "@/lib/security/csrf";
+import { auditLog } from "@/lib/observability/audit";
+
+async function getRequestContext() {
+  const h = await headers(); // ✅ NO await
+  return {
+    ip: h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
+    userAgent: h.get("user-agent") ?? null,
+  };
+}
 
 export async function createBlog(formData: FormData) {
-  await requireAdmin();
+  // ✅ CSRF first
   await assertSameOriginAction();
-  await requireAdmin();
 
-  const title = String(formData.get("title") ?? "");
-  const slug = String(formData.get("slug") ?? "");
-  const description = String(formData.get("description") ?? "");
-  const content = String(formData.get("content") ?? "");
+  // ✅ Auth second (and capture admin id for audit)
+  const admin = await requireAdmin();
+
+  const title = String(formData.get("title") ?? "").trim();
+  const slug = String(formData.get("slug") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const content = String(formData.get("content") ?? "").trim();
   const published = formData.get("published") === "on";
+  const thumbnailUrl = String(formData.get("thumbnailUrl") ?? "").trim();
 
-  const thumbnailUrl = String(formData.get("thumbnailUrl") ?? "");
-
-  await prisma.blog.create({
+  const blog = await prisma.blog.create({
     data: {
       title,
       slug,
-      description,        // ✅ always string
-      content,            // ✅ always string (no null)
+      description,
+      content,
       published,
       thumbnailUrl: thumbnailUrl || null,
     },
+    select: { id: true },
+  });
+
+  const { ip, userAgent } = await getRequestContext();
+  await auditLog({
+    actorId: admin.id,
+    action: "ADMIN_CREATE",
+    entityType: "BLOG",
+    entityId: blog.id,
+    ip,
+    userAgent,
+    metadata: { title, slug, published },
   });
 
   redirect("/admin/blogs");
 }
 
 export async function updateBlog(formData: FormData) {
-  await requireAdmin();
   await assertSameOriginAction();
-  await requireAdmin();
+  const admin = await requireAdmin();
 
-  const id = String(formData.get("id") ?? "");
+  const id = String(formData.get("id") ?? "").trim();
 
-  const title = String(formData.get("title") ?? "");
-  const slug = String(formData.get("slug") ?? "");
-  const description = String(formData.get("description") ?? "");
-  const content = String(formData.get("content") ?? "");
+  const title = String(formData.get("title") ?? "").trim();
+  const slug = String(formData.get("slug") ?? "").trim();
+  const description = String(formData.get("description") ?? "").trim();
+  const content = String(formData.get("content") ?? "").trim();
   const published = formData.get("published") === "on";
 
-  const thumbnailUrl = String(formData.get("thumbnailUrl") ?? "");
-  const oldThumbnailUrl = String(formData.get("oldThumbnailUrl") ?? "");
+  const thumbnailUrl = String(formData.get("thumbnailUrl") ?? "").trim();
+  const oldThumbnailUrl = String(formData.get("oldThumbnailUrl") ?? "").trim();
 
   await prisma.blog.update({
     where: { id },
     data: {
       title,
       slug,
-      description,        // ✅ always string
-      content,            // ✅ always string
+      description,
+      content,
       published,
       thumbnailUrl: thumbnailUrl || null,
     },
@@ -73,15 +96,30 @@ export async function updateBlog(formData: FormData) {
     }
   }
 
+  const { ip, userAgent } = await getRequestContext();
+  await auditLog({
+    actorId: admin.id,
+    action: "ADMIN_UPDATE",
+    entityType: "BLOG",
+    entityId: id,
+    ip,
+    userAgent,
+    metadata: {
+      title,
+      slug,
+      published,
+      thumbnailChanged: oldThumbnailUrl !== thumbnailUrl,
+    },
+  });
+
   redirect("/admin/blogs");
 }
 
 export async function deleteBlog(formData: FormData) {
-  await requireAdmin();
   await assertSameOriginAction();
-  await requireAdmin();
+  const admin = await requireAdmin();
 
-  const id = String(formData.get("id") ?? "");
+  const id = String(formData.get("id") ?? "").trim();
 
   const blog = await prisma.blog.findUnique({ where: { id } });
 
@@ -100,20 +138,45 @@ export async function deleteBlog(formData: FormData) {
     }
   }
 
+  const { ip, userAgent } = await getRequestContext();
+  await auditLog({
+    actorId: admin.id,
+    action: "ADMIN_DELETE",
+    entityType: "BLOG",
+    entityId: id,
+    ip,
+    userAgent,
+    metadata: {
+      title: blog?.title ?? null,
+      slug: blog?.slug ?? null,
+      hadThumbnail: Boolean(blog?.thumbnailUrl),
+    },
+  });
+
   redirect("/admin/blogs");
 }
 
 export async function toggleBlogPublished(formData: FormData) {
-  await requireAdmin();
   await assertSameOriginAction();
-  await requireAdmin();
+  const admin = await requireAdmin();
 
-  const id = String(formData.get("id") ?? "");
+  const id = String(formData.get("id") ?? "").trim();
   const published = String(formData.get("published") ?? "false") === "true";
 
   await prisma.blog.update({
     where: { id },
     data: { published: !published },
+  });
+
+  const { ip, userAgent } = await getRequestContext();
+  await auditLog({
+    actorId: admin.id,
+    action: !published ? "ADMIN_PUBLISH" : "ADMIN_UNPUBLISH",
+    entityType: "BLOG",
+    entityId: id,
+    ip,
+    userAgent,
+    metadata: { from: published, to: !published },
   });
 
   redirect("/admin/blogs");
