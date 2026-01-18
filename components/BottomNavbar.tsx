@@ -147,7 +147,7 @@ export default function BottomNavbar() {
           />
 
           <SocialButton
-            href="https://www.instagram.com/vedicwellnessid"
+            href="https://www.instagram.com/vedic.wellness.official"
             ariaLabel="Visit our Instagram profile"
             iconSrc="/instagram.svg"
             width={32}

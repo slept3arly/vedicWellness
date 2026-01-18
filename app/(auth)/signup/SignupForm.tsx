@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Turnstile } from "@marsidev/react-turnstile";
 
 export default function SignupForm() {
   const router = useRouter();
@@ -16,11 +17,21 @@ export default function SignupForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // ✅ Turnstile token
+  const [turnstileToken, setTurnstileToken] = useState("");
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (isLoading) return;
 
     setError("");
+
+    // ✅ require turnstile before submit
+    if (!turnstileToken) {
+      setError("Please complete the verification.");
+      return;
+    }
+
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -31,7 +42,11 @@ export default function SignupForm() {
       const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({
+          email,
+          password,
+          turnstileToken, // ✅ send token to server
+        }),
       });
 
       const data = await res.json().catch(() => ({}));
@@ -42,7 +57,9 @@ export default function SignupForm() {
         return;
       }
 
-      // ✅ redirect user to login, preserving next destination
+      // token is one-time use
+      setTurnstileToken("");
+
       router.push(`/login?next=${encodeURIComponent(next)}`);
     } catch {
       setError("Something went wrong. Try again.");
@@ -85,10 +102,21 @@ export default function SignupForm() {
         </button>
       </div>
 
+      {/* ✅ Turnstile widget */}
+      <div className="w-full pt-2">
+        <Turnstile
+          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+          options={{ theme: "auto" }}
+          onSuccess={(token) => setTurnstileToken(token)}
+          onExpire={() => setTurnstileToken("")}
+          onError={() => setTurnstileToken("")}
+        />
+      </div>
+
       <button
         className="w-full rounded-lg bg-neutral-900/90 py-4 text-center text-base font-semibold text-white shadow-md hover:bg-neutral-600/90 disabled:cursor-not-allowed disabled:opacity-60"
         type="submit"
-        disabled={isLoading}
+        disabled={isLoading || !turnstileToken} // ✅ block submit until verified
       >
         {isLoading ? "Creating..." : "Create account"}
       </button>
