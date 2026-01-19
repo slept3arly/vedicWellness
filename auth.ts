@@ -1,8 +1,15 @@
 import NextAuth from "next-auth";
-
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
+
+type AppRole = "ADMIN" | "EDITOR" | "VIEWER";
+
+type AppUser = {
+  id: string;
+  email: string;
+  role: AppRole;
+};
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
@@ -10,7 +17,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   session: {
     strategy: "jwt",
-    maxAge: 60 * 10,
+    maxAge: 60 * 10, // 10 minutes
     updateAge: 60,
   },
 
@@ -23,26 +30,31 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 
   callbacks: {
+    // ✅ Protect /admin (role-based)
     authorized({ auth, request }) {
       const isLoggedIn = !!auth?.user;
       const { pathname } = request.nextUrl;
 
-      if (pathname.startsWith("/admin")) return isLoggedIn;
+      if (pathname.startsWith("/admin")) {
+        return isLoggedIn && auth?.user?.role === "ADMIN";
+      }
+
       return true;
     },
 
     async jwt({ token, user }) {
       if (user) {
-        token.role = (user as any).role;
-        token.uid = (user as any).id;
+        const u = user as AppUser;
+        token.uid = u.id;
+        token.role = u.role;
       }
       return token;
     },
 
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role as any;
-        session.user.id = token.uid as any;
+        session.user.id = token.uid as string;
+        session.user.role = token.role as AppRole;
       }
       return session;
     },
@@ -69,11 +81,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const ok = await bcrypt.compare(password, user.password);
           if (!ok) return null;
 
+          // ✅ must return role/id for jwt callback
           return {
             id: user.id,
             email: user.email,
-            role: user.role,
-          };
+            role: user.role as AppRole,
+          } satisfies AppUser;
         } catch {
           return null;
         }

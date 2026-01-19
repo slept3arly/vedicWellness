@@ -70,10 +70,10 @@ export default function SignupForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="mx-center mt-10 flex w-full max-w-md flex-col items-center gap-5"
+      className="mx-auto mt-10 flex w-full max-w-md flex-col gap-5"
     >
       <input
-        className="w-full rounded-md bg-neutral-900/90 px-4 py-3 text-lg text-white placeholder-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-[#84eb4b] disabled:opacity-60"
+        className="w-full rounded-xl border border-slate-200 bg-white/70 px-4 py-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:ring-2 focus:ring-green-500/40 disabled:opacity-60 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500"
         name="email"
         type="email"
         placeholder="Email"
@@ -83,7 +83,7 @@ export default function SignupForm() {
 
       <div className="relative w-full">
         <input
-          className="w-full rounded-md bg-neutral-900/90 px-4 py-3 pr-24 text-lg text-white placeholder-white/50 outline-none ring-1 ring-white/10 focus:ring-2 focus:ring-[#84eb4b] disabled:opacity-60"
+          className="w-full rounded-xl border border-slate-200 bg-white/70 px-4 py-3 text-base text-slate-900 outline-none shadow-sm placeholder:text-slate-400 focus:ring-2 focus:ring-green-500/40 disabled:opacity-60 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white dark:placeholder:text-slate-500"
           name="password"
           type={showPassword ? "text" : "password"}
           placeholder="Password (min 8 chars)"
@@ -114,7 +114,7 @@ export default function SignupForm() {
       </div>
 
       <button
-        className="w-full rounded-lg bg-neutral-900/90 py-4 text-center text-base font-semibold text-white shadow-md hover:bg-neutral-600/90 disabled:cursor-not-allowed disabled:opacity-60"
+        className="w-full rounded-xl bg-green-600 py-3.5 text-base font-semibold text-white shadow-md hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
         type="submit"
         disabled={isLoading || !turnstileToken} // ✅ block submit until verified
       >
@@ -127,7 +127,7 @@ export default function SignupForm() {
           href="/login"
           className="font-semibold text-[#039751] hover:text-[#84eb4b]"
         >
-          Sign in
+          Log In
         </a>
       </div>
 

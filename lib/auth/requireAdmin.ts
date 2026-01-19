@@ -6,7 +6,7 @@ import type { Session } from "next-auth";
 
 type AdminUser = NonNullable<Session["user"]> & {
   id: string;
-  role: "ADMIN" | "EDITOR";
+  role: "ADMIN";
 };
 
 export async function requireAdmin(): Promise<AdminUser> {
@@ -17,7 +17,7 @@ export async function requireAdmin(): Promise<AdminUser> {
   const user = session.user;
 
   if (!user.id) redirect("/login?next=/admin");
-  if (!user.role || !["ADMIN", "EDITOR"].includes(user.role)) redirect("/");
+  if (user.role !== "ADMIN") redirect("/");
 
   return user as AdminUser;
 }

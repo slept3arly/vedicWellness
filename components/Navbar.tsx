@@ -1,10 +1,11 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import Image from "next/image"
-import { useEffect, useState } from "react"
-import { usePathname } from "next/navigation"
-import { useMenu } from "@/components/MenuContext"
+import Link from "next/link";
+import Image from "next/image";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useMenu } from "@/components/MenuContext";
+import { useSession, signOut } from "next-auth/react";
 
 /* ================= DATA ================= */
 
@@ -14,44 +15,50 @@ const NAV_LINKS = [
   { label: "About", path: "/about" },
   { label: "Our Products", path: "/products" },
   { label: "Contact Us", path: "/contact" },
-]
+];
 
 /* ================= COMPONENT ================= */
 
 export default function Navbar() {
-  const pathname = usePathname()
-  const { menuOpen, setMenuOpen } = useMenu()
-  const [scrollY, setScrollY] = useState(0)
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const pathname = usePathname();
+  const { menuOpen, setMenuOpen } = useMenu();
+
+  const [scrollY, setScrollY] = useState(0);
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+
+  // ✅ session
+  const { data: session, status } = useSession();
+
+  // ✅ role
+  const role = session?.user?.role; // "ADMIN" | "VIEWER"
+  const isAdmin = role === "ADMIN";
 
   /* ================= EFFECTS ================= */
 
   // Lock body scroll when menu is open
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : ""
-  }, [menuOpen])
+    document.body.style.overflow = menuOpen ? "hidden" : "";
+  }, [menuOpen]);
 
   // Track scroll position
   useEffect(() => {
-    let ticking = false
+    let ticking = false;
 
     const onScroll = () => {
       if (!ticking) {
         requestAnimationFrame(() => {
-          setScrollY(window.scrollY)
-          ticking = false
-        })
-        ticking = true
+          setScrollY(window.scrollY);
+          ticking = false;
+        });
+        ticking = true;
       }
-    }
+    };
 
-    window.addEventListener("scroll", onScroll, { passive: true })
-    return () => window.removeEventListener("scroll", onScroll)
-  }, [])
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-  const scrolled100 = scrollY > 100
-
-  /* ================= RENDER ================= */
+  const scrolled100 = scrollY > 100;
 
   return (
     <>
@@ -61,13 +68,12 @@ export default function Navbar() {
           fixed z-40
           top-3 left-3 right-3 h-16 pb-1 
           lg:h-20 lg:top-5 lg:left-9 lg:right-9
-          bg-neutral-900/75  -md shadow-lg
+          bg-neutral-900/75 shadow-lg
           rounded-lg
           ${menuOpen ? "rounded-2xl" : "rounded-lg"}
           ${menuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}
         `}
       >
-        {/* GRID LAYOUT */}
         <div className="grid grid-cols-[1fr_auto_1fr] items-center h-full px-4 lg:px-8">
           {/* ---------- LEFT: Mobile Menu + Desktop Nav ---------- */}
           <div className="flex items-center gap-6 pt-1">
@@ -75,13 +81,7 @@ export default function Navbar() {
             <button
               onClick={() => setMenuOpen(true)}
               aria-label="Open menu"
-              className="
-                lg:hidden
-                relative flex items-center gap-3
-                h-8 px-2
-                rounded
-                text-gray-300
-              "
+              className="lg:hidden relative flex items-center gap-3 h-8 px-2 rounded text-gray-300"
             >
               {/* Hamburger Icon */}
               <span className="relative block w-5 h-4">
@@ -123,28 +123,50 @@ export default function Navbar() {
 
           {/* ---------- RIGHT: Auth Buttons ---------- */}
           <div className="flex items-center justify-end gap-2 pt-1">
-            {/* Login */}
-            <Link
-              href="/login"
-              className="lg:inline-block bg-[#84eb4b] px-4 py-2 text-sm font-medium text-gray-900 rounded hover:bg-white"
-            >
-              Login
-            </Link>
+            {status === "loading" ? null : !session ? (
+              <>
+                {/* NOT LOGGED IN */}
+                <Link
+                  href="/login"
+                  className="lg:inline-block bg-[#84eb4b] px-4 py-2 text-sm font-medium text-gray-900 rounded hover:bg-white"
+                >
+                  Login
+                </Link>
 
-            {/* Sign Up */}
-            <Link
-              href="/signup"
-              className="
-                hidden lg:inline-flex
-                items-center justify-center
-                px-4 py-2 rounded-full
-                text-sm font-semibold
-                bg-[#039751] text-black
-                hover:bg-white transition
-              "
-            >
-              Sign Up
-            </Link>
+                <Link
+                  href="/signup"
+                  className="hidden lg:inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold bg-[#039751] text-black hover:bg-white transition"
+                >
+                  Sign Up
+                </Link>
+              </>
+            ) : (
+              <>
+                {/* LOGGED IN */}
+                {isAdmin ? (
+                  <Link
+                    href="/admin"
+                    className="lg:inline-block bg-[#84eb4b] px-4 py-2 text-sm font-medium text-gray-900 rounded hover:bg-white"
+                  >
+                    Dashboard
+                  </Link>
+                ) : (
+                  <Link
+                    href="/account"
+                    className="lg:inline-block bg-[#84eb4b] px-4 py-2 text-sm font-medium text-gray-900 rounded hover:bg-white"
+                  >
+                    My Account
+                  </Link>
+                )}
+
+                <button
+                  onClick={() => signOut({ callbackUrl: "/" })}
+                  className="hidden lg:inline-flex items-center justify-center px-4 py-2 rounded-full text-sm font-semibold bg-[#039751] text-black hover:bg-white transition"
+                >
+                  Sign Out
+                </button>
+              </>
+            )}
           </div>
         </div>
       </nav>
@@ -226,5 +248,5 @@ export default function Navbar() {
         ✕
       </button>
     </>
-  )
+  );
 }
