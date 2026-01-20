@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("PRISMA_DATABASE_URL") // Accelerate
+  directUrl = env("DATABASE_URL")        // Direct DB for migrations
 }
 
 model Blog {
@@ -19,17 +20,64 @@ model Blog {
   thumbnailUrl String?
 }
 
-model Product {
-  id          String   @id @default(cuid())
-  name        String
-  slug        String   @unique
-  description String?
-  price       Float?
-  imageUrl    String?
-  published   Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+enum MedicineForm {
+  TABLET
+  CAPSULE
+  SYRUP
+  DROPS
+  SUSPENSION
+  POWDER
+  GRANULES
+  OINTMENT
+  CREAM
+  GEL
+  LOTION
+  SHAMPOO
+  OIL
+  SPRAY
+  INHALER
+  INJECTION
+  OTHER
 }
+
+model Product {
+  id               String   @id @default(cuid())
+  name             String
+  slug             String   @unique
+
+  tag              String?
+
+  // ✅ pricing
+  price            Int
+
+  // ✅ description
+  shortDescription String?
+
+  // ✅ images
+  imageUrl         String?  // cover image
+  gallery          Json?    // ["url1", "url2", ...]
+
+  // ✅ dosage form
+  medicineForm     MedicineForm?
+
+  // ✅ packaging info based on form (kept flexible)
+  packaging        Json?    // { tabletsPerStrip, stripsPerBox } / { bottleMl } / { tubeGm } etc
+
+  // ✅ brochure style sections
+  indications       Json?
+  ingredients       Json?
+  directionsToUse   Json?
+  contraindications Json?
+
+  published        Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([published])
+  @@index([name])
+}
+
+
 
 model MarqueeItem {
   id        String   @id @default(cuid())

@@ -1,5 +1,21 @@
+const PRODUCT_ALLOWED_TYPES = new Set(["image/webp", "image/avif"]);
+const PRODUCT_MAX_BYTES = 524_248;
+
+function assertProductImage(file: File) {
+  if (!PRODUCT_ALLOWED_TYPES.has(file.type)) {
+    throw new Error("Only .webp and .avif images are allowed.");
+  }
+  if (file.size > PRODUCT_MAX_BYTES) {
+    throw new Error("Image too large. Max size is 250KB.");
+  }
+}
+
 export async function uploadToR2(file: File, folder: string) {
-  // 1) get signed url from backend (UUID generated there)
+  // ✅ client validation for products
+  if (folder === "products") {
+    assertProductImage(file);
+  }
+
   const res = await fetch("/api/r2/upload-url", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -10,11 +26,11 @@ export async function uploadToR2(file: File, folder: string) {
     }),
   });
 
-  if (!res.ok) throw new Error("Failed to get upload URL");
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.error || "Failed to get upload URL");
 
-  const { uploadUrl, publicUrl } = await res.json();
+  const { uploadUrl, publicUrl } = data;
 
-  // 2) upload file directly to R2
   const uploadRes = await fetch(uploadUrl, {
     method: "PUT",
     headers: { "Content-Type": file.type },
@@ -24,4 +40,13 @@ export async function uploadToR2(file: File, folder: string) {
   if (!uploadRes.ok) throw new Error("Upload failed");
 
   return publicUrl as string;
+}
+
+// ✅ NEW helper: multiple upload
+export async function uploadManyToR2(files: File[], folder: string) {
+  const urls: string[] = [];
+  for (const f of files) {
+    urls.push(await uploadToR2(f, folder));
+  }
+  return urls;
 }

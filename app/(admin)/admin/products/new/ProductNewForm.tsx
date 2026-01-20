@@ -1,52 +1,136 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { createProduct } from "../serverActions";
-import R2Upload from "@/components/R2Upload";
+import ProductImagesField from "@/components/admin/ProductImagesField";
+
+type MedicineForm =
+  | "TABLET"
+  | "CAPSULE"
+  | "SYRUP"
+  | "DROPS"
+  | "SUSPENSION"
+  | "POWDER"
+  | "GRANULES"
+  | "OINTMENT"
+  | "CREAM"
+  | "GEL"
+  | "LOTION"
+  | "SHAMPOO"
+  | "OIL"
+  | "SPRAY"
+  | "INHALER"
+  | "INJECTION"
+  | "OTHER";
+
+function packagingHint(form: MedicineForm | "") {
+  if (form === "TABLET" || form === "CAPSULE") return "Example:\nTablets per strip: 10\nStrips per box: 20";
+  if (form === "SYRUP" || form === "SUSPENSION") return "Example:\nBottle size (ml): 200";
+  if (form === "OINTMENT" || form === "CREAM" || form === "GEL") return "Example:\nTube size (gm): 30";
+  if (form === "OIL" || form === "SHAMPOO" || form === "LOTION") return "Example:\nBottle size (ml): 100";
+  return "Example:\nPack size: 1\nUnit: bottle/box/strip";
+}
 
 export default function ProductNewForm() {
-  const [imageUrl, setImageUrl] = useState("");
+  const [coverUrl, setCoverUrl] = useState("");
+  const [gallery, setGallery] = useState<string[]>([]);
+  const [form, setForm] = useState<MedicineForm | "">("");
+
+  const packagingPlaceholder = useMemo(() => packagingHint(form), [form]);
 
   return (
-    <div style={{ padding: 24, maxWidth: 640 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700 }}>Add Product</h1>
-      <p style={{ opacity: 0.7 }}>Create a new product for the website.</p>
+    <div style={{ padding: 24, maxWidth: 980 }}>
+      <h1 style={{ fontSize: 28, fontWeight: 800 }}>Add Product</h1>
 
-      <form
-        action={createProduct}
-        style={{
-          marginTop: 18,
-          display: "grid",
-          gap: 12,
-        }}
-      >
+      <form action={createProduct} style={{ marginTop: 18, display: "grid", gap: 12 }}>
         <input name="name" placeholder="Product name" required />
-        <input name="slug" placeholder="Slug (example: hair-oil)" required />
+        <input name="slug" placeholder="Slug (hair-oil)" required />
+        <input name="tag" placeholder='Tag (e.g. "Best Seller")' />
 
-        {/* ✅ hidden input to send imageUrl to server action */}
-        <input type="hidden" name="imageUrl" value={imageUrl} />
+        {/* ✅ images */}
+        <input type="hidden" name="imageUrl" value={coverUrl} />
+        <input type="hidden" name="gallery" value={gallery.join("\n")} />
 
-        <div>
-          <p style={{ marginBottom: 8, fontWeight: 600 }}>Product Image</p>
-          <R2Upload folder="products" onUploaded={setImageUrl} />
-          {imageUrl ? (
-            <a href={imageUrl} target="_blank" style={{ fontSize: 12 }}>
-              View uploaded image
-            </a>
-          ) : null}
-        </div>
+        <ProductImagesField
+          coverUrl={coverUrl}
+          setCoverUrl={setCoverUrl}
+          gallery={gallery}
+          setGallery={setGallery}
+        />
 
+        {/* ✅ price required */}
         <input
           name="price"
-          placeholder="Price (optional, number)"
-          inputMode="decimal"
+          placeholder="Selling price (₹)"
+          inputMode="numeric"
+          required
+        />
+
+        {/* ✅ short description only */}
+        <textarea
+          name="shortDescription"
+          placeholder="Short description (1–2 lines)"
+          rows={3}
+        />
+
+        {/* ✅ dosage form */}
+        <select
+          name="medicineForm"
+          value={form}
+          onChange={(e) => setForm(e.target.value as any)}
+          required
+        >
+          <option value="">Dosage form</option>
+          <option value="TABLET">Tablet</option>
+          <option value="CAPSULE">Capsule</option>
+          <option value="SYRUP">Syrup</option>
+          <option value="DROPS">Drops</option>
+          <option value="SUSPENSION">Suspension</option>
+          <option value="POWDER">Powder</option>
+          <option value="GRANULES">Granules</option>
+          <option value="OINTMENT">Ointment</option>
+          <option value="CREAM">Cream</option>
+          <option value="GEL">Gel</option>
+          <option value="LOTION">Lotion</option>
+          <option value="SHAMPOO">Shampoo</option>
+          <option value="OIL">Oil</option>
+          <option value="SPRAY">Spray</option>
+          <option value="INHALER">Inhaler</option>
+          <option value="INJECTION">Injection</option>
+          <option value="OTHER">Other</option>
+        </select>
+
+        {/* ✅ packaging details as guided fields */}
+        <textarea
+          name="packagingText"
+          placeholder={`Packaging details (guided)\n${packagingPlaceholder}`}
+          rows={4}
+        />
+
+        {/* ✅ sections with guiding text */}
+        <textarea
+          name="indications"
+          placeholder={`Indications (one per line)\n• Helps in fever\n• Relieves headache & body ache\n• Useful in cold & flu`}
+          rows={5}
         />
 
         <textarea
-          name="description"
-          placeholder="Short description (optional)"
+          name="ingredients"
+          placeholder={`Ingredients (one per line)\n• Giloy\n• Neem\n• Tulsi\n• Ashwagandha`}
           rows={5}
+        />
+
+        <textarea
+          name="directionsToUse"
+          placeholder={`Directions to use (one per line)\n• 2 tsp twice daily\n• Or as directed by physician`}
+          rows={4}
+        />
+
+        <textarea
+          name="contraindications"
+          placeholder={`Contraindications / Precautions (one per line)\n• Pregnant women consult doctor\n• Do not exceed recommended dose`}
+          rows={4}
         />
 
         <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
