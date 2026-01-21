@@ -8,15 +8,99 @@ import GlobalBackground from "@/components/GlobalBackground";
 import RouteLoader from "@/components/RouteLoader";
 import Providers from "@/app/Providers";
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+  "https://vedic-wellness.vercel.app";
+
+// 👉 Update these to your exact business identity
+const BRAND_NAME = "Vedic Wellness";
+const BRAND_TAGLINE =
+  "Best Ayurvedic PCD Pharma Franchise Company in Haryana | Pan India Shipping";
+const BRAND_DESCRIPTION =
+  "Vedic Wellness is a division of Innovia Drugs, offering Ayurvedic PCD Pharma Franchise opportunities across India. High-quality Ayurvedic products, monopoly rights, marketing support, and Pan India delivery.";
+
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL!),
-  title: "Vedic Wellness",
-  description: "A Basic Website",
-  icons: {
-    icon: [{ url: "/v-cropped.svg", type: "image/svg+xml" }],
+  metadataBase: new URL(SITE_URL),
+
+  title: {
+    default: `${BRAND_NAME} | Ayurvedic PCD Pharma Franchise`,
+    template: `%s | ${BRAND_NAME}`,
   },
+
+  description: BRAND_DESCRIPTION,
+
+  applicationName: BRAND_NAME,
+  category: "Health",
+  creator: BRAND_NAME,
+  publisher: BRAND_NAME,
+
+  keywords: [
+    "Ayurvedic PCD Pharma Franchise",
+    "Best PCD Pharma Franchise",
+    "PCD Pharma Franchise Haryana",
+    "Ayurvedic Franchise Company",
+    "PCD Franchise Company India",
+    "Ayurvedic Products Franchise",
+    "PCD Pharma Franchise Pan India",
+    "Innovia Drugs division",
+  ],
+
+  alternates: {
+    canonical: SITE_URL,
+  },
+
+  openGraph: {
+    type: "website",
+    url: SITE_URL,
+    title: `${BRAND_NAME} | Ayurvedic PCD Pharma Franchise`,
+    description: BRAND_DESCRIPTION,
+    siteName: BRAND_NAME,
+    locale: "en_IN",
+    images: [
+      {
+        url: "/og.jpg", // create this later (1200x630)
+        width: 1200,
+        height: 630,
+        alt: `${BRAND_NAME} - Ayurvedic PCD Pharma Franchise`,
+      },
+    ],
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: `${BRAND_NAME} | Ayurvedic PCD Pharma Franchise`,
+    description: BRAND_DESCRIPTION,
+    images: ["/og.jpg"],
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+
+  icons: {
+    icon: [
+      { url: "/v-cropped.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png" }],
+  },
+
   verification: {
     google: "7j7lQFxzJjZu_dYzbYtTKEQi5MkqDWWCk96qaOEwTuM",
+  },
+
+  other: {
+    "geo.region": "IN-HR",
+    "geo.placename": "Haryana",
+    "distribution": "global",
   },
 };
 

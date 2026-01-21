@@ -6,7 +6,17 @@ export default function robots(): MetadataRoute.Robots {
     "https://vedic-wellness.vercel.app";
 
   return {
-    rules: [{ userAgent: "*", allow: "/" }],
+    rules: [
+      {
+        userAgent: "*",
+        allow: "/",
+      },
+      {
+        userAgent: "Googlebot",
+        allow: "/",
+      },
+    ],
     sitemap: `${baseUrl}/sitemap.xml`,
+    host: baseUrl,
   };
 }
