@@ -166,9 +166,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         telephone: "+91-9306025799",
         address: {
           "@type": "PostalAddress",
+          streetAddress: "Plot no. 149-150, Markanda Complex, Dhulkot",
+          addressLocality: "Ambala City",
           addressRegion: "Haryana",
+          postalCode: "134007",
           addressCountry: "IN",
         },
+
         areaServed: {
           "@type": "Country",
           name: "India",
