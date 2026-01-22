@@ -87,12 +87,29 @@ export const metadata: Metadata = {
   },
 
   icons: {
-    icon: [
-      { url: "/v-cropped.svg", type: "image/svg+xml" },
-      { url: "/favicon.ico" },
-    ],
-    apple: [{ url: "/apple-touch-icon.png" }],
-  },
+  icon: [
+    { url: "/favicon.ico" }, // fallback for browsers
+
+    // ✅ PNG favicons (Google likes these)
+    { url: "/favicon-16.png", sizes: "16x16", type: "image/png" },
+    { url: "/favicon-32.png", sizes: "32x32", type: "image/png" },
+    { url: "/favicon-48.png", sizes: "48x48", type: "image/png" },
+    { url: "/favicon-64.png", sizes: "64x64", type: "image/png" },
+    { url: "/favicon-72.png", sizes: "72x72", type: "image/png" },
+    { url: "/favicon-96.png", sizes: "96x96", type: "image/png" },
+    { url: "/favicon-128.png", sizes: "128x128", type: "image/png" },
+    { url: "/favicon-256.png", sizes: "256x256", type: "image/png" },
+
+    // optional: svg
+    { url: "/v-cropped.svg", type: "image/svg+xml" },
+  ],
+
+  apple: [
+    { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+  ],
+},
+
+
 
   verification: {
     google: "7j7lQFxzJjZu_dYzbYtTKEQi5MkqDWWCk96qaOEwTuM",
