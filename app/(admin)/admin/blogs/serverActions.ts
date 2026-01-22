@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
+import { revalidatePath } from "next/cache"; // ✅ ADD
 
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
@@ -10,7 +11,7 @@ import { assertSameOriginAction } from "@/lib/security/csrf";
 import { auditLog } from "@/lib/observability/audit";
 
 async function getRequestContext() {
-  const h = await headers(); // ✅ NO await
+  const h = await headers();
   return {
     ip: h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
     userAgent: h.get("user-agent") ?? null,
@@ -23,7 +24,6 @@ export async function createBlog(formData: FormData) {
 
   const title = String(formData.get("title") ?? "").trim();
   const slug = String(formData.get("slug") ?? "").trim();
-
   const description = String(formData.get("description") ?? "").trim();
   const content = String(formData.get("content") ?? "").trim();
   const thumbnailUrl = String(formData.get("thumbnailUrl") ?? "").trim();
@@ -49,7 +49,6 @@ export async function createBlog(formData: FormData) {
       slug,
       description: description || null,
       content: content || null,
-
       thumbnailUrl: thumbnailUrl || null,
 
       metaTitle: metaTitle || null,
@@ -77,9 +76,12 @@ export async function createBlog(formData: FormData) {
     metadata: { title, slug, published },
   });
 
+  // ✅ Revalidate public pages only when needed
+  revalidatePath("/blogs");
+  revalidatePath("/sitemap.xml");
+
   redirect("/admin/blogs");
 }
-
 
 export async function updateBlog(formData: FormData) {
   await assertSameOriginAction();
@@ -110,10 +112,9 @@ export async function updateBlog(formData: FormData) {
 
   const published = formData.get("published") === "on";
 
-  // ✅ ensure publishedAt is set if publishing first time
   const current = await prisma.blog.findUnique({
     where: { id },
-    select: { published: true, publishedAt: true },
+    select: { publishedAt: true },
   });
 
   const publishedAt =
@@ -169,9 +170,13 @@ export async function updateBlog(formData: FormData) {
     },
   });
 
+  // ✅ Revalidate listing + details + sitemap
+  revalidatePath("/blogs");
+  revalidatePath(`/blogs/${slug}`);
+  revalidatePath("/sitemap.xml");
+
   redirect("/admin/blogs");
 }
-
 
 export async function deleteBlog(formData: FormData) {
   await assertSameOriginAction();
@@ -179,11 +184,12 @@ export async function deleteBlog(formData: FormData) {
 
   const id = String(formData.get("id") ?? "").trim();
 
-  const blog = await prisma.blog.findUnique({ where: { id } });
-
-  await prisma.blog.delete({
+  const blog = await prisma.blog.findUnique({
     where: { id },
+    select: { title: true, slug: true, thumbnailUrl: true },
   });
+
+  await prisma.blog.delete({ where: { id } });
 
   if (blog?.thumbnailUrl) {
     const key = getR2KeyFromPublicUrl(blog.thumbnailUrl);
@@ -211,6 +217,10 @@ export async function deleteBlog(formData: FormData) {
     },
   });
 
+  // ✅ refresh listing + sitemap
+  revalidatePath("/blogs");
+  revalidatePath("/sitemap.xml");
+
   redirect("/admin/blogs");
 }
 
@@ -220,6 +230,11 @@ export async function toggleBlogPublished(formData: FormData) {
 
   const id = String(formData.get("id") ?? "").trim();
   const published = String(formData.get("published") ?? "false") === "true";
+
+  const blog = await prisma.blog.findUnique({
+    where: { id },
+    select: { slug: true },
+  });
 
   await prisma.blog.update({
     where: { id },
@@ -236,6 +251,11 @@ export async function toggleBlogPublished(formData: FormData) {
     userAgent,
     metadata: { from: published, to: !published },
   });
+
+  // ✅ refresh listing + details + sitemap
+  revalidatePath("/blogs");
+  if (blog?.slug) revalidatePath(`/blogs/${blog.slug}`);
+  revalidatePath("/sitemap.xml");
 
   redirect("/admin/blogs");
 }
