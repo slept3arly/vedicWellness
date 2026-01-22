@@ -9,16 +9,37 @@ datasource db {
 }
 
 model Blog {
-  id           String   @id @default(cuid())
-  title        String
-  slug         String   @unique
-  description  String?
-  content      String?
-  published    Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  thumbnailUrl String?
+  id              String   @id @default(cuid())
+  title           String
+  slug            String   @unique
+
+  // UI preview + SEO basic
+  description     String?
+  content         String?
+
+  // SEO fields
+  metaTitle       String?
+  metaDescription String?
+  canonicalUrl    String?
+
+  // Blog meta
+  author          String?
+  category        String?
+  tags            String[] @default([])
+
+  // Media
+  thumbnailUrl    String?
+
+  // Publishing
+  published       Boolean  @default(false)
+  publishedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([published, publishedAt])
+  @@index([category])
 }
+
 
 enum MedicineForm {
   TABLET

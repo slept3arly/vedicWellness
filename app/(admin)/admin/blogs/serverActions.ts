@@ -18,27 +18,50 @@ async function getRequestContext() {
 }
 
 export async function createBlog(formData: FormData) {
-  // ✅ CSRF first
   await assertSameOriginAction();
-
-  // ✅ Auth second (and capture admin id for audit)
   const admin = await requireAdmin();
 
   const title = String(formData.get("title") ?? "").trim();
   const slug = String(formData.get("slug") ?? "").trim();
+
   const description = String(formData.get("description") ?? "").trim();
   const content = String(formData.get("content") ?? "").trim();
-  const published = formData.get("published") === "on";
   const thumbnailUrl = String(formData.get("thumbnailUrl") ?? "").trim();
+
+  const metaTitle = String(formData.get("metaTitle") ?? "").trim();
+  const metaDescription = String(formData.get("metaDescription") ?? "").trim();
+  const canonicalUrl = String(formData.get("canonicalUrl") ?? "").trim();
+
+  const author = String(formData.get("author") ?? "").trim();
+  const category = String(formData.get("category") ?? "").trim();
+
+  const tagsRaw = String(formData.get("tags") ?? "").trim();
+  const tags = tagsRaw
+    ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean)
+    : [];
+
+  const published = formData.get("published") === "on";
+  const publishedAt = published ? new Date() : null;
 
   const blog = await prisma.blog.create({
     data: {
       title,
       slug,
-      description,
-      content,
-      published,
+      description: description || null,
+      content: content || null,
+
       thumbnailUrl: thumbnailUrl || null,
+
+      metaTitle: metaTitle || null,
+      metaDescription: metaDescription || null,
+      canonicalUrl: canonicalUrl || null,
+
+      author: author || "Vedic Wellness Team",
+      category: category || null,
+      tags,
+
+      published,
+      publishedAt,
     },
     select: { id: true },
   });
@@ -57,6 +80,7 @@ export async function createBlog(formData: FormData) {
   redirect("/admin/blogs");
 }
 
+
 export async function updateBlog(formData: FormData) {
   await assertSameOriginAction();
   const admin = await requireAdmin();
@@ -65,26 +89,59 @@ export async function updateBlog(formData: FormData) {
 
   const title = String(formData.get("title") ?? "").trim();
   const slug = String(formData.get("slug") ?? "").trim();
+
   const description = String(formData.get("description") ?? "").trim();
   const content = String(formData.get("content") ?? "").trim();
-  const published = formData.get("published") === "on";
 
   const thumbnailUrl = String(formData.get("thumbnailUrl") ?? "").trim();
   const oldThumbnailUrl = String(formData.get("oldThumbnailUrl") ?? "").trim();
+
+  const metaTitle = String(formData.get("metaTitle") ?? "").trim();
+  const metaDescription = String(formData.get("metaDescription") ?? "").trim();
+  const canonicalUrl = String(formData.get("canonicalUrl") ?? "").trim();
+
+  const author = String(formData.get("author") ?? "").trim();
+  const category = String(formData.get("category") ?? "").trim();
+
+  const tagsRaw = String(formData.get("tags") ?? "").trim();
+  const tags = tagsRaw
+    ? tagsRaw.split(",").map((t) => t.trim()).filter(Boolean)
+    : [];
+
+  const published = formData.get("published") === "on";
+
+  // ✅ ensure publishedAt is set if publishing first time
+  const current = await prisma.blog.findUnique({
+    where: { id },
+    select: { published: true, publishedAt: true },
+  });
+
+  const publishedAt =
+    published && !current?.publishedAt ? new Date() : current?.publishedAt;
 
   await prisma.blog.update({
     where: { id },
     data: {
       title,
       slug,
-      description,
-      content,
-      published,
+      description: description || null,
+      content: content || null,
+
       thumbnailUrl: thumbnailUrl || null,
+
+      metaTitle: metaTitle || null,
+      metaDescription: metaDescription || null,
+      canonicalUrl: canonicalUrl || null,
+
+      author: author || "Vedic Wellness Team",
+      category: category || null,
+      tags,
+
+      published,
+      publishedAt: published ? publishedAt : null,
     },
   });
 
-  // ✅ delete old thumbnail if changed
   if (oldThumbnailUrl && thumbnailUrl && oldThumbnailUrl !== thumbnailUrl) {
     const key = getR2KeyFromPublicUrl(oldThumbnailUrl);
     if (key) {
@@ -114,6 +171,7 @@ export async function updateBlog(formData: FormData) {
 
   redirect("/admin/blogs");
 }
+
 
 export async function deleteBlog(formData: FormData) {
   await assertSameOriginAction();

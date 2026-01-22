@@ -54,42 +54,76 @@ export default async function BlogDetailsPage({ params }: Props) {
   const imageUrl = blog.thumbnailUrl ?? `${SITE_URL}/og.jpg`;
 
   const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BlogPosting",
-    mainEntityOfPage: {
-      "@type": "WebPage",
-      "@id": blogUrl,
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": blogUrl,
+  },
+  headline: blog.title,
+  description: blog.description ?? "Read this article from Vedic Wellness.",
+  image: [imageUrl],
+  datePublished: new Date(blog.createdAt).toISOString(),
+  dateModified: new Date(blog.updatedAt ?? blog.createdAt).toISOString(),
+
+  inLanguage: "en-IN",
+
+  author: {
+    "@type": "Organization",
+    name: "Vedic Wellness",
+    url: SITE_URL,
+  },
+  publisher: {
+    "@type": "Organization",
+    name: "Vedic Wellness",
+    url: SITE_URL,
+    logo: {
+      "@type": "ImageObject",
+      url: `${SITE_URL}/logo.svg`,
     },
-    headline: blog.title,
-    description: blog.description ?? "Read this article from Vedic Wellness.",
-    image: [imageUrl],
-    datePublished: new Date(blog.createdAt).toISOString(),
-    dateModified: new Date(blog.updatedAt ?? blog.createdAt).toISOString(),
-    author: {
-      "@type": "Organization",
-      name: "Vedic Wellness",
-      url: SITE_URL,
+  },
+
+  isPartOf: {
+    "@type": "Blog",
+    name: "Vedic Wellness Blogs",
+    url: `${SITE_URL}/blogs`,
+  },
+};
+
+  const breadcrumbLd = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: SITE_URL,
     },
-    publisher: {
-      "@type": "Organization",
-      name: "Vedic Wellness",
-      url: SITE_URL,
-      logo: {
-        "@type": "ImageObject",
-        url: `${SITE_URL}/logo.svg`,
-      },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: "Blogs",
+      item: `${SITE_URL}/blogs`,
     },
-  };
+    {
+      "@type": "ListItem",
+      position: 3,
+      name: blog.title,
+      item: blogUrl,
+    },
+  ],
+};
+
 
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 -z-10" />
 
       <div className="mx-auto max-w-5xl px-6 pt-10 pb-16 lg:pt-16 lg:pb-20">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+
 
         <div className="flex flex-wrap gap-3">
           <Chip>Blogs</Chip>

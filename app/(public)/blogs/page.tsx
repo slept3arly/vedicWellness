@@ -17,6 +17,15 @@ export default async function BlogsPage() {
   const blogs = await prisma.blog.findMany({
     where: { published: true },
     orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      thumbnailUrl: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
 
   const jsonLd = {
@@ -24,13 +33,23 @@ export default async function BlogsPage() {
     "@type": "Blog",
     name: "Vedic Wellness Blogs",
     url: `${SITE_URL}/blogs`,
+    publisher: {
+      "@type": "Organization",
+      name: "Vedic Wellness",
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/logo.svg`,
+      },
+    },
     blogPost: blogs.map((b) => ({
       "@type": "BlogPosting",
       headline: b.title,
       description: b.description ?? "Read this article from Vedic Wellness.",
-      datePublished: new Date(b.createdAt).toISOString(),
-      dateModified: b.updatedAt ? new Date(b.updatedAt).toISOString() : undefined,
       url: `${SITE_URL}/blogs/${b.slug}`,
+      datePublished: new Date(b.createdAt).toISOString(),
+      dateModified: new Date(b.updatedAt).toISOString(),
+      image: b.thumbnailUrl ? [b.thumbnailUrl] : [`${SITE_URL}/og.jpg`],
     })),
   };
 

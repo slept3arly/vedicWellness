@@ -17,12 +17,12 @@ export default function BlogNewForm() {
         action={createBlog}
         style={{ marginTop: 18, display: "grid", gap: 12 }}
       >
+        {/* Core */}
         <input name="title" placeholder="Blog title" required />
         <input name="slug" placeholder="Slug (example: why-hair-oil)" required />
 
-        {/* ✅ Hidden input: thumbnailUrl goes to server action */}
+        {/* Media */}
         <input type="hidden" name="thumbnailUrl" value={thumbnailUrl} />
-
         <div>
           <p style={{ marginBottom: 8, fontWeight: 600 }}>Thumbnail Image</p>
           <R2Upload folder="blogs" onUploaded={setThumbnailUrl} />
@@ -37,6 +37,46 @@ export default function BlogNewForm() {
           )}
         </div>
 
+        {/* SEO */}
+        <hr />
+        <h3 style={{ fontWeight: 700 }}>SEO Settings</h3>
+
+        <input
+          name="metaTitle"
+          placeholder="Meta Title (optional, defaults to Blog Title)"
+        />
+
+        <textarea
+          name="metaDescription"
+          placeholder="Meta Description (recommended)"
+          rows={3}
+        />
+
+        <input
+          name="canonicalUrl"
+          placeholder="Canonical URL (optional)"
+        />
+
+        {/* Blog Meta */}
+        <hr />
+        <h3 style={{ fontWeight: 700 }}>Blog Details</h3>
+
+        <input
+          name="author"
+          placeholder="Author (default: Vedic Wellness Team)"
+        />
+
+        <input
+          name="category"
+          placeholder="Category (example: Ayurveda / Franchise / Business)"
+        />
+
+        <input
+          name="tags"
+          placeholder="Tags (comma separated) e.g. Ayurveda, Franchise, PCD"
+        />
+
+        {/* Main Content */}
         <textarea
           name="description"
           placeholder="Short description (shown in list + SEO)"
@@ -49,8 +89,9 @@ export default function BlogNewForm() {
           rows={12}
         />
 
+        {/* Publishing */}
         <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <input name="published" type="checkbox" defaultChecked />
+          <input name="published" type="checkbox" />
           Published
         </label>
 

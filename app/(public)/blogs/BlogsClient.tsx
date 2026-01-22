@@ -9,19 +9,17 @@ import GlassCard from "@/components/ui/GlassCard";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Chip from "@/components/ui/Chip";
 
-type Blog = {
+// ✅ only fields needed for blog list page
+type BlogListItem = {
   id: string;
   title: string;
   slug: string;
   description: string | null;
-  content: string | null;
-  thumbnailUrl: string | null; // ✅ add this
-  published: boolean;
+  thumbnailUrl: string | null;
   createdAt: Date;
 };
 
-
-export default function BlogsClient({ blogs }: { blogs: Blog[] }) {
+export default function BlogsClient({ blogs }: { blogs: BlogListItem[] }) {
   return (
     <section className="relative overflow-hidden">
       <div className="absolute inset-0 -z-10" />
@@ -51,10 +49,7 @@ export default function BlogsClient({ blogs }: { blogs: Blog[] }) {
         </div>
 
         <div className="mt-14">
-          <SectionHeading
-            title="Latest Articles"
-            subtitle="Fresh reads from our team"
-          />
+          <SectionHeading title="Latest Articles" subtitle="Fresh reads from our team" />
 
           {/* Grid */}
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -66,18 +61,22 @@ export default function BlogsClient({ blogs }: { blogs: Blog[] }) {
                 viewport={{ once: true }}
                 transition={{ duration: 0.35, delay: idx * 0.03 }}
               >
-                <Link href={`/blogs/${encodeURIComponent(b.slug)}`} className="block group">
+                <Link
+                  href={`/blogs/${encodeURIComponent(b.slug)}`}
+                  className="block group"
+                >
                   <GlassCard className="p-6 transition hover:shadow-2xl">
                     {b.thumbnailUrl ? (
                       <div className="mb-4 overflow-hidden rounded-2xl border border-white/10">
                         <img
-                        src={b.thumbnailUrl}
-                        alt={b.title}
-                        className="h-44 w-full object-cover"
-                        loading="lazy"
-                      />
+                          src={b.thumbnailUrl}
+                          alt={b.title}
+                          className="h-44 w-full object-cover"
+                          loading="lazy"
+                        />
                       </div>
                     ) : null}
+
                     <div className="flex items-start justify-between gap-4">
                       <h2 className="font-heading text-lg font-extrabold text-slate-900 dark:text-white">
                         {b.title}

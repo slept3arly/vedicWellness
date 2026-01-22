@@ -17,19 +17,14 @@ export default function BlogEditForm({ blog }: { blog: any }) {
       >
         <input type="hidden" name="id" value={blog.id} />
 
-        {/* ✅ for deleting old thumbnail */}
-        <input
-          type="hidden"
-          name="oldThumbnailUrl"
-          value={blog.thumbnailUrl ?? ""}
-        />
-
-        {/* ✅ actual current thumbnail submitted */}
+        <input type="hidden" name="oldThumbnailUrl" value={blog.thumbnailUrl ?? ""} />
         <input type="hidden" name="thumbnailUrl" value={thumbnailUrl} />
 
+        {/* Core */}
         <input name="title" defaultValue={blog.title} required />
         <input name="slug" defaultValue={blog.slug} required />
 
+        {/* Thumbnail */}
         <div>
           <p style={{ marginBottom: 8, fontWeight: 600 }}>Thumbnail Image</p>
           <R2Upload folder="blogs" onUploaded={setThumbnailUrl} />
@@ -38,26 +33,62 @@ export default function BlogEditForm({ blog }: { blog: any }) {
               View current thumbnail
             </a>
           ) : (
-            <p style={{ fontSize: 12, opacity: 0.7 }}>
-              No thumbnail uploaded.
-            </p>
+            <p style={{ fontSize: 12, opacity: 0.7 }}>No thumbnail uploaded.</p>
           )}
         </div>
 
+        {/* SEO */}
+        <hr />
+        <h3 style={{ fontWeight: 700 }}>SEO Settings</h3>
+
+        <input
+          name="metaTitle"
+          defaultValue={blog.metaTitle ?? ""}
+          placeholder="Meta Title"
+        />
+
         <textarea
-          name="description"
-          defaultValue={blog.description ?? ""}
+          name="metaDescription"
+          defaultValue={blog.metaDescription ?? ""}
+          placeholder="Meta Description"
           rows={3}
         />
 
+        <input
+          name="canonicalUrl"
+          defaultValue={blog.canonicalUrl ?? ""}
+          placeholder="Canonical URL"
+        />
+
+        {/* Blog Meta */}
+        <hr />
+        <h3 style={{ fontWeight: 700 }}>Blog Details</h3>
+
+        <input
+          name="author"
+          defaultValue={blog.author ?? ""}
+          placeholder="Author"
+        />
+
+        <input
+          name="category"
+          defaultValue={blog.category ?? ""}
+          placeholder="Category"
+        />
+
+        <input
+          name="tags"
+          defaultValue={(blog.tags ?? []).join(", ")}
+          placeholder="Tags (comma separated)"
+        />
+
+        {/* Content */}
+        <textarea name="description" defaultValue={blog.description ?? ""} rows={3} />
         <textarea name="content" defaultValue={blog.content ?? ""} rows={12} />
 
+        {/* Publishing */}
         <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <input
-            type="checkbox"
-            name="published"
-            defaultChecked={blog.published}
-          />
+          <input type="checkbox" name="published" defaultChecked={blog.published} />
           Published (visible on website)
         </label>
 
