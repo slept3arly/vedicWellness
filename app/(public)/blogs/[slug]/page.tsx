@@ -8,14 +8,17 @@ type Props = {
   params: Promise<{ slug: string }>;
 };
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+  "https://vedic-wellness.vercel.app";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug: rawSlug } = await params;
-const slug = decodeURIComponent(rawSlug);
-
+  const slug = decodeURIComponent(rawSlug);
 
   const blog = await prisma.blog.findFirst({
     where: { slug, published: true },
-    select: { title: true, description: true },
+    select: { title: true, description: true, thumbnailUrl: true },
   });
 
   if (!blog) return {};
@@ -26,13 +29,20 @@ const slug = decodeURIComponent(rawSlug);
       blog.description ??
       "Read the latest Ayurveda insights and franchise updates from Vedic Wellness.",
     alternates: { canonical: `/blogs/${slug}` },
+
+    openGraph: {
+      title: blog.title,
+      description: blog.description ?? "",
+      url: `${SITE_URL}/blogs/${slug}`,
+      images: blog.thumbnailUrl ? [{ url: blog.thumbnailUrl }] : undefined,
+      type: "article",
+    },
   };
 }
 
 export default async function BlogDetailsPage({ params }: Props) {
   const { slug: rawSlug } = await params;
-const slug = decodeURIComponent(rawSlug);
-
+  const slug = decodeURIComponent(rawSlug);
 
   const blog = await prisma.blog.findFirst({
     where: { slug, published: true },
@@ -40,23 +50,34 @@ const slug = decodeURIComponent(rawSlug);
 
   if (!blog) return notFound();
 
-  const baseUrl = "https://vedic-wellness.vercel.app";
+  const blogUrl = `${SITE_URL}/blogs/${blog.slug}`;
+  const imageUrl = blog.thumbnailUrl ?? `${SITE_URL}/og.jpg`;
 
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": blogUrl,
+    },
     headline: blog.title,
     description: blog.description ?? "Read this article from Vedic Wellness.",
+    image: [imageUrl],
     datePublished: new Date(blog.createdAt).toISOString(),
-    dateModified: new Date(blog.createdAt).toISOString(),
-    mainEntityOfPage: `${baseUrl}/blogs/${blog.slug}`,
+    dateModified: new Date(blog.updatedAt ?? blog.createdAt).toISOString(),
     author: {
       "@type": "Organization",
-      name: "Vedic Wellness (Innovia Drugs)",
+      name: "Vedic Wellness",
+      url: SITE_URL,
     },
     publisher: {
       "@type": "Organization",
-      name: "Vedic Wellness (Innovia Drugs)",
+      name: "Vedic Wellness",
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/logo.svg`,
+      },
     },
   };
 

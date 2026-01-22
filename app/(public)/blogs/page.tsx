@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import BlogsClient from "./BlogsClient";
-import { prisma } from "@/lib/db/prisma"; // adjust
+import { prisma } from "@/lib/db/prisma";
+
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+  "https://vedic-wellness.vercel.app";
 
 export const metadata: Metadata = {
   title: "Blogs | Vedic Wellness - Ayurvedic PCD Pharma Franchise",
@@ -15,25 +19,23 @@ export default async function BlogsPage() {
     orderBy: { createdAt: "desc" },
   });
 
-  // ✅ STEP 4 schema here
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Blog",
     name: "Vedic Wellness Blogs",
-    url: "https://yourdomain.com/blogs",
+    url: `${SITE_URL}/blogs`,
     blogPost: blogs.map((b) => ({
       "@type": "BlogPosting",
       headline: b.title,
       description: b.description ?? "Read this article from Vedic Wellness.",
       datePublished: new Date(b.createdAt).toISOString(),
-
-      url: `https://yourdomain.com/blogs/${b.slug}`,
+      dateModified: b.updatedAt ? new Date(b.updatedAt).toISOString() : undefined,
+      url: `${SITE_URL}/blogs/${b.slug}`,
     })),
   };
 
   return (
     <>
-      {/* ✅ schema must be inside return */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

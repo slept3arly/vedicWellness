@@ -7,6 +7,7 @@ import MarqueeBanner from "@/components/MarqueeBanner";
 import GlobalBackground from "@/components/GlobalBackground";
 import RouteLoader from "@/components/RouteLoader";
 import Providers from "@/app/Providers";
+import Script from "next/script";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
@@ -113,6 +114,61 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     >
       <body className="relative min-h-screen">
         <GlobalBackground />
+        <Script
+  id="structured-data"
+  type="application/ld+json"
+  strategy="beforeInteractive"
+  dangerouslySetInnerHTML={{
+    __html: JSON.stringify([
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        name: BRAND_NAME,
+        url: SITE_URL,
+        logo: `${SITE_URL}/logo.svg`,
+        description: BRAND_DESCRIPTION,
+        brand: {
+          "@type": "Brand",
+          name: BRAND_NAME,
+        },
+        parentOrganization: {
+          "@type": "Organization",
+          name: "Innovia Drugs",
+        },
+        sameAs: [
+          "https://www.instagram.com/vedic.wellness.official",
+          "https://www.facebook.com/vedicwellnessid/",
+        ],
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "LocalBusiness",
+        name: BRAND_NAME,
+        image: `${SITE_URL}/og.jpg`,
+        url: SITE_URL,
+        telephone: "+91-9306025799",
+        address: {
+          "@type": "PostalAddress",
+          addressRegion: "Haryana",
+          addressCountry: "IN",
+        },
+        areaServed: {
+          "@type": "Country",
+          name: "India",
+        },
+        priceRange: "₹₹",
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: BRAND_NAME,
+        url: SITE_URL,
+        inLanguage: "en-IN",
+      },
+    ]),
+  }}
+/>
+
 
         <Providers>
           <RouteLoader />
