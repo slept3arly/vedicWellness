@@ -3,6 +3,10 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
 
+import { headers } from "next/headers";
+import { rateLimitOrThrow } from "@/lib/security/rateLimit";
+import { limits } from "@/lib/security/limits";
+
 type AppRole = "ADMIN" | "EDITOR" | "VIEWER";
 
 type AppUser = {
@@ -11,9 +15,33 @@ type AppUser = {
   role: AppRole;
 };
 
+async function getIpFromNextHeaders() {
+  const h = await headers();
+
+  const xff = h.get("x-forwarded-for");
+  if (xff) {
+    const first = xff.split(",")[0]?.trim();
+    if (first) return first;
+  }
+
+  const realIp = h.get("x-real-ip");
+  if (realIp) return realIp.trim();
+
+  const cfIp = h.get("cf-connecting-ip");
+  if (cfIp) return cfIp.trim();
+
+  return "unknown";
+}
+
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: true,
+
+  // ✅ safer: trust host only in dev
+  trustHost: process.env.NODE_ENV !== "production",
 
   session: {
     strategy: "jwt",
@@ -70,26 +98,43 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       async authorize(credentials) {
         try {
-          const email = credentials?.email?.toString().toLowerCase().trim();
-          const password = credentials?.password?.toString();
+          const ip = await getIpFromNextHeaders();
+
+          const email = credentials?.email?.toString().toLowerCase().trim() ?? "";
+          const password = credentials?.password?.toString() ?? "";
 
           if (!email || !password) return null;
 
+          // ✅ brute-force protection
+          await rateLimitOrThrow(`login-ip:${ip}`, limits.loginIp);
+          await rateLimitOrThrow(`login:${email}:${ip}`, limits.loginEmail);
+
           const user = await prisma.user.findUnique({ where: { email } });
-          if (!user) return null;
+
+          // ✅ slow down brute force a bit
+          if (!user) {
+            await sleep(350);
+            return null;
+          }
 
           const ok = await bcrypt.compare(password, user.password);
-          if (!ok) return null;
 
-          // ✅ must return role/id for jwt callback
+          if (!ok) {
+            await sleep(350);
+            return null;
+          }
+
           return {
             id: user.id,
             email: user.email,
             role: user.role as AppRole,
           } satisfies AppUser;
-        } catch {
-          return null;
-        }
+        } catch (err: any) {
+            if (err?.message === "RATE_LIMITED") {
+              console.log("LOGIN RATE LIMITED", { ip: await getIpFromNextHeaders() });
+            }
+            return null;
+          }
       },
     }),
   ],

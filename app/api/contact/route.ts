@@ -9,15 +9,14 @@ import { verifyTurnstile } from "@/lib/security/turnstile";
 import { createLead } from "@/lib/db/lead";
 import { sanitizeText } from "@/lib/security/sanitize";
 import { hasMxRecord } from "@/lib/security/email";
+import { assertSameOriginRequest } from "@/lib/security/csrf"; // ✅ ADD
 
 function getIpFromRequest(req: Request) {
-  // Vercel / CF / proxies
   const xff = req.headers.get("x-forwarded-for");
   if (xff) {
-  const first = xff.split(",")[0]?.trim();
-  if (first) return first;
-}
-
+    const first = xff.split(",")[0]?.trim();
+    if (first) return first;
+  }
 
   const realIp = req.headers.get("x-real-ip");
   if (realIp) return realIp.trim();
@@ -27,6 +26,9 @@ function getIpFromRequest(req: Request) {
 
 export async function POST(req: Request) {
   try {
+    // ✅ CSRF same-origin validation
+    assertSameOriginRequest(req);
+
     // 1) Rate limit (by IP)
     const ip = getIpFromRequest(req);
     await rateLimitOrThrow(`contact:${ip}`, limits.contact);
@@ -39,7 +41,7 @@ export async function POST(req: Request) {
 
     // 3) Honeypot (bots fill hidden fields)
     if (typeof body.website === "string" && body.website.length > 0) {
-      return NextResponse.json({ ok: true }, { status: 200 }); // pretend success
+      return NextResponse.json({ ok: true }, { status: 200 });
     }
 
     // 4) Validate using zod
@@ -51,24 +53,23 @@ export async function POST(req: Request) {
       );
     }
 
-
     const { name, email, phone, city, message, turnstileToken } = parsed.data;
-// ✅ Reject fake email domains (no MX records)
-const emailDomain = email.split("@")[1]?.toLowerCase();
-if (!emailDomain || !(await hasMxRecord(emailDomain))) {
-  return NextResponse.json(
-    {
-      error: "Please enter a valid email address.",
-      issues: {
-        fieldErrors: {
-          email: ["Email domain does not exist or cannot receive emails."],
-        },
-      },
-    },
-    { status: 400 }
-  );
-}
 
+    // ✅ Reject fake email domains (no MX records)
+    const emailDomain = email.split("@")[1]?.toLowerCase();
+    if (!emailDomain || !(await hasMxRecord(emailDomain))) {
+      return NextResponse.json(
+        {
+          error: "Please enter a valid email address.",
+          issues: {
+            fieldErrors: {
+              email: ["Email domain does not exist or cannot receive emails."],
+            },
+          },
+        },
+        { status: 400 }
+      );
+    }
 
     // 5) Verify Turnstile
     const turnstile = await verifyTurnstile(turnstileToken, ip);
@@ -93,11 +94,20 @@ if (!emailDomain || !(await hasMxRecord(emailDomain))) {
     await createLead(safeLead);
 
     return NextResponse.json({ ok: true }, { status: 200 });
-  } catch (err: any) {
-    // Don't leak internals in prod
+  }  catch (err: any) {
+    // ✅ CSRF / rate-limit friendly mapping
+    if (err?.message?.startsWith("CSRF blocked")) {
+      return NextResponse.json({ error: "Invalid request" }, { status: 403 });
+    }
+
     const status = typeof err?.status === "number" ? err.status : 500;
-    const msg = err?.message === "RATE_LIMITED" ? "Too many requests" : "Something went wrong";
+
+    const msg =
+      err?.message === "RATE_LIMITED"
+        ? "Too many requests"
+        : "Something went wrong";
 
     return NextResponse.json({ error: msg }, { status });
   }
+
 }

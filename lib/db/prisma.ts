@@ -1,9 +1,7 @@
-import { PrismaClient } from "@prisma/client";
 import "server-only";
+import "@/lib/env";
 
-if (!process.env.DATABASE_URL) {
-  throw new Error("❌ DATABASE_URL missing. Check .env");
-}
+import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

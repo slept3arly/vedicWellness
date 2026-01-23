@@ -39,7 +39,7 @@ export default function SignupForm() {
     const password = String(formData.get("password"));
 
     try {
-      const res = await fetch("/api/auth/signup", {
+      const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
@@ -116,11 +116,12 @@ export default function SignupForm() {
       <button
         className="w-full rounded-xl bg-green-600 py-3.5 text-base font-semibold text-white shadow-md hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-60"
         type="submit"
-        disabled={isLoading || !turnstileToken} // ✅ block submit until verified
+        disabled={isLoading || !turnstileToken}
       >
         {isLoading ? "Creating..." : "Create account"}
       </button>
 
+      {/* ✅ “Already have account?” */}
       <div className="text-center text-sm text-black/70 dark:text-white/70">
         Already have an account?{" "}
         <a
