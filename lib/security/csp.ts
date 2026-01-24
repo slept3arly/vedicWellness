@@ -3,8 +3,8 @@ type CspOptions = {
 };
 
 export function buildCspHeader({ isDev }: CspOptions = {}) {
-  // Next.js needs inline scripts unless you implement CSP nonces/hashes.
-  // This CSP is still secure enough for most projects and avoids blank pages.
+  const scriptSrc = `'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https:`;
+
   const csp = [
     `default-src 'self'`,
     `base-uri 'self'`,
@@ -15,11 +15,16 @@ export function buildCspHeader({ isDev }: CspOptions = {}) {
     `img-src 'self' https: data: blob:`,
     `font-src 'self' https: data:`,
     `style-src 'self' 'unsafe-inline' https:`,
-    // ✅ allow inline scripts (Next needs it)
-    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https:`,
+
+    // ✅ scripts
+    `script-src ${scriptSrc}`,
+    `script-src-elem ${scriptSrc}`,
+    `script-src-attr 'none'`,
+
     // allow API calls, auth, analytics later
     `connect-src 'self' https: wss:`,
     `media-src 'self' https: blob:`,
+
     `upgrade-insecure-requests`,
   ]
     .filter(Boolean)

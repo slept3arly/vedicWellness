@@ -284,14 +284,14 @@ export default function ProductsClient({
 
                       <div className="absolute left-4 top-4 flex gap-2">
                         {p.tag ? (
-                          <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                          <div className="inline-flex items-center gap-2 rounded-full bg-w/75 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
                             <Sparkles size={14} />
                             {p.tag}
                           </div>
                         ) : null}
 
                         {p.medicineForm ? (
-                          <div className="inline-flex items-center rounded-full border border-white/20 bg-black/25 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                          <div className="inline-flex items-center rounded-full bg-black/25 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
                             {String(p.medicineForm).toLowerCase()}
                           </div>
                         ) : null}
