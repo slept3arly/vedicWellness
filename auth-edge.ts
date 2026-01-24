@@ -2,7 +2,7 @@ import NextAuth from "next-auth";
 
 export const { auth } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
-  trustHost: process.env.NODE_ENV !== "production",
+  trustHost: true,
 
   // ✅ required by next-auth beta.30 types
   providers: [],
