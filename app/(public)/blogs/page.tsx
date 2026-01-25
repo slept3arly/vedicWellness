@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import BlogsClient from "./BlogsClient";
-import { prisma } from "@/lib/db/prisma";
+import { prisma } from "@/lib/db/prisma"; 
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
@@ -14,6 +14,8 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogsPage() {
+   
+
   const blogs = await prisma.blog.findMany({
     where: { published: true },
     orderBy: { createdAt: "desc" },
@@ -56,6 +58,7 @@ export default async function BlogsPage() {
   return (
     <>
       <script
+         
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />

@@ -6,7 +6,7 @@ import Link from "next/link";
 
 import GlassCard from "@/components/ui/GlassCard";
 import Chip from "@/components/ui/Chip";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/Button"; 
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -81,6 +81,7 @@ export default async function ProductDetailsPage({ params }: Props) {
   const directions = arr(product.directionsToUse);
   const contraindications = arr(product.contraindications);
   const packaging = arr(product.packaging);
+   
 
   const allImages = [
     ...(product.imageUrl ? [product.imageUrl] : []),
@@ -117,9 +118,11 @@ export default async function ProductDetailsPage({ params }: Props) {
 
       <div className="mx-auto max-w-6xl px-6 pt-10 pb-16 lg:pt-16 lg:pb-20">
         <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+   
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+/>
+
 
         {/* Top bar */}
         <div className="flex items-center justify-between gap-4">

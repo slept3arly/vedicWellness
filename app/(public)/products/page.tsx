@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import ProductsClient from "./ProductsClient";
-import { prisma } from "@/lib/db/prisma";
+import { prisma } from "@/lib/db/prisma"; 
 
 export const metadata: Metadata = {
   title: "Products | Vedic Wellness - Ayurvedic Franchise Product Range",
@@ -18,7 +18,7 @@ export default async function ProductsPage({
 }) {
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page ?? "1") || 1);
-
+   
   const where = { published: true };
 
   const [total, products] = await Promise.all([
@@ -59,9 +59,10 @@ export default async function ProductsPage({
   return (
     <>
       <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+   
+  type="application/ld+json"
+  dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+/>
 
       <ProductsClient
         products={products}
