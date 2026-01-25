@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { r2 } from "@/lib/storage/r2/client";
 import { auth } from "@/auth";
 
+import { assertSameOriginRequest } from "@/lib/security/csrf";
 import { rateLimitOrThrow } from "@/lib/security/rateLimit";
 import { limits } from "@/lib/security/limits";
 import { getClientIpFromRequest } from "@/lib/security/ip";
@@ -54,12 +55,14 @@ function getExt(fileName: string) {
 }
 
 export async function POST(req: Request) {
-  const session = await auth();
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    assertSameOriginRequest(req);
+
+    const session = await auth();
+    if (!session?.user?.email) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     // ✅ rate limit upload-url generation
     const ip = getClientIpFromRequest(req);
     await rateLimitOrThrow(`r2-upload-url:${ip}`, limits.r2UploadUrl);
