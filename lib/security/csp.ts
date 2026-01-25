@@ -3,9 +3,15 @@ type CspOptions = {
 };
 
 export function buildCspHeader({ isDev }: CspOptions = {}) {
-  const scriptSrc = `'self' https://challenges.cloudflare.com https:${
-    isDev ? " 'unsafe-eval'" : ""
-  }`;
+  const scriptSrc = [
+    `'self'`,
+    `https:`,
+    `https://challenges.cloudflare.com`,
+    `'unsafe-inline'`,              // 🔥 REQUIRED for Next.js
+    isDev ? `'unsafe-eval'` : ``,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   const csp = [
     `default-src 'self'`,
@@ -13,15 +19,14 @@ export function buildCspHeader({ isDev }: CspOptions = {}) {
     `object-src 'none'`,
     `frame-ancestors 'none'`,
 
-    // ✅ Cloudflare Turnstile iframe
-    `frame-src 'self' https://challenges.cloudflare.com`,
+    `frame-src https://challenges.cloudflare.com`,
 
     `form-action 'self'`,
     `img-src 'self' https: data: blob:`,
     `font-src 'self' https: data:`,
     `style-src 'self' 'unsafe-inline' https: blob: data:`,
 
-    // ✅ scripts (Turnstile allowed)
+    // ✅ FIXED
     `script-src ${scriptSrc}`,
     `script-src-elem ${scriptSrc}`,
     `script-src-attr 'none'`,
@@ -30,9 +35,7 @@ export function buildCspHeader({ isDev }: CspOptions = {}) {
     `media-src 'self' https: blob:`,
 
     `upgrade-insecure-requests`,
-  ]
-    .filter(Boolean)
-    .join("; ");
+  ].join("; ");
 
   return csp;
 }
