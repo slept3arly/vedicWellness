@@ -124,7 +124,7 @@ export default function BottomNavbar() {
          ================================================= */}
       <div
         className={`
-          fixed bottom-6 right-5 z-50
+          fixed bottom-6 left-5 z-50
           flex items-center justify-center
           transition-all duration-300
           ${shouldShow ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6 pointer-events-none"}
@@ -169,7 +169,7 @@ export default function BottomNavbar() {
          ================================================= */}
       <div
         className={`
-          fixed bottom-44 right-6 z-50
+          fixed bottom-44 left-6 z-50
           transition-all duration-300 delay-75
           ${shouldShow ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6 pointer-events-none"}
         `}
