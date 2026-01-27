@@ -3,17 +3,12 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/db/prisma";
 
+import type { User } from "next-auth";
+import type { Role } from "@prisma/client";
+
 import { headers } from "next/headers";
 import { rateLimitOrThrow } from "@/lib/security/rateLimit";
 import { limits } from "@/lib/security/limits";
-
-type AppRole = "ADMIN" | "EDITOR" | "VIEWER";
-
-type AppUser = {
-  id: string;
-  email: string;
-  role: AppRole;
-};
 
 async function getIpFromNextHeaders() {
   const h = await headers();
@@ -40,12 +35,11 @@ function sleep(ms: number) {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
 
-  // ✅ safer: trust host only in dev
   trustHost: true,
 
   session: {
     strategy: "jwt",
-    maxAge: 60 * 10, // 10 minutes
+    maxAge: 60 * 10,
     updateAge: 60,
   },
 
@@ -58,7 +52,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
 
   callbacks: {
-    // ✅ Protect /admin (role-based)
     authorized({ auth, request }) {
       const isLoggedIn = !!auth?.user;
       const { pathname } = request.nextUrl;
@@ -72,9 +65,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
     async jwt({ token, user }) {
       if (user) {
-        const u = user as AppUser;
-        token.uid = u.id;
-        token.role = u.role;
+        token.uid = user.id;
+        token.role = user.role as Role;
       }
       return token;
     },
@@ -82,7 +74,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.uid as string;
-        session.user.role = token.role as AppRole;
+        session.user.role = token.role as Role;
       }
       return session;
     },
@@ -105,13 +97,11 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           if (!email || !password) return null;
 
-          // ✅ brute-force protection
           await rateLimitOrThrow(`login-ip:${ip}`, limits.loginIp);
           await rateLimitOrThrow(`login:${email}:${ip}`, limits.loginEmail);
 
           const user = await prisma.user.findUnique({ where: { email } });
 
-          // ✅ slow down brute force a bit
           if (!user) {
             await sleep(350);
             return null;
@@ -124,17 +114,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          return {
+          const authUser: User = {
             id: user.id,
             email: user.email,
-            role: user.role as AppRole,
-          } satisfies AppUser;
+            role: user.role,
+            verified: user.verified,
+          };
+
+          return authUser;
         } catch (err: any) {
-            if (err?.message === "RATE_LIMITED") {
-              console.log("LOGIN RATE LIMITED", { ip: await getIpFromNextHeaders() });
-            }
-            return null;
+          if (err?.message === "RATE_LIMITED") {
+            console.log("LOGIN RATE LIMITED", {
+              ip: await getIpFromNextHeaders(),
+            });
           }
+          return null;
+        }
       },
     }),
   ],
