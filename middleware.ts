@@ -1,40 +1,56 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/auth";
+import type { NextRequest } from "next/server";
+import { jwtVerify } from "jose";
 
-export default auth((req) => {
-  const { nextUrl, auth: session } = req;
-  const path = nextUrl.pathname;
+const secret = new TextEncoder().encode(process.env.NEXTAUTH_SECRET);
 
-  const role = session?.user?.role;
-  const verified = session?.user?.verified;
+async function getSession(req: NextRequest) {
+  const token =
+    req.cookies.get("__Secure-next-auth.session-token")?.value ||
+    req.cookies.get("next-auth.session-token")?.value;
 
-  // Admin only
-  if (path.startsWith("/admin") && role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/login", nextUrl));
+  if (!token) return null;
+
+  try {
+    const { payload } = await jwtVerify(token, secret);
+    return payload as {
+      role?: string;
+      verified?: boolean;
+    };
+  } catch {
+    return null;
   }
+}
 
-  // Sales + Admin
-  if (path.startsWith("/sales") && !["ADMIN", "SALES"].includes(role ?? "")) {
-    return NextResponse.redirect(new URL("/login", nextUrl));
-  }
+export async function middleware(req: NextRequest) {
+  const { pathname } = req.nextUrl;
 
-  // Product gating
-  if (path.startsWith("/products")) {
-    if (!session) {
-      return NextResponse.redirect(new URL("/login", nextUrl));
+  const session = await getSession(req);
+
+  // 👑 Admin only
+  if (pathname.startsWith("/admin")) {
+    if (!session || session.role !== "ADMIN") {
+      return NextResponse.redirect(new URL("/login", req.url));
     }
-    if (!verified) {
-      return NextResponse.redirect(new URL("/verify-email", nextUrl));
+  }
+
+  // 📞 Sales + Admin
+  if (pathname.startsWith("/sales")) {
+    if (!session || !["ADMIN", "SALES"].includes(session.role ?? "")) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+  }
+
+  // 📦 Product pages (login only for now)
+  if (pathname.startsWith("/products")) {
+    if (!session) {
+      return NextResponse.redirect(new URL("/login", req.url));
     }
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
-  matcher: [
-    "/admin/:path*",
-    "/sales/:path*",
-    "/products/:path*",
-  ],
+  matcher: ["/admin/:path*", "/sales/:path*", "/products/:path*"],
 };
