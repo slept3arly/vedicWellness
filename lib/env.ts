@@ -5,6 +5,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).optional(),
 
   DATABASE_URL: z.string().min(1),
+  PRISMA_DATABASE_URL: z.string().min(1),
 
   // NextAuth / Auth.js
   NEXTAUTH_SECRET: z.string().min(1),
@@ -35,7 +36,6 @@ const envSchema = z.object({
 
   NEXT_PUBLIC_SITE_URL: z.string().optional(),
   VERCEL_OIDC_TOKEN: z.string().optional(),
-  PRISMA_DATABASE_URL: z.string().optional(),
 
   // Sentry optional for local
   SENTRY_DSN: z.string().url().optional(),

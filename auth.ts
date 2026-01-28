@@ -34,17 +34,12 @@ function sleep(ms: number) {
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
-
   trustHost: true,
 
   session: {
     strategy: "jwt",
     maxAge: 60 * 10,
     updateAge: 60,
-  },
-
-  jwt: {
-    maxAge: 60 * 10,
   },
 
   pages: {
@@ -66,7 +61,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.uid = user.id;
-        token.role = user.role as Role;
+        token.role = user.role;
       }
       return token;
     },
@@ -74,7 +69,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.uid as string;
-        session.user.role = token.role as Role;
+        session.user.role = token.role as any;
       }
       return session;
     },

@@ -2,15 +2,23 @@ import "server-only";
 import "@/lib/env";
 
 import { PrismaClient } from "@prisma/client";
+import { withAccelerate } from "@prisma/extension-accelerate";
+
+const prismaClientSingleton = () => {
+  return new PrismaClient({
+    log: ["error"],
+  }).$extends(withAccelerate());
+};
+
+type PrismaAccelerated = ReturnType<typeof prismaClientSingleton>;
 
 const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
+  prisma: PrismaAccelerated | undefined;
 };
 
 export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: ["error"],
-  });
+  globalForPrisma.prisma ?? prismaClientSingleton();
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = prisma;
+}

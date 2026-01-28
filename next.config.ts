@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import { buildCspHeader } from "@/lib/security/csp";
+import withBundleAnalyzer from "@next/bundle-analyzer"; // 1. Import the analyzer
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
@@ -43,4 +44,7 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+// 2. Wrap the export with the analyzer logic
+export default withBundleAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})(nextConfig);
