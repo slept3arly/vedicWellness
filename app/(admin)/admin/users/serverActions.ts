@@ -26,7 +26,7 @@ export async function createUser(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const role = String(formData.get("role") ?? "VIEWER") as
     | "ADMIN"
-    | "EDITOR"
+    | "SALES"
     | "VIEWER";
 
   if (!email || !password) throw new Error("Missing email/password");
@@ -64,7 +64,7 @@ export async function updateUserRole(formData: FormData) {
   const id = String(formData.get("id") ?? "").trim();
   const role = String(formData.get("role") ?? "VIEWER") as
     | "ADMIN"
-    | "EDITOR"
+    | "SALES"
     | "VIEWER";
 
   const old = await prisma.user.findUnique({ where: { id } });
@@ -97,7 +97,7 @@ export async function updateUser(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const role = String(formData.get("role") ?? "VIEWER") as
     | "ADMIN"
-    | "EDITOR"
+    | "SALES"
     | "VIEWER";
 
   const old = await prisma.user.findUnique({ where: { id } });

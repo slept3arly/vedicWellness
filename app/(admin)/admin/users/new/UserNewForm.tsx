@@ -15,7 +15,7 @@ export default function UserNewForm() {
 
         <select name="role" defaultValue="VIEWER">
           <option value="ADMIN">ADMIN</option>
-          <option value="EDITOR">EDITOR</option>
+          <option value="SALES">SALES</option>
           <option value="VIEWER">VIEWER</option>
         </select>
 

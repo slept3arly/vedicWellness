@@ -40,7 +40,7 @@ export default async function AdminUsersPage() {
                   <input type="hidden" name="id" value={u.id} />
                   <select name="role" defaultValue={u.role}>
                     <option value="ADMIN">ADMIN</option>
-                    <option value="EDITOR">EDITOR</option>
+                    <option value="SALES">SALES</option>
                     <option value="VIEWER">VIEWER</option>
                   </select>
                   <button type="submit">Save Role</button>

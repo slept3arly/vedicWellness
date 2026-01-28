@@ -15,7 +15,7 @@ export default function UserEditForm({ user }: { user: any }) {
 
         <select name="role" defaultValue={user.role}>
           <option value="ADMIN">ADMIN</option>
-          <option value="EDITOR">EDITOR</option>
+          <option value="SALES">SALES</option>
           <option value="VIEWER">VIEWER</option>
         </select>
 
