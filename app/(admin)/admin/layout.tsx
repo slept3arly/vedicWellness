@@ -1,5 +1,5 @@
-import AdminNav from "./AdminNav";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
+import AdminTabs from "./components/ui/AdminTabs";
 
 export const metadata = {
   robots: {
@@ -8,17 +8,26 @@ export const metadata = {
   },
 };
 
+const tabs = [
+  { label: "Dashboard", href: "/admin" },
+  { label: "Products", href: "/admin/products" },
+  { label: "Blogs", href: "/admin/blogs" },
+  { label: "Marquee", href: "/admin/marquee" },
+  { label: "Leads", href: "/admin/leads" },
+  { label: "Users", href: "/admin/users" },
+  { label: "Logs", href: "/admin/logs" },
+];
+
 export default async function AdminLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  // ✅ server-side RBAC gate
   await requireAdmin();
 
   return (
-    <div className="px-4 font-bold text-black dark:text-white lg:px-28 lg:pt-8">
-      <AdminNav />
+    <div className="min-h-screen px-6 lg:px-24 pt-6 space-y-6 text-white">
+      <AdminTabs />
       <div>{children}</div>
     </div>
   );

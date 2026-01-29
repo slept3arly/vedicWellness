@@ -113,6 +113,7 @@ model User {
   id        String   @id @default(cuid())
   email     String   @unique
   password  String
+  name     String?
   role      Role     @default(VIEWER)
 
   verified  Boolean  @default(false)
@@ -120,21 +121,40 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  leads Lead[] @relation("UserLeads")
 }
 
 
 model Lead {
-  id        String    @id @default(cuid())
+  id        String   @id @default(cuid())
   name      String
   email     String
   phone     String?
+  city      String?   // ✅ NEW COLUMN
   message   String
+
   ip        String?
   userAgent String?
-  createdAt DateTime  @default(now())
-  done      Boolean   @default(false)
-  doneAt    DateTime?
+
+  status    LeadStatus @default(NEW)
+
+  ownerId   String?
+  owner     User? @relation("UserLeads", fields: [ownerId], references: [id])
+
+  claimedAt DateTime?
+  createdAt DateTime @default(now())
 }
+
+
+
+enum LeadStatus {
+  NEW
+  IN_PROGRESS
+  CONVERTED
+  LOST
+}
+
 
 model AuditLog {
   id         String   @id @default(cuid())

@@ -82,13 +82,15 @@ export async function POST(req: Request) {
 
     // 6) Sanitize text fields (avoid stored XSS in admin panel)
     const safeLead = {
-      name: sanitizeText(name),
-      email: email.toLowerCase(),
-      phone: sanitizeText(phone ?? ""),
-      message: sanitizeText(`${message}\n\nCity/District: ${city}`),
-      ip,
-      userAgent: req.headers.get("user-agent") ?? null,
-    };
+  name: sanitizeText(name),
+  email: email.toLowerCase(),
+  phone: sanitizeText(phone ?? ""),
+  city: sanitizeText(city),          // ✅ now stored properly
+  message: sanitizeText(message),   // ✅ clean message only
+  ip,
+  userAgent: req.headers.get("user-agent") ?? null,
+};
+
 
     // 7) Store in DB
     await createLead(safeLead);

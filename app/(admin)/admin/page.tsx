@@ -1,30 +1,72 @@
 import Link from "next/link";
+import AdminCard from "./components/ui/AdminCard";
+import {
+  Package,
+  FileText,
+  Megaphone,
+  ClipboardList,
+  Users,
+  ScrollText,
+} from "lucide-react";
+
+const sections = [
+  {
+    label: "Products",
+    href: "/admin/products",
+    icon: Package,
+    desc: "Manage product catalog",
+  },
+  {
+    label: "Blogs",
+    href: "/admin/blogs",
+    icon: FileText,
+    desc: "Content & SEO posts",
+  },
+  {
+    label: "Marquee",
+    href: "/admin/marquee",
+    icon: Megaphone,
+    desc: "Homepage banner text",
+  },
+  {
+    label: "Leads",
+    href: "/admin/leads",
+    icon: ClipboardList,
+    desc: "Customer inquiries",
+  },
+  {
+    label: "Users",
+    href: "/admin/users",
+    icon: Users,
+    desc: "Admins, sales & viewers",
+  },
+  {
+    label: "Logs",
+    href: "/admin/logs",
+    icon: ScrollText,
+    desc: "System activity history",
+  },
+];
 
 export default function AdminHomePage() {
   return (
-    <div style={{ padding: 24 }} className="flex flex-col whitespace-nowrap">
-      <h1 style={{ fontSize: 28, fontWeight: 700 }} className="pb-4 pt-4">Admin Dashboard</h1>
+    <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+      {sections.map((s) => {
+        const Icon = s.icon;
 
-      <ul style={{ marginTop: 16, display: "grid", gap: 10 }}>
-        <li>
-          <Link href="/admin/products">1 Products</Link>
-        </li>
-        <li>
-          <Link href="/admin/blogs">2 Blogs</Link>
-        </li>
-        <li>
-          <Link href="/admin/marquee">3 Marquee Banner</Link>
-        </li>
-        <li>
-          <Link href="/admin/leads">4 Leads</Link>
-        </li>
-        <li>
-          <Link href="/admin/users">5 Users</Link>
-        </li>
-        <li>
-          <Link href="/admin/logs">6 Logs</Link>
-        </li>
-      </ul>
+        return (
+          <Link key={s.href} href={s.href}>
+            <AdminCard className="group hover:border-green-500 transition cursor-pointer space-y-2">
+              <div className="flex items-center gap-3">
+                <Icon size={28} className="text-green-400" />
+                <h2 className="text-lg font-semibold">{s.label}</h2>
+              </div>
+
+              <p className="opacity-70 text-sm">{s.desc}</p>
+            </AdminCard>
+          </Link>
+        );
+      })}
     </div>
   );
 }

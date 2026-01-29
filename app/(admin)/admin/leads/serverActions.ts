@@ -16,36 +16,68 @@ async function getRequestContext() {
   };
 }
 
-export async function toggleLeadDone(formData: FormData) {
+/* =====================
+   CLAIM LEAD
+===================== */
+export async function claimLead(formData: FormData) {
   await assertSameOriginAction();
   const admin = await requireAdmin();
 
   const id = String(formData.get("id") ?? "").trim();
-  const done = String(formData.get("done") ?? "false") === "true";
 
-  // toggle
   await prisma.lead.update({
     where: { id },
     data: {
-      done: !done,
-      doneAt: !done ? new Date() : null,
-    } as any,
+      ownerId: admin.id,
+      status: "IN_PROGRESS",
+      claimedAt: new Date(),
+    },
   });
 
-  const { ip, userAgent } = await getRequestContext();
+  const ctx = await getRequestContext();
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_UPDATE",
     entityType: "OTHER",
     entityId: id,
-    ip,
-    userAgent,
-    metadata: { kind: "LEAD", field: "done", from: done, to: !done },
+    ...ctx,
+    metadata: { kind: "LEAD", action: "CLAIM" },
   });
 
   revalidatePath("/admin/leads");
 }
 
+/* =====================
+   UPDATE STATUS
+===================== */
+export async function updateLeadStatus(formData: FormData) {
+  await assertSameOriginAction();
+  const admin = await requireAdmin();
+
+  const id = String(formData.get("id") ?? "").trim();
+  const status = String(formData.get("status") ?? "").trim();
+
+  await prisma.lead.update({
+    where: { id },
+    data: { status: status as any },
+  });
+
+  const ctx = await getRequestContext();
+  await auditLog({
+    actorId: admin.id,
+    action: "ADMIN_UPDATE",
+    entityType: "OTHER",
+    entityId: id,
+    ...ctx,
+    metadata: { kind: "LEAD", status },
+  });
+
+  revalidatePath("/admin/leads");
+}
+
+/* =====================
+   DELETE LEAD
+===================== */
 export async function deleteLead(formData: FormData) {
   await assertSameOriginAction();
   const admin = await requireAdmin();
@@ -55,14 +87,13 @@ export async function deleteLead(formData: FormData) {
   const lead = await prisma.lead.findUnique({ where: { id } });
   await prisma.lead.delete({ where: { id } });
 
-  const { ip, userAgent } = await getRequestContext();
+  const ctx = await getRequestContext();
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_DELETE",
     entityType: "OTHER",
     entityId: id,
-    ip,
-    userAgent,
+    ...ctx,
     metadata: {
       kind: "LEAD",
       email: lead?.email ?? null,
