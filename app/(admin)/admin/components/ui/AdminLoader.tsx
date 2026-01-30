@@ -1,7 +1,12 @@
 export default function AdminLoader() {
   return (
-    <span className="animate-pulse text-sm opacity-70">
-      Processing...
-    </span>
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex items-center gap-2 text-sm text-muted-foreground"
+    >
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      Processing…
+    </div>
   );
 }

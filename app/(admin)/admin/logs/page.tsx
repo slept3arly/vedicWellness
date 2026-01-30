@@ -1,92 +1,123 @@
 import { prisma } from "@/lib/db/prisma";
 
+function formatDate(d: Date) {
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(d);
+}
+
+function humanAction(action: string) {
+  return action
+    .replace("ADMIN_", "")
+    .toLowerCase()
+    .replace("_", " ");
+}
+
+function actionColor(a: string) {
+  if (a.includes("DELETE")) return "text-red-400 bg-red-500/10";
+  if (a.includes("PUBLISH")) return "text-green-400 bg-green-500/10";
+  if (a.includes("UPDATE")) return "text-blue-400 bg-blue-500/10";
+  return "text-yellow-400 bg-yellow-500/10";
+}
+
 export default async function AdminLogsPage() {
   const logs = await prisma.auditLog.findMany({
     orderBy: { createdAt: "desc" },
     take: 200,
   });
 
-  return (
-    <div style={{ padding: 24 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700 }}>Admin · Logs</h1>
-      <p style={{ opacity: 0.7, marginTop: 6 }}>
-        Audit trail of admin actions (last 200).
-      </p>
+  // soft fetch user emails (safe)
+  const userIds = [...new Set(logs.map(l => l.actorId))];
 
-      {logs.length === 0 ? (
-        <p style={{ marginTop: 24, opacity: 0.7 }}>No logs yet.</p>
-      ) : (
-        <ul style={{ marginTop: 24, display: "grid", gap: 12 }}>
-          {logs.map((l) => (
-            <li
+  const users = await prisma.user.findMany({
+    where: { id: { in: userIds } },
+    select: { id: true, email: true, name: true },
+  });
+
+  const userMap = Object.fromEntries(
+    users.map(u => [u.id, u])
+  );
+
+  return (
+    <div className="space-y-6">
+
+      <div>
+        <h1 className="text-2xl font-bold">Admin Logs</h1>
+        <p className="text-sm text-muted-foreground">
+          Audit trail of system activity
+        </p>
+      </div>
+
+      <div className="space-y-3">
+        {logs.map(l => {
+          const actor = userMap[l.actorId];
+
+          return (
+            <div
               key={l.id}
-              style={{
-                border: "1px solid #2a2a2a",
-                borderRadius: 14,
-                padding: 14,
-              }}
+              className="rounded-2xl border border-border/40 p-4 bg-background/40"
             >
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <b style={{ fontSize: 16 }}>{l.action}</b>
-                <span style={{ opacity: 0.7 }}>
-                  {new Date(l.createdAt).toLocaleString()}
+              <div className="flex justify-between gap-2 flex-wrap">
+
+                <div className="flex items-center gap-2 text-sm">
+                  <span
+                    className={`px-3 py-1 rounded-full text-xs ${actionColor(
+                      l.action
+                    )}`}
+                  >
+                    {humanAction(l.action)}
+                  </span>
+
+                  <span className="font-medium">
+                    {l.entityType}
+                  </span>
+
+                  {l.entityId && (
+                    <span className="text-muted-foreground">
+                      ({l.entityId.slice(0, 8)}…)
+                    </span>
+                  )}
+                </div>
+
+                <span className="text-xs text-muted-foreground">
+                  {formatDate(l.createdAt)}
                 </span>
               </div>
 
-              <div style={{ marginTop: 8, opacity: 0.9 }}>
-                <div>
-                  <span style={{ opacity: 0.7 }}>Actor:</span>{" "}
-                  <code>{l.actorId}</code>
-                </div>
-
-                <div style={{ marginTop: 4 }}>
-                  <span style={{ opacity: 0.7 }}>Entity:</span>{" "}
-                  <code>
-                    {l.entityType}
-                    {l.entityId ? `:${l.entityId}` : ""}
-                  </code>
-                </div>
-
-                {(l.ip || l.userAgent) && (
-                  <div style={{ marginTop: 4, opacity: 0.75 }}>
-                    {l.ip ? (
-                      <span>
-                        IP: <code>{l.ip}</code>
-                      </span>
-                    ) : null}
-                    {l.userAgent ? (
-                      <span style={{ marginLeft: 12 }}>
-                        UA: <code>{l.userAgent}</code>
-                      </span>
-                    ) : null}
-                  </div>
+              <div className="mt-2 text-sm">
+                👤 {actor?.email ?? "Unknown user"}
+                {actor?.name && (
+                  <span className="text-muted-foreground">
+                    {" "}({actor.name})
+                  </span>
                 )}
               </div>
 
-              <details style={{ marginTop: 10 }}>
-                <summary style={{ cursor: "pointer", opacity: 0.85 }}>
-                  Metadata
-                </summary>
-                <pre
-                  style={{
-                    marginTop: 10,
-                    fontSize: 12,
-                    opacity: 0.8,
-                    whiteSpace: "pre-wrap",
-                    wordBreak: "break-word",
-                    background: "#8d8d8d",
-                    padding: 12,
-                    borderRadius: 12,
-                    border: "1px solid #2a2a2a",
-                  }}
-                >
-                  {JSON.stringify(l.metadata, null, 2)}
-                </pre>
-              </details>
-            </li>
-          ))}
-        </ul>
-      )}
+              {l.ip && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  🌐 {l.ip}
+                </div>
+              )}
+
+              {l.metadata && Object.keys(l.metadata as any).length > 0 && (
+                <details className="mt-3">
+                  <summary className="cursor-pointer text-sm text-primary">
+                    View details
+                  </summary>
+
+                  <pre className="mt-2 rounded-xl bg-muted p-3 text-xs">
+{JSON.stringify(l.metadata, null, 2)}
+                  </pre>
+                </details>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

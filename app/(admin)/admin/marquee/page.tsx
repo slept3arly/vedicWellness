@@ -1,6 +1,17 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { deleteMarqueeItem, toggleMarqueeItem } from "./serverActions";
+import AdminCard from "../components/ui/AdminCard";
+import AdminButton from "../components/ui/AdminButton";
+import AdminBadge from "../components/ui/AdminBadge";
+
+function formatDate(d: Date) {
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(d);
+}
 
 export default async function AdminMarqueePage() {
   const items = await prisma.marqueeItem.findMany({
@@ -8,53 +19,79 @@ export default async function AdminMarqueePage() {
   });
 
   return (
-    <div style={{ padding: 24 }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h1 style={{ fontSize: 28, fontWeight: 700 }}>Admin · Marquee</h1>
-        <Link href="/admin/marquee/new">+ Add Text</Link>
+    <div className="space-y-6">
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Marquee Text</h1>
+          <p className="text-sm text-muted-foreground">
+            Scrolling announcements on homepage
+          </p>
+        </div>
+
+        <Link href="/admin/marquee/new">
+          <AdminButton>+ Add Text</AdminButton>
+        </Link>
       </div>
 
-      {items.length === 0 ? (
-        <p style={{ marginTop: 24, opacity: 0.7 }}>No marquee items yet.</p>
-      ) : (
-        <div style={{ marginTop: 22, display: "grid", gap: 12 }}>
-          {items.map((m) => (
-            <div
-              key={m.id}
-              style={{
-                border: "1px solid #2a2a2a",
-                borderRadius: 14,
-                padding: 14,
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <b style={{ fontSize: 18 }}>{m.text}</b>
-                <span style={{ opacity: 0.8 }}>
-                  {m.isActive ? "✅ Active" : "🚫 Hidden"}
-                </span>
+      {items.length === 0 && (
+        <AdminCard className="text-center py-12 text-muted-foreground">
+          No marquee items yet.
+        </AdminCard>
+      )}
+
+      <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+        {items.map((m) => (
+          <AdminCard
+            key={m.id}
+            className="flex flex-col justify-between gap-4 hover:shadow-lg transition"
+          >
+            {/* Text + status */}
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <p className="font-medium text-lg leading-snug line-clamp-3">
+                  {m.text}
+                </p>
+
+                <AdminBadge
+                  status={m.isActive ? "ACTIVE" : "INACTIVE"}
+                />
               </div>
 
-              <div style={{ opacity: 0.6, marginTop: 4 }}>
-                order: {m.order}
-              </div>
-
-              <div style={{ display: "flex", gap: 12, marginTop: 10 }}>
-                <Link href={`/admin/marquee/edit/${m.id}`}>Edit</Link>
-
-                <form action={toggleMarqueeItem}>
-                  <input type="hidden" name="id" value={m.id} />
-                  <button type="submit">{m.isActive ? "Hide" : "Show"}</button>
-                </form>
-
-                <form action={deleteMarqueeItem}>
-                  <input type="hidden" name="id" value={m.id} />
-                  <button type="submit">Delete</button>
-                </form>
+              <div className="text-xs text-muted-foreground space-y-1">
+                <div>📌 Order: {m.order}</div>
+                <div>📅 Created: {formatDate(m.createdAt)}</div>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+
+            {/* Actions */}
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-border/40">
+
+              <Link href={`/admin/marquee/edit/${m.id}`}>
+                <AdminButton variant="secondary">
+                  Edit
+                </AdminButton>
+              </Link>
+
+              <form action={toggleMarqueeItem}>
+                <input type="hidden" name="id" value={m.id} />
+                <AdminButton variant="success">
+                  {m.isActive ? "Hide" : "Show"}
+                </AdminButton>
+              </form>
+
+              <form action={deleteMarqueeItem}>
+                <input type="hidden" name="id" value={m.id} />
+                <AdminButton variant="danger">
+                  Delete
+                </AdminButton>
+              </form>
+
+            </div>
+          </AdminCard>
+        ))}
+      </div>
     </div>
   );
 }

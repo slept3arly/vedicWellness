@@ -1,25 +1,38 @@
-import clsx from "clsx";
+type BadgeStatus =
+  | "NEW"
+  | "IN_PROGRESS"
+  | "CONVERTED"
+  | "LOST"
+  | "ADMIN"
+  | "SALES"
+  | "VIEWER"
+  | "ACTIVE"
+  | "INACTIVE";
 
-const styles: Record<string, string> = {
-  NEW: "bg-yellow-500/10 text-yellow-400 border-yellow-400/30",
-  IN_PROGRESS: "bg-blue-500/10 text-blue-400 border-blue-400/30",
-  CONVERTED: "bg-green-500/10 text-green-400 border-green-400/30",
-  LOST: "bg-red-500/10 text-red-400 border-red-400/30",
+const STYLE: Record<BadgeStatus, string> = {
+  NEW: "bg-orange-500/15 text-orange-400",
+  IN_PROGRESS: "bg-blue-500/15 text-blue-400",
+  CONVERTED: "bg-green-500/15 text-green-400",
+  LOST: "bg-red-500/15 text-red-400",
+
+  ADMIN: "bg-purple-500/15 text-purple-400",
+  SALES: "bg-yellow-500/15 text-yellow-400",
+  VIEWER: "bg-neutral-500/15 text-neutral-300",
+
+  ACTIVE: "bg-green-500/15 text-green-400",
+  INACTIVE: "bg-neutral-500/15 text-neutral-400",
 };
 
-type Props = {
-  status: string;
+export default function AdminBadge({
+  status,
+  className = "",
+}: {
+  status: BadgeStatus;
   className?: string;
-};
-
-export default function AdminBadge({ status, className }: Props) {
+}) {
   return (
     <span
-      className={clsx(
-        "text-xs px-3 py-1 rounded-full border font-medium",
-        styles[status] ?? "border-neutral-700",
-        className
-      )}
+      className={`text-xs px-3 py-1 rounded-full font-medium ${STYLE[status]} ${className}`}
     >
       {status.replace("_", " ")}
     </span>

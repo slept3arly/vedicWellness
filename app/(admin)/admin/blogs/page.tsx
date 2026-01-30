@@ -1,6 +1,18 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { deleteBlog, toggleBlogPublished } from "./serverActions";
+import AdminCard from "../components/ui/AdminCard";
+import AdminButton from "../components/ui/AdminButton";
+import AdminBadge from "../components/ui/AdminBadge";
+
+function formatDate(date?: Date | null) {
+  if (!date) return "—";
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
 
 export default async function AdminBlogsPage() {
   const blogs = await prisma.blog.findMany({
@@ -8,61 +20,126 @@ export default async function AdminBlogsPage() {
   });
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700 }}>Admin · Blogs</h1>
+    <div className="space-y-6">
 
-      <div style={{ marginTop: 12 }}>
-        <Link href="/admin/blogs/new">+ Add Blog</Link>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Blogs</h1>
+          <p className="text-sm text-muted-foreground">
+            Content & SEO posts
+          </p>
+        </div>
+
+        <Link href="/admin/blogs/new">
+          <AdminButton>+ New Post</AdminButton>
+        </Link>
       </div>
 
-      {blogs.length === 0 ? (
-        <p style={{ marginTop: 24, opacity: 0.7 }}>
-          No blogs yet. Click “Add Blog”.
-        </p>
-      ) : (
-        <ul style={{ marginTop: 24, display: "grid", gap: 12 }}>
-          {blogs.map((b) => (
-            <li
-              key={b.id}
-              style={{
-                border: "1px solid #2a2a2a",
-                borderRadius: 14,
-                padding: 14,
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <b style={{ fontSize: 18 }}>{b.title}</b>
-                <span style={{ opacity: 0.8 }}>
-                  {b.published ? "✅ Published" : "📝 Draft"}
-                </span>
-              </div>
-
-              <div style={{ marginTop: 6, opacity: 0.8 }}>
-                <code style={{ opacity: 0.7 }}>/blog/{b.slug}</code>
-              </div>
-
-              {b.description ? (
-                <p style={{ marginTop: 8, opacity: 0.7 }}>{b.description}</p>
-              ) : null}
-
-              <div style={{ marginTop: 10, display: "flex", gap: 10 }}>
-                <Link href={`/admin/blogs/edit/${b.id}`}>Edit</Link>
-
-                <form action={toggleBlogPublished}>
-                  <input type="hidden" name="id" value={b.id} />
-                  <input type="hidden" name="published" value={String(b.published)} />
-                  <button type="submit">{b.published ? "Hide" : "Show"}</button>
-                </form>
-
-                <form action={deleteBlog}>
-                  <input type="hidden" name="id" value={b.id} />
-                  <button type="submit">Delete</button>
-                </form>
-              </div>
-            </li>
-          ))}
-        </ul>
+      {blogs.length === 0 && (
+        <AdminCard className="text-center py-12 text-muted-foreground">
+          No blogs yet. Create your first post.
+        </AdminCard>
       )}
+
+      <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        {blogs.map((b) => (
+          <AdminCard
+            key={b.id}
+            className="flex flex-col gap-4 hover:shadow-lg transition"
+          >
+            {/* Thumbnail */}
+            {b.thumbnailUrl && (
+              <img
+                src={b.thumbnailUrl}
+                alt={b.title}
+                className="rounded-xl h-40 w-full object-cover"
+              />
+            )}
+
+            {/* Main info */}
+            <div className="space-y-2">
+              <div className="flex items-start justify-between gap-2">
+                <h2 className="font-semibold text-lg leading-snug line-clamp-2">
+                  {b.title}
+                </h2>
+
+                <AdminBadge
+                  status={b.published ? "ACTIVE" : "INACTIVE"}
+                />
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                /blog/{b.slug}
+              </p>
+
+              {b.description && (
+                <p className="text-sm text-muted-foreground line-clamp-3">
+                  {b.description}
+                </p>
+              )}
+            </div>
+
+            {/* Meta info */}
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs text-muted-foreground">
+              <span>📅 Created:</span>
+              <span>{formatDate(b.createdAt)}</span>
+
+              <span>🚀 Published:</span>
+              <span>{formatDate(b.publishedAt)}</span>
+
+              <span>✍️ Author:</span>
+              <span>{b.author}</span>
+
+              <span>📂 Category:</span>
+              <span>{b.category ?? "—"}</span>
+            </div>
+
+            {/* Tags */}
+            {b.tags.length > 0 && (
+              <div className="flex flex-wrap gap-1 pt-1">
+                {b.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="text-xs px-2 py-0.5 rounded-full bg-muted text-muted-foreground"
+                  >
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Actions */}
+            <div className="flex flex-wrap gap-2 pt-3 border-t border-border/40">
+
+              <Link href={`/admin/blogs/edit/${b.id}`}>
+                <AdminButton variant="secondary">
+                  Edit
+                </AdminButton>
+              </Link>
+
+              <form action={toggleBlogPublished}>
+                <input type="hidden" name="id" value={b.id} />
+                <input
+                  type="hidden"
+                  name="published"
+                  value={String(b.published)}
+                />
+                <AdminButton variant="success">
+                  {b.published ? "Unpublish" : "Publish"}
+                </AdminButton>
+              </form>
+
+              <form action={deleteBlog}>
+                <input type="hidden" name="id" value={b.id} />
+                <AdminButton variant="danger">
+                  Delete
+                </AdminButton>
+              </form>
+            </div>
+          </AdminCard>
+        ))}
+      </div>
     </div>
   );
 }

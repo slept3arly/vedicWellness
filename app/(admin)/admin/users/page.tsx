@@ -1,6 +1,17 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import { deleteUser, updateUserRole } from "./serverActions";
+import AdminCard from "../components/ui/AdminCard";
+import AdminButton from "../components/ui/AdminButton";
+import AdminBadge from "../components/ui/AdminBadge";
+
+function formatDate(d: Date) {
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(d);
+}
 
 export default async function AdminUsersPage() {
   const users = await prisma.user.findMany({
@@ -8,57 +19,99 @@ export default async function AdminUsersPage() {
   });
 
   return (
-    <div style={{ padding: 24 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700 }}>Admin · Users</h1>
+    <div className="space-y-6">
 
-      <div style={{ marginTop: 12 }}>
-        <Link href="/admin/users/new">+ Add User</Link>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Users</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage system accounts & roles
+          </p>
+        </div>
+
+        <Link href="/admin/users/new">
+          <AdminButton>+ Add User</AdminButton>
+        </Link>
       </div>
 
-      {users.length === 0 ? (
-        <p style={{ marginTop: 24, opacity: 0.7 }}>No users found.</p>
-      ) : (
-        <ul style={{ marginTop: 24, display: "grid", gap: 12 }}>
-          {users.map((u) => (
-            <li
-              key={u.id}
-              style={{
-                border: "1px solid #2a2a2a",
-                borderRadius: 14,
-                padding: 14,
-              }}
-            >
-              <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <b style={{ fontSize: 16 }}>{u.email}</b>
-                <span style={{ opacity: 0.75 }}>{u.role}</span>
-              </div>
+      {users.length === 0 && (
+        <AdminCard className="text-center py-12 text-muted-foreground">
+          No users yet.
+        </AdminCard>
+      )}
 
-              <div style={{ marginTop: 10, display: "flex", gap: 10 }}>
-                <Link href={`/admin/users/edit/${u.id}`}>Edit</Link>
+      <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+        {users.map((u) => (
+          <AdminCard
+            key={u.id}
+            className="flex flex-col justify-between gap-4 hover:shadow-lg transition"
+          >
+            {/* User info */}
+            <div className="space-y-1">
+              <p className="font-medium text-lg break-all">
+                {u.email}
+              </p>
 
-                <form action={updateUserRole} style={{ display: "flex", gap: 8 }}>
+              {u.name && (
+                <p className="text-sm text-muted-foreground">
+                  {u.name}
+                </p>
+              )}
+            </div>
+
+            {/* Role + meta */}
+            <div className="flex items-center justify-between">
+              <AdminBadge status={u.role} />
+              <span className="text-xs text-muted-foreground">
+                Created {formatDate(u.createdAt)}
+              </span>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2 pt-2 border-t border-border/40">
+
+              <div className="flex flex-wrap gap-2">
+
+                <Link href={`/admin/users/edit/${u.id}`}>
+                  <AdminButton variant="secondary">
+                    Edit
+                  </AdminButton>
+                </Link>
+
+                <form
+                  action={updateUserRole}
+                  className="flex items-center gap-2"
+                >
                   <input type="hidden" name="id" value={u.id} />
-                  <select name="role" defaultValue={u.role}>
+
+                  <select
+                    name="role"
+                    defaultValue={u.role}
+                    className="bg-muted border border-border rounded-lg px-2 py-1 text-sm"
+                  >
                     <option value="ADMIN">ADMIN</option>
                     <option value="SALES">SALES</option>
                     <option value="VIEWER">VIEWER</option>
                   </select>
-                  <button type="submit">Save Role</button>
+
+                  <AdminButton variant="success">
+                    Save
+                  </AdminButton>
                 </form>
 
                 <form action={deleteUser}>
                   <input type="hidden" name="id" value={u.id} />
-                  <button type="submit">Delete</button>
+                  <AdminButton variant="danger">
+                    Delete
+                  </AdminButton>
                 </form>
-              </div>
 
-              <div style={{ marginTop: 8, opacity: 0.6, fontSize: 12 }}>
-                Created: {new Date(u.createdAt).toLocaleString()}
               </div>
-            </li>
-          ))}
-        </ul>
-      )}
+            </div>
+          </AdminCard>
+        ))}
+      </div>
     </div>
   );
 }

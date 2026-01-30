@@ -2,215 +2,151 @@ import Link from "next/link";
 import Image from "next/image";
 import { prisma } from "@/lib/db/prisma";
 import { deleteProduct, toggleProductPublished } from "./serverActions";
+import AdminCard from "../components/ui/AdminCard";
+import AdminButton from "../components/ui/AdminButton";
+import AdminBadge from "../components/ui/AdminBadge";
+
+function formatDate(d: Date) {
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(d);
+}
 
 export default async function AdminProductsPage() {
   const products = await prisma.product.findMany({
     orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      tag: true,
-      price: true,
-      imageUrl: true,
-      gallery: true,
-      medicineForm: true,
-      published: true,
-      createdAt: true,
-    },
   });
 
   return (
-    <div style={{ padding: 24, maxWidth: 1100, margin: "0 auto" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 12 }}>
+    <div className="space-y-6">
+
+      {/* Header */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 style={{ fontSize: 30, fontWeight: 900 }}>Admin · Products</h1>
-          <p style={{ marginTop: 6, opacity: 0.7 }}>
-            Manage product catalog shown on /products
+          <h1 className="text-2xl font-bold">Products</h1>
+          <p className="text-sm text-muted-foreground">
+            Manage your product catalog
           </p>
         </div>
 
-        <Link
-          href="/admin/products/new"
-          style={{
-            alignSelf: "center",
-            padding: "10px 14px",
-            border: "1px solid #2a2a2a",
-            borderRadius: 12,
-            fontWeight: 700,
-          }}
-        >
-          + Add Product
+        <Link href="/admin/products/new">
+          <AdminButton>+ Add Product</AdminButton>
         </Link>
       </div>
 
-      {products.length === 0 ? (
-        <p style={{ marginTop: 24, opacity: 0.7 }}>
-          No products yet. Click “Add Product”.
-        </p>
-      ) : (
-        <div style={{ marginTop: 20, display: "grid", gap: 12 }}>
-          {products.map((p) => {
-            const galleryCount = Array.isArray(p.gallery) ? p.gallery.length : 0;
+      {products.length === 0 && (
+        <AdminCard className="text-center py-12 text-muted-foreground">
+          No products yet.
+        </AdminCard>
+      )}
 
-            return (
-              <div
-                key={p.id}
-                style={{
-                  border: "1px solid #2a2a2a",
-                  borderRadius: 16,
-                  padding: 14,
-                  display: "grid",
-                  gridTemplateColumns: "90px 1fr",
-                  gap: 14,
-                  alignItems: "center",
-                }}
-              >
-                {/* cover thumbnail */}
-                <div
-                  style={{
-                    position: "relative",
-                    width: 90,
-                    height: 90,
-                    borderRadius: 14,
-                    overflow: "hidden",
-                    background: "#111",
-                  }}
-                >
-                  {p.imageUrl ? (
-                    <Image
-                      src={p.imageUrl}
-                      alt={p.name}
-                      fill
-                      className="object-cover"
-                      sizes="90px"
-                    />
-                  ) : (
-                    <div
-                      style={{
-                        width: "100%",
-                        height: "100%",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        fontSize: 11,
-                        opacity: 0.7,
-                      }}
-                    >
-                      No image
-                    </div>
-                  )}
+      <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+        {products.map((p) => {
+          const galleryCount = Array.isArray(p.gallery)
+            ? p.gallery.length
+            : 0;
+
+          return (
+            <AdminCard
+              key={p.id}
+              className="flex flex-col gap-4 hover:shadow-lg transition"
+            >
+              {/* Image */}
+              <div className="relative h-44 w-full rounded-xl overflow-hidden bg-muted">
+                {p.imageUrl ? (
+                  <Image
+                    src={p.imageUrl}
+                    alt={p.name}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
+                    No image
+                  </div>
+                )}
+              </div>
+
+              {/* Info */}
+              <div className="space-y-2">
+                <div className="flex items-start justify-between gap-2">
+                  <h2 className="font-semibold text-lg leading-snug line-clamp-2">
+                    {p.name}
+                  </h2>
+
+                  <AdminBadge
+                    status={p.published ? "ACTIVE" : "INACTIVE"}
+                  />
                 </div>
 
-                {/* content */}
-                <div style={{ display: "grid", gap: 8 }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      gap: 10,
-                    }}
-                  >
-                    <div style={{ display: "grid", gap: 4 }}>
-                      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-                        <b style={{ fontSize: 18 }}>{p.name}</b>
+                <p className="text-xs text-muted-foreground">
+                  /products/{p.slug}
+                </p>
 
-                        {p.tag ? (
-                          <span
-                            style={{
-                              fontSize: 12,
-                              padding: "3px 10px",
-                              borderRadius: 999,
-                              border: "1px solid #2a2a2a",
-                              opacity: 0.9,
-                            }}
-                          >
-                            {p.tag}
-                          </span>
-                        ) : null}
+                <div className="flex flex-wrap gap-1 text-xs">
 
-                        <span
-                          style={{
-                            fontSize: 12,
-                            padding: "3px 10px",
-                            borderRadius: 999,
-                            border: "1px solid #2a2a2a",
-                            opacity: 0.9,
-                          }}
-                        >
-                          ₹ {p.price}
-                        </span>
+                  <Pill>₹ {p.price}</Pill>
 
-                        {p.medicineForm ? (
-                          <span
-                            style={{
-                              fontSize: 12,
-                              padding: "3px 10px",
-                              borderRadius: 999,
-                              border: "1px solid #2a2a2a",
-                              opacity: 0.85,
-                            }}
-                          >
-                            {String(p.medicineForm).toLowerCase()}
-                          </span>
-                        ) : null}
+                  {p.tag && <Pill>{p.tag}</Pill>}
 
-                        <span
-                          style={{
-                            fontSize: 12,
-                            padding: "3px 10px",
-                            borderRadius: 999,
-                            border: "1px solid #2a2a2a",
-                            opacity: 0.7,
-                          }}
-                        >
-                          Gallery: {galleryCount}
-                        </span>
-                      </div>
+                  {p.medicineForm && (
+                    <Pill>{String(p.medicineForm).toLowerCase()}</Pill>
+                  )}
 
-                      <div style={{ fontSize: 12, opacity: 0.7 }}>
-                        Slug: <code>{p.slug}</code>
-                      </div>
-                    </div>
+                  <Pill>Gallery {galleryCount}</Pill>
+                </div>
 
-                    {/* publish state */}
-                    <span style={{ opacity: 0.85 }}>
-                      {p.published ? "✅ Published" : "📝 Draft"}
-                    </span>
-                  </div>
-
-                  {/* actions */}
-                  <div style={{ display: "flex", gap: 12 }}>
-                    <Link href={`/admin/products/edit/${p.id}`}>Edit</Link>
-
-                    <form action={toggleProductPublished}>
-                      <input type="hidden" name="id" value={p.id} />
-                      <input
-                        type="hidden"
-                        name="published"
-                        value={String(p.published)}
-                      />
-                      <button type="submit">
-                        {p.published ? "Hide" : "Show"}
-                      </button>
-                    </form>
-
-                    <form action={deleteProduct}>
-                      <input type="hidden" name="id" value={p.id} />
-                      <button
-                        type="submit"
-                        style={{ color: "#ff6b6b", fontWeight: 700 }}
-                      >
-                        Delete
-                      </button>
-                    </form>
-                  </div>
+                <div className="text-xs text-muted-foreground">
+                  Created {formatDate(p.createdAt)}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      )}
+
+              {/* Actions */}
+              <div className="flex flex-wrap gap-2 pt-2 border-t border-border/40">
+
+                <Link href={`/admin/products/edit/${p.id}`}>
+                  <AdminButton variant="secondary">
+                    Edit
+                  </AdminButton>
+                </Link>
+
+                <form action={toggleProductPublished}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <input
+                    type="hidden"
+                    name="published"
+                    value={String(p.published)}
+                  />
+                  <AdminButton variant="success">
+                    {p.published ? "Hide" : "Show"}
+                  </AdminButton>
+                </form>
+
+                <form action={deleteProduct}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <AdminButton variant="danger">
+                    Delete
+                  </AdminButton>
+                </form>
+
+              </div>
+            </AdminCard>
+          );
+        })}
+      </div>
     </div>
+  );
+}
+
+/* ===== pill helper ===== */
+
+function Pill({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
+      {children}
+    </span>
   );
 }
