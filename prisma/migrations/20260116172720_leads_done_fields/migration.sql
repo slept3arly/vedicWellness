@@ -1,3 +1,0 @@
--- AlterTable
-ALTER TABLE "Lead" ADD COLUMN     "done" BOOLEAN NOT NULL DEFAULT false,
-ADD COLUMN     "doneAt" TIMESTAMP(3);

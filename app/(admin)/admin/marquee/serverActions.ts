@@ -38,7 +38,7 @@ export async function createMarqueeItem(formData: FormData) {
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_CREATE",
-    entityType: "OTHER",
+    entityType: "MARQUEE",
     entityId: item.id,
     ip,
     userAgent,
@@ -64,7 +64,7 @@ export async function deleteMarqueeItem(formData: FormData) {
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_DELETE",
-    entityType: "OTHER",
+    entityType: "MARQUEE",
     entityId: id,
     ip,
     userAgent,
@@ -98,12 +98,13 @@ export async function toggleMarqueeItem(formData: FormData) {
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_UPDATE",
-    entityType: "OTHER",
+    entityType: "MARQUEE",
     entityId: id,
     ip,
     userAgent,
     metadata: {
       kind: "MARQUEE_ITEM",
+      text:item.text,
       field: "isActive",
       from: item.isActive,
       to: !item.isActive,
@@ -136,7 +137,7 @@ export async function updateMarqueeItem(formData: FormData) {
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_UPDATE",
-    entityType: "OTHER",
+    entityType: "MARQUEE",
     entityId: id,
     ip,
     userAgent,

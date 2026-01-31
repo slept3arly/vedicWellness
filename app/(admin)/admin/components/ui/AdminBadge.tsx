@@ -9,18 +9,71 @@ type BadgeStatus =
   | "ACTIVE"
   | "INACTIVE";
 
-const STYLE: Record<BadgeStatus, string> = {
-  NEW: "bg-orange-500/15 text-orange-400",
-  IN_PROGRESS: "bg-blue-500/15 text-blue-400",
-  CONVERTED: "bg-green-500/15 text-green-400",
-  LOST: "bg-red-500/15 text-red-400",
+const BADGE_STYLE: Record<
+  BadgeStatus,
+  {
+    bg: string;
+    text: string;
+    ring: string;
+    dot: string;
+  }
+> = {
+  NEW: {
+    bg: "bg-orange-500/10",
+    text: "text-orange-400",
+    ring: "ring-orange-400/30",
+    dot: "bg-orange-400",
+  },
+  IN_PROGRESS: {
+    bg: "bg-blue-500/10",
+    text: "text-blue-400",
+    ring: "ring-blue-400/30",
+    dot: "bg-blue-400",
+  },
+  CONVERTED: {
+    bg: "bg-emerald-500/10",
+    text: "text-emerald-400",
+    ring: "ring-emerald-400/30",
+    dot: "bg-emerald-400",
+  },
+  LOST: {
+    bg: "bg-red-500/10",
+    text: "text-red-400",
+    ring: "ring-red-400/30",
+    dot: "bg-red-400",
+  },
 
-  ADMIN: "bg-purple-500/15 text-purple-400",
-  SALES: "bg-yellow-500/15 text-yellow-400",
-  VIEWER: "bg-neutral-500/15 text-neutral-300",
+  ADMIN: {
+    bg: "bg-purple-500/10",
+    text: "text-purple-400",
+    ring: "ring-purple-400/30",
+    dot: "bg-purple-400",
+  },
+  SALES: {
+    bg: "bg-yellow-500/10",
+    text: "text-yellow-400",
+    ring: "ring-yellow-400/30",
+    dot: "bg-yellow-400",
+  },
+  VIEWER: {
+    bg: "bg-neutral-500/10",
+    text: "text-neutral-300",
+    ring: "ring-neutral-400/25",
+    dot: "bg-neutral-400",
+  },
 
-  ACTIVE: "bg-green-500/15 text-green-400",
-  INACTIVE: "bg-neutral-500/15 text-neutral-400",
+  ACTIVE: {
+    bg: "bg-emerald-500/10",
+    text: "text-emerald-400",
+    ring: "ring-emerald-400/30",
+    dot: "bg-emerald-400",
+  },
+  INACTIVE: {
+    bg: "bg-neutral-500/10",
+    text: "text-neutral-400",
+    ring: "ring-neutral-400/25",
+    dot: "bg-neutral-400",
+  },
 };
 
 export default function AdminBadge({
@@ -30,10 +83,24 @@ export default function AdminBadge({
   status: BadgeStatus;
   className?: string;
 }) {
+  const s = BADGE_STYLE[status];
+
   return (
     <span
-      className={`text-xs px-3 py-1 rounded-full font-medium ${STYLE[status]} ${className}`}
+      className={`
+        inline-flex items-center gap-2
+        px-3 py-1.5 text-xs font-semibold tracking-wide
+        rounded-full backdrop-blur-md
+        ring-1 ${s.ring}
+        ${s.bg} ${s.text}
+        shadow-[0_0_12px_rgba(0,0,0,0.15)]
+        transition-all duration-200
+        ${className}
+      `}
     >
+      <span
+        className={`h-1.5 w-1.5 rounded-full ${s.dot} shadow-sm`}
+      />
       {status.replace("_", " ")}
     </span>
   );

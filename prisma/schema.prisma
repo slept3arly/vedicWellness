@@ -4,42 +4,109 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("PRISMA_DATABASE_URL") // Accelerate
-  directUrl = env("DATABASE_URL")        // Direct DB for migrations
+  url       = env("PRISMA_DATABASE_URL")
+  directUrl = env("DATABASE_URL")
 }
 
 model Blog {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   title           String
-  slug            String   @unique
-
-  // UI preview + SEO basic
+  slug            String    @unique
   description     String?
   content         String?
-
-  // SEO fields
-  metaTitle       String?
-  metaDescription String?
-  canonicalUrl    String?
-
-  // Blog meta
-  author          String?
-  category        String?
-  tags            String[] @default([])
-
-  // Media
+  published       Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
   thumbnailUrl    String?
-
-  // Publishing
-  published       Boolean  @default(false)
+  author          String?
+  canonicalUrl    String?
+  category        String?
+  metaDescription String?
+  metaTitle       String?
   publishedAt     DateTime?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  tags            String[]  @default([])
 
   @@index([published, publishedAt])
   @@index([category])
 }
 
+model Product {
+  id                String        @id @default(cuid())
+  name              String
+  slug              String        @unique
+  price             Int
+  imageUrl          String?
+  published         Boolean       @default(false)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  tag               String?
+  contraindications Json?
+  indications       Json?
+  ingredients       Json?
+  gallery           Json?
+  shortDescription  String?
+  directionsToUse   Json?
+  medicineForm      MedicineForm?
+  packaging         Json?
+
+  @@index([published])
+  @@index([name])
+}
+
+model MarqueeItem {
+  id        String   @id @default(cuid())
+  text      String
+  order     Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model User {
+  id         String    @id @default(cuid())
+  email      String    @unique
+  password   String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  role       Role      @default(VIEWER)
+  verified   Boolean   @default(false)
+  verifiedAt DateTime?
+  name       String?
+  leads      Lead[]    @relation("UserLeads")
+}
+
+model Lead {
+  id        String     @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  message   String
+  ip        String?
+  userAgent String?
+  createdAt DateTime   @default(now())
+  claimedAt DateTime?
+  ownerId   String?
+  status    LeadStatus @default(NEW)
+  city      String?
+  owner     User?      @relation("UserLeads", fields: [ownerId], references: [id])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  createdAt   DateTime @default(now())
+  actorId     String
+  action      String
+  entityType  String
+  entityId    String?
+  ip          String?
+  userAgent   String?
+  metadata    Json     @default("{}")
+  entityLabel String?
+
+  @@index([actorId, createdAt])
+  @@index([entityType, entityId])
+  @@index([action, createdAt])
+}
 
 enum MedicineForm {
   TABLET
@@ -61,115 +128,11 @@ enum MedicineForm {
   OTHER
 }
 
-model Product {
-  id               String   @id @default(cuid())
-  name             String
-  slug             String   @unique
-
-  tag              String?
-
-  // ✅ pricing
-  price            Int
-
-  // ✅ description
-  shortDescription String?
-
-  // ✅ images
-  imageUrl         String?  // cover image
-  gallery          Json?    // ["url1", "url2", ...]
-
-  // ✅ dosage form
-  medicineForm     MedicineForm?
-
-  // ✅ packaging info based on form (kept flexible)
-  packaging        Json?    // { tabletsPerStrip, stripsPerBox } / { bottleMl } / { tubeGm } etc
-
-  // ✅ brochure style sections
-  indications       Json?
-  ingredients       Json?
-  directionsToUse   Json?
-  contraindications Json?
-
-  published        Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  @@index([published])
-  @@index([name])
-}
-
-
-
-model MarqueeItem {
-  id        String   @id @default(cuid())
-  text      String
-  order     Int      @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  password  String
-  name     String?
-  role      Role     @default(VIEWER)
-
-  verified  Boolean  @default(false)
-  verifiedAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  leads Lead[] @relation("UserLeads")
-}
-
-
-model Lead {
-  id        String   @id @default(cuid())
-  name      String
-  email     String
-  phone     String?
-  city      String?   // ✅ NEW COLUMN
-  message   String
-
-  ip        String?
-  userAgent String?
-
-  status    LeadStatus @default(NEW)
-
-  ownerId   String?
-  owner     User? @relation("UserLeads", fields: [ownerId], references: [id])
-
-  claimedAt DateTime?
-  createdAt DateTime @default(now())
-}
-
-
-
 enum LeadStatus {
   NEW
   IN_PROGRESS
   CONVERTED
   LOST
-}
-
-
-model AuditLog {
-  id         String   @id @default(cuid())
-  createdAt  DateTime @default(now())
-  actorId    String
-  action     String
-  entityType String
-  entityId   String?
-  ip         String?
-  userAgent  String?
-  metadata   Json     @default("{}")
-
-  @@index([actorId, createdAt])
-  @@index([entityType, entityId])
-  @@index([action, createdAt])
 }
 
 enum Role {

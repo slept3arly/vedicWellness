@@ -38,7 +38,7 @@ export async function claimLead(formData: FormData) {
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_UPDATE",
-    entityType: "OTHER",
+    entityType: "LEAD",
     entityId: id,
     ...ctx,
     metadata: { kind: "LEAD", action: "CLAIM" },
@@ -66,7 +66,7 @@ export async function updateLeadStatus(formData: FormData) {
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_UPDATE",
-    entityType: "OTHER",
+    entityType: "LEAD",
     entityId: id,
     ...ctx,
     metadata: { kind: "LEAD", status },
@@ -91,7 +91,7 @@ export async function deleteLead(formData: FormData) {
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_DELETE",
-    entityType: "OTHER",
+    entityType: "LEAD",
     entityId: id,
     ...ctx,
     metadata: {

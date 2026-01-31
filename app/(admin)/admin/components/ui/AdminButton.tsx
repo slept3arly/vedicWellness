@@ -3,27 +3,32 @@
 import clsx from "clsx";
 import React from "react";
 
-type Variant = "primary" | "secondary" | "danger" | "success";
+type Variant = "default" | "secondary" | "success" | "danger";
 
 type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: Variant;
   loading?: boolean;
 };
 
-const variants: Record<Variant, string> = {
-  primary:
-    "bg-primary text-primary-foreground hover:bg-primary/90 focus:ring-primary",
+const hoverMap: Record<Variant, string> = {
+  default:
+    "hover:bg-neutral-100 dark:hover:bg-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-500",
+
   secondary:
-    "bg-muted text-foreground hover:bg-muted/80 focus:ring-border",
-  danger:
-    "bg-destructive text-destructive-foreground hover:bg-destructive/90 focus:ring-destructive",
+    "hover:bg-neutral-800 hover:text-white hover:border-neutral-800 dark:hover:bg-neutral-700",
+
   success:
-    "bg-green-600 text-white hover:bg-green-700 focus:ring-green-600",
+    "hover:bg-emerald-600 hover:text-white hover:border-emerald-600",
+
+  danger:
+    "hover:bg-red-600 hover:text-white hover:border-red-600",
 };
 
+
+
 export default function AdminButton({
-  variant = "primary",
-  loading,
+  variant = "default",
+  loading = false,
   disabled,
   className,
   children,
@@ -37,18 +42,42 @@ export default function AdminButton({
       disabled={isDisabled}
       aria-busy={loading}
       className={clsx(
-        "inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold shadow-sm transition-all",
-        "active:scale-[0.98]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
-        "disabled:opacity-50 disabled:pointer-events-none",
-        variants[variant],
+        `
+        inline-flex items-center justify-center gap-2
+        h-11 min-w-[104px]
+        whitespace-nowrap
+        rounded-xl px-5
+        text-sm font-semibold
+        
+        hover:shadow-sm
+
+        bg-white text-neutral-900
+        border border-neutral-400
+
+        dark:bg-neutral-900 dark:text-white
+        dark:border-neutral-700
+
+        transition-colors transition-transform duration-150 ease-out
+
+        active:scale-[0.96]
+
+        focus-visible:outline-none
+        focus-visible:ring-2 focus-visible:ring-offset-2
+        focus-visible:ring-neutral-500
+
+        disabled:opacity-50 disabled:pointer-events-none
+        `,
+        hoverMap[variant],
         className
       )}
     >
-      {loading && (
-        <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+      {loading ? (
+        <span className="font-medium tracking-wide animate-pulse select-none">
+          Working…
+        </span>
+      ) : (
+        children
       )}
-      {children}
     </button>
   );
 }

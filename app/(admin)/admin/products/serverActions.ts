@@ -134,7 +134,7 @@ export async function createProduct(formData: FormData) {
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_CREATE",
-    entityType: "OTHER",
+    entityType: "PRODUCTS",
     entityId: product.id,
     ip,
     userAgent,
@@ -236,7 +236,7 @@ if (!slug) {
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_UPDATE",
-    entityType: "OTHER",
+    entityType: "PRODUCTS",
     entityId: id,
     ip,
     userAgent,
@@ -271,6 +271,11 @@ export async function toggleProductPublished(formData: FormData) {
   const id = s(formData.get("id"));
   const published = s(formData.get("published")) === "true";
 
+  const product = await prisma.product.findUnique({
+    where: { id },
+    select: { name: true },
+    });
+    
   await prisma.product.update({
     where: { id },
     data: { published: !published },
@@ -280,11 +285,11 @@ export async function toggleProductPublished(formData: FormData) {
   await auditLog({
     actorId: admin.id,
     action: !published ? "ADMIN_PUBLISH" : "ADMIN_UNPUBLISH",
-    entityType: "OTHER",
+    entityType: "PRODUCTS",
     entityId: id,
     ip,
     userAgent,
-    metadata: { kind: "PRODUCT", from: published, to: !published },
+    metadata: { kind: "PRODUCT", name: product?.name ?? null, from: published, to: !published },
   });
 
   revalidatePath("/admin/products");
@@ -336,7 +341,7 @@ export async function deleteProduct(formData: FormData) {
   await auditLog({
     actorId: admin.id,
     action: "ADMIN_DELETE",
-    entityType: "OTHER",
+    entityType: "PRODUCTS",
     entityId: id,
     ip,
     userAgent,
