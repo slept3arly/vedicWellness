@@ -41,11 +41,9 @@ export default function AdminBlogsClient({ blogs }: { blogs: any[] }) {
   );
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-4">
-
+    <div className="max-w-6xl mx-auto space-y-6 px-4 overflow-x-hidden">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold">Blogs</h1>
+      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">        <h1 className="text-2xl font-bold">Blogs</h1>
         <Link href="/admin/blogs/new">
           <AdminButton>+ New Post</AdminButton>
         </Link>
@@ -94,11 +92,9 @@ export default function AdminBlogsClient({ blogs }: { blogs: any[] }) {
   </div>
 
   {/* Info */}
-  <div className="flex-1 space-y-3">
-
+  <div className="flex-1 min-w-0 space-y-3">
     {/* Title */}
-    <div className="flex justify-between items-start gap-4">
-      <h2 className="font-semibold text-lg leading-snug text-neutral-900 dark:text-white">
+    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">      <h2 className="font-semibold text-lg leading-snug  break-words line-clamp-2 text-neutral-900 dark:text-white">
         {b.title}
       </h2>
       <AdminBadge status={b.published ? "ACTIVE" : "INACTIVE"} />
@@ -147,8 +143,7 @@ export default function AdminBlogsClient({ blogs }: { blogs: any[] }) {
   </div>
 
   {/* Actions */}
-  <div className="flex flex-row md:flex-col gap-2 md:gap-3 pt-2 w-full md:w-auto">
-    <Link href={`/admin/blogs/edit/${b.id}`}>
+  <div className="grid grid-cols-3 sm:flex sm:flex-col gap-2 pt-2 w-full sm:w-auto">    <Link href={`/admin/blogs/edit/${b.id}`}>
       <AdminButton className="w-full">Edit</AdminButton>
     </Link>
 

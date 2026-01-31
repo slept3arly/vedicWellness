@@ -52,10 +52,10 @@ export default function AdminMarqueeClient({
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-4">
+    <div className="max-w-6xl mx-auto space-y-6 px-4 overflow-x-hidden">
 
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
         <div>
           <h1 className="text-2xl font-bold">Marquee Text</h1>
           <p className="text-sm text-neutral-500">
@@ -103,11 +103,11 @@ export default function AdminMarqueeClient({
             </div>
 
             {/* Info */}
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 min-w-0 space-y-3">
 
               {/* Text + status */}
-              <div className="flex justify-between items-start gap-4">
-                <p className="font-medium text-lg leading-snug line-clamp-2">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
+                <p className="font-medium text-lg leading-snug line-clamp-2 break-words">
                   {m.text}
                 </p>
 
@@ -152,7 +152,7 @@ export default function AdminMarqueeClient({
             </div>
 
             {/* Actions */}
-            <div className="flex flex-row md:flex-col gap-2 md:gap-3 pt-2 w-full md:w-auto">
+            <div className="grid grid-cols-3 sm:flex sm:flex-col gap-2 pt-2 w-full sm:w-auto">
 
               <Link href={`/admin/marquee/edit/${m.id}`}>
                 <AdminButton className="w-full">

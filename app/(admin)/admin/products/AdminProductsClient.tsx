@@ -58,10 +58,10 @@ export default function AdminProductsClient({
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-4">
+    <div className="max-w-6xl mx-auto space-y-6 px-4 overflow-x-hidden">
 
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
         <div>
           <h1 className="text-2xl font-bold">Products</h1>
           <p className="text-sm text-neutral-500">
@@ -122,11 +122,11 @@ export default function AdminProductsClient({
             </div>
 
             {/* Info */}
-            <div className="flex-1 space-y-3">
+            <div className="flex-1 min-w-0 space-y-3">
 
               {/* Name + status */}
-              <div className="flex justify-between items-start gap-4">
-                <h2 className="font-semibold text-lg leading-snug">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
+                <h2 className="font-semibold text-lg leading-snug break-words line-clamp-2">
                   {p.name}
                 </h2>
 
@@ -167,7 +167,7 @@ export default function AdminProductsClient({
             </div>
 
             {/* Actions */}
-            <div className="flex flex-row md:flex-col gap-2 md:gap-3 pt-2 w-full md:w-auto">
+            <div className="grid grid-cols-3 sm:flex sm:flex-col gap-2 pt-2 w-full sm:w-auto">
 
               <Link href={`/admin/products/edit/${p.id}`}>
                 <AdminButton className="w-full">
