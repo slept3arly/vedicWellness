@@ -86,7 +86,7 @@ export default function AdminMarqueeClient({
         return (
           <AdminCard
             key={m.id}
-            className={`flex items-start gap-6 transition ${
+            className={`flex flex-col md:flex-row items-start gap-4 md:gap-6 transition ${
               isSelected
                 ? "ring-2 ring-emerald-500"
                 : "hover:shadow-md"
@@ -152,7 +152,7 @@ export default function AdminMarqueeClient({
             </div>
 
             {/* Actions */}
-            <div className="flex flex-col gap-3 pt-2">
+            <div className="flex flex-row md:flex-col gap-2 md:gap-3 pt-2 w-full md:w-auto">
 
               <Link href={`/admin/marquee/edit/${m.id}`}>
                 <AdminButton className="w-full">
