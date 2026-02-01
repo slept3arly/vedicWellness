@@ -25,3 +25,11 @@ export async function getBlogById(id: string) {
     select: { publishedAt: true, slug: true, thumbnailUrl: true, title: true },
   });
 }
+
+/* ✅ Admin reads */
+
+export async function getAdminBlogs() {
+  return prisma.blog.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+}

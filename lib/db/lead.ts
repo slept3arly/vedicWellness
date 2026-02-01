@@ -40,3 +40,24 @@ export async function deleteLeadDB(id: string) {
 export async function getLeadById(id: string) {
   return prisma.lead.findUnique({ where: { id } });
 }
+
+/* ✅ Admin reads */
+
+export async function getAdminLeads() {
+  return prisma.lead.findMany({
+    include: { owner: true },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export async function getSalesUsers() {
+  return prisma.user.findMany({
+    where: { role: "SALES" },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+    },
+    orderBy: { createdAt: "asc" },
+  });
+}

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db/prisma";
+import { getRecentAuditLogs } from "@/lib/db/audit";
 import AdminCard from "../../../../components/admin/AdminCard";
 import {
   Trash2,
@@ -36,19 +36,7 @@ function actionIcon(action: string) {
 }
 
 export default async function AdminLogsPage() {
-  const logs = await prisma.auditLog.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 200,
-  });
-
-  const userIds = [...new Set(logs.map(l => l.actorId))];
-
-  const users = await prisma.user.findMany({
-    where: { id: { in: userIds } },
-    select: { id: true, email: true, name: true },
-  });
-
-  const userMap = Object.fromEntries(users.map(u => [u.id, u]));
+  const { logs, userMap } = await getRecentAuditLogs(200);
 
   return (
     <div className="max-w-5xl mx-auto space-y-5 px-4">
@@ -61,21 +49,16 @@ export default async function AdminLogsPage() {
         return (
           <AdminCard key={l.id} className="space-y-4">
 
-            {/* Top summary */}
             <div className="flex justify-between items-start gap-4 flex-wrap">
-
               <div className="flex items-start gap-3">
                 <Icon className="h-5 w-5 text-neutral-600 mt-1" />
-
                 <div>
                   <div className="font-semibold capitalize">
                     {humanAction(l.action)} {l.entityType.toLowerCase()}
                   </div>
-
                   <div className="flex items-center gap-2 text-sm text-neutral-500 mt-1">
                     <Layers className="h-4 w-4" />
                     {l.entityType}
-
                     {l.entityId && (
                       <>
                         <Hash className="h-4 w-4 ml-2" />
@@ -92,18 +75,14 @@ export default async function AdminLogsPage() {
               </div>
             </div>
 
-            {/* Actor */}
             <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
               <User className="h-4 w-4" />
               {actor?.email ?? "Unknown user"}
               {actor?.name && (
-                <span className="text-neutral-500">
-                  ({actor.name})
-                </span>
+                <span className="text-neutral-500">({actor.name})</span>
               )}
             </div>
 
-            {/* IP */}
             {l.ip && (
               <div className="flex items-center gap-2 text-xs text-neutral-500">
                 <Globe className="h-4 w-4" />
@@ -111,13 +90,11 @@ export default async function AdminLogsPage() {
               </div>
             )}
 
-            {/* Technical metadata */}
             {l.metadata && Object.keys(l.metadata as any).length > 0 && (
               <details className="pt-2">
                 <summary className="cursor-pointer text-sm text-neutral-600 hover:underline">
                   View technical details
                 </summary>
-
                 <pre className="mt-2 rounded-xl bg-neutral-100 dark:bg-neutral-800 p-3 text-xs overflow-x-auto">
 {JSON.stringify(l.metadata, null, 2)}
                 </pre>

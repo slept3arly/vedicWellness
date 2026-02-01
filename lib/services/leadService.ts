@@ -6,15 +6,6 @@ import {
 
 import { LeadStatus } from "@prisma/client";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
-import { headers } from "next/headers";
-
-async function getRequestContext() {
-  const h = await headers();
-  return {
-    ip: h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
-    userAgent: h.get("user-agent") ?? null,
-  };
-}
 
 export async function claimLeadService(id: string, adminId: string) {
   await updateLead(id, {
@@ -23,13 +14,11 @@ export async function claimLeadService(id: string, adminId: string) {
     claimedAt: new Date(),
   });
 
-  const ctx = await getRequestContext();
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: "ADMIN_UPDATE",
     entityType: "LEAD",
     entityId: id,
-    ...ctx,
     metadata: { kind: "LEAD", action: "CLAIM" },
   });
 }
@@ -41,13 +30,11 @@ export async function unclaimLeadService(id: string, adminId: string) {
     status: LeadStatus.NEW,
   });
 
-  const ctx = await getRequestContext();
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: "ADMIN_UPDATE",
     entityType: "LEAD",
     entityId: id,
-    ...ctx,
     metadata: { kind: "LEAD", action: "UNCLAIM" },
   });
 }
@@ -59,13 +46,11 @@ export async function updateLeadStatusService(
 ) {
   await updateLead(id, { status });
 
-  const ctx = await getRequestContext();
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: "ADMIN_UPDATE",
     entityType: "LEAD",
     entityId: id,
-    ...ctx,
     metadata: { kind: "LEAD", status },
   });
 }
@@ -75,13 +60,11 @@ export async function deleteLeadService(id: string, adminId: string) {
 
   await deleteLeadDB(id);
 
-  const ctx = await getRequestContext();
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: "ADMIN_DELETE",
     entityType: "LEAD",
     entityId: id,
-    ...ctx,
     metadata: {
       kind: "LEAD",
       email: lead?.email ?? null,

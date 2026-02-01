@@ -22,3 +22,11 @@ export async function deleteUserDB(id: string) {
 export async function getUserById(id: string) {
   return prisma.user.findUnique({ where: { id } });
 }
+
+/* ✅ Admin reads */
+
+export async function getAdminUsers() {
+  return prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+}

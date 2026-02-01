@@ -1,10 +1,7 @@
-import { prisma } from "@/lib/db/prisma";
+import { getAdminBlogs } from "@/lib/db/blog";
 import AdminBlogsClient from "./AdminBlogsClient";
 
 export default async function AdminBlogsPage() {
-  const blogs = await prisma.blog.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-
+  const blogs = await getAdminBlogs();
   return <AdminBlogsClient blogs={blogs} />;
 }

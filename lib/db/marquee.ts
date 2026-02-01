@@ -22,3 +22,11 @@ export async function deleteMarqueeDB(id: string) {
 export async function getMarqueeById(id: string) {
   return prisma.marqueeItem.findUnique({ where: { id } });
 }
+
+/* ✅ Admin reads */
+
+export async function getAdminMarqueeItems() {
+  return prisma.marqueeItem.findMany({
+    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+  });
+}

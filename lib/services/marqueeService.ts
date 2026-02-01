@@ -7,15 +7,6 @@ import {
 
 import { parseMarqueeForm } from "@/lib/validators/marquee";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
-import { headers } from "next/headers";
-
-async function getRequestContext() {
-  const h = await headers();
-  return {
-    ip: h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
-    userAgent: h.get("user-agent") ?? null,
-  };
-}
 
 export async function createMarqueeService(
   formData: FormData,
@@ -25,13 +16,11 @@ export async function createMarqueeService(
 
   const item = await createMarqueeDB(data);
 
-  const ctx = await getRequestContext();
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: "ADMIN_CREATE",
     entityType: "MARQUEE",
     entityId: item.id,
-    ...ctx,
     metadata: {
       kind: "MARQUEE_ITEM",
       text: data.text,
@@ -52,13 +41,11 @@ export async function updateMarqueeService(
 
   await updateMarqueeDB(data.id, data);
 
-  const ctx = await getRequestContext();
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: "ADMIN_UPDATE",
     entityType: "MARQUEE",
     entityId: data.id,
-    ...ctx,
     metadata: {
       kind: "MARQUEE_ITEM",
       text: data.text,
@@ -68,22 +55,17 @@ export async function updateMarqueeService(
   });
 }
 
-export async function toggleMarqueeService(
-  id: string,
-  adminId: string
-) {
+export async function toggleMarqueeService(id: string, adminId: string) {
   const item = await getMarqueeById(id);
   if (!item) return;
 
   await updateMarqueeDB(id, { isActive: !item.isActive });
 
-  const ctx = await getRequestContext();
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: "ADMIN_UPDATE",
     entityType: "MARQUEE",
     entityId: id,
-    ...ctx,
     metadata: {
       kind: "MARQUEE_ITEM",
       text: item.text,
@@ -94,21 +76,16 @@ export async function toggleMarqueeService(
   });
 }
 
-export async function deleteMarqueeService(
-  id: string,
-  adminId: string
-) {
+export async function deleteMarqueeService(id: string, adminId: string) {
   const item = await getMarqueeById(id);
 
   await deleteMarqueeDB(id);
 
-  const ctx = await getRequestContext();
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: "ADMIN_DELETE",
     entityType: "MARQUEE",
     entityId: id,
-    ...ctx,
     metadata: {
       kind: "MARQUEE_ITEM",
       text: item?.text ?? null,

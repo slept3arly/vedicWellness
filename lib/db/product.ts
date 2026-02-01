@@ -31,3 +31,11 @@ export async function getProductById(id: string) {
     },
   });
 }
+
+/* ✅ Admin reads */
+
+export async function getAdminProducts() {
+  return prisma.product.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+}

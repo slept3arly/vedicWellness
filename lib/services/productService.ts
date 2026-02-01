@@ -8,15 +8,6 @@ import {
 import { parseProductForm } from "@/lib/validators/product";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
-import { headers } from "next/headers";
-
-async function getRequestContext() {
-  const h = await headers();
-  return {
-    ip: h.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null,
-    userAgent: h.get("user-agent") ?? null,
-  };
-}
 
 export async function createProductService(
   formData: FormData,
@@ -26,13 +17,12 @@ export async function createProductService(
 
   const product = await createProductDB(data);
 
-   
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: "ADMIN_CREATE",
     entityType: "PRODUCTS",
     entityId: product.id,
-     metadata: {
+    metadata: {
       kind: "PRODUCT",
       name: data.name,
       slug: data.slug,
@@ -64,13 +54,12 @@ export async function updateProductService(
     if (key) await deleteFromR2(key);
   }
 
-   
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: "ADMIN_UPDATE",
     entityType: "PRODUCTS",
     entityId: data.id,
-     metadata: {
+    metadata: {
       kind: "PRODUCT",
       name: data.name,
       slug: data.slug,
@@ -89,13 +78,12 @@ export async function toggleProductPublishedService(
 
   const product = await getProductById(id);
 
-   
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: !published ? "ADMIN_PUBLISH" : "ADMIN_UNPUBLISH",
     entityType: "PRODUCTS",
     entityId: id,
-     metadata: {
+    metadata: {
       kind: "PRODUCT",
       name: product?.name ?? null,
       from: published,
@@ -104,10 +92,7 @@ export async function toggleProductPublishedService(
   });
 }
 
-export async function deleteProductService(
-  id: string,
-  adminId: string
-) {
+export async function deleteProductService(id: string, adminId: string) {
   const product = await getProductById(id);
 
   await deleteProductDB(id);
@@ -117,7 +102,7 @@ export async function deleteProductService(
     if (key) await deleteFromR2(key);
   }
 
-  if (product?.gallery && Array.isArray(product.gallery)) {
+  if (Array.isArray(product?.gallery)) {
     for (const url of product.gallery) {
       if (typeof url === "string") {
         const key = getR2KeyFromPublicUrl(url);
@@ -126,13 +111,12 @@ export async function deleteProductService(
     }
   }
 
-   
-   await auditWithContext({
+  await auditWithContext({
     actorId: adminId,
     action: "ADMIN_DELETE",
     entityType: "PRODUCTS",
     entityId: id,
-     metadata: {
+    metadata: {
       kind: "PRODUCT",
       name: product?.name ?? null,
       slug: product?.slug ?? null,

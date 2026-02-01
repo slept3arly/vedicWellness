@@ -37,7 +37,6 @@ export type AuditEvent = {
 };
 
 export async function auditLog(event: AuditEvent) {
-  console.log("AUDIT EVENT:", event); // 👈 add this
   try {const label =
   event.entityLabel ??
   (typeof event.metadata === "object" && event.metadata !== null
