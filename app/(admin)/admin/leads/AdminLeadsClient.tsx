@@ -14,9 +14,9 @@ import {
   Trash2,
 } from "lucide-react";
 
-import AdminCard from "../components/ui/AdminCard";
-import AdminActionButton from "../components/ui/AdminActionButton";
-import AdminBadge from "../components/ui/AdminBadge";
+import AdminCard from "../../../../components/admin/AdminCard";
+import AdminActionButton from "../../../../components/admin/AdminActionButton";
+import AdminBadge from "../../../../components/admin/AdminBadge";
 
 import { updateLeadStatus, deleteLead, assignLead } from "./serverActions";
 

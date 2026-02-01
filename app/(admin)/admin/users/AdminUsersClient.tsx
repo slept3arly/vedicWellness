@@ -11,10 +11,10 @@ import {
   Mail,
 } from "lucide-react";
 
-import AdminCard from "../components/ui/AdminCard";
-import AdminButton from "../components/ui/AdminButton";
-import AdminBadge from "../components/ui/AdminBadge";
-import AdminActionButton from "../components/ui/AdminActionButton";
+import AdminCard from "../../../../components/admin/AdminCard";
+import AdminButton from "../../../../components/admin/AdminButton";
+import AdminBadge from "../../../../components/admin/AdminBadge";
+import AdminActionButton from "../../../../components/admin/AdminActionButton";
 
 import { updateUserRole, deleteUser } from "./serverActions";
 

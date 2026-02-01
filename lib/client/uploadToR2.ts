@@ -17,14 +17,16 @@ export async function uploadToR2(file: File, folder: string) {
   }
 
   const res = await fetch("/api/r2/upload-url", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      fileName: file.name,
-      contentType: file.type,
-      folder,
-    }),
-  });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    fileName: file.name,
+    contentType: file.type,
+    folder,
+    size: file.size, // ✅ THIS WAS MISSING
+  }),
+});
+
 
   const data = await res.json();
   if (!res.ok) throw new Error(data?.error || "Failed to get upload URL");

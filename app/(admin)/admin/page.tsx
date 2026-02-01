@@ -1,5 +1,5 @@
 import Link from "next/link";
-import AdminCard from "./components/ui/AdminCard";
+import AdminCard from "../../../components/admin/AdminCard";
 import {
   Package,
   FileText,

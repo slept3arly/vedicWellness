@@ -14,9 +14,9 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 
-import AdminCard from "../components/ui/AdminCard";
-import AdminButton from "../components/ui/AdminButton";
-import AdminBadge from "../components/ui/AdminBadge";
+import AdminCard from "../../../../components/admin/AdminCard";
+import AdminButton from "../../../../components/admin/AdminButton";
+import AdminBadge from "../../../../components/admin/AdminBadge";
 import { deleteBlog, toggleBlogPublished } from "./serverActions";
 
 function formatDate(date?: Date | null) {

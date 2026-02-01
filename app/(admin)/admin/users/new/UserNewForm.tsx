@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import AdminCard from "@/app/(admin)/admin/components/ui/AdminCard";
-import AdminActionButton from "@/app/(admin)/admin/components/ui/AdminActionButton";
+import AdminCard from "@/components/admin/AdminCard";
+import AdminActionButton from "@/components/admin/AdminActionButton";
 import { createUser } from "../serverActions";
 
 export default function UserNewForm() {

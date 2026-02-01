@@ -1,5 +1,5 @@
 import { requireAdmin } from "@/lib/auth/requireAdmin";
-import AdminTabs from "./components/ui/AdminTabs";
+import AdminTabs from "../../../components/admin/AdminTabs";
 
 export const metadata = {
   robots: {

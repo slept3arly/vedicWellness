@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
-import AdminCard from "../components/ui/AdminCard";
+import AdminCard from "../../../../components/admin/AdminCard";
 import {
   Trash2,
   Pencil,

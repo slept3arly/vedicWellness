@@ -15,9 +15,9 @@ import {
   Type,
 } from "lucide-react";
 
-import AdminCard from "../components/ui/AdminCard";
-import AdminButton from "../components/ui/AdminButton";
-import AdminBadge from "../components/ui/AdminBadge";
+import AdminCard from "../../../../components/admin/AdminCard";
+import AdminButton from "../../../../components/admin/AdminButton";
+import AdminBadge from "../../../../components/admin/AdminBadge";
 import { deleteMarqueeItem, toggleMarqueeItem } from "./serverActions";
 
 function formatDate(d?: Date | null) {
