@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
-import LeadsClient from "./LeadsClient";
+import LeadsClient from "./AdminLeadsClient";
 import { Prisma } from "@prisma/client";
 
 type LeadWithOwner = Prisma.LeadGetPayload<{
@@ -12,5 +12,20 @@ export default async function Page() {
     orderBy: { createdAt: "desc" },
   });
 
-  return <LeadsClient leads={leads as LeadWithOwner[]} />;
+  const salesUsers = await prisma.user.findMany({
+    where: { role: "SALES" },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+    },
+    orderBy: { createdAt: "asc" },
+  });
+
+  return (
+    <LeadsClient
+      leads={leads as LeadWithOwner[]}
+      salesUsers={salesUsers}
+    />
+  );
 }

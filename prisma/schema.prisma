@@ -130,9 +130,11 @@ enum MedicineForm {
 
 enum LeadStatus {
   NEW
-  IN_PROGRESS
+  HOT
+  WARM
   CONVERTED
   LOST
+  USELESS
 }
 
 enum Role {

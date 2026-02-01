@@ -71,13 +71,7 @@ export default function AdminButton({
         className
       )}
     >
-      {loading ? (
-        <span className="font-medium tracking-wide animate-pulse select-none">
-          Working…
-        </span>
-      ) : (
-        children
-      )}
+      {children}
     </button>
   );
 }
