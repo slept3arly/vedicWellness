@@ -1,15 +1,8 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
-
-export async function getRecentAuditLogs(
-  page = 1,
-  limit = 50
-) {
-  const skip = (page - 1) * limit;
-
+export async function getRecentAuditLogs(limit = 50) {
   const logs = await prisma.auditLog.findMany({
     orderBy: { createdAt: "desc" },
-    skip,
     take: limit,
   });
 

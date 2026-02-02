@@ -256,12 +256,21 @@ export default function AdminLeadsClient({
               </AdminActionButton>
             </form>
 
-            <form action={deleteLead}>
-              <input type="hidden" name="id" value={lead.id} />
-              <AdminActionButton variant="danger">
-                <Trash2 size={14} /> Delete
-              </AdminActionButton>
-            </form>
+            <form
+  action={deleteLead}
+  onSubmit={(e) => {
+    if (!confirm("Delete this lead permanently?")) {
+      e.preventDefault();
+    }
+  }}
+>
+  <input type="hidden" name="id" value={lead.id} />
+
+  <AdminActionButton variant="danger">
+    <Trash2 size={14} /> Delete
+  </AdminActionButton>
+</form>
+
           </div>
         </AdminCard>
       ))}

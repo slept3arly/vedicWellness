@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import AdminCard from "../../../../components/admin/AdminCard";
+import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminButton from "../../../../components/admin/AdminButton";
 import AdminBadge from "../../../../components/admin/AdminBadge";
 import { deleteMarqueeItem, toggleMarqueeItem } from "./serverActions";
@@ -168,37 +169,55 @@ export default function AdminMarqueeClient({
 
             <div className="grid grid-cols-3 sm:flex sm:flex-col gap-2 pt-2 w-full sm:w-auto">
 
-              <Link href={`/admin/marquee/edit/${m.id}`}>
-                <AdminButton className="w-full">
-                  <Pencil className="h-4 w-4" />
-                  Edit
-                </AdminButton>
-              </Link>
+  {/* Edit — triggers ribbon loader */}
+  <AdminButton
+    className="w-full"
+    onClick={() =>
+      startTransition(() => {
+        router.push(`/admin/marquee/edit/${m.id}`);
+      })
+    }
+  >
+    <Pencil className="h-4 w-4" />
+    Edit
+  </AdminButton>
 
-              <form action={toggleMarqueeItem}>
-                <input type="hidden" name="id" value={m.id} />
-                <AdminButton className="w-full">
-                  {m.isActive ? (
-                    <>
-                      <EyeOff className="h-4 w-4" /> Hide
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="h-4 w-4" /> Show
-                    </>
-                  )}
-                </AdminButton>
-              </form>
+  {/* Publish / Unpublish — processing enabled */}
+  <form action={toggleMarqueeItem}>
+    <input type="hidden" name="id" value={m.id} />
 
-              <form action={deleteMarqueeItem}>
-                <input type="hidden" name="id" value={m.id} />
-                <AdminButton variant="danger" className="w-full">
-                  <Trash2 className="h-4 w-4" />
-                  Delete
-                </AdminButton>
-              </form>
+    <AdminActionButton className="w-full">
+      {m.isActive ? (
+        <>
+          <EyeOff className="h-4 w-4" /> Unpublish
+        </>
+      ) : (
+        <>
+          <Eye className="h-4 w-4" /> Publish
+        </>
+      )}
+    </AdminActionButton>
+  </form>
 
-            </div>
+  {/* Delete — double confirmation + processing */}
+  <form
+    action={deleteMarqueeItem}
+    onSubmit={(e) => {
+      if (!confirm("Delete this marquee text permanently?")) {
+        e.preventDefault();
+      }
+    }}
+  >
+    <input type="hidden" name="id" value={m.id} />
+
+    <AdminActionButton variant="danger" className="w-full">
+      <Trash2 className="h-4 w-4" />
+      Delete
+    </AdminActionButton>
+  </form>
+
+</div>
+
           </AdminCard>
         ))}
       </div>

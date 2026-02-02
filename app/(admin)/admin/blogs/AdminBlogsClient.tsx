@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Image as ImageIcon } from "lucide-react";
 
 import AdminCard from "../../../../components/admin/AdminCard";
+import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminButton from "../../../../components/admin/AdminButton";
 import AdminBadge from "../../../../components/admin/AdminBadge";
 import { deleteBlog, toggleBlogPublished } from "./serverActions";
@@ -114,17 +115,54 @@ useEffect(() => {
                   <div><span className="block text-neutral-400 uppercase font-bold text-[9px]">Slug</span>{b.slug}</div>
                 </div>
               </div>
+  {/* Edit (normal link button) */}
+<div className="flex flex-row md:flex-col gap-2">
 
-              <div className="flex flex-row md:flex-col gap-2">
-                <Link href={`/admin/blogs/edit/${b.id}`}>
-                  <AdminButton className="w-full">Edit</AdminButton>
-                </Link>
-                <form action={toggleBlogPublished}>
-                  <input type="hidden" name="id" value={b.id} />
-                  <input type="hidden" name="published" value={String(b.published)} />
-                  <AdminButton className="w-full">{b.published ? "Unpublish" : "Publish"}</AdminButton>
-                </form>
-              </div>
+  {/* Edit — triggers ribbon loader */}
+<AdminButton
+  className="w-full"
+  onClick={() =>
+    startTransition(() => {
+      router.push(`/admin/blogs/edit/${b.id}`);
+    })
+  }
+>
+  Edit
+</AdminButton>
+
+
+  {/* Publish / Unpublish — already perfect */}
+  <form action={toggleBlogPublished}>
+    <input type="hidden" name="id" value={b.id} />
+    <input type="hidden" name="published" value={String(b.published)} />
+
+    <AdminActionButton className="w-full">
+      {b.published ? "Unpublish" : "Publish"}
+    </AdminActionButton>
+  </form>
+
+  {/* Delete — double confirmation stays */}
+  <form
+    action={deleteBlog}
+    onSubmit={(e) => {
+      if (!confirm("Delete this blog permanently?")) {
+        e.preventDefault();
+      }
+    }}
+  >
+    <input type="hidden" name="id" value={b.id} />
+
+    <AdminActionButton
+      className="w-full border border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
+    >
+      Delete
+    </AdminActionButton>
+  </form>
+
+</div>
+
+
+
             </AdminCard>
           ))
         ) : (

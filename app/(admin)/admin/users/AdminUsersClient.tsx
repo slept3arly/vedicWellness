@@ -171,18 +171,33 @@ export default function AdminUsersClient({
 
               <div className="flex gap-2">
 
-                <a href={`/admin/users/edit/${u.id}`} className="w-full">
-                  <AdminButton className="w-full">
-                    <Pencil size={14} /> Edit
-                  </AdminButton>
-                </a>
+                <AdminButton
+  className="w-full"
+  onClick={() =>
+    startTransition(() => {
+      router.push(`/admin/users/edit/${u.id}`);
+    })
+  }
+>
+  <Pencil size={14} /> Edit
+</AdminButton>
 
-                <form action={deleteUser} className="w-full">
-                  <input type="hidden" name="id" value={u.id} />
-                  <AdminActionButton variant="danger" className="w-full">
-                    <Trash2 size={14} /> Delete
-                  </AdminActionButton>
-                </form>
+<form
+  action={deleteUser}
+  className="w-full"
+  onSubmit={(e) => {
+    if (!confirm("Delete this user permanently?")) {
+      e.preventDefault();
+    }
+  }}
+>
+  <input type="hidden" name="id" value={u.id} />
+
+  <AdminActionButton variant="danger" className="w-full">
+    <Trash2 size={14} /> Delete
+  </AdminActionButton>
+</form>
+
               </div>
 
               {editingId === u.id && (

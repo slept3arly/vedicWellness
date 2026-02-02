@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 
 import AdminCard from "../../../../components/admin/AdminCard";
+import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminButton from "../../../../components/admin/AdminButton";
 import AdminBadge from "../../../../components/admin/AdminBadge";
 import {
@@ -185,42 +186,60 @@ export default function AdminProductsClient({
 
               <div className="grid grid-cols-3 sm:flex sm:flex-col gap-2 pt-2 w-full sm:w-auto">
 
-                <Link href={`/admin/products/edit/${p.id}`}>
-                  <AdminButton className="w-full">
-                    <Pencil className="h-4 w-4" />
-                    Edit
-                  </AdminButton>
-                </Link>
+  {/* Edit — triggers ribbon loader */}
+  <AdminButton
+    className="w-full"
+    onClick={() =>
+      startTransition(() => {
+        router.push(`/admin/products/edit/${p.id}`);
+      })
+    }
+  >
+    <Pencil className="h-4 w-4" />
+    Edit
+  </AdminButton>
 
-                <form action={toggleProductPublished}>
-                  <input type="hidden" name="id" value={p.id} />
-                  <input
-                    type="hidden"
-                    name="published"
-                    value={String(p.published)}
-                  />
-                  <AdminButton className="w-full">
-                    {p.published ? (
-                      <>
-                        <EyeOff className="h-4 w-4" /> Hide
-                      </>
-                    ) : (
-                      <>
-                        <Eye className="h-4 w-4" /> Show
-                      </>
-                    )}
-                  </AdminButton>
-                </form>
+  {/* Publish / Unpublish — processing enabled */}
+  <form action={toggleProductPublished}>
+    <input type="hidden" name="id" value={p.id} />
+    <input
+      type="hidden"
+      name="published"
+      value={String(p.published)}
+    />
 
-                <form action={deleteProduct}>
-                  <input type="hidden" name="id" value={p.id} />
-                  <AdminButton variant="danger" className="w-full">
-                    <Trash2 className="h-4 w-4" />
-                    Delete
-                  </AdminButton>
-                </form>
+    <AdminActionButton className="w-full">
+      {p.published ? (
+        <>
+          <EyeOff className="h-4 w-4" /> Unpublish
+        </>
+      ) : (
+        <>
+          <Eye className="h-4 w-4" /> Publish
+        </>
+      )}
+    </AdminActionButton>
+  </form>
 
-              </div>
+  {/* Delete — double confirmation + processing */}
+  <form
+    action={deleteProduct}
+    onSubmit={(e) => {
+      if (!confirm("Delete this product permanently?")) {
+        e.preventDefault();
+      }
+    }}
+  >
+    <input type="hidden" name="id" value={p.id} />
+
+    <AdminActionButton variant="danger" className="w-full">
+      <Trash2 className="h-4 w-4" />
+      Delete
+    </AdminActionButton>
+  </form>
+
+</div>
+
             </AdminCard>
           );
         })}
