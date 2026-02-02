@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState, useEffect, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
 import {
   Search,
   Trash2,
   Pencil,
-  CheckSquare,
-  Square,
   Calendar,
   ArrowUpDown,
   Eye,
@@ -31,25 +31,42 @@ function formatDate(d?: Date | null) {
 
 export default function AdminMarqueeClient({
   items,
+  q,
+  page,
 }: {
   items: any[];
+  q: string;
+  page: number;
 }) {
-  const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<string[]>([]);
+  const router = useRouter();
+  const params = useSearchParams();
+  const [isPending, startTransition] = useTransition();
 
-  const filtered = useMemo(
-    () =>
-      items.filter((i) =>
-        i.text.toLowerCase().includes(search.toLowerCase())
-      ),
-    [items, search]
-  );
+  /* 🔍 upgraded search */
+  const [search, setSearch] = useState(q);
 
-  function toggleSelect(id: string) {
-    setSelected((s) =>
-      s.includes(id) ? s.filter((x) => x !== id) : [...s, id]
-    );
-  }
+  useEffect(() => {
+    setSearch(q);
+  }, [q]);
+
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (search !== q) {
+        const p = new URLSearchParams(params.toString());
+
+        if (!search) p.delete("q");
+        else p.set("q", search);
+
+        p.set("page", "1");
+
+        startTransition(() => {
+          router.replace(`?${p.toString()}`);
+        });
+      }
+    }, 400);
+
+    return () => clearTimeout(t);
+  }, [search, q, params, router]);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 px-4 overflow-x-hidden">
@@ -68,44 +85,43 @@ export default function AdminMarqueeClient({
         </Link>
       </div>
 
-      {/* Search */}
+      {/* 🔍 fixed search */}
       <div className="relative w-full">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search marquee text..."
-          className="h-12 w-full rounded-xl border border-neutral-300 bg-white pl-11 pr-4 text-sm dark:bg-neutral-900 dark:border-neutral-700"
+          className="h-12 w-full rounded-xl border border-neutral-300 bg-white pl-11 pr-4 text-sm dark:bg-neutral-900 dark:border-neutral-700 focus:ring-2 focus:ring-black outline-none"
         />
+
+        {isPending && (
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-neutral-400 animate-pulse">
+            Searching...
+          </span>
+        )}
       </div>
 
-      {/* Row list */}
-      {filtered.map((m, index) => {
-        const isSelected = selected.includes(m.id);
-
-        return (
+      {/* 📉 fade rows while searching */}
+      <div
+        className={`space-y-4 transition-opacity duration-200 ${
+          isPending ? "opacity-60" : "opacity-100"
+        }`}
+      >
+        {items.map((m, index) => (
           <AdminCard
             key={m.id}
-            className={`flex flex-col md:flex-row items-start gap-4 md:gap-6 transition ${
-              isSelected
-                ? "ring-2 ring-emerald-500"
-                : "hover:shadow-md"
-            }`}
+            className="flex flex-col md:flex-row items-start gap-4 md:gap-6 transition hover:shadow-md"
           >
-            {/* Row number */}
             <div className="text-sm text-neutral-500 pt-2 w-6 shrink-0">
-              {index + 1}.
+              {(page - 1) * 20 + index + 1}.
             </div>
 
-            {/* Icon */}
             <div className="w-16 h-16 rounded-lg bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center shrink-0">
               <Type className="h-6 w-6 text-neutral-500" />
             </div>
 
-            {/* Info */}
             <div className="flex-1 min-w-0 space-y-3">
-
-              {/* Text + status */}
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
                 <p className="font-medium text-lg leading-snug line-clamp-2 break-words">
                   {m.text}
@@ -116,14 +132,13 @@ export default function AdminMarqueeClient({
                 />
               </div>
 
-              {/* Meta grid */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-10 gap-y-2 text-sm">
 
                 <div>
                   <div className="text-neutral-600 dark:text-neutral-400">
                     Order
                   </div>
-                  <div className="text-neutral-900 dark:text-white flex items-center gap-1">
+                  <div className="flex items-center gap-1">
                     <ArrowUpDown className="h-4 w-4" />
                     {m.order}
                   </div>
@@ -133,7 +148,7 @@ export default function AdminMarqueeClient({
                   <div className="text-neutral-600 dark:text-neutral-400">
                     Created
                   </div>
-                  <div className="text-neutral-900 dark:text-white flex items-center gap-1">
+                  <div className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
                     {formatDate(m.createdAt)}
                   </div>
@@ -143,7 +158,7 @@ export default function AdminMarqueeClient({
                   <div className="text-neutral-600 dark:text-neutral-400">
                     Status
                   </div>
-                  <div className="text-neutral-900 dark:text-white">
+                  <div>
                     {m.isActive ? "Visible" : "Hidden"}
                   </div>
                 </div>
@@ -151,7 +166,6 @@ export default function AdminMarqueeClient({
               </div>
             </div>
 
-            {/* Actions */}
             <div className="grid grid-cols-3 sm:flex sm:flex-col gap-2 pt-2 w-full sm:w-auto">
 
               <Link href={`/admin/marquee/edit/${m.id}`}>
@@ -166,13 +180,11 @@ export default function AdminMarqueeClient({
                 <AdminButton className="w-full">
                   {m.isActive ? (
                     <>
-                      <EyeOff className="h-4 w-4" />
-                      Hide
+                      <EyeOff className="h-4 w-4" /> Hide
                     </>
                   ) : (
                     <>
-                      <Eye className="h-4 w-4" />
-                      Show
+                      <Eye className="h-4 w-4" /> Show
                     </>
                   )}
                 </AdminButton>
@@ -188,8 +200,8 @@ export default function AdminMarqueeClient({
 
             </div>
           </AdminCard>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }

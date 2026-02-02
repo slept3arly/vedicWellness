@@ -23,10 +23,37 @@ export async function getUserById(id: string) {
   return prisma.user.findUnique({ where: { id } });
 }
 
-/* ✅ Admin reads */
+/* ✅ Admin reads (paginated) */
+export async function getAdminUsers(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  const skip = (page - 1) * limit;
 
-export async function getAdminUsers() {
   return prisma.user.findMany({
+    where: q
+      ? {
+          OR: [
+            {
+              email: {
+                contains: q,
+                mode: "insensitive",
+              },
+            },
+            {
+              name: {
+                contains: q,
+                mode: "insensitive",
+              },
+            },
+          ],
+        }
+      : undefined,
+
     orderBy: { createdAt: "desc" },
+    skip,
+    take: limit,
   });
 }
+

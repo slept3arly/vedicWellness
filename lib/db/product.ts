@@ -32,10 +32,26 @@ export async function getProductById(id: string) {
   });
 }
 
-/* ✅ Admin reads */
+/* ✅ Admin reads (paginated) */
+export async function getAdminProducts(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  const skip = (page - 1) * limit;
 
-export async function getAdminProducts() {
   return prisma.product.findMany({
+    where: q
+      ? {
+          name: {
+            contains: q,
+            mode: "insensitive",
+          },
+        }
+      : undefined,
+
     orderBy: { createdAt: "desc" },
+    skip,
+    take: limit,
   });
 }

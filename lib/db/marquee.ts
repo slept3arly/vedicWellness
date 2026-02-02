@@ -23,10 +23,29 @@ export async function getMarqueeById(id: string) {
   return prisma.marqueeItem.findUnique({ where: { id } });
 }
 
-/* ✅ Admin reads */
+/* ✅ Admin reads (paginated) */
+export async function getAdminMarqueeItems(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  const skip = (page - 1) * limit;
 
-export async function getAdminMarqueeItems() {
   return prisma.marqueeItem.findMany({
-    orderBy: [{ order: "asc" }, { createdAt: "desc" }],
+    where: q
+      ? {
+          text: {
+            contains: q,
+            mode: "insensitive",
+          },
+        }
+      : undefined,
+    // Sorts by your custom order first, then by newest
+    orderBy: [
+      { order: "asc" }, 
+      { createdAt: "desc" }
+    ],
+    skip,
+    take: limit,
   });
 }

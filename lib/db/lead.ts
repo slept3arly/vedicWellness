@@ -1,6 +1,5 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
-import { LeadStatus } from "@prisma/client";
 
 type CreateLeadInput = {
   name: string;
@@ -41,12 +40,29 @@ export async function getLeadById(id: string) {
   return prisma.lead.findUnique({ where: { id } });
 }
 
-/* ✅ Admin reads */
+/* ✅ Admin paginated read */
 
-export async function getAdminLeads() {
+export async function getAdminLeads(
+  page = 1,
+  limit = 25,
+  q = ""
+) {
+  const skip = (page - 1) * limit;
+
   return prisma.lead.findMany({
+    where: q
+      ? {
+          OR: [
+            { name: { contains: q, mode: "insensitive" } },
+            { email: { contains: q, mode: "insensitive" } },
+            { city: { contains: q, mode: "insensitive" } }, // Added city search
+          ],
+        }
+      : undefined,
     include: { owner: true },
     orderBy: { createdAt: "desc" },
+    skip,
+    take: limit,
   });
 }
 

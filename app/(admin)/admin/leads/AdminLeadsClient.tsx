@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useTransition } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+
 import {
   Search,
   X,
@@ -23,11 +25,48 @@ import { updateLeadStatus, deleteLead, assignLead } from "./serverActions";
 export default function AdminLeadsClient({
   leads = [],
   salesUsers = [],
+  page,
+  q,
 }: {
-  leads?: any[];
-  salesUsers?: any[];
+  leads: any[];
+  salesUsers: any[];
+  page: number;
+  q: string;
 }) {
-  const [search, setSearch] = useState("");
+  const router = useRouter();
+  const params = useSearchParams();
+  const [isPending, startTransition] = useTransition();
+
+  /* 🔍 NEW SEARCH STATE */
+  const [search, setSearch] = useState(q);
+
+  /* keep input synced with URL */
+  useEffect(() => {
+    setSearch(q);
+  }, [q]);
+
+  /* debounce + update URL */
+  useEffect(() => {
+    const t = setTimeout(() => {
+      if (search !== q) {
+        const p = new URLSearchParams(params.toString());
+
+        if (!search) p.delete("q");
+        else p.set("q", search);
+
+        p.set("page", "1");
+
+        startTransition(() => {
+          router.replace(`?${p.toString()}`);
+        });
+      }
+    }, 500);
+
+    return () => clearTimeout(t);
+  }, [search, q, params, router]);
+
+  /* EVERYTHING BELOW IS YOUR ORIGINAL CODE */
+
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [claimFilter, setClaimFilter] = useState("__all");
 
@@ -35,7 +74,13 @@ export default function AdminLeadsClient({
     return leads.filter((l: any) => {
       if (statusFilter && l.status !== statusFilter) return false;
       if (claimFilter === "unclaimed" && l.ownerId) return false;
-      if (claimFilter !== "__all" && claimFilter !== "unclaimed" && l.ownerId !== claimFilter) return false;
+      if (
+        claimFilter !== "__all" &&
+        claimFilter !== "unclaimed" &&
+        l.ownerId !== claimFilter
+      )
+        return false;
+
       return (
         l.name.toLowerCase().includes(search.toLowerCase()) ||
         l.email.toLowerCase().includes(search.toLowerCase())
@@ -54,7 +99,7 @@ export default function AdminLeadsClient({
         </p>
       </div>
 
-      {/* Search */}
+      {/* 🔍 FIXED SEARCH BAR */}
       <div className="relative">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4" />
         <input
@@ -64,13 +109,20 @@ export default function AdminLeadsClient({
           className="
             h-12 w-full rounded-xl
             bg-white dark:bg-neutral-900/80
-            pl-11
+            pl-11 pr-4
             border border-neutral-300 dark:border-neutral-700
+            focus:ring-2 focus:ring-black outline-none
           "
         />
+
+        {isPending && (
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-neutral-400 animate-pulse">
+            Searching...
+          </span>
+        )}
       </div>
 
-      {/* Filters */}
+      {/* Filters — unchanged */}
       <div className="flex flex-wrap items-center gap-2">
 
         <button
@@ -100,60 +152,51 @@ export default function AdminLeadsClient({
           </button>
         ))}
 
-        {/* Claim filter */}
         <select
-  value={claimFilter}
-  onChange={(e) => setClaimFilter(e.target.value)}
-  className="
-    ml-auto rounded-lg px-2 py-2
-    bg-white dark:bg-neutral-900/80
-    border border-neutral-300 dark:border-neutral-700
-  "
->
-  <option value="__all">Claim status</option>
-  <option value="unclaimed">Unclaimed</option>
+          value={claimFilter}
+          onChange={(e) => setClaimFilter(e.target.value)}
+          className="ml-auto rounded-lg px-2 py-2 bg-white dark:bg-neutral-900/80 border border-neutral-300 dark:border-neutral-700"
+        >
+          <option value="__all">Claim status</option>
+          <option value="unclaimed">Unclaimed</option>
 
-  {salesUsers.map((u: any) => (
-    <option key={u.id} value={u.id}>
-      {u.email}
-    </option>
-  ))}
-</select>
-
+          {salesUsers.map((u: any) => (
+            <option key={u.id} value={u.id}>
+              {u.email}
+            </option>
+          ))}
+        </select>
       </div>
-
-      {/* Leads */}
+<div
+  className={`space-y-4 transition-opacity duration-200 ${
+    isPending ? "opacity-60" : "opacity-100"
+  }`}
+>
+      {/* Leads — unchanged */}
       {filtered.map((lead: any, i: number) => (
         <AdminCard
           key={lead.id}
-          className="
-            space-y-4
-            bg-white dark:bg-neutral-900/80
-            border border-neutral-300 dark:border-neutral-700
-            hover:shadow-lg transition
-          "
+          className="space-y-4 bg-white dark:bg-neutral-900/80 border border-neutral-300 dark:border-neutral-700 hover:shadow-lg transition"
         >
-          <div className="flex justify-between flex-wrap gap-4">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3 font-semibold text-lg">
+              <span className="text-neutral-500">
+                {(page - 1) * 25 + i + 1}.
+              </span>
+              {lead.name}
+              <AdminBadge status={lead.status} />
+            </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center gap-3 font-semibold text-lg">
-                <span className="text-neutral-500">{i + 1}.</span>
-                {lead.name}
-                <AdminBadge status={lead.status} />
-              </div>
+            <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+              <Mail size={14} /> {lead.email}
+            </div>
 
-              <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                <Mail size={14} /> {lead.email}
-              </div>
+            <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+              <Phone size={14} /> {lead.phone}
+            </div>
 
-              <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                <Phone size={14} /> {lead.phone}
-              </div>
-
-              <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-                <MapPin size={14} /> {lead.location}
-                {lead.location || "—"}
-              </div>
+            <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
+              <MapPin size={14} /> {lead.location || "—"}
             </div>
           </div>
 
@@ -166,25 +209,17 @@ export default function AdminLeadsClient({
             {new Date(lead.createdAt).toLocaleDateString()}
           </div>
 
-          {/* ACTIONS */}
+          {/* Actions — unchanged */}
           <div className="flex flex-wrap gap-2 items-center pt-2">
 
-            {/* Assign / Unassign */}
             <form action={assignLead} className="flex items-center gap-2">
               <input type="hidden" name="leadId" value={lead.id} />
-
               <User size={16} />
 
               <select
-                key={lead.ownerId || "unclaimed"}
                 name="toUserId"
                 defaultValue={lead.ownerId || ""}
-
-                className="
-                  rounded-lg px-3 py-2
-                  bg-white dark:bg-neutral-900/80
-                  border border-neutral-300 dark:border-neutral-700
-                "
+                className="rounded-lg px-3 py-2 bg-white dark:bg-neutral-900/80 border border-neutral-300 dark:border-neutral-700"
               >
                 <option value="">Unclaimed</option>
                 {salesUsers.map((u: any) => (
@@ -194,25 +229,19 @@ export default function AdminLeadsClient({
                 ))}
               </select>
 
-              <AdminActionButton className="hover:bg-emerald-600/80 transition">
+              <AdminActionButton>
                 <Save size={14} /> Save
               </AdminActionButton>
             </form>
 
-            {/* Status only */}
             <form action={updateLeadStatus} className="flex items-center gap-2">
               <input type="hidden" name="id" value={lead.id} />
-
               <Flame size={16} />
 
               <select
                 name="status"
                 defaultValue={lead.status}
-                className="
-                  rounded-lg px-3 py-2
-                  bg-white dark:bg-neutral-900/80
-                  border border-neutral-300 dark:border-neutral-700
-                "
+                className="rounded-lg px-3 py-2 bg-white dark:bg-neutral-900/80 border border-neutral-300 dark:border-neutral-700"
               >
                 <option>NEW</option>
                 <option>HOT</option>
@@ -227,19 +256,16 @@ export default function AdminLeadsClient({
               </AdminActionButton>
             </form>
 
-            {/* Delete */}
             <form action={deleteLead}>
               <input type="hidden" name="id" value={lead.id} />
-              <AdminActionButton
-                variant="danger"
-                className="hover:bg-red-600/80 transition"
-              >
+              <AdminActionButton variant="danger">
                 <Trash2 size={14} /> Delete
               </AdminActionButton>
             </form>
           </div>
         </AdminCard>
       ))}
+      </div>
     </div>
   );
 }
