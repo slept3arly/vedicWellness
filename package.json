@@ -10,6 +10,7 @@
     "lint": "eslint",
     "analyze": "cross-env ANALYZE=true next build",
     "typecheck": "tsc --noEmit",
+    "security:check": "tsx scripts/security-check.ts",
     "prisma:generate": "prisma generate --schema=prisma/schema.prisma",
     "prisma:studio": "prisma studio --schema=prisma/schema.prisma",
     "db:migrate": "prisma migrate dev --schema=prisma/schema.prisma",

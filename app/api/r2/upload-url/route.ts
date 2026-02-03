@@ -8,10 +8,7 @@ import { v4 as uuidv4 } from "uuid";
 import { r2 } from "@/lib/storage/r2/client";
 import { auth } from "@/auth";
 
-import { assertSameOriginRequest } from "@/lib/security/csrf";
-import { rateLimitOrThrow } from "@/lib/security/rateLimit";
-import { limits } from "@/lib/security/limits";
-import { getClientIpFromRequest } from "@/lib/security/ip";
+import { secureMutation } from "@/lib/security/secureMutation";
 
 type Folder = "products" | "blogs" | "banners" | "categories";
 
@@ -56,16 +53,16 @@ function getExt(fileName: string) {
 
 export async function POST(req: Request) {
   try {
-    assertSameOriginRequest(req);
+    // 🔒 CSRF + rate limit (r2UploadUrl)
+    await secureMutation(req, {
+      limit: "r2UploadUrl",
+      keyPrefix: "r2-upload-url",
+    });
 
     const session = await auth();
     if (!session?.user?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-
-    // ✅ rate limit upload-url generation
-    const ip = getClientIpFromRequest(req);
-    await rateLimitOrThrow(`r2-upload-url:${ip}`, limits.r2UploadUrl);
 
     const body = (await req.json().catch(() => null)) as
       | {
@@ -97,7 +94,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid folder" }, { status: 400 });
     }
 
-    // 🚫 block dangerous types
     if (contentType === "image/svg+xml" || contentType.startsWith("text/")) {
       return NextResponse.json({ error: "Unsupported file type" }, { status: 400 });
     }

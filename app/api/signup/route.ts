@@ -5,12 +5,10 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db/prisma";
-import { rateLimitOrThrow } from "@/lib/security/rateLimit";
-import { limits } from "@/lib/security/limits";
 import { verifyTurnstile } from "@/lib/security/turnstile";
-import { assertSameOriginRequest } from "@/lib/security/csrf";
-import { getClientIpFromRequest } from "@/lib/security/ip";
+import { secureMutation } from "@/lib/security/secureMutation";
 import { errorResponse } from "@/lib/security/guard";
+import { getClientIpFromRequest } from "@/lib/security/ip";
 
 const SignupSchema = z.object({
   email: z.string().email().transform(v => v.toLowerCase().trim()),
@@ -23,10 +21,10 @@ const SignupSchema = z.object({
 
 export async function POST(req: Request) {
   try {
-    assertSameOriginRequest(req);
+    // 🔒 CSRF + rate limit (signup)
+    await secureMutation(req, { limit: "signup" });
 
     const ip = getClientIpFromRequest(req);
-    await rateLimitOrThrow(`signup:${ip}`, limits.signup);
 
     const body = await req.json();
     const parsed = SignupSchema.safeParse(body);

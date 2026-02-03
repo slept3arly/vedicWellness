@@ -3,8 +3,7 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-import { requireAdmin } from "@/lib/auth/requireAdmin";
-import { assertSameOriginAction } from "@/lib/security/csrf";
+import { secureAdminAction } from "@/lib/security/secureAdminAction";
 
 import {
   createBlogService,
@@ -13,55 +12,51 @@ import {
   toggleBlogPublishedService,
 } from "@/lib/services/blogService";
 
-export async function createBlog(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+export const createBlog = secureAdminAction(
+  async (admin, formData: FormData) => {
+    await createBlogService(formData, admin.id);
 
-  await createBlogService(formData, admin.id);
+    revalidatePath("/blogs");
+    revalidatePath("/sitemap.xml");
 
-  revalidatePath("/blogs");
-  revalidatePath("/sitemap.xml");
+    redirect("/admin/blogs");
+  }
+);
 
-  redirect("/admin/blogs");
-}
+export const updateBlog = secureAdminAction(
+  async (admin, formData: FormData) => {
+    await updateBlogService(formData, admin.id);
 
-export async function updateBlog(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+    revalidatePath("/blogs");
+    revalidatePath("/sitemap.xml");
 
-  await updateBlogService(formData, admin.id);
+    redirect("/admin/blogs");
+  }
+);
 
-  revalidatePath("/blogs");
-  revalidatePath("/sitemap.xml");
+export const deleteBlog = secureAdminAction(
+  async (admin, formData: FormData) => {
+    const id = String(formData.get("id") ?? "");
 
-  redirect("/admin/blogs");
-}
+    await deleteBlogService(id, admin.id);
 
-export async function deleteBlog(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+    revalidatePath("/blogs");
+    revalidatePath("/sitemap.xml");
 
-  const id = String(formData.get("id") ?? "");
+    redirect("/admin/blogs");
+  }
+);
 
-  await deleteBlogService(id, admin.id);
+export const toggleBlogPublished = secureAdminAction(
+  async (admin, formData: FormData) => {
+    const id = String(formData.get("id") ?? "");
+    const published = String(formData.get("published")) === "true";
 
-  revalidatePath("/blogs");
-  revalidatePath("/sitemap.xml");
+    await toggleBlogPublishedService(id, published, admin.id);
 
-  redirect("/admin/blogs");
-}
+    revalidatePath("/blogs");
+    revalidatePath("/sitemap.xml");
 
-export async function toggleBlogPublished(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
-
-  const id = String(formData.get("id") ?? "");
-  const published = String(formData.get("published")) === "true";
-
-  await toggleBlogPublishedService(id, published, admin.id);
-
-  revalidatePath("/blogs");
-  revalidatePath("/sitemap.xml");
-
-  redirect("/admin/blogs");
-}
+    redirect("/admin/blogs");
+  }
+);
