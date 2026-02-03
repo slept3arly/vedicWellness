@@ -3,8 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { requireAdmin } from "@/lib/auth/requireAdmin";
-import { assertSameOriginAction } from "@/lib/security/csrf";
+import { secureAdminAction } from "@/lib/security/secureAdminAction";
 
 import {
   createMarqueeService,
@@ -15,48 +14,44 @@ import {
 
 import { parseMarqueeId } from "@/lib/validators/marquee";
 
-export async function createMarqueeItem(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+export const createMarqueeItem = secureAdminAction(
+  async (admin, formData: FormData) => {
+    await createMarqueeService(formData, admin.id);
 
-  await createMarqueeService(formData, admin.id);
+    revalidatePath("/admin/marquee");
+    revalidatePath("/");
+    redirect("/admin/marquee");
+  }
+);
 
-  revalidatePath("/admin/marquee");
-  revalidatePath("/");
-  redirect("/admin/marquee");
-}
+export const updateMarqueeItem = secureAdminAction(
+  async (admin, formData: FormData) => {
+    await updateMarqueeService(formData, admin.id);
 
-export async function updateMarqueeItem(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+    revalidatePath("/admin/marquee");
+    revalidatePath("/");
+    redirect("/admin/marquee");
+  }
+);
 
-  await updateMarqueeService(formData, admin.id);
+export const toggleMarqueeItem = secureAdminAction(
+  async (admin, formData: FormData) => {
+    const id = parseMarqueeId(formData);
 
-  revalidatePath("/admin/marquee");
-  revalidatePath("/");
-  redirect("/admin/marquee");
-}
+    await toggleMarqueeService(id, admin.id);
 
-export async function toggleMarqueeItem(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+    revalidatePath("/admin/marquee");
+    revalidatePath("/");
+  }
+);
 
-  const id = parseMarqueeId(formData);
+export const deleteMarqueeItem = secureAdminAction(
+  async (admin, formData: FormData) => {
+    const id = parseMarqueeId(formData);
 
-  await toggleMarqueeService(id, admin.id);
+    await deleteMarqueeService(id, admin.id);
 
-  revalidatePath("/admin/marquee");
-  revalidatePath("/");
-}
-
-export async function deleteMarqueeItem(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
-
-  const id = parseMarqueeId(formData);
-
-  await deleteMarqueeService(id, admin.id);
-
-  revalidatePath("/admin/marquee");
-  revalidatePath("/");
-}
+    revalidatePath("/admin/marquee");
+    revalidatePath("/");
+  }
+);

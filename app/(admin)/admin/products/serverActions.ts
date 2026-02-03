@@ -3,8 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import { requireAdmin } from "@/lib/auth/requireAdmin";
-import { assertSameOriginAction } from "@/lib/security/csrf";
+import { secureAdminAction } from "@/lib/security/secureAdminAction";
 
 import {
   createProductService,
@@ -13,51 +12,47 @@ import {
   deleteProductService,
 } from "@/lib/services/productService";
 
-export async function createProduct(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+export const createProduct = secureAdminAction(
+  async (admin, formData: FormData) => {
+    await createProductService(formData, admin.id);
 
-  await createProductService(formData, admin.id);
+    revalidatePath("/admin/products");
+    revalidatePath("/products");
 
-  revalidatePath("/admin/products");
-  revalidatePath("/products");
+    redirect("/admin/products");
+  }
+);
 
-  redirect("/admin/products");
-}
+export const updateProduct = secureAdminAction(
+  async (admin, formData: FormData) => {
+    await updateProductService(formData, admin.id);
 
-export async function updateProduct(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+    revalidatePath("/admin/products");
+    revalidatePath("/products");
 
-  await updateProductService(formData, admin.id);
+    redirect("/admin/products");
+  }
+);
 
-  revalidatePath("/admin/products");
-  revalidatePath("/products");
+export const toggleProductPublished = secureAdminAction(
+  async (admin, formData: FormData) => {
+    const id = String(formData.get("id") ?? "");
+    const published = String(formData.get("published")) === "true";
 
-  redirect("/admin/products");
-}
+    await toggleProductPublishedService(id, published, admin.id);
 
-export async function toggleProductPublished(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+    revalidatePath("/admin/products");
+    revalidatePath("/products");
+  }
+);
 
-  const id = String(formData.get("id") ?? "");
-  const published = String(formData.get("published")) === "true";
+export const deleteProduct = secureAdminAction(
+  async (admin, formData: FormData) => {
+    const id = String(formData.get("id") ?? "");
 
-  await toggleProductPublishedService(id, published, admin.id);
+    await deleteProductService(id, admin.id);
 
-  revalidatePath("/admin/products");
-  revalidatePath("/products");
-}
-
-export async function deleteProduct(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
-
-  const id = String(formData.get("id") ?? "");
-
-  await deleteProductService(id, admin.id);
-
-  revalidatePath("/admin/products");
-  revalidatePath("/products");
-}
+    revalidatePath("/admin/products");
+    revalidatePath("/products");
+  }
+);

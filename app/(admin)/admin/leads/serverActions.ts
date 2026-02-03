@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireAdmin } from "@/lib/auth/requireAdmin";
-import { assertSameOriginAction } from "@/lib/security/csrf";
+import { secureAdminAction } from "@/lib/security/secureAdminAction";
 
 import {
   parseLeadId,
@@ -19,58 +18,53 @@ import {
   assignLeadService,
 } from "@/lib/services/leadService";
 
-export async function claimLead(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+export const claimLead = secureAdminAction(
+  async (admin, formData: FormData) => {
+    const id = parseLeadId(formData);
 
-  const id = parseLeadId(formData);
+    await claimLeadService(id, admin.id);
 
-  await claimLeadService(id, admin.id);
+    revalidatePath("/admin/leads");
+  }
+);
 
-  revalidatePath("/admin/leads");
-}
+export const unclaimLead = secureAdminAction(
+  async (admin, formData: FormData) => {
+    const id = parseLeadId(formData);
 
-export async function unclaimLead(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+    await unclaimLeadService(id, admin.id);
 
-  const id = parseLeadId(formData);
+    revalidatePath("/admin/leads");
+  }
+);
 
-  await unclaimLeadService(id, admin.id);
+export const updateLeadStatus = secureAdminAction(
+  async (admin, formData: FormData) => {
+    const id = parseLeadId(formData);
+    const status = parseLeadStatus(formData);
 
-  revalidatePath("/admin/leads");
-}
+    await updateLeadStatusService(id, status, admin.id);
 
-export async function updateLeadStatus(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+    revalidatePath("/admin/leads");
+  }
+);
 
-  const id = parseLeadId(formData);
-  const status = parseLeadStatus(formData);
+export const deleteLead = secureAdminAction(
+  async (admin, formData: FormData) => {
+    const id = parseLeadId(formData);
 
-  await updateLeadStatusService(id, status, admin.id);
+    await deleteLeadService(id, admin.id);
 
-  revalidatePath("/admin/leads");
-}
+    revalidatePath("/admin/leads");
+  }
+);
 
-export async function deleteLead(formData: FormData) {
-  await assertSameOriginAction();
-  const admin = await requireAdmin();
+export const assignLead = secureAdminAction(
+  async (_admin, formData: FormData) => {
+    const { leadId, toUserId } = parseAssignLead(formData);
 
-  const id = parseLeadId(formData);
+    await assignLeadService(leadId, toUserId);
 
-  await deleteLeadService(id, admin.id);
-
-  revalidatePath("/admin/leads");
-}
-
-export async function assignLead(formData: FormData) {
-  await assertSameOriginAction();
-  await requireAdmin();
-
-  const { leadId, toUserId } = parseAssignLead(formData);
-
-  await assignLeadService(leadId, toUserId);
-
-  revalidatePath("/admin/leads");
-}
+    revalidatePath("/admin/leads");
+  }
+);
