@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 
@@ -9,7 +10,6 @@ import GlassCard from "@/components/ui/GlassCard";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Chip from "@/components/ui/Chip";
 
-// ✅ only fields needed for blog list page
 type BlogListItem = {
   id: string;
   title: string;
@@ -41,7 +41,6 @@ export default function BlogsClient({ blogs }: { blogs: BlogListItem[] }) {
           subtitle="Read our latest articles, company updates, Ayurveda insights, and franchise business knowledge."
         />
 
-        {/* Chips */}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           {["Ayurveda", "Franchise", "PCD Pharma", "Updates"].map((t) => (
             <Chip key={t}>{t}</Chip>
@@ -51,7 +50,6 @@ export default function BlogsClient({ blogs }: { blogs: BlogListItem[] }) {
         <div className="mt-14">
           <SectionHeading title="Latest Articles" subtitle="Fresh reads from our team" />
 
-          {/* Grid */}
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {blogs.map((b, idx) => (
               <motion.div
@@ -67,12 +65,14 @@ export default function BlogsClient({ blogs }: { blogs: BlogListItem[] }) {
                 >
                   <GlassCard className="p-6 transition hover:shadow-2xl">
                     {b.thumbnailUrl ? (
-                      <div className="mb-4 overflow-hidden rounded-2xl border border-white/10">
-                        <img
+                      <div className="mb-4 relative h-44 w-full overflow-hidden rounded-2xl border border-white/10">
+                        <Image
                           src={b.thumbnailUrl}
                           alt={b.title}
-                          className="h-44 w-full object-cover"
-                          loading="lazy"
+                          fill
+                          className="object-cover transition duration-500 group-hover:scale-[1.05]"
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          priority={idx === 0}
                         />
                       </div>
                     ) : null}
@@ -106,7 +106,6 @@ export default function BlogsClient({ blogs }: { blogs: BlogListItem[] }) {
             ))}
           </div>
 
-          {/* Empty */}
           {blogs.length === 0 ? (
             <div className="mt-10">
               <GlassCard className="p-8 text-center">

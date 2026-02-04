@@ -16,8 +16,9 @@ const SITE_URL =
   "https://vedic-wellness.vercel.app";
 
 const BRAND_NAME = "Vedic Wellness";
+
 const BRAND_DESCRIPTION =
-  "Vedic Wellness is a division of Innovia Drugs, offering Ayurvedic PCD Pharma Franchise opportunities across India.";
+  "Vedic Wellness, a division of Innovia Drugs, offers lucrative Ayurvedic PCD Pharma Franchise opportunities. We provide our partners with a strong product portfolio, exclusive monopoly rights, and full marketing support. Committed to excellence in herbal healthcare, we ensure fast dispatch and premium product quality to help our partners succeed in the high-demand Ayurvedic market.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -29,7 +30,12 @@ export const metadata: Metadata = {
 
   description: BRAND_DESCRIPTION,
 
-  alternates: { canonical: SITE_URL },
+  alternates: {
+    canonical: SITE_URL,
+    languages: {
+      "en-IN": SITE_URL,
+    },
+  },
 
   openGraph: {
     type: "website",
@@ -37,12 +43,21 @@ export const metadata: Metadata = {
     title: `${BRAND_NAME} | Ayurvedic PCD Pharma Franchise`,
     description: BRAND_DESCRIPTION,
     siteName: BRAND_NAME,
+    images: [
+      {
+        url: `${SITE_URL}/og.jpg`,
+        width: 1200,
+        height: 630,
+        alt: BRAND_NAME,
+      },
+    ],
   },
 
   twitter: {
     card: "summary_large_image",
     title: `${BRAND_NAME} | Ayurvedic PCD Pharma Franchise`,
     description: BRAND_DESCRIPTION,
+    images: [`${SITE_URL}/og.jpg`],
   },
 
   robots: {
@@ -65,7 +80,7 @@ export default function RootLayout({
       <body className="relative min-h-screen">
         <GlobalBackground />
 
-        {/* ✅ Structured data — CSP nonce auto-applied by Next */}
+        {/* Structured data */}
         <Script
           id="structured-data"
           type="application/ld+json"
@@ -79,6 +94,13 @@ export default function RootLayout({
                 url: SITE_URL,
                 logo: `${SITE_URL}/logo.svg`,
                 description: BRAND_DESCRIPTION,
+                contactPoint: {
+                  "@type": "ContactPoint",
+                  telephone: "+91-9306025799",
+                  contactType: "customer service",
+                  areaServed: "IN",
+                  availableLanguage: "English",
+                },
               },
               {
                 "@context": "https://schema.org",
