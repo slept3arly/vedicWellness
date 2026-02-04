@@ -1,5 +1,3 @@
-"use server";
-
 import { assertSameOriginAction } from "@/lib/security/csrf";
 import { requireAdmin } from "@/lib/auth/requireAdmin";
 
@@ -12,9 +10,9 @@ import { requireAdmin } from "@/lib/auth/requireAdmin";
 export function secureAdminAction<
   T extends (...args: any[]) => Promise<any>
 >(
-  action: (admin: { id: string }, ...args: Parameters<T>) => ReturnType<T>
+  action: (admin: { id: string }, ...args: Parameters<T>) => Awaited<ReturnType<T>>
 ) {
-  return async (...args: Parameters<T>) => {
+  return async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
     await assertSameOriginAction();
 
     const admin = await requireAdmin();
