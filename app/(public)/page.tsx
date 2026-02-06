@@ -1,23 +1,27 @@
-import Hero from "@/components/home/Hero";
-import TrustRow from "@/components/home/TrustRow";
-import StatsStrip from "@/components/home/StatsStrip";
-import ProductCategories from "@/components/home/ProductCategories";
-import FranchiseBenefits from "@/components/home/FranchiseBenefits";
-import HowItWorks from "@/components/home/HowItWorks";
-import Testimonials from "@/components/home/Testimonials";
-import CTABanner from "@/components/home/CTABanner";
+import Hero from "@/components/sections/Hero";
+import TrustStrip from "@/components/sections/TrustStrip";
+import StatsSection from "@/components/sections/StatsFloating";
+import Categories from "@/components/sections/Categories";
+import Philosophy from "@/components/sections/Philosophy";
+import HowItWorks from "@/components/sections/HowItWorks";
+import MediaShowcase from "@/components/sections/MediaShowcase";
+import FranchiseBenefits from "@/components/sections/FranchiseBenefits";
+import Testimonials from "@/components/sections/Testimonials";
+import CTABanner from "@/components/sections/CTABanner";
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
+    <>
       <Hero />
-      <TrustRow />
-      <StatsStrip />
-      <ProductCategories />
-      <FranchiseBenefits />
+      <TrustStrip />
+      <StatsSection />
+      <Categories />
+      <Philosophy />
       <HowItWorks />
+      <MediaShowcase />
+      <FranchiseBenefits />
       <Testimonials />
       <CTABanner />
-    </div>
+    </>
   );
 }

@@ -10,7 +10,7 @@ import {
   PackageCheck,
 } from "lucide-react";
 
-import GlassCard from "@/components/ui/GlassCard";
+import GlassCard from "@/components/old_files/ui/GlassCard";
 import Chip from "@/components/ui/Chip";
 
 export default function TrustRow() {

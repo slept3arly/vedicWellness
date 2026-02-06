@@ -8,14 +8,14 @@ type Folder = "products" | "blogs" | "banners" | "categories";
 type Props = {
   folder: Folder;
   onUploaded?: (url: string) => void;
-
-  // ✅ new additions
   onUploadedMany?: (urls: string[]) => void;
   label?: string;
-  accept?: string; // "image/webp,image/avif"
-  maxBytes?: number; // 250_000
+  accept?: string; // "image/webp,image/*"
+  maxBytes?: number;
   multiple?: boolean;
 };
+
+const MAX_BATCH = 20;
 
 export default function R2Upload({
   folder,
@@ -30,10 +30,17 @@ export default function R2Upload({
   const [err, setErr] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  function matchesMime(allowed: string[], type: string) {
+    return allowed.some((a) =>
+      a === type ||
+      (a.endsWith("/*") && type.startsWith(a.slice(0, -1)))
+    );
+  }
+
   function validateFile(file: File) {
     if (accept) {
       const allowed = accept.split(",").map((x) => x.trim());
-      if (!allowed.includes(file.type)) {
+      if (!matchesMime(allowed, file.type)) {
         throw new Error(`Invalid file type. Allowed: ${allowed.join(", ")}`);
       }
     }
@@ -49,9 +56,13 @@ export default function R2Upload({
 
     try {
       if (!files || files.length === 0) return;
+
+      if (multiple && files.length > MAX_BATCH) {
+        throw new Error(`Max ${MAX_BATCH} files at once`);
+      }
+
       setBusy(true);
 
-      // ✅ single upload
       if (!multiple) {
         const file = files[0];
         validateFile(file);
@@ -61,24 +72,33 @@ export default function R2Upload({
         return;
       }
 
-      // ✅ multiple upload
       const list = Array.from(files);
       list.forEach(validateFile);
 
       const urls = await uploadManyToR2(list, folder);
       onUploadedMany?.(urls);
-    } catch (error: any) {
-      setErr(error?.message || "Upload failed");
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setErr(error.message);
+      } else {
+        setErr("Upload failed");
+      }
     } finally {
       setBusy(false);
-      // reset input so user can pick same file again
       if (inputRef.current) inputRef.current.value = "";
     }
   }
 
   return (
     <div style={{ display: "grid", gap: 8 }}>
-      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          cursor: busy ? "not-allowed" : "pointer",
+        }}
+      >
         <input
           ref={inputRef}
           type="file"
@@ -92,11 +112,11 @@ export default function R2Upload({
         </span>
       </div>
 
-      {err ? (
+      {err && (
         <p style={{ color: "red", fontSize: 12 }}>
           {err}
         </p>
-      ) : null}
+      )}
     </div>
   );
 }

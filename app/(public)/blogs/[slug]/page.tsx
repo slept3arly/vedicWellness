@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import GlassCard from "@/components/ui/GlassCard";
+import GlassCard from "@/components/old_files/ui/GlassCard";
 import Chip from "@/components/ui/Chip";
 
 type Props = {

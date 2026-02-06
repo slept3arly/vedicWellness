@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
-import GlassCard from "@/components/ui/GlassCard";
+import GlassCard from "@/components/old_files/ui/GlassCard";
 import Chip from "@/components/ui/Chip";
 import Button from "@/components/ui/Button"; 
 

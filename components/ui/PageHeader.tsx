@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { fadeUp, stagger } from "@/app/animations";
+import { staggerFast, reveal } from "@/app/animations";
 
 type Props = {
   badge?: React.ReactNode;
@@ -19,28 +19,40 @@ export default function PageHeader({
 }: Props) {
   return (
     <motion.div
-      variants={stagger}
+      variants={staggerFast}
       initial="hidden"
-      animate="show"
-      className={["mx-auto max-w-3xl text-center space-y-5", className].join(" ")}
+      whileInView="show"
+      viewport={{ once: true }}
+      className={`mx-auto max-w-3xl text-center space-y-3 ${className}`}
     >
-      {badge ? <motion.div variants={fadeUp}>{badge}</motion.div> : null}
+      {badge && (
+        <motion.div variants={reveal} className="flex justify-center">
+          {badge}
+        </motion.div>
+      )}
 
       <motion.h1
-        variants={fadeUp}
-        className="font-heading text-4xl sm:text-5xl font-extrabold leading-tight text-slate-900 dark:text-white"
+        variants={reveal}
+        className="
+          text-4xl sm:text-5xl 
+          font-extrabold leading-tight
+          text-slate-900 dark:text-white
+        "
       >
         {title}
       </motion.h1>
 
-      {subtitle ? (
+      {subtitle && (
         <motion.p
-          variants={fadeUp}
-          className="font-body text-lg text-slate-700 dark:text-slate-300"
+          variants={reveal}
+          className="
+            text-base sm:text-lg 
+            text-slate-600 dark:text-slate-300
+          "
         >
           {subtitle}
         </motion.p>
-      ) : null}
+      )}
     </motion.div>
   );
 }

@@ -3,7 +3,7 @@ import "./globals.css";
 
 import Navbar from "@/components/Navbar";
 import BottomNavbar from "@/components/BottomNavbar";
-import { inter, spaceGrotesk, playfair } from "./fonts";
+import { inter, spaceGrotesk } from "./fonts";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import GlobalBackground from "@/components/GlobalBackground";
 import RouteLoader from "@/components/RouteLoader";
@@ -18,13 +18,13 @@ const SITE_URL =
 const BRAND_NAME = "Vedic Wellness";
 
 const BRAND_DESCRIPTION =
-  "Vedic Wellness, a division of Innovia Drugs, offers lucrative Ayurvedic PCD Pharma Franchise opportunities. We provide our partners with a strong product portfolio, exclusive monopoly rights, and full marketing support. Committed to excellence in herbal healthcare, we ensure fast dispatch and premium product quality to help our partners succeed in the high-demand Ayurvedic market.";
+  "Vedic Wellness, a division of Innovia Drugs, offers premium Ayurvedic wellness products and PCD Pharma Franchise opportunities, combining traditional wisdom with modern pharmaceutical standards.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
 
   title: {
-    default: `${BRAND_NAME} | Ayurvedic PCD Pharma Franchise`,
+    default: `${BRAND_NAME} | Ayurvedic Wellness & Pharma Franchise`,
     template: `%s | ${BRAND_NAME}`,
   },
 
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     url: SITE_URL,
-    title: `${BRAND_NAME} | Ayurvedic PCD Pharma Franchise`,
+    title: `${BRAND_NAME} | Ayurvedic Wellness & Pharma Franchise`,
     description: BRAND_DESCRIPTION,
     siteName: BRAND_NAME,
     images: [
@@ -55,7 +55,7 @@ export const metadata: Metadata = {
 
   twitter: {
     card: "summary_large_image",
-    title: `${BRAND_NAME} | Ayurvedic PCD Pharma Franchise`,
+    title: `${BRAND_NAME} | Ayurvedic Wellness & Pharma Franchise`,
     description: BRAND_DESCRIPTION,
     images: [`${SITE_URL}/og.jpg`],
   },
@@ -75,9 +75,9 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${spaceGrotesk.variable} ${playfair.variable}`}
+      className={`${inter.variable} ${spaceGrotesk.variable}`}
     >
-      <body className="relative min-h-screen">
+      <body className="relative min-h-screen overflow-x-hidden">
         <GlobalBackground />
 
         {/* Structured data */}
@@ -121,7 +121,7 @@ export default function RootLayout({
             <MarqueeBanner />
           </div>
 
-          <main className="pt-[8.5rem] pb-24 md:pb-0 overflow-x-hidden">
+          <main className="pt-[7.5rem] pb-24 md:pb-0">
             {children}
           </main>
 

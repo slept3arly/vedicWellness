@@ -1,6 +1,6 @@
 "use client"
 
-import React, { memo, useEffect, useState } from "react"
+import React, { memo, useCallback, useEffect, useState } from "react"
 import Image from "next/image"
 import { useMenu } from "@/components/MenuContext"
 
@@ -35,6 +35,8 @@ const SocialButton = memo(function SocialButton({
         cursor-pointer select-none
         transition-transform duration-200
         hover:scale-110 active:scale-95
+        focus-visible:ring-2 focus-visible:ring-white/70
+        outline-none
       "
     >
       <Image src={iconSrc} alt={iconAlt ?? ""} width={width} height={height} />
@@ -43,23 +45,38 @@ const SocialButton = memo(function SocialButton({
 })
 
 /* =========================================================
-   Scroll To Top Button (Accessible)
+   Scroll To Top Button (Accessible + Motion Safe)
    ========================================================= */
 const ScrollToTopButton = memo(function ScrollToTopButton() {
+  const scrollToTop = useCallback(() => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches
+
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    })
+  }, [])
+
   return (
     <button
       type="button"
       aria-label="Scroll to top"
-      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      onClick={scrollToTop}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") scrollToTop()
+      }}
       className="
         h-10 w-10
         rounded-full
-        bg-neutral-900/75  -md shadow-lg
+        bg-neutral-900/75 backdrop-blur-md shadow-lg
         flex items-center justify-center
         cursor-pointer
-        will-change: transform
         transition-transform duration-200
         hover:scale-110 active:scale-95
+        focus-visible:ring-2 focus-visible:ring-white/70
+        outline-none
         text-white
       "
     >
@@ -70,9 +87,7 @@ const ScrollToTopButton = memo(function ScrollToTopButton() {
 
 /* =========================================================
    Bottom Floating Social Bar + Scroll Top
-   - Appears after user scrolls down
-   - Hides when fullscreen menu is open
-   - NEW: hides near bottom (mobile only)
+   (Same rules as your original)
    ========================================================= */
 export default function BottomNavbar() {
   const { menuOpen } = useMenu()
@@ -81,30 +96,33 @@ export default function BottomNavbar() {
   const [nearBottomMobile, setNearBottomMobile] = useState(false)
 
   useEffect(() => {
-    const BOTTOM_OFFSET = 60 // px: "near bottom" threshold
+    const BOTTOM_OFFSET = 60
     const MOBILE_QUERY = "(max-width: 768px)"
-
-    const isMobile = () => window.matchMedia(MOBILE_QUERY).matches
+    const mobileQuery = window.matchMedia(MOBILE_QUERY)
 
     const check = () => {
-      // show/hide after scroll
+      // show after some scroll
       const shouldBeVisible = window.scrollY > 100
-      setVisible((prev) => (prev !== shouldBeVisible ? shouldBeVisible : prev))
+      setVisible((prev) =>
+        prev !== shouldBeVisible ? shouldBeVisible : prev
+      )
 
-      // near-bottom hide (mobile only)
-      if (isMobile()) {
+      // hide near bottom only on mobile
+      if (mobileQuery.matches) {
         const scrollPos = window.scrollY + window.innerHeight
         const docHeight = document.documentElement.scrollHeight
+
         const isNearBottom = docHeight - scrollPos <= BOTTOM_OFFSET
 
-        setNearBottomMobile((prev) => (prev !== isNearBottom ? isNearBottom : prev))
+        setNearBottomMobile((prev) =>
+          prev !== isNearBottom ? isNearBottom : prev
+        )
       } else {
-        // ensure it never hides on desktop due to this rule
         setNearBottomMobile(false)
       }
     }
 
-    check() // initial state
+    check()
     window.addEventListener("scroll", check, { passive: true })
     window.addEventListener("resize", check, { passive: true })
 
@@ -114,18 +132,16 @@ export default function BottomNavbar() {
     }
   }, [])
 
-  // if not visible OR menu open OR near bottom on mobile => hide
   const shouldShow = visible && !menuOpen && !nearBottomMobile
 
   return (
     <>
       {/* =================================================
-          Side Floating Social Action Bar
+          Floating Social Action Bar
          ================================================= */}
       <div
         className={`
           fixed bottom-6 right-5 z-50
-          flex items-center justify-center
           transition-all duration-300
           ${shouldShow ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6 pointer-events-none"}
         `}
@@ -134,8 +150,8 @@ export default function BottomNavbar() {
           className="
             flex flex-col items-center gap-2
             px-2 py-2
-            rounded-full w-auto h-auto
-            bg-neutral-900/75  -md shadow-lg
+            rounded-full
+            bg-neutral-900/75 backdrop-blur-md shadow-lg
           "
         >
           <SocialButton

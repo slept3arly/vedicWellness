@@ -1,42 +1,64 @@
 "use client";
 
+import { motion, MotionProps } from "framer-motion";
+import clsx from "clsx";
 import React from "react";
 
-type Variant = "primary" | "secondary" | "ghost";
-type Size = "md" | "lg";
-
-type Props = React.ButtonHTMLAttributes<HTMLButtonElement> & {
-  variant?: Variant;
-  size?: Size;
-};
+type ButtonProps =
+  React.ComponentPropsWithoutRef<"button"> &
+  MotionProps & {
+    variant?: "primary" | "secondary" | "ghost";
+    size?: "sm" | "md" | "lg";
+  };
 
 export default function Button({
+  children,
   variant = "primary",
   size = "md",
-  className = "",
+  className,
   ...props
-}: Props) {
-  const base =
-    "inline-flex items-center justify-center rounded-2xl font-semibold transition focus:outline-none focus:ring-2 focus:ring-green-600/40";
-
-  const sizes: Record<Size, string> = {
-    md: "px-6 py-3 text-sm",
-    lg: "px-7 py-3.5 text-base",
-  };
-
-  const variants: Record<Variant, string> = {
-    primary:
-      "bg-[#039751] text-white shadow-lg shadow-green-600/20 hover:bg-green-700",
-    secondary:
-      "border border-slate-200 bg-white/70 text-slate-900 shadow-sm   hover:bg-white hover:text-black dark:border-slate-800 dark:bg-slate-900/40 dark:text-white",
-    ghost:
-      "border border-green-600/25 bg-green-500/10 text-green-800 hover:bg-green-500/15 dark:text-green-200",
-  };
-
+}: ButtonProps) {
   return (
-    <button
+    <motion.button
+      whileHover={{ y: -2 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 260, damping: 18 }}
+      className={clsx(
+        "relative overflow-hidden rounded-[14px] font-medium transition-all focus:outline-none",
+
+        size === "sm" && "px-4 py-2 text-sm",
+        size === "md" && "px-6 py-3 text-sm",
+        size === "lg" && "px-8 py-4 text-base",
+
+        variant === "primary" &&
+          `
+          text-white
+          bg-[linear-gradient(135deg,var(--brand-primary),var(--brand-accent))]
+          shadow-lg shadow-green-900/20
+          hover:shadow-xl hover:shadow-green-900/30
+          `,
+
+        variant === "secondary" &&
+          `
+          bg-[var(--bg-surface)]
+          text-[var(--text-main)]
+          border border-[var(--border-soft)]
+          hover:border-green-500/40
+          hover:shadow-md
+          `,
+
+        variant === "ghost" &&
+          `
+          bg-transparent
+          text-[var(--text-main)]
+          hover:bg-[var(--bg-surface)]
+          `,
+
+        className
+      )}
       {...props}
-      className={[base, sizes[size], variants[variant], className].join(" ")}
-    />
+    >
+      {children}
+    </motion.button>
   );
 }
