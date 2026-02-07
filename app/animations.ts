@@ -53,3 +53,42 @@ export const zLiftSpring: Transition = {
   damping: 22,
   mass: 0.6,
 };
+
+export const pressHold: Variants = {
+  rest: {
+    scale: 1,
+    backgroundColor: "rgba(255,255,255,0.7)",
+  },
+  hold: {
+    scale: 0.97,
+    backgroundColor: "rgba(34,197,94,0.12)",
+    transition: {
+      duration: 0.15,
+      ease: "easeOut",
+    },
+  },
+};
+
+/* ---------------- Card (Reveal + Press Hold) ---------------- */
+
+export const cardVariants: Variants = {
+  hidden: { opacity: 0, y: 16 },
+
+  rest: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    backgroundColor: "rgba(255,255,255,0.7)",
+  },
+
+  hold: {
+    scale: 0.97,
+    backgroundColor: "rgba(34,197,94,0.12)",
+    transition: {
+      duration: 0.15,
+      ease: "easeOut",
+    },
+  },
+};
+
+
