@@ -134,7 +134,7 @@ export default function Navbar() {
                 {/* USER ICON BUTTONS */}
                 <Link
                   href="/cart"
-                  className="w-10 h-10 rounded-full bg-[#84eb4b] flex items-center justify-center hover:bg-white transition"
+                  className="w-10 h-10 rounded-full bg-[#84eb4b] dark:text-black flex items-center justify-center hover:bg-white transition"
                   aria-label="Go to cart"
                 >
                   <ShoppingCart size={20} />
@@ -142,7 +142,7 @@ export default function Navbar() {
 
                 <Link
                   href="/account"
-                  className="w-10 h-10 rounded-full bg-[#84eb4b] flex items-center justify-center hover:bg-white transition"
+                  className="w-10 h-10 rounded-full bg-[#84eb4b] dark:text-black flex items-center justify-center hover:bg-white transition"
                   aria-label="My account"
                 >
                   <User size={20} />

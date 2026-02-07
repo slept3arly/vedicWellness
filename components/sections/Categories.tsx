@@ -1,26 +1,37 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Layers } from "lucide-react";
+import {
+  ShieldPlus,
+  Leaf,
+  Droplet,
+  Sparkles,
+  Flame,
+  HeartPulse,
+} from "lucide-react";
+
 import {
   fadeUpSoft,
   staggerFast,
-  scaleIn
+  scaleIn,
+  zLiftIcon,
+  zLiftSpring,
 } from "@/app/animations";
 
+/* ---------------- DATA ---------------- */
+
 const categories = [
-  ["Immunity Care", "30+ Products"],
-  ["Digestive Range", "25+ Products"],
-  ["Liver Care", "15+ Products"],
-  ["Skin & Hair", "20+ Products"],
-  ["Pain Relief Oils", "10+ Products"],
-  ["General Wellness", "40+ Products"],
+  { title: "Immunity Care", count: "30+ Products", icon: ShieldPlus },
+  { title: "Digestive Range", count: "25+ Products", icon: Leaf },
+  { title: "Liver Care", count: "15+ Products", icon: Droplet },
+  { title: "Skin & Hair", count: "20+ Products", icon: Sparkles },
+  { title: "Pain Relief Oils", count: "10+ Products", icon: Flame },
+  { title: "General Wellness", count: "40+ Products", icon: HeartPulse },
 ];
 
 export default function Categories() {
   return (
     <section className="max-w-7xl mx-auto px-6 py-14">
-
       <motion.div
         variants={staggerFast}
         initial="hidden"
@@ -40,40 +51,84 @@ export default function Categories() {
 
         {/* Grid */}
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {categories.map(([title, count]) => (
+          {categories.map(({ title, count, icon: Icon }) => (
             <motion.a
               key={title}
-              variants={scaleIn}
               href="/products"
+              variants={scaleIn}
+              initial="rest"
+              whileHover="hover"
+              animate="rest"
               className="group block"
             >
-              <div
+              <motion.div
                 className="
-                  rounded-2xl 
+                  relative flex items-center justify-between
+                  rounded-2xl
                   bg-white/70 dark:bg-slate-900/60
-                  p-6 
-                  shadow-sm 
-                  transition 
+                  p-6
+                  shadow-sm
+                  transition
                   hover:-translate-y-1 hover:shadow-lg
+                  overflow-hidden
                 "
               >
-                <div className="mb-4 inline-flex rounded-2xl bg-green-600/15 p-3 text-green-700 dark:text-green-300">
-                  <Layers size={20} />
+                {/* Left content */}
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900 dark:text-white">
+                    {title}
+                  </h3>
+
+                  <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                    {count}
+                  </p>
+
+                  <p className="mt-3 text-sm font-semibold text-green-700 dark:text-green-300 flex items-center gap-1">
+                    Explore
+                    <span className="transition group-hover:translate-x-1">→</span>
+                  </p>
                 </div>
 
-                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
-                  {title}
-                </h3>
+                {/* Icon + Glow */}
+                <motion.div
+                  variants={zLiftIcon}
+                  transition={zLiftSpring}
+                  className="relative"
+                >
+                  {/* Glow */}
+                  <div
+                    className="
+                      absolute inset-0
+                      rounded-2xl
+                      bg-green-500/30
+                      blur-2xl
+                      opacity-0
+                      scale-90
+                      transition-all duration-300
+                      group-hover:opacity-100
+                      group-hover:scale-110
+                    "
+                  />
 
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                  {count}
-                </p>
-
-                <p className="mt-3 text-sm font-semibold text-green-700 dark:text-green-300 flex items-center gap-1">
-                  Explore
-                  <span className="transition group-hover:translate-x-1">→</span>
-                </p>
-              </div>
+                  {/* Icon */}
+                  <div
+                    className="
+                      relative z-10
+                      flex items-center justify-center
+                      h-20 w-20
+                      rounded-2xl
+                      bg-green-600/10
+                      text-green-700
+                      dark:text-green-300
+                      shadow-sm
+                      transition-shadow duration-300
+                      group-hover:shadow-xl
+                    "
+                  >
+                    <Icon size={40} strokeWidth={1.5} />
+                  </div>
+                </motion.div>
+              </motion.div>
             </motion.a>
           ))}
         </div>

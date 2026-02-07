@@ -6,15 +6,18 @@ import {
   Microscope,
   HeartPulse,
   Shield,
-  Beaker,
-  Globe
+  Globe,
 } from "lucide-react";
 
 import {
   fadeUpSoft,
   staggerFast,
-  scaleIn
+  scaleIn,
+  zLiftIcon,
+  zLiftSpring,
 } from "@/app/animations";
+
+/* ---------------- DATA ---------------- */
 
 const primary = [
   {
@@ -50,7 +53,6 @@ const secondary = [
 export default function Philosophy() {
   return (
     <section className="max-w-7xl mx-auto px-6 py-14">
-
       <motion.div
         variants={staggerFast}
         initial="hidden"
@@ -58,7 +60,6 @@ export default function Philosophy() {
         viewport={{ once: true, amount: 0.2 }}
         className="space-y-8"
       >
-
         {/* Heading */}
         <motion.div variants={fadeUpSoft}>
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
@@ -70,24 +71,62 @@ export default function Philosophy() {
           </p>
         </motion.div>
 
-        {/* Primary pillars */}
+        {/* Primary */}
         <div className="grid md:grid-cols-2 gap-6">
           {primary.map(({ icon: Icon, title, desc }) => (
             <motion.div
               key={title}
               variants={scaleIn}
+              initial="rest"
+              animate="rest"
+              whileHover={{ y: -4 }}
+              transition={{ type: "spring", stiffness: 340, damping: 24, mass: 0.7 }}
               className="
+                group
                 rounded-3xl
                 bg-white/70 dark:bg-slate-900/60
                 p-7
                 shadow-sm
-                transition
-                hover:-translate-y-1 hover:shadow-lg
+                hover:shadow-lg
               "
             >
-              <div className="mb-4 inline-flex rounded-2xl bg-green-600/15 p-3 text-green-700 dark:text-green-300">
-                <Icon size={26} />
-              </div>
+              {/* Icon */}
+              <motion.div
+                variants={zLiftIcon}
+                transition={zLiftSpring}
+                className="relative mb-5 w-fit"
+              >
+                {/* Glow */}
+                <div
+                  className="
+                    absolute inset-0
+                    rounded-2xl
+                    bg-green-500/30
+                    blur-2xl
+                    opacity-0
+                    scale-90
+                    transition-all duration-300
+                    group-hover:opacity-100
+                    group-hover:scale-110
+                  "
+                />
+
+                <div
+                  className="
+                    relative z-10
+                    flex items-center justify-center
+                    h-14 w-14
+                    rounded-2xl
+                    bg-green-600/10
+                    text-green-700
+                    dark:text-green-300
+                    shadow-sm
+                    group-hover:shadow-xl
+                  "
+                >
+                  <Icon size={26} />
+                </div>
+              </motion.div>
 
               <h3 className="text-xl font-bold text-slate-900 dark:text-white">
                 {title}
@@ -100,24 +139,60 @@ export default function Philosophy() {
           ))}
         </div>
 
-        {/* Supporting principles */}
+        {/* Secondary */}
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {secondary.map(({ icon: Icon, title, desc }) => (
             <motion.div
               key={title}
               variants={scaleIn}
+              initial="rest"
+              animate="rest"
+              whileHover={{ y: -4 }}
+              transition={{ type: "spring", stiffness: 340, damping: 24, mass: 0.7 }}
               className="
+                group
                 rounded-2xl
                 bg-white/70 dark:bg-slate-900/60
                 p-6
                 shadow-sm
-                transition
-                hover:-translate-y-1 hover:shadow-lg
+                hover:shadow-lg
               "
             >
-              <div className="mb-3 inline-flex rounded-2xl bg-green-600/15 p-3 text-green-700 dark:text-green-300">
-                <Icon size={22} />
-              </div>
+              <motion.div
+                variants={zLiftIcon}
+                transition={zLiftSpring}
+                className="relative mb-4 w-fit"
+              >
+                <div
+                  className="
+                    absolute inset-0
+                    rounded-2xl
+                    bg-green-500/25
+                    blur-2xl
+                    opacity-0
+                    scale-90
+                    transition-all duration-300
+                    group-hover:opacity-100
+                    group-hover:scale-110
+                  "
+                />
+
+                <div
+                  className="
+                    relative z-10
+                    flex items-center justify-center
+                    h-12 w-12
+                    rounded-2xl
+                    bg-green-600/10
+                    text-green-700
+                    dark:text-green-300
+                    shadow-sm
+                    group-hover:shadow-lg
+                  "
+                >
+                  <Icon size={22} />
+                </div>
+              </motion.div>
 
               <h3 className="font-bold text-slate-900 dark:text-white">
                 {title}
@@ -129,7 +204,6 @@ export default function Philosophy() {
             </motion.div>
           ))}
         </div>
-
       </motion.div>
     </section>
   );

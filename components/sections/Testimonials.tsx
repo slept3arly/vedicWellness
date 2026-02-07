@@ -6,7 +6,7 @@ import {
   MapPin,
   Briefcase,
   TrendingUp,
-  Users
+  Users,
 } from "lucide-react";
 
 import { fadeUpSoft, staggerFast, scaleIn } from "@/app/animations";
@@ -26,22 +26,22 @@ const reviews: Review[] = [
     city: "Maharashtra",
     role: "Wholesale Distributor",
     impact: "+42% Revenue Growth",
-    text: "Excellent margins, reliable supply and strong repeat demand helped us scale quickly."
+    text: "Excellent margins, reliable supply and strong repeat demand helped us scale quickly.",
   },
   {
     name: "Medical Representative",
     city: "Uttar Pradesh",
     role: "Field Sales",
     impact: "3x Doctor Engagement",
-    text: "Marketing support and product quality made doctor conversions easier."
+    text: "Marketing support and product quality made doctor conversions easier.",
   },
   {
     name: "Franchise Owner",
     city: "Gujarat",
     role: "Regional Partner",
     impact: "+65% Monthly Orders",
-    text: "Support team is responsive and schemes are attractive."
-  }
+    text: "Support team is responsive and schemes are attractive.",
+  },
 ];
 
 type StatProps = {
@@ -53,7 +53,6 @@ type StatProps = {
 export default function Testimonials() {
   return (
     <section className="max-w-7xl mx-auto px-6 py-14">
-
       <motion.div
         variants={staggerFast}
         initial="hidden"
@@ -61,7 +60,6 @@ export default function Testimonials() {
         viewport={{ once: true, amount: 0.25 }}
         className="space-y-10"
       >
-
         <motion.div variants={fadeUpSoft}>
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
             Trusted by Growing Partners
@@ -82,13 +80,16 @@ export default function Testimonials() {
             <motion.div
               key={r.city}
               variants={scaleIn}
+              initial="rest"
+              animate="rest"
+              whileHover={{ y: -4 }}
+              transition={{ type: "spring", stiffness: 340, damping: 24, mass: 0.7 }}
               className="
                 rounded-2xl
                 bg-white/70 dark:bg-slate-900/60
                 p-6
                 shadow-sm
-                transition
-                hover:-translate-y-1 hover:shadow-lg
+                hover:shadow-lg
               "
             >
               <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
@@ -123,7 +124,6 @@ export default function Testimonials() {
             </motion.div>
           ))}
         </div>
-
       </motion.div>
     </section>
   );
@@ -133,13 +133,17 @@ function Stat({ icon, label, value }: StatProps) {
   return (
     <motion.div
       variants={scaleIn}
+      initial="rest"
+      animate="rest"
+      whileHover={{ y: -4 }}
+      transition={{ type: "spring", stiffness: 340, damping: 24, mass: 0.7 }}
       className="
         rounded-2xl
         bg-white/70 dark:bg-slate-900/60
         p-5
         shadow-sm
         flex items-center gap-4
-        transition hover:-translate-y-1 hover:shadow-lg
+        hover:shadow-lg
       "
     >
       <div className="p-3 rounded-xl bg-green-600/15 text-green-700 dark:text-green-300">

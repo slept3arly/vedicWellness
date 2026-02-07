@@ -1,4 +1,6 @@
-import { Variants } from "framer-motion";
+import { Variants, Transition } from "framer-motion";
+
+/* ---------------- Entrance ---------------- */
 
 export const fadeIn: Variants = {
   hidden: { opacity: 0 },
@@ -28,4 +30,26 @@ export const staggerSlow: Variants = {
 export const reveal: Variants = {
   hidden: { opacity: 0, y: 16 },
   show: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+};
+
+/* ---------------- Z-Lift Icon (Depth) ---------------- */
+
+export const zLiftIcon: Variants = {
+  rest: {
+    scale: 1,
+    opacity: 0.9,
+  },
+  hover: {
+    scale: 1.08,
+    opacity: 1,
+  },
+};
+
+/* ---------------- Shared Hover Spring (FAST) ---------------- */
+
+export const zLiftSpring: Transition = {
+  type: "spring",
+  stiffness: 360,
+  damping: 22,
+  mass: 0.6,
 };

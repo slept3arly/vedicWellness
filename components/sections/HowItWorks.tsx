@@ -25,7 +25,6 @@ const steps = [
 export default function HowItWorks() {
   return (
     <section className="max-w-7xl mx-auto px-6 py-14">
-
       <motion.div
         variants={staggerFast}
         initial="hidden"
@@ -33,7 +32,6 @@ export default function HowItWorks() {
         viewport={{ once: true, amount: 0.25 }}
         className="space-y-8"
       >
-
         <motion.div variants={fadeUpSoft}>
           <h2 className="text-3xl font-bold text-slate-900 dark:text-white">
             How It Works
@@ -48,14 +46,17 @@ export default function HowItWorks() {
             <motion.div
               key={s.title}
               variants={scaleIn}
+              initial="rest"
+              animate="rest"
+              whileHover={{ y: -4 }}
+              transition={{ type: "spring", stiffness: 340, damping: 24, mass: 0.7 }}
               className="
                 relative
                 rounded-2xl
                 bg-white/70 dark:bg-slate-900/60
                 p-6
                 shadow-sm
-                transition
-                hover:-translate-y-1 hover:shadow-lg
+                hover:shadow-lg
               "
             >
               <div className="absolute right-4 top-2 text-7xl font-bold text-green-600/10 dark:text-green-400/10">
@@ -72,7 +73,6 @@ export default function HowItWorks() {
             </motion.div>
           ))}
         </div>
-
       </motion.div>
     </section>
   );
