@@ -121,7 +121,7 @@ export default function RootLayout({
             <MarqueeBanner />
           </div>
 
-          <main className="pt-[7.5rem] pb-24 md:pb-0">
+          <main className="pt-[7.5rem] pb-28 md:pb-0 space-y-6 md:space-y-10">
             {children}
           </main>
 

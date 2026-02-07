@@ -13,14 +13,27 @@ export default function Home() {
   return (
     <>
       <Hero />
+
       <TrustStrip />
+
       <StatsSection />
-      <Categories />
-      <Philosophy />
-      <HowItWorks />
+
+      {/* Early visual proof */}
       <MediaShowcase />
+
+      <Categories />
+
+      <HowItWorks />
+
+      {/*<Philosophy />*/}
+
+      {/* Reinforcement before conversion */}
+      <MediaShowcase />
+
       <FranchiseBenefits />
+
       <Testimonials />
+
       <CTABanner />
     </>
   );
