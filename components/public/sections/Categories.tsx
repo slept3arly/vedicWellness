@@ -71,7 +71,7 @@ export default function Categories() {
                   className="
                     h-full
                     bg-white/75 dark:bg-black/45
-                    backdrop-blur-sm
+                     
                     transition-shadow duration-300
                     group-hover:shadow-[0_20px_50px_rgba(2,101,54,0.3)]
                   "

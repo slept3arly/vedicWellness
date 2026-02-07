@@ -42,7 +42,7 @@ export default function Navbar() {
           fixed z-40
           top-3 left-3 right-3 h-16 pb-1
           lg:h-20 lg:top-5 lg:left-9 lg:right-9
-          backdrop-blur
+          backdrop-blur-lg
           bg-neutral-900/75 shadow-lg
           rounded-lg
           ${menuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}

@@ -43,7 +43,7 @@ export default function TrustStrip() {
               flex items-center gap-2
               rounded-full
               bg-white/80 dark:bg-black/50
-              backdrop-blur-sm
+               
               px-4 py-2
               text-xs md:text-sm
               font-medium

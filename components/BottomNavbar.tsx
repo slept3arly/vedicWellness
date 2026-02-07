@@ -70,7 +70,7 @@ const ScrollToTopButton = memo(function ScrollToTopButton() {
       className="
         h-10 w-10
         rounded-full
-        bg-neutral-900/75 backdrop-blur-md shadow-lg
+        bg-neutral-900/75   shadow-lg
         flex items-center justify-center
         cursor-pointer
         transition-transform duration-200
@@ -151,7 +151,7 @@ export default function BottomNavbar() {
             flex flex-col items-center gap-2
             px-2 py-2
             rounded-full
-            bg-neutral-900/75 backdrop-blur-md shadow-lg
+            bg-neutral-900/75 shadow-lg
           "
         >
           <SocialButton

@@ -112,7 +112,7 @@ export default function AdminBadge({
       className={`
         inline-flex items-center gap-2
         px-3 py-1.5 text-xs font-semibold tracking-wide
-        rounded-full backdrop-blur-md
+        rounded-full  
         ring-1 ${s.ring}
         ${s.bg} ${s.text}
         shadow-[0_0_12px_rgba(0,0,0,0.15)]

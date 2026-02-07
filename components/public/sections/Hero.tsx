@@ -83,7 +83,7 @@ export default function Hero() {
             relative
             rounded-3xl
             bg-white/70 dark:bg-black/45
-            backdrop-blur-sm
+             
             p-6 md:p-8
             shadow-[0_24px_60px_rgba(2,101,54,0.25)]
           "

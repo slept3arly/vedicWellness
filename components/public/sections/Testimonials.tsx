@@ -81,7 +81,7 @@ export default function Testimonials() {
                 whileHover="hover"
                 className="
                   bg-white/75 dark:bg-black/45
-                  backdrop-blur-sm
+                   
                   rounded-2xl
                   p-6
                   transition-shadow duration-300
@@ -140,7 +140,7 @@ function Stat({
       variants={fadeUp}
       className="
         bg-white/75 dark:bg-black/45
-        backdrop-blur-sm
+         
         rounded-2xl
         p-5
         flex items-center gap-4

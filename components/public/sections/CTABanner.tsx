@@ -29,7 +29,7 @@ export default function FranchiseCTA() {
           <Card
             className="
               bg-white/80 dark:bg-black/50
-              backdrop-blur-sm
+               
               border border-[var(--border-soft)]
             "
           >
@@ -54,7 +54,7 @@ export default function FranchiseCTA() {
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Button
                   size="lg"
-                  className="w-full shadow-md hover:shadow-xl"
+                  className="w-full shadow-md"
                   onClick={() => router.push("/contact")}
                 >
                   <FileText size={18} className="mr-2" />
@@ -64,7 +64,7 @@ export default function FranchiseCTA() {
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="w-full shadow-md hover:shadow-xl"
+                  className="w-full shadow-md"
                   onClick={() =>
                     window.open("https://wa.me/+919306025799", "_blank")
                   }
@@ -76,7 +76,7 @@ export default function FranchiseCTA() {
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="w-full shadow-md hover:shadow-xl"
+                  className="w-full shadow-md"
                   onClick={() =>
                     (window.location.href = "tel:+919306025799")
                   }
@@ -88,7 +88,7 @@ export default function FranchiseCTA() {
                 <Button
                   size="lg"
                   variant="secondary"
-                  className="w-full shadow-md hover:shadow-xl"
+                  className="w-full shadow-md"
                   onClick={() => router.push("/about")}
                 >
                   <Info size={18} className="mr-2" />

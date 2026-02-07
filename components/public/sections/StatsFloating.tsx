@@ -28,28 +28,22 @@ export default function StatsFloating() {
           <div
             key={label}
             className={`
-              group relative
+              relative
               h-[110px] md:h-[160px]
               ${radius[i]}
               bg-white/75 dark:bg-black/45
-              backdrop-blur-sm
+               
               p-3 md:p-5
-              will-change-transform
-              transition-all duration-300
-              hover:-translate-y-1
-              hover:shadow-[0_16px_32px_rgba(2,101,54,0.18)]
             `}
           >
-            {/* Static glow */}
+            {/* Static glow (no animation) */}
             <div
               className="
                 pointer-events-none absolute inset-0 rounded-inherit
                 bg-gradient-to-br
                 from-[color:var(--brand-primary)]/20
                 to-transparent
-                opacity-0
-                transition-opacity duration-300
-                group-hover:opacity-100
+                opacity-100
               "
             />
 

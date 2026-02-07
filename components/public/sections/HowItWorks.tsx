@@ -66,7 +66,7 @@ export default function HowItWorks() {
                   className="
                     relative h-full
                     bg-white/70 dark:bg-black/45
-                    backdrop-blur-sm
+                     
                     transition-shadow duration-300
                     group-hover:shadow-[0_18px_45px_rgba(2,101,54,0.25)]
                   "
