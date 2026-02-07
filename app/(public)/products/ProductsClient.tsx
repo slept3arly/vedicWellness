@@ -14,10 +14,10 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 
-import PageHeader from "@/components/ui/PageHeader";
+import PageHeader from "@/components/public/PageHeader";
 import GlassCard from "@/components/old_files/ui/GlassCard";
-import SectionHeading from "@/components/ui/SectionHeading";
-import Chip from "@/components/ui/Chip";
+import SectionHeading from "@/components/public/ui/SectionHeading";
+import Chip from "@/components/public/ui/Chip";
 
 import { reveal, staggerFast } from "@/app/animations";
 

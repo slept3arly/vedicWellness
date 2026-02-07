@@ -14,11 +14,11 @@ import {
 
 import { fadeUpSoft, staggerFast } from "@/app/animations";
 
-import GlassCard from "@/components/ui/Card";
-import Chip from "@/components/ui/Chip";
-import PageHeader from "@/components/ui/PageHeader";
-import SectionHeading from "@/components/ui/SectionHeading";
-import Button from "@/components/ui/Button";
+import GlassCard from "@/components/public/ui/Card";
+import Chip from "@/components/public/ui/Chip";
+import PageHeader from "@/components/public/PageHeader";
+import SectionHeading from "@/components/public/ui/SectionHeading";
+import Button from "@/components/public/ui/Button";
 
 type FAQ = { q: string; a: string };
 

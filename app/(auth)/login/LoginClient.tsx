@@ -8,8 +8,8 @@ import { useSearchParams } from "next/navigation";
 import { fadeUpSoft, staggerFast } from "@/app/animations";
 
 import GlassCard from "@/components/old_files/ui/GlassCard";
-import Chip from "@/components/ui/Chip";
-import PageHeader from "@/components/ui/PageHeader";
+import Chip from "@/components/public/ui/Chip";
+import PageHeader from "@/components/public/PageHeader";
 
 import LoginForm from "./LoginForm";
 

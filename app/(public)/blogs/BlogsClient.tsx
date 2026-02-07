@@ -5,9 +5,9 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 
-import PageHeader from "@/components/ui/PageHeader";
+import PageHeader from "@/components/public/PageHeader";
 import GlassCard from "@/components/old_files/ui/GlassCard";
-import Chip from "@/components/ui/Chip";
+import Chip from "@/components/public/ui/Chip";
 
 import {
   fadeUpSoft,

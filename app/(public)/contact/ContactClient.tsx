@@ -14,11 +14,11 @@ import { Turnstile } from "@marsidev/react-turnstile";
 
 import { reveal, staggerFast } from "@/app/animations";
 
-import PageHeader from "@/components/ui/PageHeader";
+import PageHeader from "@/components/public/PageHeader";
 import GlassCard from "@/components/old_files/ui/GlassCard";
-import SectionHeading from "@/components/ui/SectionHeading";
-import Button from "@/components/ui/Button";
-import Chip from "@/components/ui/Chip";
+import SectionHeading from "@/components/public/ui/SectionHeading";
+import Button from "@/components/public/ui/Button";
+import Chip from "@/components/public/ui/Chip";
 
 type FormState = {
   name: string;

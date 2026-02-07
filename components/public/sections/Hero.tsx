@@ -4,9 +4,9 @@ import { motion } from "framer-motion";
 import { Sparkles, ShieldCheck, Truck, TrendingUp } from "lucide-react";
 import { reveal, staggerFast, fadeUpSoft } from "@/app/animations";
 
-import Chip from "@/components/ui/Chip";
-import Button from "@/components/ui/Button";
-import MediaSlider from "@/components/ui/MediaSlider";
+import Chip from "@/components/public/ui/Chip";
+import Button from "@/components/public/ui/Button";
+import MediaSlider from "@/components/public/ui/MediaSlider";
 
 export default function Hero() {
   return (

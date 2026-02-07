@@ -69,25 +69,61 @@ export const pressHold: Variants = {
   },
 };
 
-/* ---------------- Card (Reveal + Press Hold) ---------------- */
 
-export const cardVariants: Variants = {
+/* ======================================================
+   SHARED SPRINGS (APPLE-ESQUE)
+====================================================== */
+
+export const softSpring: Transition = {
+  type: "spring",
+  stiffness: 260,
+  damping: 22,
+  mass: 0.7,
+};
+
+export const fastSpring: Transition = {
+  type: "spring",
+  stiffness: 360,
+  damping: 24,
+  mass: 0.6,
+};
+
+/* ======================================================
+   ENTRANCE / REVEAL
+====================================================== */
+
+export const fadeUp: Variants = {
   hidden: { opacity: 0, y: 16 },
-
-  rest: {
+  show: {
     opacity: 1,
     y: 0,
-    scale: 1,
-    backgroundColor: "rgba(255,255,255,0.7)",
+    transition: softSpring,
   },
+};
 
-  hold: {
-    scale: 0.97,
-    backgroundColor: "rgba(34,197,94,0.12)",
-    transition: {
-      duration: 0.15,
-      ease: "easeOut",
-    },
+
+
+
+
+/* ======================================================
+   CARD INTERACTION
+====================================================== */
+
+export const cardInteraction: Variants = {
+  rest: { y: 0 },
+  hover: { y: -6, transition: fastSpring },
+};
+
+/* ======================================================
+   ICON GLOW
+====================================================== */
+
+export const cardIconGlow: Variants = {
+  rest: { opacity: 0, scale: 0.9 },
+  hover: {
+    opacity: 1,
+    scale: 1,
+    transition: { duration: 0.25, ease: "easeOut" },
   },
 };
 

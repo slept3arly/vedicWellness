@@ -5,8 +5,8 @@ import Navbar from "@/components/Navbar";
 import BottomNavbar from "@/components/BottomNavbar";
 import { inter, spaceGrotesk } from "./fonts";
 import MarqueeBanner from "@/components/MarqueeBanner";
-import GlobalBackground from "@/components/GlobalBackground";
-import RouteLoader from "@/components/RouteLoader";
+import GlobalBackground from "@/components/public/GlobalBackground";
+import RouteLoader from "@/components/public/RouteLoader";
 import Providers from "@/app/Providers";
 
 import Script from "next/script";

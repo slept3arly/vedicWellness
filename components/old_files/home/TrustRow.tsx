@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import GlassCard from "@/components/old_files/ui/GlassCard";
-import Chip from "@/components/ui/Chip";
+import Chip from "@/components/public/ui/Chip";
 
 export default function TrustRow() {
   const items = [

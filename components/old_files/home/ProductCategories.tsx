@@ -3,7 +3,7 @@
 import { Layers } from "lucide-react";
 
 import GlassCard from "@/components/old_files/ui/GlassCard";
-import SectionHeading from "@/components/ui/SectionHeading";
+import SectionHeading from "@/components/public/ui/SectionHeading";
 
 export default function ProductCategories() {
   const categories = [

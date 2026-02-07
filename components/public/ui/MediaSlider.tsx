@@ -28,8 +28,8 @@ export default function MediaSlider({ images, interval = 4500 }: Props) {
           <img
             key={i}
             src={src}
-            className="w-full h-[440px] object-cover flex-shrink-0"
             alt=""
+            className="w-full h-[440px] object-cover flex-shrink-0"
           />
         ))}
       </div>
@@ -38,12 +38,11 @@ export default function MediaSlider({ images, interval = 4500 }: Props) {
         {images.map((_, i) => (
           <div
             key={i}
-            className={`
-              h-2 w-2 rounded-full transition-all
-              ${i === index
-                ? "bg-[var(--brand-primary)] scale-125 shadow-md"
-                : "bg-white/50"}
-            `}
+            className={`h-2 w-2 rounded-full transition ${
+              i === index
+                ? "bg-[var(--brand-primary)] scale-125"
+                : "bg-white/50"
+            }`}
           />
         ))}
       </div>

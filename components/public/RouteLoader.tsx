@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import RibbonLoader from "./RibbonLoader";
+import RibbonLoader from "@/components/public/RibbonLoader";
 
 export default function RouteLoader() {
   const pathname = usePathname();

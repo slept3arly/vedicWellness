@@ -1,5 +1,5 @@
-import Section from "../ui/Section";
-import MediaSlider from "../ui/MediaSlider";
+import Section from "@/components/public/Section";
+import MediaSlider from "@/components/public/ui/MediaSlider";
 
 export default function MediaShowcase() {
   return (
