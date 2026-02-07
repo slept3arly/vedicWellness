@@ -27,18 +27,6 @@ export default function SignupClient() {
           subtitle="Access catalogs, products and franchise benefits."
         />
 
-        <motion.div
-          variants={fadeUpSoft}
-          initial="hidden"
-          animate="show"
-          className="max-w-xl mx-auto"
-        >
-          <GlassCard className="p-8 dark:bg-slate-900/60">
-            <Suspense fallback={null}>
-              <SignupForm />
-            </Suspense>
-          </GlassCard>
-        </motion.div>
 
         <motion.div
           variants={staggerFast}
@@ -53,6 +41,18 @@ export default function SignupClient() {
           ))}
         </motion.div>
 
+        <motion.div
+          variants={fadeUpSoft}
+          initial="hidden"
+          animate="show"
+          className="max-w-xl mx-auto"
+        >
+          <GlassCard className="p-8 dark:bg-slate-900/60">
+            <Suspense fallback={null}>
+              <SignupForm />
+            </Suspense>
+          </GlassCard>
+        </motion.div>
       </div>
     </section>
   );
