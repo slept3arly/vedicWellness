@@ -20,45 +20,67 @@ import {
 
 /* ---------------- DATA ---------------- */
 
-const primary = [
+const cards = [
   {
     icon: Leaf,
+    badge: "PCD Pharma Franchise Advantage",
     title: "Authentic Ayurvedic Formulations",
     desc: "Time-tested Ayurvedic formulations designed for consistent therapeutic outcomes and strong doctor acceptance.",
+    bullets: [
+      "Classical & proprietary formulations",
+      "High repeat prescription rate",
+      "Consumer-trusted ingredients",
+    ],
   },
   {
     icon: Microscope,
+    badge: "GMP & Regulatory Compliance",
     title: "Modern Pharma Manufacturing",
     desc: "Manufactured in GMP-certified facilities with strict quality control, documentation, and batch-level testing.",
+    bullets: [
+      "WHO-GMP certified units",
+      "Batch-wise quality checks",
+      "Regulatory documentation support",
+    ],
   },
-];
-
-const secondary = [
   {
     icon: Shield,
-    title: "Safe & Reliable Portfolio",
-    desc: "Stable, well-tested formulations ensuring long-term market trust and minimal complaints.",
+    badge: "Low Risk Business Model",
+    title: "Safe & Reliable Product Portfolio",
+    desc: "A carefully curated range focused on safety, purity, and long-term market credibility for franchise partners.",
+    bullets: [
+      "Stable formulations",
+      "Minimal market complaints",
+      "Long shelf life",
+    ],
   },
   {
     icon: HeartPulse,
-    title: "Wellness-Focused Range",
-    desc: "High-demand wellness segments like immunity, digestion, and lifestyle care.",
+    badge: "High Demand Wellness Segments",
+    title: "Wellness-Driven Product Range",
+    desc: "Products aligned with high-demand categories like immunity, digestion, liver care, and lifestyle wellness.",
+    bullets: [
+      "Fast-moving SKUs",
+      "Doctor & consumer demand",
+      "Strong repeat sales",
+    ],
   },
   {
     icon: TrendingUp,
-    title: "High Margin PCD Model",
-    desc: "Monopoly rights, attractive margins, and full marketing support for franchise partners.",
+    badge: "Scalable PCD Growth Opportunity",
+    title: "High Margins & Monopoly Rights",
+    desc: "A structured PCD pharma franchise model offering monopoly rights, attractive margins, and marketing support.",
+    bullets: [
+      "Monopoly territory rights",
+      "High profit margins",
+      "Promotional & visual aids",
+    ],
   },
-];
-
-const mobileCards = [
-  ...primary,
-  ...secondary,
 ];
 
 export default function Philosophy() {
   const router = useRouter();
-  const total = mobileCards.length;
+  const total = cards.length;
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-6 py-14">
@@ -80,18 +102,18 @@ export default function Philosophy() {
           </p>
         </motion.div>
 
-        {/* ================= MOBILE STACK ================= */}
+        {/* ================= MOBILE: INFORMATIVE STACK ================= */}
         <div className="md:hidden">
           <div
             className="relative"
             style={{ minHeight: `${total * 48}vh` }}
           >
-            {mobileCards.map(({ icon: Icon, title, desc }, index) => {
+            {cards.map((card, index) => {
               const scale = 0.94 + (index / (total - 1)) * 0.12;
 
               return (
                 <motion.div
-                  key={title}
+                  key={card.title}
                   variants={scaleIn}
                   initial="rest"
                   animate="rest"
@@ -103,7 +125,7 @@ export default function Philosophy() {
                     mx-auto
                     w-[92%]
                     max-w-sm
-                    h-[62vh]
+                    h-[65vh]
                     cursor-pointer
                     rounded-3xl
                     bg-white dark:bg-slate-900
@@ -118,20 +140,37 @@ export default function Philosophy() {
                     boxShadow: "0 22px 55px rgba(0,0,0,0.25)",
                   }}
                 >
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-green-600/10 text-green-700 dark:text-green-300">
-                    <Icon size={26} />
-                  </div>
-
-                  <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
-                    {title}
-                  </h3>
-
-                  <div className="my-4 h-px bg-slate-200 dark:bg-slate-700" />
-
-                  <p className="text-sm text-slate-600 dark:text-slate-300">
-                    {desc}
+                  {/* Badge */}
+                  <p className="text-[11px] font-semibold tracking-wider text-green-700 dark:text-green-300 uppercase">
+                    {card.badge}
                   </p>
 
+                  {/* Icon */}
+                  <div className="mt-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-green-600/10 text-green-700 dark:text-green-300">
+                    <card.icon size={26} />
+                  </div>
+
+                  {/* Title */}
+                  <h3 className="mt-4 text-xl font-bold text-slate-900 dark:text-white">
+                    {card.title}
+                  </h3>
+
+                  {/* Divider */}
+                  <div className="my-4 h-px bg-slate-200 dark:bg-slate-700" />
+
+                  {/* Description */}
+                  <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+                    {card.desc}
+                  </p>
+
+                  {/* Bullets */}
+                  <ul className="mt-4 space-y-1 text-sm text-slate-700 dark:text-slate-400">
+                    {card.bullets.map((b) => (
+                      <li key={b}>• {b}</li>
+                    ))}
+                  </ul>
+
+                  {/* CTA */}
                   <p className="mt-6 text-sm font-semibold text-green-700 dark:text-green-300">
                     Learn more →
                   </p>
@@ -141,11 +180,10 @@ export default function Philosophy() {
           </div>
         </div>
 
-        {/* ================= DESKTOP ================= */}
-        <div className="hidden md:block space-y-6">
-          {/* Primary */}
-          <div className="grid md:grid-cols-2 gap-6">
-            {primary.map(({ icon: Icon, title, desc }) => (
+        {/* ================= DESKTOP: CLEAN & SIMPLE ================= */}
+        <div className="hidden md:block">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {cards.map(({ icon: Icon, title, desc }) => (
               <motion.div
                 key={title}
                 variants={scaleIn}
@@ -157,46 +195,16 @@ export default function Philosophy() {
                   group
                   rounded-3xl
                   bg-white/70 dark:bg-slate-900/60
-                  p-7
-                  shadow-sm
-                  hover:shadow-lg
-                "
-              >
-                <IconBlock Icon={Icon} />
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white">
-                  {title}
-                </h3>
-                <p className="mt-2 text-slate-600 dark:text-slate-300">
-                  {desc}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-
-          {/* Secondary */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-            {secondary.map(({ icon: Icon, title, desc }) => (
-              <motion.div
-                key={title}
-                variants={scaleIn}
-                initial="rest"
-                animate="rest"
-                whileHover={{ y: -4 }}
-                transition={{ type: "spring", stiffness: 320, damping: 22 }}
-                className="
-                  group
-                  rounded-2xl
-                  bg-white/70 dark:bg-slate-900/60
                   p-6
                   shadow-sm
                   hover:shadow-lg
                 "
               >
-                <IconBlock Icon={Icon} small />
-                <h3 className="font-bold text-slate-900 dark:text-white">
+                <IconBlock Icon={Icon} />
+                <h3 className="text-lg font-bold text-slate-900 dark:text-white">
                   {title}
                 </h3>
-                <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
                   {desc}
                 </p>
               </motion.div>
@@ -210,7 +218,7 @@ export default function Philosophy() {
 
 /* ---------------- ICON BLOCK ---------------- */
 
-function IconBlock({ Icon, small }: any) {
+function IconBlock({ Icon }: any) {
   return (
     <motion.div
       variants={zLiftIcon}
@@ -218,14 +226,8 @@ function IconBlock({ Icon, small }: any) {
       className="relative mb-4 w-fit"
     >
       <div className="absolute inset-0 rounded-2xl bg-green-500/25 blur-2xl opacity-0 scale-90 transition-all duration-300 group-hover:opacity-100 group-hover:scale-110" />
-      <div
-        className={`
-          relative z-10 flex items-center justify-center
-          ${small ? "h-10 w-10" : "h-14 w-14"}
-          rounded-2xl bg-green-600/10 text-green-700 dark:text-green-300 shadow-sm
-        `}
-      >
-        <Icon size={small ? 20 : 26} />
+      <div className="relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl bg-green-600/10 text-green-700 dark:text-green-300 shadow-sm">
+        <Icon size={22} />
       </div>
     </motion.div>
   );
