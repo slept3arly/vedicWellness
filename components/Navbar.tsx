@@ -10,10 +10,10 @@ import { ShoppingCart, User } from "lucide-react"
 
 const NAV_LINKS = [
   { label: "Home", path: "/" },
+  { label: "Contact Us", path: "/contact" },
+  { label: "Our Products", path: "/products" },
   { label: "Blogs", path: "/blogs" },
   { label: "About", path: "/about" },
-  { label: "Our Products", path: "/products" },
-  { label: "Contact Us", path: "/contact" },
 ]
 
 export default function Navbar() {

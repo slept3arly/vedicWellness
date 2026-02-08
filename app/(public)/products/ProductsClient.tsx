@@ -15,11 +15,15 @@ import Image from "next/image";
 import Link from "next/link";
 
 import PageHeader from "@/components/public/PageHeader";
-import GlassCard from "@/components/old_files/ui/GlassCard";
+import Card from "@/components/public/ui/Card";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 import Chip from "@/components/public/ui/Chip";
 
 import { reveal, staggerFast } from "@/app/animations";
+
+/* ------------------------------------------------------------------ */
+/* Types */
+/* ------------------------------------------------------------------ */
 
 type Product = {
   id: string;
@@ -29,8 +33,6 @@ type Product = {
   price: number;
   imageUrl: string | null;
   createdAt?: Date;
-  tag?: string | null;
-  medicineForm?: string | null;
 };
 
 type SortKey =
@@ -39,6 +41,10 @@ type SortKey =
   | "price_asc"
   | "price_desc"
   | "newest";
+
+/* ------------------------------------------------------------------ */
+/* Pagination Button */
+/* ------------------------------------------------------------------ */
 
 function PageButton({
   href,
@@ -53,16 +59,20 @@ function PageButton({
     <Link
       href={href}
       className={[
-        "min-w-10 h-10 px-4 rounded-2xl flex items-center justify-center text-sm font-semibold transition",
+        "min-w-10 h-10 px-4 rounded-[14px] flex items-center justify-center text-sm font-semibold transition",
         active
-          ? "bg-green-600 text-white shadow-sm"
-          : "border border-slate-200 bg-white/70 text-slate-800 hover:bg-white dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-200",
+          ? "bg-[color:var(--brand-primary)] text-white shadow-md"
+          : "border border-[var(--border-soft)] bg-[var(--bg-surface)] hover:bg-white/80",
       ].join(" ")}
     >
       {children}
     </Link>
   );
 }
+
+/* ------------------------------------------------------------------ */
+/* Component */
+/* ------------------------------------------------------------------ */
 
 export default function ProductsClient({
   products,
@@ -115,28 +125,30 @@ export default function ProductsClient({
   }, [products, query, sort]);
 
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 -z-10" />
+    <section>
+      <div className="mx-auto max-w-7xl px-6 pt-10 pb-20 space-y-14">
 
-      <div className="mx-auto max-w-7xl px-6 pt-10 pb-16 lg:pt-16 lg:pb-20">
-
+        {/* Header */}
         <PageHeader
           badge={
-            <span className="inline-flex items-center gap-2 rounded-full border border-green-600/25 bg-green-500/10 px-4 py-2 text-sm text-green-800 dark:text-green-200">
-              <Sparkles size={16} />
+            <Chip className="flex items-center gap-2">
+              <Sparkles size={14} />
               Ayurvedic Products
-            </span>
+            </Chip>
           }
           title={
             <>
               Explore our{" "}
-              <span className="text-w dark:text-green-400">product range</span>
+              <span className="text-[color:var(--brand-accent)]">
+                product range
+              </span>
             </>
           }
-          subtitle="Premium Ayurvedic formulations designed for demand, trust and repeat customers — ideal for PCD pharma franchise partners."
+          subtitle="Premium Ayurvedic formulations designed for demand, trust, and repeat customers."
         />
 
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        {/* Trust Chips */}
+        <div className="flex flex-wrap justify-center gap-3">
           {["High Demand", "Premium Packaging", "PCD Ready", "Fast Dispatch"].map(
             (t) => (
               <Chip key={t}>{t}</Chip>
@@ -144,70 +156,70 @@ export default function ProductsClient({
           )}
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-3">
+        {/* Highlights */}
+        <div className="grid gap-4 md:grid-cols-3">
           {[
             {
-              title: "WHO-GMP Quality",
-              desc: "Consistent manufacturing standards",
+              title: "GMP Quality",
+              desc: "Consistent Manufacturing Quality",
               icon: BadgeCheck,
             },
             {
               title: "Fast Dispatch",
-              desc: "Quick packaging + shipping support",
+              desc: "Quick Packaging and Shipping PAN India",
               icon: Truck,
             },
             {
               title: "Monopoly Rights",
-              desc: "Area-based franchise availability",
+              desc: "Location-based franchise availability",
               icon: MapPin,
             },
           ].map((i) => (
-            <motion.div key={i.title} variants={reveal} initial="hidden" whileInView="show" viewport={{ once: true }}>
-              <div className="rounded-2xl border border-slate-200 bg-white/70 p-5 shadow-sm hover:shadow-md dark:border-slate-800 dark:bg-slate-900/60">
+            <motion.div key={i.title} variants={reveal}>
+              <Card>
                 <div className="flex gap-4">
-                  <div className="rounded-2xl bg-green-600/15 p-3 text-green-700 dark:text-green-300">
+                  <div className="rounded-xl bg-[color:var(--brand-primary)]/20 p-3 text-[color:var(--brand-accent)]">
                     <i.icon size={22} />
                   </div>
                   <div>
-                    <h3 className="font-bold text-slate-900 dark:text-white">
-                      {i.title}
-                    </h3>
-                    <p className="text-sm text-slate-600 dark:text-slate-300">
-                      {i.desc}
-                    </p>
+                    <h3 className="font-semibold">{i.title}</h3>
+                    <p className="text-sm text-muted">{i.desc}</p>
                   </div>
                 </div>
-              </div>
+              </Card>
             </motion.div>
           ))}
         </div>
 
-        <div className="mt-14">
+        {/* Catalog */}
+        <div>
           <SectionHeading
             title="Products Catalog"
             subtitle="Browse our available Ayurvedic products"
           />
 
-          {/* FILTER BAR */}
-          <div className="mt-6 rounded-3xl border border-slate-200 bg-white/70 p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900/60">
-
+          {/* Filters */}
+          <Card className="mt-6">
             <div className="grid gap-3 lg:grid-cols-12">
               <div className="lg:col-span-8 relative">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" size={18} />
+                <Search
+                  className="absolute left-4 top-1/2 -translate-y-1/2 text-muted"
+                  size={18}
+                />
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
                   placeholder="Search products…"
-                  className="h-12 w-full rounded-2xl border border-slate-200 bg-white/80 pl-11 pr-4 text-sm dark:border-slate-800 dark:bg-slate-950/50 dark:text-white"
+                  className="h-12 w-full rounded-[14px] border border-[var(--border-soft)] bg-[var(--bg-surface)] pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-primary)]/25"
                 />
               </div>
 
-              <div className="lg:col-span-4 flex items-center gap-2 h-12 rounded-2xl border border-slate-200 bg-white/80 px-4 dark:border-slate-800 dark:bg-slate-950/50">
+              <div className="lg:col-span-4 flex items-center gap-2 h-12 rounded-[14px] border border-[var(--border-soft)] bg-[var(--bg-surface)] px-4">
                 <ArrowUpDown size={16} />
                 <select
                   value={sort}
                   onChange={(e) => setSort(e.target.value as SortKey)}
-                  className="bg-transparent w-full text-sm outline-none dark:text-white"
+                  className="bg-transparent w-full text-sm outline-none"
                 >
                   <option value="name_asc">Name A → Z</option>
                   <option value="name_desc">Name Z → A</option>
@@ -218,7 +230,7 @@ export default function ProductsClient({
               </div>
             </div>
 
-            <div className="mt-3 flex justify-between text-sm text-slate-600 dark:text-slate-300">
+            <div className="mt-3 flex justify-between text-sm text-muted">
               <span>
                 Showing <b>{filteredSorted.length}</b> results
               </span>
@@ -229,15 +241,15 @@ export default function ProductsClient({
                     setQuery("");
                     setSort("name_asc");
                   }}
-                  className="flex items-center gap-2 rounded-2xl border px-4 py-2 dark:border-slate-800"
+                  className="flex items-center gap-2 rounded-full border border-[var(--border-soft)] px-4 py-2"
                 >
-                  <X size={16} /> Clear
+                  <X size={14} /> Clear
                 </button>
               )}
             </div>
-          </div>
+          </Card>
 
-          {/* GRID */}
+          {/* Grid */}
           <motion.div
             variants={staggerFast}
             initial="hidden"
@@ -247,53 +259,55 @@ export default function ProductsClient({
           >
             {filteredSorted.map((p) => (
               <motion.div key={p.id} variants={reveal}>
-                <Link href={`/products/${encodeURIComponent(p.slug)}`} className="block group">
-                  <GlassCard className="overflow-hidden">
-
+                <Link
+                  href={`/products/${encodeURIComponent(p.slug)}`}
+                  className="block group h-full"
+                >
+                  <Card className="h-full overflow-hidden">
                     <div className="relative h-52">
                       {p.imageUrl ? (
                         <Image
                           src={p.imageUrl}
                           alt={p.name}
                           fill
-                          className="object-cover transition group-hover:scale-105"
+                          className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                         />
                       ) : (
-                        <div className="h-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center">
+                        <div className="h-full flex items-center justify-center text-sm text-muted">
                           No image
                         </div>
                       )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      <div className="absolute bottom-4 left-4 right-4 text-white font-bold">
+
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
+                      <div className="absolute bottom-4 left-4 right-4 text-white font-semibold">
                         {p.name}
                       </div>
                     </div>
 
-                    <div className="p-6 space-y-3">
-                      <p className="text-sm text-slate-600 dark:text-slate-300 line-clamp-2">
-                        {p.shortDescription || "Premium Ayurvedic formulation."}
+                    <div className="p-5 space-y-3">
+                      <p className="text-sm text-muted line-clamp-2">
+                        {p.shortDescription ||
+                          "Premium Ayurvedic formulation."}
                       </p>
 
                       <div className="flex justify-between items-center">
-                        <span className="text-green-600 font-semibold">
+                        <span className="font-semibold text-[color:var(--brand-accent)]">
                           ₹{p.price}
                         </span>
-                        <span className="text-green-600 font-semibold group-hover:translate-x-1 transition">
+                        <span className="font-semibold text-[color:var(--brand-accent)] transition group-hover:translate-x-1">
                           View →
                         </span>
                       </div>
                     </div>
-
-                  </GlassCard>
+                  </Card>
                 </Link>
               </motion.div>
             ))}
           </motion.div>
 
-          {/* PAGINATION */}
+          {/* Pagination */}
           <div className="mt-10 flex flex-col items-center gap-3">
-
-            <p className="text-sm text-slate-600 dark:text-slate-300">
+            <p className="text-sm text-muted">
               Page {page} of {totalPages} · {totalCount} products
             </p>
 
@@ -309,7 +323,11 @@ export default function ProductsClient({
                 .map((_, i) => {
                   const p = i + 1;
                   return (
-                    <PageButton key={p} href={`/products?page=${p}`} active={p === page}>
+                    <PageButton
+                      key={p}
+                      href={`/products?page=${p}`}
+                      active={p === page}
+                    >
                       {p}
                     </PageButton>
                   );
@@ -322,7 +340,6 @@ export default function ProductsClient({
               )}
             </div>
           </div>
-
         </div>
       </div>
     </section>

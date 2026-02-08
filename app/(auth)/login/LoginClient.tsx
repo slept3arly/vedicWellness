@@ -7,7 +7,7 @@ import { useSearchParams } from "next/navigation";
 
 import { fadeUpSoft, staggerFast } from "@/app/animations";
 
-import GlassCard from "@/components/old_files/ui/GlassCard";
+import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
 import PageHeader from "@/components/public/PageHeader";
 
@@ -26,41 +26,59 @@ export default function LoginClient() {
     <section>
       <div className="mx-auto max-w-7xl px-6 py-16 space-y-10">
 
+        {/* Header */}
         <PageHeader
           badge={
             <Chip className="flex items-center gap-2">
-              <Sparkles size={14}/> Member Login
+              <Sparkles size={14} />
+              Member Login
             </Chip>
           }
-          title={<>Welcome back to <span className="text-green-600">Vedic Wellness</span></>}
+          title={
+            <>
+              Welcome back to{" "}
+              <span className="text-[color:var(--brand-accent)]">
+                Vedic Wellness
+              </span>
+            </>
+          }
           subtitle="Log in to access products and partner tools."
         />
 
+        {/* Trust chips */}
         <motion.div
           variants={staggerFast}
           initial="hidden"
           animate="show"
           className="flex flex-wrap justify-center gap-2"
         >
-          {["Secure Login","Verified Partners","Fast Access","Support Available"].map(t=>(
-            <motion.div variants={fadeUpSoft} key={t}>
-              <Chip>{t}</Chip>
-            </motion.div>
-          ))}
+          {["Secure Login", "Verified Partners", "Fast Access", "Support Available"].map(
+            (t) => (
+              <motion.div key={t} variants={fadeUpSoft}>
+                <Chip>{t}</Chip>
+              </motion.div>
+            )
+          )}
         </motion.div>
 
+        {/* Form */}
         <motion.div
           variants={fadeUpSoft}
           initial="hidden"
           animate="show"
           className="max-w-xl mx-auto"
         >
-          <GlassCard className="p-8 dark:bg-slate-900/60">
-            <h2 className="text-center text-3xl font-bold">Log In</h2>
+          <Card className="bg-white/80 dark:bg-black/45">
+            <h2 className="text-center text-3xl font-extrabold">
+              Log In
+            </h2>
 
-            <p className="mt-2 text-center text-slate-600 dark:text-slate-300">
+            <p className="mt-2 text-center text-sm text-muted">
               Don’t have an account?{" "}
-              <a href={signupHref} className="text-green-600 font-semibold">
+              <a
+                href={signupHref}
+                className="font-semibold text-[color:var(--brand-accent)] hover:underline"
+              >
                 Create one
               </a>
             </p>
@@ -70,7 +88,7 @@ export default function LoginClient() {
                 <LoginForm />
               </Suspense>
             </div>
-          </GlassCard>
+          </Card>
         </motion.div>
 
       </div>

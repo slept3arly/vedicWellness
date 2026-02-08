@@ -6,13 +6,10 @@ import { motion } from "framer-motion";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 
 import PageHeader from "@/components/public/PageHeader";
-import GlassCard from "@/components/old_files/ui/GlassCard";
+import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
 
-import {
-  fadeUpSoft,
-  staggerSlow,
-} from "@/app/animations";
+import { fadeUpSoft, staggerSlow } from "@/app/animations";
 
 type BlogListItem = {
   id: string;
@@ -25,27 +22,29 @@ type BlogListItem = {
 
 export default function BlogsClient({ blogs }: { blogs: BlogListItem[] }) {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative">
       <div className="mx-auto max-w-7xl px-6 pt-10 pb-16 lg:pt-16 lg:pb-20">
 
         {/* HEADER */}
         <PageHeader
           badge={
-            <span className="inline-flex items-center gap-2 rounded-full border border-green-600/25 bg-green-500/10 px-4 py-2 text-sm font-medium text-green-800 dark:text-green-200">
-              <Sparkles size={16} />
+            <Chip className="flex items-center gap-2">
+              <Sparkles size={14} />
               Blogs & Updates
-            </span>
+            </Chip>
           }
           title={
             <>
               Learn more with{" "}
-              <span className="dark:text-green-400">Vedic Wellness</span>
+              <span className="text-[color:var(--brand-accent)]">
+                Vedic Wellness
+              </span>
             </>
           }
-          subtitle="Read our latest articles, company updates, Ayurveda insights, and franchise business knowledge."
+          subtitle="Read our latest articles, Ayurveda insights, company updates, and franchise business knowledge."
         />
 
-        {/* CHIPS */}
+        {/* FILTER CHIPS */}
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           {["Ayurveda", "Franchise", "PCD Pharma", "Updates"].map((t) => (
             <Chip key={t}>{t}</Chip>
@@ -61,18 +60,12 @@ export default function BlogsClient({ blogs }: { blogs: BlogListItem[] }) {
           className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
         >
           {blogs.map((b) => (
-            <motion.div
-              key={b.id}
-              variants={fadeUpSoft}
-              whileHover={{ y: -6, scale: 1.015 }}
-              transition={{ type: "spring", stiffness: 260, damping: 18 }}
-            >
+            <motion.div key={b.id} variants={fadeUpSoft}>
               <Link
                 href={`/blogs/${encodeURIComponent(b.slug)}`}
-                className="block group"
+                className="group block h-full"
               >
-                <GlassCard className="p-6 transition-shadow hover:shadow-2xl">
-
+                <Card className="h-full bg-white/75 dark:bg-black/45">
                   {/* IMAGE */}
                   {b.thumbnailUrl && (
                     <div className="mb-4 relative h-44 w-full overflow-hidden rounded-2xl border border-white/10">
@@ -80,7 +73,7 @@ export default function BlogsClient({ blogs }: { blogs: BlogListItem[] }) {
                         src={b.thumbnailUrl}
                         alt={b.title}
                         fill
-                        className="object-cover transition duration-500 group-hover:scale-[1.05]"
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
                         sizes="(max-width: 768px) 100vw, 33vw"
                       />
                     </div>
@@ -88,30 +81,30 @@ export default function BlogsClient({ blogs }: { blogs: BlogListItem[] }) {
 
                   {/* TITLE */}
                   <div className="flex items-start justify-between gap-4">
-                    <h2 className="font-heading text-lg font-extrabold text-slate-900 dark:text-white">
+                    <h2 className="font-heading text-lg font-extrabold">
                       {b.title}
                     </h2>
 
                     <ArrowUpRight
                       size={18}
-                      className="text-slate-400 group-hover:text-green-600 transition"
+                      className="text-muted transition group-hover:text-[color:var(--brand-accent)]"
                     />
                   </div>
 
-                  {/* DESC */}
-                  <p className="mt-3 text-sm text-slate-600 dark:text-slate-300 line-clamp-3">
+                  {/* DESCRIPTION */}
+                  <p className="mt-3 text-sm text-muted line-clamp-3">
                     {b.description || "Read this article to learn more."}
                   </p>
 
                   {/* META */}
-                  <div className="mt-5 flex items-center justify-between text-xs text-slate-500 dark:text-slate-400">
+                  <div className="mt-5 flex items-center justify-between text-xs text-muted">
                     {new Date(b.createdAt).toLocaleDateString()}
-                    <span className="font-semibold text-green-700 dark:text-green-300">
+
+                    <span className="font-semibold text-[color:var(--brand-accent)]">
                       Read →
                     </span>
                   </div>
-
-                </GlassCard>
+                </Card>
               </Link>
             </motion.div>
           ))}
@@ -119,10 +112,10 @@ export default function BlogsClient({ blogs }: { blogs: BlogListItem[] }) {
 
         {/* EMPTY STATE */}
         {blogs.length === 0 && (
-          <div className="mt-10">
-            <GlassCard className="p-8 text-center">
+          <div className="mt-10 flex justify-center">
+            <Card className="max-w-md text-center bg-white/75 dark:bg-black/45">
               No blogs published yet.
-            </GlassCard>
+            </Card>
           </div>
         )}
 

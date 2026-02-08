@@ -8,6 +8,7 @@ import MarqueeBanner from "@/components/MarqueeBanner";
 import GlobalBackground from "@/components/public/GlobalBackground";
 import RouteLoader from "@/components/public/RouteLoader";
 import Providers from "@/app/Providers";
+import Footer from "@/components/Footer";
 
 import Script from "next/script";
 
@@ -127,6 +128,7 @@ export default function RootLayout({
 
           <BottomNavbar />
         </Providers>
+        <Footer />
       </body>
     </html>
   );

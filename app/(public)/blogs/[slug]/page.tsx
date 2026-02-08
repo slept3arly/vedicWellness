@@ -1,8 +1,14 @@
 import { prisma } from "@/lib/db/prisma";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import GlassCard from "@/components/old_files/ui/GlassCard";
+import Image from "next/image";
+
+import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
+
+/* ------------------------------------------------------------------ */
+/* Types */
+/* ------------------------------------------------------------------ */
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -11,6 +17,10 @@ type Props = {
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
   "https://vedic-wellness.vercel.app";
+
+/* ------------------------------------------------------------------ */
+/* Metadata */
+/* ------------------------------------------------------------------ */
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug: rawSlug } = await params;
@@ -40,6 +50,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+/* ------------------------------------------------------------------ */
+/* Page */
+/* ------------------------------------------------------------------ */
+
 export default async function BlogDetailsPage({ params }: Props) {
   const { slug: rawSlug } = await params;
   const slug = decodeURIComponent(rawSlug);
@@ -53,121 +67,116 @@ export default async function BlogDetailsPage({ params }: Props) {
   const blogUrl = `${SITE_URL}/blogs/${blog.slug}`;
   const imageUrl = blog.thumbnailUrl ?? `${SITE_URL}/og.jpg`;
 
+  /* ---------------- JSON-LD ---------------- */
+
   const jsonLd = {
-  "@context": "https://schema.org",
-  "@type": "BlogPosting",
-  mainEntityOfPage: {
-    "@type": "WebPage",
-    "@id": blogUrl,
-  },
-  headline: blog.title,
-  description: blog.description ?? "Read this article from Vedic Wellness.",
-  image: [imageUrl],
-  datePublished: new Date(blog.createdAt).toISOString(),
-  dateModified: new Date(blog.updatedAt ?? blog.createdAt).toISOString(),
-
-  inLanguage: "en-IN",
-
-  author: {
-    "@type": "Organization",
-    name: "Vedic Wellness",
-    url: SITE_URL,
-  },
-  publisher: {
-    "@type": "Organization",
-    name: "Vedic Wellness",
-    url: SITE_URL,
-    logo: {
-      "@type": "ImageObject",
-      url: `${SITE_URL}/logo.svg`,
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": blogUrl,
     },
-  },
-
-  isPartOf: {
-    "@type": "Blog",
-    name: "Vedic Wellness Blogs",
-    url: `${SITE_URL}/blogs`,
-  },
-};
+    headline: blog.title,
+    description: blog.description ?? "Read this article from Vedic Wellness.",
+    image: [imageUrl],
+    datePublished: new Date(blog.createdAt).toISOString(),
+    dateModified: new Date(blog.updatedAt ?? blog.createdAt).toISOString(),
+    inLanguage: "en-IN",
+    author: {
+      "@type": "Organization",
+      name: "Vedic Wellness",
+      url: SITE_URL,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Vedic Wellness",
+      url: SITE_URL,
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/logo.svg`,
+      },
+    },
+    isPartOf: {
+      "@type": "Blog",
+      name: "Vedic Wellness Blogs",
+      url: `${SITE_URL}/blogs`,
+    },
+  };
 
   const breadcrumbLd = {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: [
-    {
-      "@type": "ListItem",
-      position: 1,
-      name: "Home",
-      item: SITE_URL,
-    },
-    {
-      "@type": "ListItem",
-      position: 2,
-      name: "Blogs",
-      item: `${SITE_URL}/blogs`,
-    },
-    {
-      "@type": "ListItem",
-      position: 3,
-      name: blog.title,
-      item: blogUrl,
-    },
-  ],
-};
-
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Home", item: SITE_URL },
+      { "@type": "ListItem", position: 2, name: "Blogs", item: `${SITE_URL}/blogs` },
+      { "@type": "ListItem", position: 3, name: blog.title, item: blogUrl },
+    ],
+  };
 
   return (
-    <section className="relative overflow-hidden">
-      <div className="absolute inset-0 -z-10" />
+    <section>
+      <div className="mx-auto max-w-5xl px-6 pt-10 pb-20 space-y-8">
 
-      <div className="mx-auto max-w-5xl px-6 pt-10 pb-16 lg:pt-16 lg:pb-20">
+        {/* Structured data */}
         <script
-  
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-/>
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
+        />
 
-<script
-  type="application/ld+json"
-  dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
-/>
-
-
-        <div className="flex flex-wrap gap-3">
+        {/* Chips */}
+        <div className="flex flex-wrap gap-2">
           <Chip>Blogs</Chip>
           <Chip>Ayurveda</Chip>
           <Chip>PCD Pharma</Chip>
         </div>
 
-        {blog.thumbnailUrl ? (
-          <div className="mt-6 overflow-hidden rounded-3xl border border-white/10">
-            <img
+        {/* Cover Image */}
+        {blog.thumbnailUrl && (
+          <div className="relative h-[420px] w-full overflow-hidden rounded-3xl border border-white/10">
+            <Image
               src={blog.thumbnailUrl}
               alt={blog.title}
-              className="w-full max-h-[420px] object-cover"
+              fill
+              priority
+              className="object-cover"
+              sizes="(max-width: 1024px) 100vw, 768px"
             />
           </div>
-        ) : null}
+        )}
 
-        <GlassCard className="mt-6 p-7 md:p-10">
-          <h1 className="font-heading text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white">
-            {blog.title}
-          </h1>
+        {/* Content */}
+        <Card className="bg-white/80 dark:bg-black/45">
+          <article className="prose prose-neutral dark:prose-invert max-w-none">
 
-          {blog.description ? (
-            <p className="mt-4 font-body text-lg text-slate-700 dark:text-slate-300 leading-relaxed">
-              {blog.description}
-            </p>
-          ) : null}
+            <h1 className="font-heading text-3xl md:text-4xl font-extrabold">
+              {blog.title}
+            </h1>
 
-          <div className="mt-6 text-sm text-slate-500 dark:text-slate-400">
-            Published on {new Date(blog.createdAt).toLocaleDateString()}
-          </div>
+            {blog.description && (
+              <p className="text-lg text-muted">
+                {blog.description}
+              </p>
+            )}
 
-          <div className="mt-10 font-body text-slate-800 dark:text-slate-200 whitespace-pre-wrap leading-7">
-            {blog.content}
-          </div>
-        </GlassCard>
+            <div className="mt-4 text-sm text-muted">
+              Published on{" "}
+              {new Date(blog.createdAt).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
+            </div>
+
+            <div className="mt-8 whitespace-pre-wrap leading-7">
+              {blog.content}
+            </div>
+
+          </article>
+        </Card>
       </div>
     </section>
   );
