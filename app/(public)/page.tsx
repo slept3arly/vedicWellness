@@ -25,7 +25,7 @@ export default function Home() {
 
       <HowItWorks />
 
-      {/*<Philosophy />*/}
+      <Philosophy />
 
       {/* Reinforcement before conversion */}
       <MediaShowcase />
