@@ -11,8 +11,6 @@ import {
 
 import { staggerFast, reveal } from "@/app/animations";
 
-/* ---------------- DATA ---------------- */
-
 const items = [
   { icon: ShieldCheck, label: "Quality Assured" },
   { icon: BadgeCheck, label: "Certified Manufacturing" },
@@ -28,33 +26,18 @@ export default function TrustStrip() {
         variants={staggerFast}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true, amount: 0.6 }}
-        className="
-          flex flex-wrap justify-center
-          gap-2 md:gap-3
-          px-4 md:px-0
-        "
+        viewport={{ once: true }}
+        className="flex flex-wrap justify-center gap-2 md:gap-3 px-4"
       >
         {items.map(({ icon: Icon, label }) => (
           <motion.div
             key={label}
             variants={reveal}
-            className="
-              flex items-center gap-2
-              rounded-full
-              bg-white/80 dark:bg-black/50
-               
-              px-4 py-2
-              text-xs md:text-sm
-              font-medium
-              text-[color:var(--text-main)]
-            "
+            style={{ willChange: "opacity" }}
+            className="flex items-center gap-2 rounded-full bg-white/80 dark:bg-black/50 px-4 py-2 text-xs md:text-sm font-medium"
           >
-            <Icon
-              size={14}
-              className="text-[color:var(--brand-accent)]"
-            />
-            <span>{label}</span>
+            <Icon size={14} className="text-[color:var(--brand-accent)]" />
+            {label}
           </motion.div>
         ))}
       </motion.div>

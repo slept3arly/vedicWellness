@@ -4,10 +4,18 @@ import { useEffect, useState } from "react";
 
 export default function ThemeToggle() {
   const [dark, setDark] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
+  }, [dark, mounted]);
+
+  if (!mounted) return null;
 
   return (
     <button

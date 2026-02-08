@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, MotionProps } from "framer-motion";
-import clsx from "clsx";
 import React from "react";
+import { motion, MotionProps } from "framer-motion";
+import { cn } from "@/lib/cn";
 
 type ButtonProps =
   React.ComponentPropsWithoutRef<"button"> &
@@ -20,16 +20,14 @@ export default function Button({
 }: ButtonProps) {
   return (
     <motion.button
-      whileHover={{
-        y: -2,
-        scale: 1.04,
-      }}
+      whileHover={{ y: -2, scale: 1.04 }}
       whileTap={{ scale: 0.97 }}
       transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className={clsx(
+      style={{ willChange: "transform" }}
+      className={cn(
         "relative inline-flex items-center justify-center rounded-[14px] font-medium",
-        "transition-shadow will-change-transform",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--brand-primary)_35%,transparent)]",
+        "transition-shadow focus-visible:outline-none",
+        "focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--brand-primary)_35%,transparent)]",
 
         size === "sm" && "px-4 py-2 text-sm",
         size === "md" && "px-6 py-3 text-sm",

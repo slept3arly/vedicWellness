@@ -10,15 +10,8 @@ import {
   HeartPulse,
 } from "lucide-react";
 
-import {
-  fadeUp,
-  staggerFast,
-  cardInteraction,
-} from "@/app/animations";
-
+import { fadeUp, staggerFast } from "@/app/animations";
 import Card from "@/components/public/ui/Card";
-
-/* ---------------- DATA ---------------- */
 
 const categories = [
   { title: "Immunity Care", count: "30+ Products", icon: ShieldPlus },
@@ -36,7 +29,7 @@ export default function Categories() {
         variants={staggerFast}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true, amount: 0.25 }}
+        viewport={{ once: true }}
         className="space-y-12"
       >
         {/* Heading */}
@@ -62,74 +55,64 @@ export default function Categories() {
               variants={fadeUp}
               className="group"
             >
-              <motion.div
-                variants={cardInteraction}
-                initial="rest"
-                whileHover="hover"
+              <Card
+                className="
+                  h-full
+                  bg-white/75 dark:bg-black/45
+                  transition-shadow duration-300
+                  group-hover:shadow-[0_20px_50px_rgba(2,101,54,0.3)]
+                "
               >
-                <Card
-                  className="
-                    h-full
-                    bg-white/75 dark:bg-black/45
-                     
-                    transition-shadow duration-300
-                    group-hover:shadow-[0_20px_50px_rgba(2,101,54,0.3)]
-                  "
-                >
-                  <div className="flex flex-col items-center text-center md:flex-row md:text-left md:items-center md:justify-between gap-5">
-                    {/* Text */}
-                    <div className="space-y-1">
-                      <h3 className="text-base md:text-lg font-semibold">
-                        {title}
-                      </h3>
-                      <p className="text-sm text-muted">
-                        {count}
-                      </p>
+                <div className="flex flex-col items-center text-center md:flex-row md:text-left md:items-center md:justify-between gap-5">
+                  {/* Text */}
+                  <div className="space-y-1">
+                    <h3 className="text-base md:text-lg font-semibold">
+                      {title}
+                    </h3>
+                    <p className="text-sm text-muted">{count}</p>
 
-                      <span className="inline-flex items-center gap-1 pt-2 text-sm font-semibold text-[color:var(--brand-accent)]">
-                        Explore
-                        <span className="transition group-hover:translate-x-1">
-                          →
-                        </span>
+                    <span className="inline-flex items-center gap-1 pt-2 text-sm font-semibold text-[color:var(--brand-accent)]">
+                      Explore
+                      <span className="transition-transform group-hover:translate-x-1">
+                        →
                       </span>
-                    </div>
+                    </span>
+                  </div>
 
-                    {/* Icon */}
-                    <div className="relative flex items-center justify-center">
-                      {/* Glow */}
-                      <span
-                        className="
-                          absolute inset-0
-                          rounded-2xl
-                          bg-[color:var(--brand-primary)]/35
-                          blur-xl
-                          opacity-40
-                          transition-all duration-300
-                          group-hover:opacity-100
-                          group-hover:blur-2xl
-                        "
+                  {/* Icon */}
+                  <div className="relative flex items-center justify-center">
+                    {/* Glow */}
+                    <span
+                      className="
+                        absolute inset-0
+                        rounded-2xl
+                        bg-[color:var(--brand-primary)]/35
+                        blur-xl
+                        opacity-40
+                        transition-opacity duration-300
+                        group-hover:opacity-100
+                      "
+                    />
+
+                    {/* Icon background */}
+                    <div
+                      className="
+                        relative z-10
+                        flex items-center justify-center
+                        h-14 w-14 md:h-16 md:w-16
+                        rounded-2xl
+                        bg-[color:var(--brand-primary)]/20
+                        text-[color:var(--brand-accent)]
+                      "
+                    >
+                      <Icon
+                        className="h-8 w-8 md:h-9 md:w-9"
+                        strokeWidth={1.5}
                       />
-
-                      {/* Icon background */}
-                      <div
-                        className="
-                          relative z-10
-                          flex items-center justify-center
-                          h-14 w-14 md:h-16 md:w-16
-                          rounded-2xl
-                          bg-[color:var(--brand-primary)]/20
-                          text-[color:var(--brand-accent)]
-                        "
-                      >
-                        <Icon
-                          className="h-8 w-8 md:h-9 md:w-9"
-                          strokeWidth={1.5}
-                        />
-                      </div>
                     </div>
                   </div>
-                </Card>
-              </motion.div>
+                </div>
+              </Card>
             </motion.a>
           ))}
         </div>
