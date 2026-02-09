@@ -135,7 +135,7 @@ export default function Navbar() {
                 {/* USER ICON BUTTONS */}
                 <Link
                   href="/cart"
-                  className="w-10 h-10 pr-.5 rounded-full bg-[#84eb4b] dark:text-black flex items-center justify-center hover:bg-white transition"
+                  className="w-10 h-10 pr-.5 rounded-full bg-w lg:bg-v dark:text-black flex items-center justify-center hover:bg-white transition"
                   aria-label="Go to cart"
                 >
                   <ShoppingCart size={20} />

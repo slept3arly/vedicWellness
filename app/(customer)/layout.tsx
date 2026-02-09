@@ -1,4 +1,4 @@
-import FloatingSidebar from "@/components/customer/layout/FloatingSidebar";
+import CustomerTopBar from "@/components/customer/layout/CustomerTopBar";
 
 export default function CustomerLayout({
   children,
@@ -6,16 +6,14 @@ export default function CustomerLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-[var(--bg-page)]">
-      <div className="mx-auto max-w-7xl px-6 py-10 grid grid-cols-12 gap-6">
-        <aside className="col-span-12 lg:col-span-3">
-          <FloatingSidebar />
-        </aside>
+    <div className="min-h-screen">
+      {/* customer nav */}
+      <CustomerTopBar />
 
-        <main className="col-span-12 lg:col-span-9 space-y-10">
-          {children}
-        </main>
-      </div>
+      {/* page content */}
+      <main className="mx-auto max-w-7xl px-6 py-10 space-y-10">
+        {children}
+      </main>
     </div>
   );
 }
