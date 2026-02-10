@@ -13,7 +13,7 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 export default function Footer() {
   return (
-    <footer className="min-h-[420px] border-t border-[var(--border-soft)] bg-[var(--bg-surface)]">
+    <footer className="border-t border-[var(--border-soft)] bg-[var(--bg-surface)]">
       <div className="max-w-7xl mx-auto px-4 py-14 md:px-6 grid gap-10 md:grid-cols-4">
         <div className="space-y-4">
           <h3 className="text-xl font-extrabold">Vedic Wellness</h3>

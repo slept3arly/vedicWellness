@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import RibbonLoader from "@/components/public/RibbonLoader";
 
 export default function RouteLoader() {
   const pathname = usePathname();
@@ -10,15 +9,18 @@ export default function RouteLoader() {
 
   useEffect(() => {
     setLoading(true);
-    const t = setTimeout(() => setLoading(false), 400);
+    const t = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(t);
   }, [pathname]);
 
   if (!loading) return null;
 
   return (
-    <div className="fixed inset-0 z-[9999] pointer-events-none">
-      <RibbonLoader />
+    <div
+      aria-hidden
+      className="fixed top-0 left-0 right-0 z-[9999] h-[3px]"
+    >
+      <div className="h-full w-full bg-[var(--brand-accent)] animate-route-loader" />
     </div>
   );
 }
