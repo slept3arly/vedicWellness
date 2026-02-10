@@ -78,7 +78,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${spaceGrotesk.variable}`}
     >
-      <body className="relative min-h-screen overflow-x-hidden">
+      <body className="relative min-h-dvh overflow-x-hidden">
         <GlobalBackground />
 
         {/* Structured data */}
@@ -115,20 +115,24 @@ export default function RootLayout({
         />
 
         <Providers>
+          {/* Route transition loader (overlay only) */}
           <RouteLoader />
 
+          {/* Fixed Header */}
           <div className="fixed top-0 left-0 right-0 z-40">
             <Navbar />
             <MarqueeBanner />
           </div>
 
+          {/* Main Content */}
           <main className="pt-[7.5rem] pb-28 md:pb-0 space-y-6 md:space-y-10">
             {children}
           </main>
 
+          {/* Footer + Floating Actions */}
+          <Footer />
           <BottomNavbar />
         </Providers>
-        <Footer />
       </body>
     </html>
   );

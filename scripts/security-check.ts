@@ -12,6 +12,17 @@ const IGNORE_DIRS = new Set([
 
 const BAD: string[] = [];
 
+function isAdminFile(fullPath: string) {
+  return (
+    fullPath.includes(`${path.sep}app${path.sep}(admin)${path.sep}`) ||
+    fullPath.includes(`${path.sep}app${path.sep}admin${path.sep}`)
+  );
+}
+
+function isApiRoute(fullPath: string) {
+  return fullPath.includes(`${path.sep}app${path.sep}api${path.sep}`);
+}
+
 function walk(dir: string) {
   for (const file of fs.readdirSync(dir)) {
     const full = path.join(dir, file);
@@ -25,22 +36,39 @@ function walk(dir: string) {
 
     if (!file.endsWith(".ts") && !file.endsWith(".tsx")) continue;
 
-    // Skip the wrapper itself
-    if (full.endsWith("secureAdminAction.ts")) continue;
-    if (full.endsWith("secureMutation.ts")) continue;
+    // Skip the security wrappers themselves
+    if (
+      full.endsWith("secureAdminAction.ts") ||
+      full.endsWith("secureUserAction.ts") ||
+      full.endsWith("secureMutation.ts")
+    ) {
+      continue;
+    }
 
     const content = fs.readFileSync(full, "utf8");
 
-    // 🔐 Enforce secureAdminAction for server actions
+    /* =========================================================
+       SERVER ACTIONS
+       ========================================================= */
+
     if (content.includes(`"use server"`)) {
-      if (!content.includes("secureAdminAction(")) {
-        BAD.push(`Missing secureAdminAction → ${full}`);
+      if (isAdminFile(full)) {
+        if (!content.includes("secureAdminAction(")) {
+          BAD.push(`Missing secureAdminAction → ${full}`);
+        }
+      } else {
+        if (!content.includes("secureUserAction(")) {
+          BAD.push(`Missing secureUserAction → ${full}`);
+        }
       }
     }
 
-    // 🔒 Enforce secureMutation for API POST routes
+    /* =========================================================
+       API ROUTES
+       ========================================================= */
+
     if (
-      full.includes(`${path.sep}app${path.sep}api${path.sep}`) &&
+      isApiRoute(full) &&
       content.includes("export async function POST")
     ) {
       if (!content.includes("secureMutation(")) {

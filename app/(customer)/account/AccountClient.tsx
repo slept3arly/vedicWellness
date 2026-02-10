@@ -4,8 +4,13 @@ import SectionHeading from "@/components/public/ui/SectionHeading";
 import AccountOverviewCard from "@/components/customer/account/AccountOverviewCard";
 import AccountDetailsForm from "@/components/customer/account/AccountDetailsForm";
 import AddressList from "@/components/customer/account/AddressList";
+import type { Address } from "@prisma/client";
 
-export default function AccountClient() {
+type Props = {
+  addresses: Address[];
+};
+
+export default function AccountClient({ addresses }: Props) {
   return (
     <>
       <SectionHeading
@@ -19,7 +24,7 @@ export default function AccountClient() {
         <AccountDetailsForm />
       </div>
 
-      <AddressList />
+      <AddressList addresses={addresses} />
     </>
   );
 }
