@@ -16,6 +16,9 @@ type Props = {
 
 export default function AddressList({ addresses }: Props) {
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<Address | null>(null);
+
+  const maxReached = addresses.length >= 5;
 
   return (
     <>
@@ -23,13 +26,28 @@ export default function AddressList({ addresses }: Props) {
         <div className="flex items-center justify-between mb-4">
           <p className="font-medium">Saved Addresses</p>
 
-          <CustomerButton size="sm" onClick={() => setOpen(true)}>
+          <CustomerButton
+            size="sm"
+            onClick={() => {
+              setEditing(null);
+              setOpen(true);
+            }}
+            disabled={maxReached}
+          >
             Add New
           </CustomerButton>
         </div>
 
+        {maxReached && (
+          <p className="text-xs text-[var(--text-muted)] mb-3">
+            Maximum of 5 addresses allowed.
+          </p>
+        )}
+
         {!addresses.length ? (
-          <p className="text-sm text-muted">No saved addresses yet.</p>
+          <p className="text-sm text-muted">
+            No saved addresses yet.
+          </p>
         ) : (
           <div className="space-y-3 text-sm">
             {addresses.map((a) => (
@@ -53,7 +71,20 @@ export default function AddressList({ addresses }: Props) {
                   )}
                 </div>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
+                  {/* Edit */}
+                  <CustomerButton
+                    size="sm"
+                    variant="secondary"
+                    onClick={() => {
+                      setEditing(a);
+                      setOpen(true);
+                    }}
+                  >
+                    Edit
+                  </CustomerButton>
+
+                  {/* Set Default */}
                   {!a.isDefault && (
                     <form action={() => setDefaultAddressAction(a.id)}>
                       <CustomerButton
@@ -66,6 +97,7 @@ export default function AddressList({ addresses }: Props) {
                     </form>
                   )}
 
+                  {/* Delete */}
                   <form
                     action={() => {
                       if (!confirm("Delete this address?")) return;
@@ -87,7 +119,28 @@ export default function AddressList({ addresses }: Props) {
         )}
       </Card>
 
-      <AddressFormModal open={open} onClose={() => setOpen(false)} />
+      {/* Modal */}
+      <AddressFormModal
+        open={open}
+        onClose={() => {
+          setOpen(false);
+          setEditing(null);
+        }}
+        initialData={
+          editing
+            ? {
+                id: editing.id,
+                fullName: editing.fullName,
+                phone: editing.phone,
+                line1: editing.line1,
+                line2: editing.line2 ?? "",
+                city: editing.city,
+                state: editing.state,
+                postalCode: editing.postalCode,
+              }
+            : undefined
+        }
+      />
     </>
   );
 }

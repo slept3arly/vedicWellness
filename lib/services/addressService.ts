@@ -20,7 +20,12 @@ export async function addAddress(userId: string, data: CreateAddressInput) {
   return prisma.$transaction(async (tx) => {
     const count = await tx.address.count({ where: { userId } });
 
-    const makeDefault = data.isDefault || count === 0;
+if (count >= 5) {
+  throw new Error("Maximum of 5 addresses allowed");
+}
+
+const makeDefault = data.isDefault || count === 0;
+
 
     if (makeDefault) {
       await tx.address.updateMany({

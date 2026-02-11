@@ -7,14 +7,16 @@ import { z } from "zod";
 const addressBase = {
   fullName: z.string().min(2, "Full name is required"),
   phone: z
-    .string()
-    .min(10, "Phone number is required")
-    .max(15, "Invalid phone number"),
+  .string()
+  .regex(/^[0-9]{10}$/, "Phone must be 10 digits"),
   line1: z.string().min(5, "Address line is required"),
   line2: z.string().optional(),
   city: z.string().min(2, "City is required"),
   state: z.string().min(2, "State is required"),
-  postalCode: z.string().min(4, "Postal code is required"),
+  postalCode: z
+  .string()
+  .regex(/^[0-9]{6}$/, "Postal code must be 6 digits"),
+
   country: z.string().default("India"),
   isDefault: z.boolean().optional(),
 };
