@@ -4,10 +4,25 @@ import SectionHeading from "@/components/public/ui/SectionHeading";
 import CartItemCard from "@/components/customer/cart/CartItemCard";
 import CartSummaryCard from "@/components/customer/cart/CartSummaryCard";
 import EmptyCart from "@/components/customer/cart/EmptyCart";
+import type { Prisma } from "@prisma/client";
 
-const items: any[] = [];
+type CartWithItems = Prisma.CartGetPayload<{
+  include: {
+    items: {
+      include: {
+        product: true;
+      };
+    };
+  };
+}>;
 
-export default function CartClient() {
+type Props = {
+  cart: CartWithItems;
+};
+
+export default function CartClient({ cart }: Props) {
+  const items = cart.items;
+
   if (!items.length) return <EmptyCart />;
 
   return (
@@ -19,13 +34,17 @@ export default function CartClient() {
       />
 
       <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          {items.map((i) => (
-            <CartItemCard key={i.id} item={i} />
+        <div className="lg:col-span-2 space-y-6">
+          {items.map((item, index) => (
+            <CartItemCard
+              key={item.id}
+              item={item}
+              index={index}
+            />
           ))}
         </div>
 
-        <CartSummaryCard />
+        <CartSummaryCard cart={cart} />
       </div>
     </>
   );

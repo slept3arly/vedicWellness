@@ -8,7 +8,7 @@ import MarqueeBanner from "@/components/MarqueeBanner";
 import GlobalBackground from "@/components/public/GlobalBackground";
 import RouteLoader from "@/components/public/RouteLoader";
 import Providers from "@/app/Providers";
-import Footer from "@/components/Footer";
+import { Toaster } from "sonner";
 import DeferredFooter from "@/components/DeferredFooter";
 
 import Script from "next/script";
@@ -134,6 +134,7 @@ export default function RootLayout({
           <DeferredFooter />
           <BottomNavbar />
         </Providers>
+        <Toaster position="top-center" richColors />
       </body>
     </html>
   );
