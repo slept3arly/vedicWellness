@@ -1,8 +1,6 @@
 "use client";
 
-import { useFormStatus } from "react-dom";
-import AdminButton from "./AdminButton";
-import AdminLoader from "./AdminLoader";
+import Button from "@/components/public/ui/Button";
 
 export default function AdminActionButton({
   children,
@@ -13,26 +11,15 @@ export default function AdminActionButton({
   variant?: any;
   className?: string;
 }) {
-  const { pending } = useFormStatus();
-
   return (
-    <AdminButton
-      disabled={pending}
+    <Button
+      autoLoading
       variant={variant}
-      className={`
-        transition-all
-        ${pending ? "opacity-80 cursor-wait" : "hover:brightness-110"}
-        ${className}
-      `}
+      loadingText="Processing..."
+      className={className}
+      type="submit"
     >
-      {pending ? (
-        <span className="flex items-center gap-2">
-          <AdminLoader />
-          Processing...
-        </span>
-      ) : (
-        children
-      )}
-    </AdminButton>
+      {children}
+    </Button>
   );
 }

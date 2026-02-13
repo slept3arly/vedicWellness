@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
-import BottomNavbar from "@/components/BottomNavbar";
+import BottomNavbar from "@/components/BottomNavbar.client";
 import { inter, spaceGrotesk } from "./fonts";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import GlobalBackground from "@/components/public/GlobalBackground";
@@ -79,7 +79,7 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${inter.variable} ${spaceGrotesk.variable}`}
     >
-      <body className="relative min-h-dvh overflow-x-hidden">
+      <body className="relative min-h-dvh flex flex-col overflow-x-hidden">
         <GlobalBackground />
 
         {/* Structured data */}
@@ -126,7 +126,7 @@ export default function RootLayout({
           </div>
 
           {/* Main Content */}
-          <main className="pt-[7.5rem] pb-28 md:pb-0 space-y-6 md:space-y-10">
+          <main className="flex-1 pt-[7.5rem] pb-28 md:pb-0 space-y-6 md:space-y-10">
             {children}
           </main>
 
