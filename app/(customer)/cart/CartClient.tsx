@@ -26,26 +26,46 @@ export default function CartClient({ cart }: Props) {
   if (!items.length) return <EmptyCart />;
 
   return (
-    <>
+    <div className="space-y-8 md:animate-in md:fade-in md:duration-300">
+
       <SectionHeading
         align="left"
         title="Your Cart"
-        subtitle="Review items before checkout"
+        subtitle="Review your selections before checkout"
       />
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          {items.map((item, index) => (
-            <CartItemCard
-              key={item.id}
-              item={item}
-              index={index}
-            />
-          ))}
-        </div>
+      {/* CART SURFACE */}
+      <div className="
+        rounded-2xl
+        bg-[var(--bg-surface)]/70
+        backdrop-blur-sm
+        border border-[var(--border-soft)]
+        p-4 sm:p-6
+      ">
+        <div
+          className="
+            grid
+            gap-6 lg:gap-10
+            lg:grid-cols-[minmax(0,1fr)_360px]
+          "
+        >
+          {/* ITEMS COLUMN */}
+          <div className="space-y-4 min-w-0">
+            {items.map((item, index) => (
+              <CartItemCard
+                key={item.id}
+                item={item}
+                index={index}
+              />
+            ))}
+          </div>
 
-        <CartSummaryCard cart={cart} />
+          {/* SUMMARY COLUMN */}
+          <div className="lg:sticky lg:top-24 h-fit">
+            <CartSummaryCard cart={cart} />
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 }
