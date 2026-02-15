@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import Card from "@/components/public/ui/Card";
 import Button from "@/components/public/ui/Button";
 import { FileText, Truck, ArrowRight } from "lucide-react";
@@ -18,6 +21,8 @@ type Props = {
 };
 
 export default function CartSummaryCard({ cart }: Props) {
+  const router = useRouter();
+
   const subtotal = cart.items.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0
@@ -25,6 +30,11 @@ export default function CartSummaryCard({ cart }: Props) {
 
   const shipping = 0;
   const total = subtotal + shipping;
+
+  function handleCheckout() {
+    if (cart.items.length === 0) return;
+    router.push("/checkout");
+  }
 
   return (
     <Card className="p-6 space-y-6">
@@ -57,7 +67,11 @@ export default function CartSummaryCard({ cart }: Props) {
         <span className="text-lg">₹{total.toLocaleString()}</span>
       </div>
 
-      <Button className="w-full h-11 flex items-center justify-center gap-2">
+      <Button
+        className="w-full h-11 flex items-center justify-center gap-2"
+        onClick={handleCheckout}
+        disabled={cart.items.length === 0}
+      >
         Proceed to Checkout
         <ArrowRight size={16} />
       </Button>

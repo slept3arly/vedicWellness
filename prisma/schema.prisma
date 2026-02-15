@@ -102,7 +102,7 @@ model User {
   email    String  @unique
   password String
   name     String?
-  phone    String? // primary contact number
+  phone    String?
 
   role       Role      @default(VIEWER)
   verified   Boolean   @default(false)
@@ -111,7 +111,6 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  // relations
   addresses Address[]
   cart      Cart?
   orders    Order[]
@@ -149,7 +148,7 @@ model Cart {
   updatedAt DateTime @updatedAt
 
   items CartItem[]
-  user  User       @relation(fields: [userId], references: [id])
+  user  User @relation(fields: [userId], references: [id])
 }
 
 model CartItem {
@@ -172,22 +171,30 @@ model Order {
   id     String @id @default(cuid())
   userId String
 
-  status OrderStatus @default(PENDING)
+  status OrderStatus @default(CREATED)
 
   totalAmount Int
   currency    String @default("INR")
 
   shippingName  String
   shippingPhone String
-  shippingAddr  Json // snapshot of address
+  shippingAddr  Json
+
+  paymentProvider String?
+  paymentOrderId  String?
+  paymentId       String?
+  paidAt          DateTime?
+
+  expiresAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   items OrderItem[]
-  user  User        @relation(fields: [userId], references: [id])
+  user  User @relation(fields: [userId], references: [id])
 
   @@index([userId, createdAt])
+  @@index([status])
 }
 
 model OrderItem {
@@ -202,6 +209,17 @@ model OrderItem {
   order Order @relation(fields: [orderId], references: [id])
 
   @@index([orderId])
+}
+
+enum OrderStatus {
+  CREATED
+  PAYMENT_FAILED
+  PAID
+  CONFIRMED
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  EXPIRED
 }
 
 enum MedicineForm {
@@ -222,15 +240,6 @@ enum MedicineForm {
   INHALER
   INJECTION
   OTHER
-}
-
-enum OrderStatus {
-  PENDING
-  CONFIRMED
-  SHIPPED
-  DELIVERED
-  CANCELLED
-  REFUNDED
 }
 
 enum LeadStatus {
