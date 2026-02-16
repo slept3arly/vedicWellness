@@ -80,7 +80,7 @@ export default function TermsClient() {
             <p className="text-sm text-muted">Last Updated: 16-Feb-2026</p>
 
             {/* 1 */}
-            <section ref={sectionRefs.general} id="general">
+            <section ref={sectionRefs.general} id="general" className="space-y-6">
               <h2 className="text-xl font-semibold">1. General Use</h2>
               <p>
                 These Terms & Conditions govern access to and use of the Vedic
@@ -104,7 +104,7 @@ export default function TermsClient() {
             </section>
 
             {/* 2 */}
-            <section ref={sectionRefs.account} id="account">
+            <section ref={sectionRefs.account} id="account" className="space-y-6">
               <h2 className="text-xl font-semibold">
                 2. Account Responsibility
               </h2>
@@ -127,7 +127,7 @@ export default function TermsClient() {
             </section>
 
             {/* 3 */}
-            <section ref={sectionRefs.medical} id="medical">
+            <section ref={sectionRefs.medical} id="medical" className="space-y-6">
               <h2 className="text-xl font-semibold">3. Medical Disclaimer</h2>
               <p>
                 Products listed on this website are Ayurvedic wellness
@@ -149,7 +149,7 @@ export default function TermsClient() {
             </section>
 
             {/* 4 */}
-            <section ref={sectionRefs.orders} id="orders">
+            <section ref={sectionRefs.orders} id="orders" className="space-y-6">
               <h2 className="text-xl font-semibold">
                 4. Orders & Availability
               </h2>
@@ -172,7 +172,7 @@ export default function TermsClient() {
             </section>
 
             {/* 5 */}
-            <section ref={sectionRefs.liability} id="liability">
+            <section ref={sectionRefs.liability} id="liability" className="space-y-6">
               <h2 className="text-xl font-semibold">
                 5. Limitation of Liability
               </h2>
@@ -194,7 +194,7 @@ export default function TermsClient() {
             </section>
 
             {/* 6 */}
-            <section ref={sectionRefs.law} id="law">
+            <section ref={sectionRefs.law} id="law" className="space-y-6">
               <h2 className="text-xl font-semibold">6. Governing Law</h2>
               <p>
                 These Terms & Conditions shall be governed by and interpreted in

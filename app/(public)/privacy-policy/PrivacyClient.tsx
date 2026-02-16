@@ -224,9 +224,7 @@ export default function PrivacyClient() {
                 and security frameworks established by those providers. Our
                 internal systems retain only limited transactional records
                 required for accounting, order verification, and compliance
-                obligations. By avoiding direct storage of payment credentials,
-                Vedic Wellness significantly reduces risk exposure while still
-                enabling efficient order coordination and customer support.
+                obligations.
               </p>
             </section>
 
