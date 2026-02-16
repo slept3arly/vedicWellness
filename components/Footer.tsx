@@ -45,7 +45,7 @@ export default function Footer() {
 
           {/* DESCRIPTION */}
           <p className="text-sm text-muted/90 leading-relaxed max-w-sm mx-auto md:mx-0">
-            Vedic Wellness is a WHO-GMP certified Ayurvedic PCD Pharma company
+            Vedic Wellness is a GMP certified Ayurvedic PCD Pharma company
             delivering high-quality herbal formulations, ethical franchise
             opportunities, and long-term business growth across India.
           </p>
@@ -118,7 +118,7 @@ export default function Footer() {
           </p>
           <div className="flex gap-4">
             <FooterLink href="/privacy-policy">Privacy Policy</FooterLink>
-            <FooterLink href="/terms">Terms & Conditions</FooterLink>
+            <FooterLink href="/terms-conditions">Terms & Conditions</FooterLink>
           </div>
         </div>
       </div>
