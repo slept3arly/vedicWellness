@@ -25,6 +25,10 @@ const BRAND_DESCRIPTION =
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
 
+  verification: {
+    google: "7j7lQFxzJjZu_dYzbYtTKEQi5MkqDWWCk96qaOEwTuM",
+  },
+  
   title: {
     default: `${BRAND_NAME} | Ayurvedic Wellness & Pharma Franchise`,
     template: `%s | ${BRAND_NAME}`,
