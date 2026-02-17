@@ -117,6 +117,7 @@ export default function Footer() {
             All rights reserved.
           </p>
           <div className="flex gap-4">
+            <FooterLink href="/site-map">Site Map</FooterLink>
             <FooterLink href="/privacy-policy">Privacy Policy</FooterLink>
             <FooterLink href="/terms-conditions">Terms & Conditions</FooterLink>
           </div>
