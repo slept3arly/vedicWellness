@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { uploadManyToR2, uploadToR2 } from "@/lib/client/uploadToR2";
 
-const MAX_BYTES = 512_000; // ✅ 512 KB
+const MAX_BYTES = 512_000;
 const ACCEPT = "image/webp,image/avif";
 
 function validate(file: File) {
@@ -27,12 +27,12 @@ export default function ProductImagesField({
   gallery: string[];
   setGallery: (g: string[]) => void;
 }) {
-  const coverInputRef = useRef<HTMLInputElement | null>(null);
-  const galleryInputRef = useRef<HTMLInputElement | null>(null);
+  const coverRef = useRef<HTMLInputElement | null>(null);
+  const galleryRef = useRef<HTMLInputElement | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function onCoverPick(file: File) {
+  async function handleCover(file: File) {
     setError(null);
     setBusy(true);
     try {
@@ -43,11 +43,11 @@ export default function ProductImagesField({
       setError(e?.message || "Upload failed");
     } finally {
       setBusy(false);
-      if (coverInputRef.current) coverInputRef.current.value = "";
+      if (coverRef.current) coverRef.current.value = "";
     }
   }
 
-  async function onGalleryPick(files: FileList) {
+  async function handleGallery(files: FileList) {
     setError(null);
     setBusy(true);
     try {
@@ -59,11 +59,11 @@ export default function ProductImagesField({
       setError(e?.message || "Upload failed");
     } finally {
       setBusy(false);
-      if (galleryInputRef.current) galleryInputRef.current.value = "";
+      if (galleryRef.current) galleryRef.current.value = "";
     }
   }
 
-  function removeGallery(i: number) {
+  function remove(i: number) {
     setGallery(gallery.filter((_, idx) => idx !== i));
   }
 
@@ -76,89 +76,79 @@ export default function ProductImagesField({
   }
 
   return (
-    <div style={{ border: "1px solid #2a2a2a", padding: 14, borderRadius: 14 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-        <b>Product Images</b>
-        <span style={{ fontSize: 12, opacity: 0.75 }}>
+    <div className="rounded-xl border border-neutral-300 dark:border-neutral-700 p-5 space-y-6">
+
+      <div className="flex justify-between items-center">
+        <h3 className="font-semibold">Product Images</h3>
+        <span className="text-xs text-neutral-500">
           Only .webp/.avif — max 512KB
         </span>
       </div>
 
       {/* Cover */}
-      <div style={{ marginTop: 12 }}>
-        <b style={{ fontSize: 13 }}>Cover image</b>
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Cover Image</p>
 
-        <div style={{ marginTop: 8, display: "grid", gap: 10 }}>
-          <input
-            ref={coverInputRef}
-            type="file"
-            accept={ACCEPT}
-            disabled={busy}
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) onCoverPick(f);
-            }}
-          />
+        <input
+          ref={coverRef}
+          type="file"
+          accept={ACCEPT}
+          disabled={busy}
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) handleCover(f);
+          }}
+        />
 
+        <div className="w-56 h-56 rounded-xl overflow-hidden border bg-neutral-200 dark:bg-neutral-800 relative">
           {coverUrl ? (
-            <div style={{ position: "relative", width: 220, height: 220, borderRadius: 12, overflow: "hidden" }}>
-              <Image src={coverUrl} alt="Cover image" fill className="object-cover" />
-            </div>
+            <Image src={coverUrl} alt="Cover" fill className="object-cover" />
           ) : (
-            <p style={{ fontSize: 12, opacity: 0.7 }}>No cover uploaded</p>
+            <div className="flex items-center justify-center h-full text-xs text-neutral-500">
+              No cover uploaded
+            </div>
           )}
         </div>
       </div>
 
       {/* Gallery */}
-      <div style={{ marginTop: 18 }}>
-        <b style={{ fontSize: 13 }}>Gallery images (upload multiple)</b>
+      <div className="space-y-3">
+        <p className="text-sm font-medium">Gallery Images</p>
 
-        <div style={{ marginTop: 8 }}>
-          <input
-            ref={galleryInputRef}
-            type="file"
-            accept={ACCEPT}
-            multiple
-            disabled={busy}
-            onChange={(e) => {
-              const files = e.target.files;
-              if (files?.length) onGalleryPick(files);
-            }}
-          />
-        </div>
+        <input
+          ref={galleryRef}
+          type="file"
+          accept={ACCEPT}
+          multiple
+          disabled={busy}
+          onChange={(e) => {
+            if (e.target.files?.length) handleGallery(e.target.files);
+          }}
+        />
 
         {gallery.length ? (
-          <div style={{ marginTop: 12, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 10 }}>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             {gallery.map((url, i) => (
-              <div key={url + i} style={{ border: "1px solid #2a2a2a", borderRadius: 12, overflow: "hidden" }}>
-                <div style={{ position: "relative", width: "100%", height: 110 }}>
-                  <Image src={url} alt={`Gallery ${i + 1}`} fill className="object-cover" />
+              <div key={url + i} className="border rounded-xl overflow-hidden">
+                <div className="relative w-full h-32">
+                  <Image src={url} alt="" fill className="object-cover" />
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "space-between", padding: 8, gap: 6 }}>
-                  <button type="button" onClick={() => move(i, -1)} disabled={i === 0}>
-                    ↑
-                  </button>
-                  <button type="button" onClick={() => move(i, 1)} disabled={i === gallery.length - 1}>
-                    ↓
-                  </button>
-                  <button type="button" onClick={() => removeGallery(i)}>
-                    ✕
-                  </button>
+                <div className="flex justify-between p-2 text-xs">
+                  <button type="button" onClick={() => move(i, -1)}>↑</button>
+                  <button type="button" onClick={() => move(i, 1)}>↓</button>
+                  <button type="button" onClick={() => remove(i)}>✕</button>
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <p style={{ fontSize: 12, opacity: 0.7, marginTop: 8 }}>
-            No gallery images uploaded
-          </p>
+          <p className="text-xs text-neutral-500">No gallery images uploaded</p>
         )}
       </div>
 
-      {busy ? <p style={{ marginTop: 10 }}>Uploading…</p> : null}
-      {error ? <p style={{ marginTop: 10, color: "red" }}>{error}</p> : null}
+      {busy && <p className="text-xs">Uploading…</p>}
+      {error && <p className="text-xs text-red-500">{error}</p>}
     </div>
   );
 }

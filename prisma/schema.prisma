@@ -211,6 +211,47 @@ model OrderItem {
   @@index([orderId])
 }
 
+model Slide {
+  id                String           @id @default(cuid())
+  imageDesktopUrl   String
+  imageMobileUrl    String
+
+  placements        SlidePlacement[]
+
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+}
+
+model SlidePlacement {
+  id           String        @id @default(cuid())
+
+  slide        Slide         @relation(fields: [slideId], references: [id], onDelete: Cascade)
+  slideId      String
+
+  placementKey PlacementKey
+  order        Int           @default(0)
+
+  isActive     Boolean       @default(true)
+
+  startAt      DateTime?
+  endAt        DateTime?
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@index([placementKey])
+  @@index([startAt, endAt])
+}
+
+enum PlacementKey {
+  HOME_HERO
+  HOME_SECONDARY
+  BLOGS_TOP
+  CATEGORY_TOP
+  FESTIVAL_BANNER
+}
+
+
 enum OrderStatus {
   CREATED
   PAYMENT_FAILED

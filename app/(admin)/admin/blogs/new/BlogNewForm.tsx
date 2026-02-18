@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { createBlog } from "../serverActions";
-import R2Upload from "@/components/R2Upload";
+import BlogImageField from "@/components/admin/BlogImagesField";
 
 export default function BlogNewForm() {
   const [thumbnailUrl, setThumbnailUrl] = useState("");
@@ -17,27 +17,16 @@ export default function BlogNewForm() {
         action={createBlog}
         style={{ marginTop: 18, display: "grid", gap: 12 }}
       >
-        {/* Core */}
         <input name="title" placeholder="Blog title" required />
         <input name="slug" placeholder="Slug (example: why-hair-oil)" required />
 
-        {/* Media */}
+        {/* Thumbnail */}
         <input type="hidden" name="thumbnailUrl" value={thumbnailUrl} />
-        <div>
-          <p style={{ marginBottom: 8, fontWeight: 600 }}>Thumbnail Image</p>
-          <R2Upload folder="blogs" onUploaded={setThumbnailUrl} />
-          {thumbnailUrl ? (
-            <a href={thumbnailUrl} target="_blank" style={{ fontSize: 12 }}>
-              View uploaded thumbnail
-            </a>
-          ) : (
-            <p style={{ fontSize: 12, opacity: 0.7 }}>
-              (Optional) Upload thumbnail for blog list card.
-            </p>
-          )}
-        </div>
+        <BlogImageField
+          thumbnailUrl={thumbnailUrl}
+          setThumbnailUrl={setThumbnailUrl}
+        />
 
-        {/* SEO */}
         <hr />
         <h3 style={{ fontWeight: 700 }}>SEO Settings</h3>
 
@@ -57,7 +46,6 @@ export default function BlogNewForm() {
           placeholder="Canonical URL (optional)"
         />
 
-        {/* Blog Meta */}
         <hr />
         <h3 style={{ fontWeight: 700 }}>Blog Details</h3>
 
@@ -73,10 +61,9 @@ export default function BlogNewForm() {
 
         <input
           name="tags"
-          placeholder="Tags (comma separated) e.g. Ayurveda, Franchise, PCD"
+          placeholder="Tags (comma separated)"
         />
 
-        {/* Main Content */}
         <textarea
           name="description"
           placeholder="Short description (shown in list + SEO)"
@@ -85,11 +72,10 @@ export default function BlogNewForm() {
 
         <textarea
           name="content"
-          placeholder="Blog content (HTML/Markdown/plain text)"
+          placeholder="Blog content"
           rows={12}
         />
 
-        {/* Publishing */}
         <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <input name="published" type="checkbox" />
           Published

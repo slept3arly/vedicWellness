@@ -19,7 +19,7 @@ export default function Home() {
       <StatsSection />
 
       {/* Early visual proof */}
-      <MediaShowcase />
+      <MediaShowcase placementKey="HOME_HERO" />
 
       <Categories />
 
@@ -28,7 +28,8 @@ export default function Home() {
       <Philosophy />
 
       {/* Reinforcement before conversion */}
-      <MediaShowcase />
+      <MediaShowcase placementKey="HOME_SECONDARY" />
+
 
       <FranchiseBenefits />
 
