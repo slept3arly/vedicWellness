@@ -1,15 +1,12 @@
-import { getSession } from "@/lib/auth/getSession";
+import { requireUser } from "@/lib/auth/requireUser";
 import { getOrCreateCart } from "@/lib/services/cartService";
 import CartClient from "./CartClient";
 
 export default async function CartPage() {
-  const session = await getSession();
+  // ⭐ strong auth guard
+  const user = await requireUser();
 
-  if (!session?.user) {
-    return null; // or redirect("/login")
-  }
-
-  const cart = await getOrCreateCart(session.user.id);
+  const cart = await getOrCreateCart(user.id);
 
   return <CartClient cart={cart} />;
 }

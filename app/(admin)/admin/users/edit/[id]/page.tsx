@@ -8,8 +8,17 @@ export default async function EditUserPage({
 }) {
   const { id } = await params;
 
-  const user = await prisma.user.findFirst({ where: { id } });
-  if (!user) return <div>User not found.</div>;
+  // ⭐ IMPORTANT: block deleted users
+  const user = await prisma.user.findFirst({
+    where: {
+      id,
+      deletedAt: null,
+    },
+  });
+
+  if (!user) {
+    return <div>User not found.</div>;
+  }
 
   return <UserEditForm user={user} />;
 }

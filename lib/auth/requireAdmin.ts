@@ -3,7 +3,6 @@ import "server-only";
 import { redirect } from "next/navigation";
 import { getSession } from "./getSession";
 import { prisma } from "@/lib/db/prisma";
-import type { Session } from "next-auth";
 
 type AdminUser = {
   id: string;
@@ -14,18 +13,35 @@ type AdminUser = {
 export async function requireAdmin(): Promise<AdminUser> {
   const session = await getSession();
 
-  if (!session?.user?.email) redirect("/login?next=/admin");
+  if (!session?.user?.email) {
+    redirect("/login?next=/admin");
+  }
 
-  if (session.user.role !== "ADMIN") redirect("/");
+  if (session.user.role !== "ADMIN") {
+    redirect("/");
+  }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { email: session.user.email },
+  // ⭐ IMPORTANT CHANGE:
+  const dbUser = await prisma.user.findFirst({
+    where: {
+      email: session.user.email,
+      role: "ADMIN",
+      deletedAt: null, // 🚫 block deleted admins
+    },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+    },
   });
 
-  if (!dbUser) redirect("/login?next=/admin");
+  // If admin deleted → force logout
+  if (!dbUser) {
+    redirect("/login?next=/admin");
+  }
 
   return {
-    id: dbUser.id,        // ✅ REAL PRISMA ID
+    id: dbUser.id,
     email: dbUser.email,
     role: "ADMIN",
   };

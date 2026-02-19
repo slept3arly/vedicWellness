@@ -1,6 +1,10 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
+import { randomUUID } from "crypto";
 
+/* ===============================
+   CREATE
+================================ */
 export async function createUserDB(data: any) {
   return prisma.user.create({
     data,
@@ -8,6 +12,9 @@ export async function createUserDB(data: any) {
   });
 }
 
+/* ===============================
+   UPDATE
+================================ */
 export async function updateUserDB(id: string, data: any) {
   return prisma.user.update({
     where: { id },
@@ -15,15 +22,43 @@ export async function updateUserDB(id: string, data: any) {
   });
 }
 
+/* ===============================
+   SOFT DELETE + ANONYMIZE
+================================ */
 export async function deleteUserDB(id: string) {
-  return prisma.user.delete({ where: { id } });
+  const deletedEmail = `deleted-${Date.now()}-${randomUUID()}@deleted.local`;
+
+  return prisma.user.update({
+    where: { id },
+    data: {
+      deletedAt: new Date(),
+
+      // 🔐 anonymize personal info
+      email: deletedEmail,
+      name: "Deleted User",
+      phone: null,
+      password: randomUUID(), // invalidate login
+      verified: false,
+      verifiedAt: null,
+    },
+  });
 }
 
+/* ===============================
+   READ SINGLE USER
+================================ */
 export async function getUserById(id: string) {
-  return prisma.user.findUnique({ where: { id } });
+  return prisma.user.findFirst({
+    where: {
+      id,
+      deletedAt: null, // ⭐ hide deleted users
+    },
+  });
 }
 
-/* ✅ Admin reads (paginated) */
+/* ===============================
+   ADMIN USERS LIST
+================================ */
 export async function getAdminUsers(
   page = 1,
   limit = 20,
@@ -32,28 +67,29 @@ export async function getAdminUsers(
   const skip = (page - 1) * limit;
 
   return prisma.user.findMany({
-    where: q
-      ? {
-          OR: [
-            {
-              email: {
-                contains: q,
-                mode: "insensitive",
-              },
+    where: {
+      deletedAt: null, // ⭐ hide deleted users
+
+      ...(q && {
+        OR: [
+          {
+            email: {
+              contains: q,
+              mode: "insensitive",
             },
-            {
-              name: {
-                contains: q,
-                mode: "insensitive",
-              },
+          },
+          {
+            name: {
+              contains: q,
+              mode: "insensitive",
             },
-          ],
-        }
-      : undefined,
+          },
+        ],
+      }),
+    },
 
     orderBy: { createdAt: "desc" },
     skip,
     take: limit,
   });
 }
-

@@ -58,16 +58,42 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
 
+    // ⭐ FINAL JWT CALLBACK (SESSION REVALIDATION)
     async jwt({ token, user }) {
+      // Initial login
       if (user) {
         token.uid = user.id;
         token.role = user.role;
+        return token;
       }
+
+      // Re-check DB on every refresh
+      if (token?.uid) {
+        const dbUser = await prisma.user.findFirst({
+          where: {
+            id: token.uid as string,
+            deletedAt: null,
+          },
+          select: {
+            id: true,
+            role: true,
+          },
+        });
+
+        // If deleted → kill session
+        if (!dbUser) {
+          return {};
+        }
+
+        token.role = dbUser.role;
+      }
+
       return token;
     },
 
     async session({ session, token }) {
-      if (session.user) {
+      // If jwt() cleared token → session becomes null automatically
+      if (session.user && token?.uid) {
         session.user.id = token.uid as string;
         session.user.role = token.role as any;
       }
@@ -87,15 +113,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         try {
           const ip = await getIpFromNextHeaders();
 
-          const email = credentials?.email?.toString().toLowerCase().trim() ?? "";
-          const password = credentials?.password?.toString() ?? "";
+          const email =
+            credentials?.email?.toString().toLowerCase().trim() ?? "";
+          const password =
+            credentials?.password?.toString() ?? "";
 
           if (!email || !password) return null;
 
           await rateLimitOrThrow(`login-ip:${ip}`, limits.loginIp);
           await rateLimitOrThrow(`login:${email}:${ip}`, limits.loginEmail);
 
-          const user = await prisma.user.findUnique({ where: { email } });
+          // ⭐ block deleted users
+          const user = await prisma.user.findFirst({
+            where: {
+              email,
+              deletedAt: null,
+            },
+          });
 
           if (!user) {
             await sleep(350);

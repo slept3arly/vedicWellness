@@ -19,8 +19,12 @@ export async function requireUser(): Promise<AuthUser> {
     redirect("/login");
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { email: session.user.email },
+  // ⭐ IMPORTANT CHANGE:
+  const dbUser = await prisma.user.findFirst({
+    where: {
+      email: session.user.email,
+      deletedAt: null, // 🚫 block deleted users
+    },
     select: {
       id: true,
       email: true,
@@ -28,13 +32,13 @@ export async function requireUser(): Promise<AuthUser> {
     },
   });
 
-  // Session exists but DB user missing (rare, but possible)
+  // If user deleted or missing → force logout
   if (!dbUser) {
     redirect("/login");
   }
 
   return {
-    id: dbUser.id,     // ✅ canonical Prisma ID
+    id: dbUser.id,
     email: dbUser.email,
     role: dbUser.role,
   };
