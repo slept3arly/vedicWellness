@@ -19,7 +19,7 @@ export function buildCspHeader({ isDev }: CspOptions = {}) {
     `object-src 'none'`,
     `frame-ancestors 'none'`,
 
-    `frame-src https://challenges.cloudflare.com`,
+    `frame-src 'self' https://challenges.cloudflare.com blob:`,
 
     `form-action 'self'`,
     `img-src 'self' https: data: blob:`,
@@ -31,7 +31,8 @@ export function buildCspHeader({ isDev }: CspOptions = {}) {
     `script-src-elem ${scriptSrc}`,
     `script-src-attr 'none'`,
 
-    `connect-src 'self' https: wss:`,
+    `connect-src 'self' https://challenges.cloudflare.com https: wss:`,
+    `child-src 'self' https://challenges.cloudflare.com blob:`,
     `media-src 'self' https: blob:`,
 
     `upgrade-insecure-requests`,

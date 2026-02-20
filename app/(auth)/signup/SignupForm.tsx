@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Turnstile } from "@marsidev/react-turnstile";
+import { toast } from "sonner";
 
 export default function SignupForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
   const next =
@@ -13,7 +13,7 @@ export default function SignupForm() {
     searchParams.get("callbackUrl") ||
     "/products";
 
-  const [error, setError] = useState("");
+  const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
@@ -25,10 +25,10 @@ export default function SignupForm() {
     e.preventDefault();
     if (isLoading) return;
 
-    setError("");
-
     if (!turnstileToken) {
-      setError("Please complete the verification.");
+      toast.warning("Verification required", {
+        description: "Please complete the captcha verification.",
+      });
       return;
     }
 
@@ -39,14 +39,18 @@ export default function SignupForm() {
     const password = String(formData.get("password"));
 
     if (!email) {
-      setError("Email is required.");
+      toast.warning("Email is required", {
+        description: "Please enter your email address.",
+      });
       emailRef.current?.focus();
       setIsLoading(false);
       return;
     }
 
     if (!password || password.length < 8) {
-      setError("Password must be at least 8 characters.");
+      toast.warning("Weak password", {
+        description: "Password must be at least 8 characters long.",
+      });
       passwordRef.current?.focus();
       setIsLoading(false);
       return;
@@ -66,17 +70,46 @@ export default function SignupForm() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        setError(data?.error || "Signup failed.");
+        toast.error("Signup failed", {
+          description: data?.error || "Unable to create account.",
+        });
         setIsLoading(false);
         return;
       }
 
+      toast.success("Account created 🎉", {
+        description:
+          "We've sent you a verification email. Please check your inbox.",
+      });
+
+      setSuccess(true);
       setTurnstileToken("");
-      router.push(`/login?next=${encodeURIComponent(next)}`);
+      setIsLoading(false);
     } catch {
-      setError("Something went wrong. Try again.");
+      toast.error("Something went wrong", {
+        description: "Please try again later.",
+      });
       setIsLoading(false);
     }
+  }
+
+  if (success) {
+    return (
+      <div className="rounded-xl border border-green-200 bg-green-50 p-6 text-center shadow-sm dark:border-green-800 dark:bg-green-900/20">
+        <h2 className="text-xl font-semibold text-green-700 dark:text-green-400">
+          Check your email
+        </h2>
+
+        <p className="mt-2 text-sm text-green-700/80 dark:text-green-300/80">
+          We've sent you a verification link. Please check your inbox and
+          click the link to activate your account.
+        </p>
+
+        <p className="mt-4 text-xs text-muted">
+          After verification, you’ll be automatically logged in.
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -85,16 +118,6 @@ export default function SignupForm() {
       noValidate
       className="mx-auto mt-10 flex w-full max-w-md flex-col gap-5"
     >
-      {error && (
-        <div
-          role="alert"
-          aria-live="assertive"
-          className="rounded-md bg-red-600/90 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg"
-        >
-          {error}
-        </div>
-      )}
-
       {/* EMAIL */}
       <div className="space-y-1">
         <label
@@ -138,8 +161,6 @@ export default function SignupForm() {
           <button
             type="button"
             onClick={() => setShowPassword((p) => !p)}
-            aria-pressed={showPassword}
-            aria-label={showPassword ? "Hide password" : "Show password"}
             disabled={isLoading}
             className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-3 py-2 text-sm font-semibold text-[#039751]"
           >
@@ -148,19 +169,13 @@ export default function SignupForm() {
         </div>
       </div>
 
-      {/* CAPTCHA */}
-      <div aria-describedby="captcha-help">
-        <Turnstile
-          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-          options={{ theme: "auto" }}
-          onSuccess={(token) => setTurnstileToken(token)}
-          onExpire={() => setTurnstileToken("")}
-          onError={() => setTurnstileToken("")}
-        />
-        <p id="captcha-help" className="sr-only">
-          Complete the verification to enable account creation.
-        </p>
-      </div>
+      <Turnstile
+        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+        options={{ theme: "auto" }}
+        onSuccess={(token) => setTurnstileToken(token)}
+        onExpire={() => setTurnstileToken("")}
+        onError={() => setTurnstileToken("")}
+      />
 
       <button
         type="submit"
@@ -172,7 +187,10 @@ export default function SignupForm() {
 
       <div className="text-center text-sm text-black/70 dark:text-white/70">
         Already have an account?{" "}
-        <a href="/login" className="font-semibold text-[#039751] hover:text-[#84eb4b]">
+        <a
+          href="/login"
+          className="font-semibold text-[#039751] hover:text-[#84eb4b]"
+        >
           Log In
         </a>
       </div>

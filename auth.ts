@@ -38,7 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
   session: {
     strategy: "jwt",
-    maxAge: 60 * 10,
+    maxAge: 60 * 60 * 24, // 24h
     updateAge: 60,
   },
 
@@ -58,16 +58,16 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return true;
     },
 
-    // ⭐ FINAL JWT CALLBACK (SESSION REVALIDATION)
     async jwt({ token, user }) {
       // Initial login
       if (user) {
         token.uid = user.id;
         token.role = user.role;
+        token.verified = (user as any).verified;
         return token;
       }
 
-      // Re-check DB on every refresh
+      // Re-check DB on refresh
       if (token?.uid) {
         const dbUser = await prisma.user.findFirst({
           where: {
@@ -77,25 +77,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           select: {
             id: true,
             role: true,
+            verified: true,
           },
         });
 
-        // If deleted → kill session
         if (!dbUser) {
           return {};
         }
 
         token.role = dbUser.role;
+        token.verified = dbUser.verified;
       }
 
       return token;
     },
 
     async session({ session, token }) {
-      // If jwt() cleared token → session becomes null automatically
       if (session.user && token?.uid) {
         session.user.id = token.uid as string;
         session.user.role = token.role as any;
+        (session.user as any).verified = token.verified as boolean;
       }
       return session;
     },
@@ -107,6 +108,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
+        verificationLogin: { label: "Verification", type: "text" },
       },
 
       async authorize(credentials) {
@@ -118,12 +120,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const password =
             credentials?.password?.toString() ?? "";
 
-          if (!email || !password) return null;
+          const verificationLogin =
+            credentials?.verificationLogin === "true";
+
+          if (!email) return null;
 
           await rateLimitOrThrow(`login-ip:${ip}`, limits.loginIp);
           await rateLimitOrThrow(`login:${email}:${ip}`, limits.loginEmail);
 
-          // ⭐ block deleted users
           const user = await prisma.user.findFirst({
             where: {
               email,
@@ -136,11 +140,21 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          const ok = await bcrypt.compare(password, user.password);
+          // Skip password check for verification login
+          if (!verificationLogin) {
+            if (!password) return null;
 
-          if (!ok) {
-            await sleep(350);
-            return null;
+            const ok = await bcrypt.compare(password, user.password);
+
+            if (!ok) {
+              await sleep(350);
+              return null;
+            }
+
+            // 🚫 Block unverified users
+            if (!user.verified) {
+              throw new Error("EMAIL_NOT_VERIFIED");
+            }
           }
 
           const authUser: User = {
@@ -152,11 +166,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
           return authUser;
         } catch (err: any) {
-          if (err?.message === "RATE_LIMITED") {
-            console.log("LOGIN RATE LIMITED", {
-              ip: await getIpFromNextHeaders(),
-            });
-          }
           return null;
         }
       },

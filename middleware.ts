@@ -26,12 +26,16 @@ export default auth((req) => {
 
   // 🔐 Only product detail pages gated
   if (path !== "/products" && path.startsWith("/products")) {
-    if (!session) {
-      const url = new URL("/login", req.url);
-      url.searchParams.set("next", path);
-      return NextResponse.redirect(url);
-    }
+  if (!session) {
+    const url = new URL("/login", req.url);
+    url.searchParams.set("next", path);
+    return NextResponse.redirect(url);
   }
+
+  if (!(session.user as any)?.verified) {
+    return NextResponse.redirect(new URL("/verify-required", req.url));
+  }
+}
 
   return NextResponse.next();
 });

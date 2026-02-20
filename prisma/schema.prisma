@@ -110,12 +110,27 @@ model User {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  deletedAt DateTime?   // ⭐ ADD THIS
-  
+  deletedAt DateTime?
+
   addresses Address[]
   cart      Cart?
   orders    Order[]
   leads     Lead[]    @relation("UserLeads")
+
+  verificationToken VerificationToken?  // ✅ ADD THIS
+}
+
+model VerificationToken {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  token     String   @unique
+  expiresAt DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
 }
 
 model Address {

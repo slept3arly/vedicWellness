@@ -3,9 +3,9 @@
 import { useState, useRef } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 
 export default function LoginForm() {
-  const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -22,7 +22,6 @@ export default function LoginForm() {
     e.preventDefault();
     if (isLoading) return;
 
-    setError("");
     setIsLoading(true);
 
     const formData = new FormData(e.currentTarget);
@@ -30,14 +29,18 @@ export default function LoginForm() {
     const password = String(formData.get("password"));
 
     if (!email) {
-      setError("Email is required.");
+      toast.warning("Email is required.", {
+        description: "Please enter your email address.",
+      });
       emailRef.current?.focus();
       setIsLoading(false);
       return;
     }
 
     if (!password) {
-      setError("Password is required.");
+      toast.warning("Password is required.", {
+        description: "Please enter your password.",
+      });
       passwordRef.current?.focus();
       setIsLoading(false);
       return;
@@ -50,16 +53,41 @@ export default function LoginForm() {
         redirect: false,
       });
 
-      if (!res || res.error) {
-        setError("Wrong email or password.");
+      if (!res) {
+        toast.error("Login failed", {
+          description: "Unexpected authentication error.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (res.error) {
+        if (res.error === "EMAIL_NOT_VERIFIED") {
+          toast.error("Email not verified", {
+            description:
+              "Please verify your email before logging in.",
+          });
+        } else {
+          toast.error("Wrong email or password", {
+            description:
+              "Please check your credentials and try again.",
+          });
+        }
+
         emailRef.current?.focus();
         setIsLoading(false);
         return;
       }
 
+      toast.success("Login successful 🎉", {
+        description: "Redirecting you now...",
+      });
+
       window.location.href = callbackUrl;
     } catch {
-      setError("Something went wrong. Try again.");
+      toast.error("Something went wrong", {
+        description: "Please try again later.",
+      });
       setIsLoading(false);
     }
   }
@@ -70,17 +98,6 @@ export default function LoginForm() {
       noValidate
       className="mx-auto mt-10 flex w-full max-w-md flex-col gap-5"
     >
-      {/* LIVE ERROR */}
-      {error && (
-        <div
-          role="alert"
-          aria-live="assertive"
-          className="rounded-md bg-red-600/90 px-4 py-3 text-center text-sm font-semibold text-white shadow-lg"
-        >
-          {error}
-        </div>
-      )}
-
       {/* EMAIL */}
       <div className="space-y-1">
         <label

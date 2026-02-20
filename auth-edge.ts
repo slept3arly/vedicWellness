@@ -4,7 +4,6 @@ export const { auth } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
   trustHost: true,
 
-  // required in v5 even if empty
   providers: [],
 
   session: {
@@ -16,6 +15,7 @@ export const { auth } = NextAuth({
       if (user) {
         token.uid = (user as any).id;
         token.role = (user as any).role;
+        token.verified = (user as any).verified;
       }
       return token;
     },
@@ -24,6 +24,7 @@ export const { auth } = NextAuth({
       if (session.user) {
         (session.user as any).id = token.uid;
         (session.user as any).role = token.role;
+        (session.user as any).verified = token.verified;
       }
       return session;
     },
