@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 
 import { prisma } from "@/lib/db/prisma";
+import { redis } from "@/lib/redis";
 import { errorResponse } from "@/lib/security/guard";
 import { rateLimitOrThrow } from "@/lib/security/rateLimit";
 
@@ -12,7 +13,10 @@ import {
   getSignupSession,
   deleteSignupSession,
   updateSignupSession,
+  SignupSession,
 } from "@/lib/auth/signupSession";
+
+import { Role } from "@prisma/client";
 
 const VerifySchema = z.object({
   email: z.string().email().transform(v => v.toLowerCase().trim()),
@@ -25,7 +29,10 @@ export async function POST(req: Request) {
     const parsed = VerifySchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid input" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Invalid input" },
+        { status: 400 }
+      );
     }
 
     const { email, otp } = parsed.data;
@@ -44,6 +51,7 @@ export async function POST(req: Request) {
       );
     }
 
+    // 🔒 Prevent brute force
     if (session.attempts >= 5) {
       return NextResponse.json(
         { error: "Too many attempts. Request a new code." },
@@ -63,16 +71,38 @@ export async function POST(req: Request) {
       );
     }
 
+    /**
+     * 🔐 Atomic verify lock
+     * Prevents duplicate user creation if verify is triggered twice
+     */
+    const lockKey = `signup:verify-lock:${email}`;
+
+    const lock = await redis.set(lockKey, "1", {
+      nx: true,
+      ex: 10,
+    });
+
+    if (!lock) {
+      return NextResponse.json(
+        { error: "Verification already in progress." },
+        { status: 400 }
+      );
+    }
+
+    /**
+     * ✅ Create verified user
+     */
     await prisma.user.create({
       data: {
         email: session.email,
         password: session.password,
-        role: session.role,
+        role: session.role as Role,
         verified: true,
         verifiedAt: new Date(),
       },
     });
 
+    // 🧹 Cleanup Redis session
     await deleteSignupSession(email);
 
     return NextResponse.json({ ok: true });
