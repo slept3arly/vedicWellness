@@ -165,7 +165,7 @@ export default function AboutClient() {
         >
           {[
             "ISO Certified",
-            "WHO-GMP Quality",
+            "GMP Quality",
             "District Monopoly",
             "Fast Dispatch",
             "Promotional Support",
@@ -192,7 +192,7 @@ export default function AboutClient() {
 
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-4">
-          <StatCard icon={BadgeCheck} title="WHO-GMP Quality" desc="Certified manufacturing standards" />
+          <StatCard icon={BadgeCheck} title="GMP Quality" desc="Certified manufacturing standards" />
           <StatCard icon={MapPin} title="Monopoly Rights" desc="Exclusive territory allocation" />
           <StatCard icon={Truck} title="Fast Dispatch" desc="Reliable logistics network" />
           <StatCard icon={ShieldCheck} title="Trusted Support" desc="Marketing & partner assistance" />

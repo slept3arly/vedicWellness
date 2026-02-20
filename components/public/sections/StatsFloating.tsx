@@ -3,7 +3,7 @@
 import { Pill, Layers, Users, Truck, BadgeCheck, Clock } from "lucide-react";
 
 const stats = [
-  { icon: Pill, value: "200+", label: "PCD Products", sub: "WHO-GMP certified portfolio." },
+  { icon: Pill, value: "200+", label: "PCD Products", sub: "GMP certified portfolio." },
   { icon: Layers, value: "15+", label: "Therapy Segments", sub: "High-demand wellness ranges." },
   { icon: Users, value: "500+", label: "Partners", sub: "Active distributors nationwide." },
   { icon: Truck, value: "PAN India", label: "Logistics", sub: "Fast & reliable supply." },

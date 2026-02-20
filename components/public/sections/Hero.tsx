@@ -43,7 +43,7 @@ export default function Hero() {
           className="text-sm md:text-base text-slate-700 dark:text-slate-300"
         >
           Vedic Wellness (A Division of Innovia Drugs) enables serious PCD partners
-          to build scalable, long-term businesses with WHO-GMP certified Ayurvedic
+          to build scalable, long-term businesses with GMP certified Ayurvedic
           formulations and monopoly rights.
         </motion.p>
 
@@ -74,7 +74,7 @@ export default function Hero() {
             <ul className="space-y-3 text-sm text-muted">
               {[
                 "Monopoly-based PCD model",
-                "WHO-GMP certified manufacturing",
+                "GMP certified manufacturing",
                 "Fast dispatch & logistics support",
               ].map((item) => (
                 <li key={item} className="flex gap-2">
