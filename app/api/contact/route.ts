@@ -1,13 +1,8 @@
 import "server-only";
 
 import { NextResponse } from "next/server";
-
-import { contactSchema } from "@/lib/validators/contact";
-import { verifyTurnstile } from "@/lib/security/turnstile";
-import { createLead } from "@/lib/db/lead";
-import { sanitizeText } from "@/lib/security/sanitize";
-import { hasMxRecord } from "@/lib/security/email";
 import { secureMutation } from "@/lib/security/secureMutation";
+import { processContactForm } from "@/lib/services/contactService";
 
 function getIpFromRequest(req: Request) {
   const xff = req.headers.get("x-forwarded-for");
@@ -24,69 +19,40 @@ function getIpFromRequest(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    // 🔒 CSRF + rate limit (contact)
+    // 🔒 CSRF + rate limit
     await secureMutation(req, { limit: "contact" });
 
     const ip = getIpFromRequest(req);
 
     const body = await req.json().catch(() => null);
     if (!body) {
-      return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
-    }
-
-    // 🧪 Honeypot
-    if (typeof body.website === "string" && body.website.length > 0) {
-      return NextResponse.json({ ok: true }, { status: 200 });
-    }
-
-    const parsed = contactSchema.safeParse(body);
-    if (!parsed.success) {
       return NextResponse.json(
-        { error: "All fields are compulsory", issues: parsed.error.flatten() },
+        { error: "Invalid JSON body" },
         { status: 400 }
       );
     }
 
-    const { name, email, phone, city, message, turnstileToken } = parsed.data;
+    const result = await processContactForm(
+      body,
+      ip,
+      req.headers.get("user-agent") ?? null
+    );
 
-    const emailDomain = email.split("@")[1]?.toLowerCase();
-    if (!emailDomain || !(await hasMxRecord(emailDomain))) {
+    if ((result as any).error) {
       return NextResponse.json(
         {
-          error: "Please enter a valid email address.",
-          issues: {
-            fieldErrors: {
-              email: ["Email domain does not exist or cannot receive emails."],
-            },
-          },
+          error: (result as any).error,
+          issues: (result as any).issues,
         },
-        { status: 400 }
+        { status: (result as any).status ?? 400 }
       );
     }
-
-    const turnstile = await verifyTurnstile(turnstileToken, ip);
-    if (!turnstile.success) {
-      return NextResponse.json(
-        { error: "Turnstile verification failed" },
-        { status: 403 }
-      );
-    }
-
-    const safeLead = {
-      name: sanitizeText(name),
-      email: email.toLowerCase(),
-      phone: sanitizeText(phone ?? ""),
-      city: sanitizeText(city),
-      message: sanitizeText(message),
-      ip,
-      userAgent: req.headers.get("user-agent") ?? null,
-    };
-
-    await createLead(safeLead);
 
     return NextResponse.json({ ok: true }, { status: 200 });
   } catch (err: any) {
-    const status = typeof err?.status === "number" ? err.status : 500;
+    const status =
+      typeof err?.status === "number" ? err.status : 500;
+
     const msg =
       err?.message === "RATE_LIMITED"
         ? "Too many requests"

@@ -53,3 +53,43 @@ export async function getBlogById(id: string) {
     select: { publishedAt: true, slug: true, thumbnailUrl: true, title: true },
   });
 }
+
+/* ------------------------------------------------------------------ */
+/* Public Reads */
+/* ------------------------------------------------------------------ */
+
+export async function getPublicBlogsDB() {
+  return prisma.blog.findMany({
+    where: { published: true },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      thumbnailUrl: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+}
+
+export async function getPublicBlogBySlugDB(slug: string) {
+  return prisma.blog.findFirst({
+    where: { slug, published: true },
+  });
+}
+
+export async function getPublicBlogMetadataDB(slug: string) {
+  return prisma.blog.findFirst({
+    where: { slug, published: true },
+    select: {
+      title: true,
+      description: true,
+      thumbnailUrl: true,
+      createdAt: true,
+      updatedAt: true,
+      slug: true,
+    },
+  });
+}

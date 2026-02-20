@@ -8,6 +8,11 @@ import {
 import { parseBlogForm } from "@/lib/validators/blog";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
+import {
+  getPublicBlogsDB,
+  getPublicBlogBySlugDB,
+  getPublicBlogMetadataDB,
+} from "@/lib/db/blog";
 
 export async function createBlogService(formData: FormData, adminId: string) {
   const data = parseBlogForm(formData);
@@ -104,4 +109,19 @@ export async function toggleBlogPublishedService(
     entityId: id,
     metadata: { from: published, to: !published },
   });
+}
+/* ------------------------------------------------------------------ */
+/* Public Services */
+/* ------------------------------------------------------------------ */
+
+export async function getPublicBlogsService() {
+  return getPublicBlogsDB();
+}
+
+export async function getPublicBlogBySlugService(slug: string) {
+  return getPublicBlogBySlugDB(slug);
+}
+
+export async function getPublicBlogMetadataService(slug: string) {
+  return getPublicBlogMetadataDB(slug);
 }

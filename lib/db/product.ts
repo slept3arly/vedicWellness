@@ -1,6 +1,10 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
 
+/* ------------------------------------------------------------------ */
+/* Write Operations (Admin) */
+/* ------------------------------------------------------------------ */
+
 export async function createProductDB(data: any) {
   return prisma.product.create({
     data,
@@ -19,6 +23,10 @@ export async function deleteProductDB(id: string) {
   return prisma.product.delete({ where: { id } });
 }
 
+/* ------------------------------------------------------------------ */
+/* Admin Reads */
+/* ------------------------------------------------------------------ */
+
 export async function getProductById(id: string) {
   return prisma.product.findUnique({
     where: { id },
@@ -32,7 +40,6 @@ export async function getProductById(id: string) {
   });
 }
 
-/* ✅ Admin reads (paginated) */
 export async function getAdminProducts(
   page = 1,
   limit = 20,
@@ -49,9 +56,61 @@ export async function getAdminProducts(
           },
         }
       : undefined,
-
     orderBy: { createdAt: "desc" },
     skip,
     take: limit,
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Public Reads */
+/* ------------------------------------------------------------------ */
+
+export async function getPublicProductsDB(
+  page = 1,
+  limit = 10
+) {
+  const skip = (page - 1) * limit;
+
+  const where = { published: true };
+
+  const [total, products] = await Promise.all([
+    prisma.product.count({ where }),
+    prisma.product.findMany({
+      where,
+      orderBy: { name: "asc" },
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        tag: true,
+        price: true,
+        imageUrl: true,
+        shortDescription: true,
+        createdAt: true,
+        medicineForm: true,
+      },
+    }),
+  ]);
+
+  return { total, products };
+}
+
+export async function getPublicProductBySlugDB(slug: string) {
+  return prisma.product.findFirst({
+    where: { slug, published: true },
+  });
+}
+
+export async function getPublicProductMetadataDB(slug: string) {
+  return prisma.product.findFirst({
+    where: { slug, published: true },
+    select: {
+      name: true,
+      shortDescription: true,
+      imageUrl: true,
+    },
   });
 }

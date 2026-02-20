@@ -1,4 +1,3 @@
-import { prisma } from "@/lib/db/prisma";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Image from "next/image";
@@ -11,9 +10,13 @@ import ProductPurchaseCard from "@/components/customer/product/ProductPurchaseCa
 
 import { getSession } from "@/lib/auth/getSession";
 import { getOrCreateCart } from "@/lib/services/cartService";
+import {
+  getPublicProductBySlugService,
+  getPublicProductMetadataService,
+} from "@/lib/services/productService";
 
 /* ------------------------------------------------------------------ */
-/* Types & helpers */
+/* Types */
 /* ------------------------------------------------------------------ */
 
 type Props = {
@@ -26,23 +29,20 @@ function arr(v: any): string[] {
   return [];
 }
 
-const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-  "https://vedic-wellness.vercel.app";
-
 /* ------------------------------------------------------------------ */
 /* Metadata */
 /* ------------------------------------------------------------------ */
 
-export async function generateMetadata({ params }: Props): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: Props): Promise<Metadata> {
+  const session = await getSession();
+  if (!session?.user) return {};
+
   const { slug: rawSlug } = await params;
   const slug = decodeURIComponent(rawSlug);
 
-  const product = await prisma.product.findFirst({
-    where: { slug, published: true },
-    select: { name: true, shortDescription: true, imageUrl: true },
-  });
-
+  const product = await getPublicProductMetadataService(slug);
   if (!product) return {};
 
   return {
@@ -58,34 +58,34 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 /* Page */
 /* ------------------------------------------------------------------ */
 
-export default async function ProductDetailsPage({ params }: Props) {
+export default async function ProductDetailsPage({
+  params,
+}: Props) {
   const { slug: rawSlug } = await params;
   const slug = decodeURIComponent(rawSlug);
 
-  const product = await prisma.product.findFirst({
-    where: { slug, published: true },
-  });
-
+  const product = await getPublicProductBySlugService(slug);
   if (!product) return notFound();
 
   const gallery = arr(product.gallery);
+  const ingredients = arr(product.ingredients);
+  const indications = arr(product.indications);
+  const contraindications = arr(product.contraindications);
+  const directions = arr(product.directionsToUse);
   const packaging = arr(product.packaging);
 
   /* ------------------------------------------------------------------ */
-  /* Fetch existing cart quantity safely */
+  /* Cart Info */
   /* ------------------------------------------------------------------ */
 
   const session = await getSession();
-
   let existingQty = 0;
 
   if (session?.user?.id) {
     const cart = await getOrCreateCart(session.user.id);
-
     const existingItem = cart.items.find(
       (item) => item.productId === product.id
     );
-
     existingQty = existingItem?.quantity ?? 0;
   }
 
@@ -95,15 +95,16 @@ export default async function ProductDetailsPage({ params }: Props) {
 
   return (
     <section>
-      <div className="mx-auto max-w-6xl px-6 pt-10 pb-20 space-y-10">
+      <div className="mx-auto max-w-6xl px-6 pt-10 pb-20 space-y-12">
 
-        {/* Top bar */}
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex flex-wrap gap-2">
+        {/* Header */}
+        <div className="flex justify-between items-center">
+          <div className="flex gap-2 flex-wrap">
             <Chip>Products</Chip>
-            <Chip>Ayurvedic</Chip>
-            <Chip>PCD Ready</Chip>
-            <Chip>Fast Dispatch</Chip>
+            {product.tag && <Chip>{product.tag}</Chip>}
+            {product.medicineForm && (
+              <Chip>{product.medicineForm}</Chip>
+            )}
           </div>
 
           <Link
@@ -114,8 +115,8 @@ export default async function ProductDetailsPage({ params }: Props) {
           </Link>
         </div>
 
-        {/* Main */}
-        <div className="grid gap-6 lg:grid-cols-2">
+        {/* Main Grid */}
+        <div className="grid gap-8 lg:grid-cols-2">
 
           {/* Images */}
           <div className="space-y-4">
@@ -139,7 +140,7 @@ export default async function ProductDetailsPage({ params }: Props) {
 
             {gallery.length > 0 && (
               <div className="grid grid-cols-4 gap-3">
-                {gallery.slice(0, 4).map((url, i) => (
+                {gallery.map((url, i) => (
                   <Card key={url + i} className="overflow-hidden">
                     <div className="relative aspect-square">
                       <Image
@@ -155,47 +156,34 @@ export default async function ProductDetailsPage({ params }: Props) {
             )}
           </div>
 
-          {/* Content */}
+          {/* Product Info */}
           <Card>
-            <div className="flex justify-between gap-4">
-              <div>
-                <h1 className="font-heading text-3xl md:text-4xl font-extrabold">
-                  {product.name}
-                </h1>
+            <h1 className="text-3xl font-extrabold">
+              {product.name}
+            </h1>
 
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {product.tag && <Chip>{product.tag}</Chip>}
-                  {product.medicineForm && (
-                    <Chip>{product.medicineForm}</Chip>
-                  )}
-                </div>
-              </div>
-
-              <div className="text-right">
-                <div className="text-2xl font-extrabold text-[color:var(--brand-accent)]">
-                  ₹{product.price.toLocaleString()}
-                </div>
-                <div className="mt-1 text-xs text-muted">
-                  SKU: {product.id.slice(0, 8).toUpperCase()}
-                </div>
-              </div>
+            <div className="mt-3 text-2xl font-bold text-[color:var(--brand-accent)]">
+              ₹{product.price.toLocaleString()}
             </div>
 
-            <p className="mt-5 text-muted leading-relaxed">
-              {product.shortDescription ??
-                "Premium Ayurvedic formulation."}
-            </p>
+            {product.shortDescription && (
+              <p className="mt-4 text-muted leading-relaxed">
+                {product.shortDescription}
+              </p>
+            )}
 
-            {/* Purchase Section */}
-            <ProductPurchaseCard
-              productId={product.id}
-              tag={product.tag}
-              medicineForm={product.medicineForm}
-              existingQty={existingQty}
-            />
+            {/* Purchase */}
+            <div className="mt-6">
+              <ProductPurchaseCard
+                productId={product.id}
+                tag={product.tag}
+                medicineForm={product.medicineForm}
+                existingQty={existingQty}
+              />
+            </div>
 
-            {/* Secondary Actions */}
-            <div className="mt-6 flex flex-col sm:flex-row gap-3">
+            {/* WhatsApp */}
+            <div className="mt-6">
               <a
                 href="https://wa.me/+919306025799"
                 target="_blank"
@@ -205,12 +193,78 @@ export default async function ProductDetailsPage({ params }: Props) {
                   Get Details on WhatsApp
                 </Button>
               </a>
-
-              <Button variant="secondary">
-                Request Franchise Price
-              </Button>
             </div>
           </Card>
+        </div>
+
+        {/* Detailed Sections */}
+        <div className="space-y-8">
+
+          {ingredients.length > 0 && (
+            <Card>
+              <h2 className="text-xl font-semibold mb-3">
+                Ingredients
+              </h2>
+              <ul className="list-disc pl-5 space-y-1 text-muted">
+                {ingredients.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
+          {indications.length > 0 && (
+            <Card>
+              <h2 className="text-xl font-semibold mb-3">
+                Indications
+              </h2>
+              <ul className="list-disc pl-5 space-y-1 text-muted">
+                {indications.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
+          {contraindications.length > 0 && (
+            <Card>
+              <h2 className="text-xl font-semibold mb-3">
+                Contraindications
+              </h2>
+              <ul className="list-disc pl-5 space-y-1 text-muted">
+                {contraindications.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
+          {directions.length > 0 && (
+            <Card>
+              <h2 className="text-xl font-semibold mb-3">
+                Directions to Use
+              </h2>
+              <ul className="list-disc pl-5 space-y-1 text-muted">
+                {directions.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
+          {packaging.length > 0 && (
+            <Card>
+              <h2 className="text-xl font-semibold mb-3">
+                Packaging
+              </h2>
+              <ul className="list-disc pl-5 space-y-1 text-muted">
+                {packaging.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            </Card>
+          )}
+
         </div>
       </div>
     </section>

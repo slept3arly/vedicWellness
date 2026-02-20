@@ -3,11 +3,18 @@ import {
   updateProductDB,
   deleteProductDB,
   getProductById,
+  getPublicProductsDB,
+  getPublicProductBySlugDB,
+  getPublicProductMetadataDB,
 } from "@/lib/db/product";
 
 import { parseProductForm } from "@/lib/validators/product";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
+
+/* ------------------------------------------------------------------ */
+/* Admin Services */
+/* ------------------------------------------------------------------ */
 
 export async function createProductService(
   formData: FormData,
@@ -126,4 +133,37 @@ export async function deleteProductService(id: string, adminId: string) {
         : 0,
     },
   });
+}
+
+/* ------------------------------------------------------------------ */
+/* Public Services */
+/* ------------------------------------------------------------------ */
+
+const PUBLIC_PAGE_SIZE = 10;
+
+export async function getPublicProductsService(page: number) {
+  const { total, products } = await getPublicProductsDB(
+    page,
+    PUBLIC_PAGE_SIZE
+  );
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(total / PUBLIC_PAGE_SIZE)
+  );
+
+  return {
+    products,
+    total,
+    totalPages,
+    pageSize: PUBLIC_PAGE_SIZE,
+  };
+}
+
+export async function getPublicProductBySlugService(slug: string) {
+  return getPublicProductBySlugDB(slug);
+}
+
+export async function getPublicProductMetadataService(slug: string) {
+  return getPublicProductMetadataDB(slug);
 }
