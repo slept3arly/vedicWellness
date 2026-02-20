@@ -60,7 +60,7 @@ export async function POST(req: Request) {
     });
 
     const session = await auth();
-    if (!session?.user?.email) {
+    if (!session?.user?.email || session.user.role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
