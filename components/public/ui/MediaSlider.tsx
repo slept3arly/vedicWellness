@@ -23,25 +23,27 @@ export default function MediaSlider({
   const [paused, setPaused] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
+  const total = slides.length;
+
   // Auto play
   useEffect(() => {
-    if (slides.length <= 1 || paused) return;
+    if (total <= 1 || paused) return;
 
     const timer = setInterval(() => {
-      setIndex((i) => (i + 1) % slides.length);
+      setIndex((i) => (i + 1) % total);
     }, interval);
 
     return () => clearInterval(timer);
-  }, [slides.length, interval, paused]);
+  }, [total, interval, paused]);
 
-  if (!slides.length) return null;
+  if (!total) return null;
 
   function prev() {
-    setIndex((i) => (i - 1 + slides.length) % slides.length);
+    setIndex((i) => (i - 1 + total) % total);
   }
 
   function next() {
-    setIndex((i) => (i + 1) % slides.length);
+    setIndex((i) => (i + 1) % total);
   }
 
   function handleTouchStart(e: React.TouchEvent) {
@@ -59,9 +61,20 @@ export default function MediaSlider({
     touchStartX.current = null;
   }
 
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "ArrowLeft") prev();
+    if (e.key === "ArrowRight") next();
+  }
+
   return (
     <div
-      className="relative overflow-hidden rounded-[22px] border border-[var(--border-soft)] shadow-xl"
+      className="relative overflow-hidden rounded-[22px] border border-[var(--border-soft)] shadow-xl focus:outline-none"
+      role="region"
+      aria-roledescription="carousel"
+      aria-label="Promotional image carousel"
+      aria-live="polite"
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       onTouchStart={handleTouchStart}
@@ -69,7 +82,6 @@ export default function MediaSlider({
     >
       {/* Responsive aspect ratio wrapper */}
       <div className="relative w-full aspect-[4/5] md:aspect-[16/9]">
-
 
         <div
           className="flex h-full transition-transform duration-700 ease-out will-change-transform"
@@ -79,11 +91,12 @@ export default function MediaSlider({
             <div
               key={slide.id}
               className="relative h-full w-full flex-shrink-0"
+              aria-hidden={i !== index}
             >
               {/* Desktop */}
               <Image
                 src={slide.imageDesktopUrl}
-                alt=""
+                alt={`Slide ${i + 1} of ${total}`}
                 fill
                 priority={i === 0}
                 sizes="(min-width: 768px) 100vw"
@@ -93,7 +106,7 @@ export default function MediaSlider({
               {/* Mobile */}
               <Image
                 src={slide.imageMobileUrl}
-                alt=""
+                alt={`Slide ${i + 1} of ${total}`}
                 fill
                 priority={i === 0}
                 sizes="100vw"
@@ -105,18 +118,22 @@ export default function MediaSlider({
       </div>
 
       {/* Arrows */}
-      {slides.length > 1 && (
+      {total > 1 && (
         <>
           <button
+            type="button"
             onClick={prev}
-            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 backdrop-blur px-2 py-2 text-white hover:bg-black/60 transition"
+            aria-label="Previous slide"
+            className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 backdrop-blur px-2 py-2 text-white hover:bg-black/60 transition focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]"
           >
             <ChevronLeft size={20} />
           </button>
 
           <button
+            type="button"
             onClick={next}
-            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 backdrop-blur px-2 py-2 text-white hover:bg-black/60 transition"
+            aria-label="Next slide"
+            className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-black/40 backdrop-blur px-2 py-2 text-white hover:bg-black/60 transition focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)]"
           >
             <ChevronRight size={20} />
           </button>
@@ -124,19 +141,29 @@ export default function MediaSlider({
       )}
 
       {/* Dots */}
-      <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
-        {slides.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setIndex(i)}
-            className={`h-2 w-2 rounded-full transition-all duration-300 ${
-              i === index
-                ? "bg-[var(--brand-primary)] scale-125"
-                : "bg-white/50"
-            }`}
-          />
-        ))}
-      </div>
+      {total > 1 && (
+        <div
+          className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2"
+          role="tablist"
+          aria-label="Slide navigation"
+        >
+          {slides.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              role="tab"
+              aria-selected={i === index}
+              aria-label={`Go to slide ${i + 1}`}
+              onClick={() => setIndex(i)}
+              className={`h-2 w-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[var(--brand-primary)] ${
+                i === index
+                  ? "bg-[var(--brand-primary)] scale-125"
+                  : "bg-white/50"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }
