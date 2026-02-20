@@ -165,7 +165,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           };
 
           return authUser;
-        } catch (err: any) {
+        }catch (err: any) {
+        // Preserve explicit auth errors like EMAIL_NOT_VERIFIED
+          if (err instanceof Error) {
+            throw err;
+          }
+
           return null;
         }
       },

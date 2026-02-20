@@ -1,14 +1,25 @@
 type Props = {
-  verificationUrl: string;
+  otp: string;
 };
 
-export function VerifyEmail({ verificationUrl }: Props) {
+export function VerifyEmail({ otp }: Props) {
   return (
     <div>
-      <h1>Verify your email</h1>
-      <p>Click the link below to verify your account:</p>
-      <a href={verificationUrl}>Verify Email</a>
-      <p>This link expires in 24 hours.</p>
+      <h1>Email Verification</h1>
+
+      <p>Your OTP code is:</p>
+
+      <h2
+        style={{
+          fontSize: "28px",
+          letterSpacing: "4px",
+          margin: "16px 0",
+        }}
+      >
+        {otp}
+      </h2>
+
+      <p>This code expires in 10 minutes.</p>
     </div>
   );
 }
