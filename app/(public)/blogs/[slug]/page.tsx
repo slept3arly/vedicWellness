@@ -14,7 +14,7 @@ import {
 export const dynamicParams = true;
 
 type Props = {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 };
 
 const SITE_URL =
@@ -40,9 +40,10 @@ export async function generateStaticParams() {
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
-  const slug = decodeURIComponent(params.slug);
+  const { slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
 
-  const blog = await getPublicBlogMetadataService(slug);
+  const blog = await getPublicBlogMetadataService(decodedSlug);
 
   if (!blog) return {};
 
@@ -51,7 +52,7 @@ export async function generateMetadata({
     description:
       blog.description ??
       "Read the latest Ayurveda insights and franchise updates from Vedic Wellness.",
-    alternates: { canonical: `/blogs/${slug}` },
+    alternates: { canonical: `/blogs/${decodedSlug}` },
   };
 }
 
@@ -60,9 +61,10 @@ export async function generateMetadata({
 /* ------------------------------------------------------------------ */
 
 export default async function BlogDetailsPage({ params }: Props) {
-  const slug = decodeURIComponent(params.slug);
+  const { slug } = await params;
+  const decodedSlug = decodeURIComponent(slug);
 
-  const blog = await getPublicBlogBySlugService(slug);
+  const blog = await getPublicBlogBySlugService(decodedSlug);
 
   if (!blog) return notFound();
 
@@ -86,10 +88,12 @@ export default async function BlogDetailsPage({ params }: Props) {
   return (
     <section>
       <div className="mx-auto max-w-5xl px-6 pt-10 pb-20 space-y-8">
-
+        {/* Structured Data */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(jsonLd),
+          }}
         />
 
         <div className="flex flex-wrap gap-2">

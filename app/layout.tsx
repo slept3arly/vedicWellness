@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
-import BottomNavbar from "@/components/BottomNavbar.client";
+import BottomNavbar from "@/components/BottomNavbarClient";
 import { inter, spaceGrotesk } from "./fonts";
 import MarqueeBanner from "@/components/MarqueeBanner";
 import GlobalBackground from "@/components/public/GlobalBackground";
