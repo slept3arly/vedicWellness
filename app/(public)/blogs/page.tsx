@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import BlogsClient from "./BlogsClient";
 import { getPublicBlogsService } from "@/lib/services/blogService";
 
+export const dynamic = "force-static";
+
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
   "https://vedic-wellness.vercel.app";

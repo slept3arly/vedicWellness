@@ -1,6 +1,13 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
 
+export async function getAllPublishedBlogSlugs() {
+  return prisma.blog.findMany({
+    where: { published: true },
+    select: { slug: true },
+  });
+}
+
 /* ✅ Admin reads (paginated with search) */
 export async function getAdminBlogs(
   page = 1,

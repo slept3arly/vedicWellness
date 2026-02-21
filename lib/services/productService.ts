@@ -6,8 +6,9 @@ import {
   getPublicProductsDB,
   getPublicProductBySlugDB,
   getPublicProductMetadataDB,
+  getAllPublishedProductSlugs,
 } from "@/lib/db/product";
-
+import { unstable_cache } from "next/cache";
 import { parseProductForm } from "@/lib/validators/product";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
@@ -136,34 +137,63 @@ export async function deleteProductService(id: string, adminId: string) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Public Services */
+/* Public Services (Cached) */
 /* ------------------------------------------------------------------ */
 
+const PRODUCT_TAG = "products";
 const PUBLIC_PAGE_SIZE = 10;
 
-export async function getPublicProductsService(page: number) {
-  const { total, products } = await getPublicProductsDB(
-    page,
-    PUBLIC_PAGE_SIZE
-  );
+export const getPublicProductsService = (page: number) =>
+  unstable_cache(
+    async () => {
+      const { total, products } = await getPublicProductsDB(
+        page,
+        PUBLIC_PAGE_SIZE
+      );
 
-  const totalPages = Math.max(
-    1,
-    Math.ceil(total / PUBLIC_PAGE_SIZE)
-  );
+      const totalPages = Math.max(
+        1,
+        Math.ceil(total / PUBLIC_PAGE_SIZE)
+      );
 
-  return {
-    products,
-    total,
-    totalPages,
-    pageSize: PUBLIC_PAGE_SIZE,
-  };
-}
+      return {
+        products,
+        total,
+        totalPages,
+        pageSize: PUBLIC_PAGE_SIZE,
+      };
+    },
+    [`public-products-${page}`],
+    {
+      tags: [PRODUCT_TAG],
+    }
+  )();
 
-export async function getPublicProductBySlugService(slug: string) {
-  return getPublicProductBySlugDB(slug);
-}
+export const getPublicProductBySlugService = (slug: string) =>
+  unstable_cache(
+    async () => {
+      return getPublicProductBySlugDB(slug);
+    },
+    [`product-${slug}`],
+    {
+      tags: [`product:${slug}`, PRODUCT_TAG],
+    }
+  )();
 
-export async function getPublicProductMetadataService(slug: string) {
-  return getPublicProductMetadataDB(slug);
+export const getPublicProductMetadataService = (slug: string) =>
+  unstable_cache(
+    async () => {
+      return getPublicProductMetadataDB(slug);
+    },
+    [`product-meta-${slug}`],
+    {
+      tags: [`product:${slug}`],
+    }
+  )();
+/* ------------------------------------------------------------------ */
+/* Sitemap + Static Generation Service */
+/* ------------------------------------------------------------------ */
+
+export async function getAllPublishedProductSlugsService() {
+  return getAllPublishedProductSlugs();
 }

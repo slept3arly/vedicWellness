@@ -5,6 +5,7 @@ import {
   getBlogById,
 } from "@/lib/db/blog";
 
+import { unstable_cache } from "next/cache";
 import { parseBlogForm } from "@/lib/validators/blog";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
@@ -12,7 +13,12 @@ import {
   getPublicBlogsDB,
   getPublicBlogBySlugDB,
   getPublicBlogMetadataDB,
+  getAllPublishedBlogSlugs
 } from "@/lib/db/blog";
+
+export async function getAllPublishedBlogSlugsService() {
+  return getAllPublishedBlogSlugs();
+}
 
 export async function createBlogService(formData: FormData, adminId: string) {
   const data = parseBlogForm(formData);
@@ -111,17 +117,42 @@ export async function toggleBlogPublishedService(
   });
 }
 /* ------------------------------------------------------------------ */
-/* Public Services */
+/* Public Services (Cached) */
 /* ------------------------------------------------------------------ */
 
-export async function getPublicBlogsService() {
-  return getPublicBlogsDB();
-}
+const BLOG_LIST_TAG = "blogs";
 
-export async function getPublicBlogBySlugService(slug: string) {
-  return getPublicBlogBySlugDB(slug);
-}
+export const getPublicBlogsService = unstable_cache(
+  async () => {
+    return getPublicBlogsDB();
+  },
+  ["public-blogs"],
+  {
+    tags: [BLOG_LIST_TAG],
+    revalidate: 60, // fallback ISR safety (1 min)
+  }
+);
 
-export async function getPublicBlogMetadataService(slug: string) {
-  return getPublicBlogMetadataDB(slug);
-}
+export const getPublicBlogBySlugService = (slug: string) =>
+  unstable_cache(
+    async () => {
+      return getPublicBlogBySlugDB(slug);
+    },
+    [`blog-${slug}`],
+    {
+      tags: [`blog:${slug}`, BLOG_LIST_TAG],
+      revalidate: 60,
+    }
+  )();
+
+export const getPublicBlogMetadataService = (slug: string) =>
+  unstable_cache(
+    async () => {
+      return getPublicBlogMetadataDB(slug);
+    },
+    [`blog-meta-${slug}`],
+    {
+      tags: [`blog:${slug}`],
+      revalidate: 60,
+    }
+  )();

@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 
 import { secureAdminAction } from "@/lib/security/secureAdminAction";
 
@@ -12,12 +12,13 @@ import {
   toggleBlogPublishedService,
 } from "@/lib/services/blogService";
 
+const BLOG_LIST_TAG = "blogs";
+
 export const createBlog = secureAdminAction(
   async (admin, formData: FormData) => {
     await createBlogService(formData, admin.id);
 
-    revalidatePath("/blogs");
-    revalidatePath("/sitemap.xml");
+    revalidateTag(BLOG_LIST_TAG, "max");
 
     redirect("/admin/blogs");
   }
@@ -27,8 +28,7 @@ export const updateBlog = secureAdminAction(
   async (admin, formData: FormData) => {
     await updateBlogService(formData, admin.id);
 
-    revalidatePath("/blogs");
-    revalidatePath("/sitemap.xml");
+    revalidateTag(BLOG_LIST_TAG, "max");
 
     redirect("/admin/blogs");
   }
@@ -40,8 +40,7 @@ export const deleteBlog = secureAdminAction(
 
     await deleteBlogService(id, admin.id);
 
-    revalidatePath("/blogs");
-    revalidatePath("/sitemap.xml");
+    revalidateTag(BLOG_LIST_TAG, "max");
 
     redirect("/admin/blogs");
   }
@@ -54,8 +53,7 @@ export const toggleBlogPublished = secureAdminAction(
 
     await toggleBlogPublishedService(id, published, admin.id);
 
-    revalidatePath("/blogs");
-    revalidatePath("/sitemap.xml");
+    revalidateTag(BLOG_LIST_TAG, "max");
 
     redirect("/admin/blogs");
   }

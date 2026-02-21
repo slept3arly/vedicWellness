@@ -27,7 +27,7 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => null);
     if (!body) {
       return NextResponse.json(
-        { error: "Invalid JSON body" },
+        { ok: false, error: "Invalid JSON body" },
         { status: 400 }
       );
     }
@@ -38,13 +38,14 @@ export async function POST(req: Request) {
       req.headers.get("user-agent") ?? null
     );
 
-    if ((result as any).error) {
+    if (!result.ok) {
       return NextResponse.json(
         {
-          error: (result as any).error,
-          issues: (result as any).issues,
+          ok: false,
+          error: result.error,
+          issues: result.issues,
         },
-        { status: (result as any).status ?? 400 }
+        { status: result.status ?? 400 }
       );
     }
 
@@ -58,6 +59,9 @@ export async function POST(req: Request) {
         ? "Too many requests"
         : "Something went wrong";
 
-    return NextResponse.json({ error: msg }, { status });
+    return NextResponse.json(
+      { ok: false, error: msg },
+      { status }
+    );
   }
 }

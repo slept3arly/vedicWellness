@@ -74,26 +74,26 @@ export async function getPublicProductsDB(
 
   const where = { published: true };
 
-  const [total, products] = await Promise.all([
-    prisma.product.count({ where }),
-    prisma.product.findMany({
-      where,
-      orderBy: { name: "asc" },
-      skip,
-      take: limit,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        tag: true,
-        price: true,
-        imageUrl: true,
-        shortDescription: true,
-        createdAt: true,
-        medicineForm: true,
-      },
-    }),
-  ]);
+  const [total, products] = await prisma.$transaction([
+  prisma.product.count({ where }),
+  prisma.product.findMany({
+    where,
+    orderBy: { name: "asc" },
+    skip,
+    take: limit,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      tag: true,
+      price: true,
+      imageUrl: true,
+      shortDescription: true,
+      createdAt: true,
+      medicineForm: true,
+    },
+  }),
+]);
 
   return { total, products };
 }
@@ -111,6 +111,20 @@ export async function getPublicProductMetadataDB(slug: string) {
       name: true,
       shortDescription: true,
       imageUrl: true,
+    },
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* Lightweight Slug Fetch (Sitemap + Static Generation) */
+/* ------------------------------------------------------------------ */
+
+export async function getAllPublishedProductSlugs() {
+  return prisma.product.findMany({
+    where: { published: true },
+    select: {
+      slug: true,
+      updatedAt: true,
     },
   });
 }

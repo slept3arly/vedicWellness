@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { secureAdminAction } from "@/lib/security/secureAdminAction";
@@ -12,12 +12,13 @@ import {
   deleteProductService,
 } from "@/lib/services/productService";
 
+const PRODUCT_TAG = "products";
+
 export const createProduct = secureAdminAction(
   async (admin, formData: FormData) => {
-    await createProductService(formData, admin.id);
+    const id = await createProductService(formData, admin.id);
 
-    revalidatePath("/admin/products");
-    revalidatePath("/products");
+    revalidateTag(PRODUCT_TAG, "max");
 
     redirect("/admin/products");
   }
@@ -25,10 +26,9 @@ export const createProduct = secureAdminAction(
 
 export const updateProduct = secureAdminAction(
   async (admin, formData: FormData) => {
-    await updateProductService(formData, admin.id);
+    const id = await updateProductService(formData, admin.id);
 
-    revalidatePath("/admin/products");
-    revalidatePath("/products");
+    revalidateTag(PRODUCT_TAG, "max");
 
     redirect("/admin/products");
   }
@@ -41,8 +41,7 @@ export const toggleProductPublished = secureAdminAction(
 
     await toggleProductPublishedService(id, published, admin.id);
 
-    revalidatePath("/admin/products");
-    revalidatePath("/products");
+    revalidateTag(PRODUCT_TAG, "max");
   }
 );
 
@@ -52,7 +51,6 @@ export const deleteProduct = secureAdminAction(
 
     await deleteProductService(id, admin.id);
 
-    revalidatePath("/admin/products");
-    revalidatePath("/products");
+    revalidateTag(PRODUCT_TAG, "max");
   }
 );

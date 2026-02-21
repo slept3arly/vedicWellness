@@ -8,15 +8,30 @@ import Chip from "@/components/public/ui/Chip";
 import {
   getPublicBlogBySlugService,
   getPublicBlogMetadataService,
+  getAllPublishedBlogSlugsService,
 } from "@/lib/services/blogService";
 
+export const dynamicParams = true;
+
 type Props = {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 };
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
   "https://vedic-wellness.vercel.app";
+
+/* ------------------------------------------------------------------ */
+/* Static Generation */
+/* ------------------------------------------------------------------ */
+
+export async function generateStaticParams() {
+  const blogs = await getAllPublishedBlogSlugsService();
+
+  return blogs.map((b) => ({
+    slug: b.slug,
+  }));
+}
 
 /* ------------------------------------------------------------------ */
 /* Metadata */
@@ -25,8 +40,7 @@ const SITE_URL =
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
-  const { slug: rawSlug } = await params;
-  const slug = decodeURIComponent(rawSlug);
+  const slug = decodeURIComponent(params.slug);
 
   const blog = await getPublicBlogMetadataService(slug);
 
@@ -46,8 +60,7 @@ export async function generateMetadata({
 /* ------------------------------------------------------------------ */
 
 export default async function BlogDetailsPage({ params }: Props) {
-  const { slug: rawSlug } = await params;
-  const slug = decodeURIComponent(rawSlug);
+  const slug = decodeURIComponent(params.slug);
 
   const blog = await getPublicBlogBySlugService(slug);
 

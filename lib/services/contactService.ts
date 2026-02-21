@@ -6,11 +6,20 @@ import { hasMxRecord } from "@/lib/security/email";
 
 type ContactInput = unknown;
 
+export type ContactResult =
+  | { ok: true }
+  | {
+      ok: false;
+      error: string;
+      issues?: any;
+      status?: number;
+    };
+
 export async function processContactForm(
   input: ContactInput,
   ip: string,
   userAgent: string | null
-) {
+): Promise<ContactResult> {
   // 🧪 Honeypot
   if (
     typeof (input as any)?.website === "string" &&
@@ -23,6 +32,7 @@ export async function processContactForm(
 
   if (!parsed.success) {
     return {
+      ok: false,
       error: "All fields are compulsory",
       issues: parsed.error.flatten(),
       status: 400,
@@ -35,6 +45,7 @@ export async function processContactForm(
   const emailDomain = email.split("@")[1]?.toLowerCase();
   if (!emailDomain || !(await hasMxRecord(emailDomain))) {
     return {
+      ok: false,
       error: "Please enter a valid email address.",
       issues: {
         fieldErrors: {
@@ -51,6 +62,7 @@ export async function processContactForm(
 
   if (!turnstile.success) {
     return {
+      ok: false,
       error: "Turnstile verification failed",
       status: 403,
     };
