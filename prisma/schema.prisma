@@ -259,6 +259,15 @@ model SlidePlacement {
   @@index([startAt, endAt])
 }
 
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  optedIn   Boolean  @default(true)
+  source    String?  // homepage, blog, footer etc
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum PlacementKey {
   HOME_HERO
   HOME_SECONDARY

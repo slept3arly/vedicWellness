@@ -13,10 +13,14 @@ import {
   getSignupSession,
   deleteSignupSession,
   updateSignupSession,
-  SignupSession,
 } from "@/lib/auth/signupSession";
 
 import { Role } from "@prisma/client";
+
+// ✅ Brevo marketing imports
+import { addSubscriberToBrevo } from "@/lib/email/marketing/contacts";
+import { sendMarketingEmail } from "@/lib/email/marketing/send";
+import { WelcomeEmail } from "@/lib/email/marketing/templates/WelcomeEmail";
 
 const VerifySchema = z.object({
   email: z.string().email().transform(v => v.toLowerCase().trim()),
@@ -73,7 +77,7 @@ export async function POST(req: Request) {
 
     /**
      * 🔐 Atomic verify lock
-     * Prevents duplicate user creation if verify is triggered twice
+     * Prevents duplicate user creation
      */
     const lockKey = `signup:verify-lock:${email}`;
 
@@ -92,7 +96,7 @@ export async function POST(req: Request) {
     /**
      * ✅ Create verified user
      */
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email: session.email,
         password: session.password,
@@ -102,10 +106,29 @@ export async function POST(req: Request) {
       },
     });
 
+    /**
+ * 📩 Marketing integration
+ * Must NEVER break auth flow
+ */
+try {
+  await addSubscriberToBrevo(user.email);
+
+  await sendMarketingEmail({
+    to: user.email,
+    subject: "Welcome to Vedic Wellness",
+    html: WelcomeEmail(user.email),
+  });
+
+  console.log("📨 Marketing email sent to:", user.email);
+} catch (err) {
+  console.error("Brevo marketing error:", err);
+}
+
     // 🧹 Cleanup Redis session
     await deleteSignupSession(email);
 
     return NextResponse.json({ ok: true });
+
   } catch (err) {
     return errorResponse(err);
   }
