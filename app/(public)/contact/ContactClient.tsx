@@ -11,7 +11,6 @@ import {
   Clock,
 } from "lucide-react";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { toast } from "sonner";
 
 import { reveal, staggerFast } from "@/app/animations";
 
@@ -21,8 +20,6 @@ import SectionHeading from "@/components/public/ui/SectionHeading";
 import Button from "@/components/public/ui/Button";
 import Chip from "@/components/public/ui/Chip";
 
-/* ------------------------------------------------------------------ */
-/* Types */
 /* ------------------------------------------------------------------ */
 
 type FormState = {
@@ -55,9 +52,6 @@ function inputClass(hasError: boolean) {
   `;
 }
 
-const trustTop = ["Fast Response", "Monopoly Rights"];
-const trustBottom = ["PAN India Supply", "Marketing Support"];
-
 /* ------------------------------------------------------------------ */
 
 export default function ContactClient() {
@@ -73,6 +67,8 @@ export default function ContactClient() {
   const [errors, setErrors] = useState<FieldErrors>({});
   const [turnstileToken, setToken] = useState("");
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState<null | "success" | "error">(null);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const refs = {
     name: useRef<HTMLInputElement>(null),
@@ -97,7 +93,9 @@ export default function ContactClient() {
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setStatus(null);
     setErrors({});
+    setErrorMsg("");
 
     const next: FieldErrors = {};
 
@@ -108,36 +106,30 @@ export default function ContactClient() {
     if (form.message.length < 10) next.message = "Min 10 characters";
 
     if (!turnstileToken) {
-      toast.error("Please complete verification first.");
+      setStatus("error");
+      setErrorMsg("Please complete verification first.");
       return;
     }
 
     if (Object.keys(next).length) {
       setErrors(next);
+      setStatus("error");
+      setErrorMsg("Please fix highlighted fields.");
       focusFirstError(next);
-      toast.error(Object.values(next)[0] || "Please fix highlighted fields.");
       return;
     }
 
-    setLoading(true);
-
-    const promise = fetch("/api/contact", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, turnstileToken }),
-    }).then((res) => {
-      if (!res.ok) throw new Error();
-    });
-
-    await toast.promise(promise, {
-      loading: "Submitting enquiry...",
-      success: "Enquiry sent successfully ✅",
-      error: "Submission failed. Please try again.",
-    });
-
     try {
-      await promise;
+      setLoading(true);
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...form, turnstileToken }),
+      });
 
+      if (!res.ok) throw new Error();
+
+      setStatus("success");
       setForm({
         name: "",
         phone: "",
@@ -146,8 +138,10 @@ export default function ContactClient() {
         message: "",
         website: "",
       });
-
       setToken("");
+    } catch {
+      setStatus("error");
+      setErrorMsg("Submission failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -155,9 +149,9 @@ export default function ContactClient() {
 
   return (
     <section>
-      <div className="mx-auto max-w-7xl px-6 pt-10 pb-20 space-y-14">
+      {/* 👇 overflow-x hidden fixes mobile layout push */}
+      <div className="mx-auto max-w-7xl px-6 pt-10 pb-28 space-y-14 overflow-x-hidden">
 
-        {/* Header */}
         <PageHeader
           badge={
             <Chip className="flex items-center gap-2">
@@ -176,7 +170,7 @@ export default function ContactClient() {
           subtitle="Need product list, franchise offer, or distributor support? Reach us below."
         />
 
-        {/* TRUST STRIP (Top) */}
+        {/* TRUST STRIP — ORIGINAL WORKING */}
         <motion.div
           variants={staggerFast}
           initial="hidden"
@@ -184,12 +178,8 @@ export default function ContactClient() {
           viewport={{ once: true }}
           className="flex flex-wrap justify-center gap-3"
         >
-          {[...trustTop, ...trustBottom].map((t, i) => (
-            <motion.div
-              key={t}
-              variants={reveal}
-              className={i >= 2 ? "hidden sm:block" : ""}
-            >
+          {["Fast Response","Monopoly Rights","PAN India Supply","Marketing Support"].map((t)=>(
+            <motion.div key={t} variants={reveal}>
               <Chip>{t}</Chip>
             </motion.div>
           ))}
@@ -208,7 +198,10 @@ export default function ContactClient() {
 
               <form onSubmit={onSubmit} className="mt-6 grid gap-4">
 
-                <input className="hidden" value={form.website} onChange={(e)=>update("website",e.target.value)} />
+                <input className="hidden"
+                  value={form.website}
+                  onChange={(e)=>update("website",e.target.value)}
+                />
 
                 <div className="grid md:grid-cols-2 gap-4">
                   <input ref={refs.name} placeholder="Full Name"
@@ -234,8 +227,7 @@ export default function ContactClient() {
                     className={inputClass(!!errors.city)} />
                 </div>
 
-                <textarea
-                  ref={refs.message}
+                <textarea ref={refs.message}
                   rows={5}
                   placeholder="Tell us your requirement..."
                   value={form.message}
@@ -243,20 +235,32 @@ export default function ContactClient() {
                   className={inputClass(!!errors.message)}
                 />
 
-                <Turnstile
-                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-                  onSuccess={(t)=>setToken(t)}
-                />
+                {/* ✅ REAL FIX — constrain width only */}
+                <div className="max-w-full overflow-hidden">
+                  <Turnstile
+                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                    onSuccess={(t)=>setToken(t)}
+                  />
+                </div>
+
+                {status==="success" && (
+                  <p className="text-sm font-medium text-[color:var(--brand-accent)]">
+                    ✅ Enquiry sent successfully
+                  </p>
+                )}
+
+                {status==="error" && (
+                  <p className="text-sm font-medium text-red-500">
+                    ❌ {errorMsg}
+                  </p>
+                )}
 
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button type="submit" className="flex-1" disabled={loading}>
                     {loading ? "Submitting..." : "Submit Enquiry"}
                   </Button>
 
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    className="flex-1"
+                  <Button type="button" variant="secondary" className="flex-1"
                     onClick={()=>window.open("https://wa.me/+919306025799","_blank")}
                   >
                     WhatsApp Instead
@@ -264,74 +268,32 @@ export default function ContactClient() {
                 </div>
               </form>
             </Card>
-
-            {/* TRUST STRIP (Mobile Bottom) */}
-            <motion.div
-              variants={staggerFast}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-              className="flex flex-wrap justify-center gap-3 mt-6 sm:hidden"
-            >
-              {trustBottom.map((t)=>(
-                <motion.div key={t} variants={reveal}>
-                  <Chip>{t}</Chip>
-                </motion.div>
-              ))}
-            </motion.div>
-
           </motion.div>
 
-          {/* RIGHT SIDE */}
+          {/* RIGHT SIDE unchanged */}
           <motion.div variants={staggerFast} initial="hidden" whileInView="show" viewport={{once:true}} className="space-y-6">
 
             <motion.div variants={reveal}>
               <Card>
                 <SectionHeading align="left" title="Quick Contact" subtitle="Choose the easiest way." />
 
-                <div className="mt-6 space-y-5">
-
-                  {/* PHONE */}
+                <div className="mt-6 space-y-4">
                   <div className="flex items-center gap-4">
-                    <PhoneCall className="text-[color:var(--brand-accent)] shrink-0" />
+                    <PhoneCall className="text-[color:var(--brand-accent)]"/>
                     <span className="flex-1">+91 93060 25799</span>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="min-w-[110px]"
-                      onClick={()=>window.location.href="tel:+919306025799"}
-                    >
-                      Call
-                    </Button>
+                    <Button variant="secondary" onClick={()=>window.location.href="tel:+919306025799"}>Call</Button>
                   </div>
 
-                  {/* WHATSAPP */}
                   <div className="flex items-center gap-4">
-                    <MessagesSquare className="text-[color:var(--brand-accent)] shrink-0" />
+                    <MessagesSquare className="text-[color:var(--brand-accent)]"/>
                     <span className="flex-1">WhatsApp Support</span>
-                    <Button
-                      size="sm"
-                      className="min-w-[110px]"
-                      onClick={()=>window.open("https://wa.me/+919306025799","_blank")}
-                    >
-                      WhatsApp
-                    </Button>
+                    <Button onClick={()=>window.open("https://wa.me/+919306025799","_blank")}>WhatsApp</Button>
                   </div>
 
-                  {/* EMAIL */}
-                  <div className="flex items-center gap-4">
-                    <Mail className="text-[color:var(--brand-accent)] shrink-0" />
-                    <span className="flex-1">vedicwellnessid@gmail.com</span>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="min-w-[110px]"
-                      onClick={()=>window.location.href="mailto:vedicwellnessid@gmail.com"}
-                    >
-                      Email
-                    </Button>
+                  <div className="flex items-center gap-4 text-sm">
+                    <Mail className="text-[color:var(--brand-accent)]"/>
+                    vedicwellnessid@gmail.com
                   </div>
-
                 </div>
               </Card>
             </motion.div>
@@ -339,14 +301,13 @@ export default function ContactClient() {
             <motion.div variants={reveal}>
               <Card>
                 <SectionHeading align="left" title="Office & Availability" />
-
                 <div className="mt-6 space-y-4 text-sm">
                   <div className="flex gap-4">
-                    <MapPin className="text-[color:var(--brand-accent)]" />
+                    <MapPin className="text-[color:var(--brand-accent)]"/>
                     Plot no. 149–150, Markanda Complex, Dhulkot, Ambala City
                   </div>
                   <div className="flex gap-4">
-                    <Clock className="text-[color:var(--brand-accent)]" />
+                    <Clock className="text-[color:var(--brand-accent)]"/>
                     Mon – Sat: 10:00 AM – 4:00 PM
                   </div>
                 </div>
