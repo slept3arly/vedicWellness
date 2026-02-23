@@ -14,7 +14,10 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 export default function Footer() {
   return (
-    <footer className="border-t border-[var(--border-soft)] bg-[var(--bg-surface)]">
+    <footer
+      id="site-footer"
+      className="border-t border-[var(--border-soft)] bg-[var(--bg-surface)]"
+    >
       <div
         className="
         max-w-7xl mx-auto px-4 py-14 md:px-6
@@ -25,7 +28,6 @@ export default function Footer() {
       >
         {/* BRAND COLUMN */}
         <div className="col-span-2 md:col-span-1 space-y-6 md:border-r md:pr-10 text-center md:text-left">
-
           {/* LOGO */}
           <div className="flex justify-center md:justify-start">
             <Image

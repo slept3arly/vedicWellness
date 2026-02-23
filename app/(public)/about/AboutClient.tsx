@@ -10,6 +10,7 @@ import {
   MapPin,
   Truck,
   ShieldCheck,
+  CheckCircle2,
 } from "lucide-react";
 
 import { fadeUpSoft, staggerFast } from "@/app/animations";
@@ -81,19 +82,13 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
   const [open, setOpen] = useState(index === 0);
 
   return (
-    <motion.div
-      variants={fadeUpSoft}
-      className="overflow-hidden rounded-3xl"
-    >
+    <motion.div variants={fadeUpSoft} className="overflow-hidden rounded-3xl">
       <Card className="bg-white/75 dark:bg-black/45 p-0">
-        {/* Header */}
         <button
-          onClick={() => setOpen(v => !v)}
+          onClick={() => setOpen((v) => !v)}
           className="flex w-full items-center justify-between px-6 py-5 text-left"
         >
-          <span className="font-semibold">
-            {faq.q}
-          </span>
+          <span className="font-semibold">{faq.q}</span>
 
           <span
             className={`text-xl transition-transform duration-300 ${
@@ -104,7 +99,6 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
           </span>
         </button>
 
-        {/* Animated body */}
         <AnimatePresence initial={false}>
           {open && (
             <motion.div
@@ -126,7 +120,6 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
   );
 }
 
-
 /* ------------------------------------------------------------------ */
 /* Page */
 /* ------------------------------------------------------------------ */
@@ -134,8 +127,7 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
 export default function AboutClient() {
   return (
     <section>
-      <div className="mx-auto max-w-7xl px-6 py-16 space-y-16">
-
+      <div className="mx-auto max-w-7xl px-6 py-4 md:py-16 space-y-16">
         {/* Header */}
         <PageHeader
           badge={
@@ -169,7 +161,7 @@ export default function AboutClient() {
             "District Monopoly",
             "Fast Dispatch",
             "Promotional Support",
-          ].map(t => (
+          ].map((t) => (
             <motion.div key={t} variants={fadeUpSoft}>
               <Chip>{t}</Chip>
             </motion.div>
@@ -179,9 +171,18 @@ export default function AboutClient() {
         {/* Who / Mission / Vision */}
         <div className="grid gap-6 lg:grid-cols-3">
           {[
-            ["Who We Are", "A growing Ayurvedic healthcare brand focused on premium-quality products and partner success."],
-            ["Our Mission", "Deliver effective Ayurvedic solutions while empowering franchise partners with a low-risk model."],
-            ["Our Vision", "Become a trusted Ayurvedic franchise brand across India by blending tradition with innovation."],
+            [
+              "Who We Are",
+              "A growing Ayurvedic healthcare brand focused on premium-quality products and partner success.",
+            ],
+            [
+              "Our Mission",
+              "Deliver effective Ayurvedic solutions while empowering franchise partners with a low-risk model.",
+            ],
+            [
+              "Our Vision",
+              "Become a trusted Ayurvedic franchise brand across India by blending tradition with innovation.",
+            ],
           ].map(([t, d]) => (
             <Card key={t} className="bg-white/75 dark:bg-black/45">
               <h3 className="text-xl font-bold">{t}</h3>
@@ -192,10 +193,26 @@ export default function AboutClient() {
 
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-4">
-          <StatCard icon={BadgeCheck} title="GMP Quality" desc="Certified manufacturing standards" />
-          <StatCard icon={MapPin} title="Monopoly Rights" desc="Exclusive territory allocation" />
-          <StatCard icon={Truck} title="Fast Dispatch" desc="Reliable logistics network" />
-          <StatCard icon={ShieldCheck} title="Trusted Support" desc="Marketing & partner assistance" />
+          <StatCard
+            icon={BadgeCheck}
+            title="GMP Quality"
+            desc="Certified manufacturing standards"
+          />
+          <StatCard
+            icon={MapPin}
+            title="Monopoly Rights"
+            desc="Exclusive territory allocation"
+          />
+          <StatCard
+            icon={Truck}
+            title="Fast Dispatch"
+            desc="Reliable logistics network"
+          />
+          <StatCard
+            icon={ShieldCheck}
+            title="Trusted Support"
+            desc="Marketing & partner assistance"
+          />
         </div>
 
         {/* Journey */}
@@ -207,10 +224,22 @@ export default function AboutClient() {
 
           <div className="mt-8 grid gap-6 lg:grid-cols-3">
             {[
-              { title: "Product Focus", desc: "High-demand Ayurvedic range", icon: Leaf },
-              { title: "Partner Growth", desc: "Distributor-first franchise model", icon: HeartHandshake },
-              { title: "PAN India Reach", desc: "Fast logistics & marketing", icon: Truck },
-            ].map(i => (
+              {
+                title: "Product Focus",
+                desc: "High-demand Ayurvedic range",
+                icon: Leaf,
+              },
+              {
+                title: "Partner Growth",
+                desc: "Distributor-first franchise model",
+                icon: HeartHandshake,
+              },
+              {
+                title: "PAN India Reach",
+                desc: "Fast logistics & marketing",
+                icon: Truck,
+              },
+            ].map((i) => (
               <Card key={i.title} className="bg-white/75 dark:bg-black/45">
                 <div className="flex gap-4">
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[color:var(--brand-primary)]/20 text-[color:var(--brand-accent)]">
@@ -246,33 +275,45 @@ export default function AboutClient() {
           </motion.div>
         </div>
 
-        {/* CTA */}
-        <Card className="bg-[color:var(--brand-primary)]/10 border-[color:var(--brand-primary)]/25">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        {/* NEW IMPROVED FRANCHISE INFO CARD */}
+        <Card className="bg-white/75 dark:bg-black/45">
+          <div className="grid gap-8 md:grid-cols-2 md:items-center">
+            {/* Left */}
             <div>
               <h3 className="text-2xl font-bold">
-                Want the product list & franchise offer?
+                Start your Ayurvedic Franchise Journey
               </h3>
-              <p className="text-sm text-muted">
-                Receive the latest Ayurvedic catalog & schemes on WhatsApp.
+
+              <p className="mt-2 text-sm text-muted">
+                Join Vedic Wellness and grow with a trusted Ayurvedic brand.
+                We provide monopoly rights, promotional support, and fast
+                dispatch to help you scale confidently.
               </p>
             </div>
 
-            <div className="flex gap-3">
+            {/* Right */}
+            <div className="flex md:justify-end flex-col">
               <Button
+                size="lg"
+                variant="secondary"
                 onClick={() =>
                   window.open("https://wa.me/+919306025799", "_blank")
                 }
               >
-                WhatsApp Now
+                Get Product List on WhatsApp
               </Button>
-              <Button variant="secondary">
-                Download Brochure
+              <Button
+                className="my-4"
+                size="lg"
+                onClick={() =>
+                  window.open("/signup")
+                }
+              >
+                SignUp to View Products
               </Button>
             </div>
           </div>
         </Card>
-
       </div>
     </section>
   );

@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import { useEffect } from "react"
 import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import { ShoppingCart, User } from "lucide-react"
@@ -18,19 +18,19 @@ const NAV_LINKS = [
 
 export default function Navbar() {
   const pathname = usePathname()
+  const activePath = pathname
   const { menuOpen, setMenuOpen } = useMenu()
   const { data: session, status } = useSession()
-  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
   const role = session?.user?.role ?? null
   const isAdmin = role === "ADMIN"
   const isAuthenticated = !!role
 
-  /* lock scroll safely */
+  /* ✅ Better scroll lock */
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : ""
+    document.documentElement.classList.toggle("overflow-hidden", menuOpen)
     return () => {
-      document.body.style.overflow = ""
+      document.documentElement.classList.remove("overflow-hidden")
     }
   }, [menuOpen])
 
@@ -45,7 +45,7 @@ export default function Navbar() {
           backdrop-blur-lg
           bg-neutral-900/75 shadow-lg
           rounded-lg
-          ${menuOpen ? "opacity-0 pointer-events-none" : "opacity-100"}
+          will-change-transform
         `}
       >
         <div className="grid grid-cols-[1fr_auto_1fr] items-center h-full px-4 lg:px-8">
@@ -72,7 +72,7 @@ export default function Navbar() {
                   key={path}
                   href={path}
                   className={`hover:text-white ${
-                    pathname === path ? "text-emerald-500" : ""
+                    activePath === path ? "text-emerald-500" : ""
                   }`}
                 >
                   {label}
@@ -89,6 +89,7 @@ export default function Navbar() {
                 alt="Vedic Wellness"
                 width={160}
                 height={52}
+                sizes="160px"
                 priority
                 className="h-[40px] w-auto brightness-150 lg:h-[48px]"
               />
@@ -162,6 +163,7 @@ export default function Navbar() {
       {/* ================= MOBILE FULLSCREEN MENU ================= */}
       <div
         id="mobile-menu"
+        aria-hidden={!menuOpen}
         className={`
           fixed inset-0 z-50
           bg-neutral-800/90
@@ -175,19 +177,16 @@ export default function Navbar() {
         style={{ backdropFilter: "blur(6px)" }}
       >
         <div className="flex flex-col pt-28 px-14 max-w-2xl text-center">
-
           {NAV_LINKS.map(({ label, path }, i) => (
             <Link
               key={path}
               href={path}
               onClick={() => setMenuOpen(false)}
-              onMouseEnter={() => setHoveredItem(path)}
-              onMouseLeave={() => setHoveredItem(null)}
               className={`
                 group flex items-center justify-between
                 py-3 text-3xl font-bold
                 ${
-                  pathname === path
+                  activePath === path
                     ? "text-white"
                     : "text-gray-400 hover:text-gray-100"
                 }
@@ -197,12 +196,9 @@ export default function Navbar() {
             >
               <span>{label}</span>
 
+              {/* ✅ Pure CSS hover animation — no state */}
               <svg
-                className={`w-6 h-6 transition-all ${
-                  hoveredItem === path
-                    ? "opacity-100 translate-x-0"
-                    : "opacity-0 -translate-x-2"
-                }`}
+                className="w-6 h-6 opacity-0 -translate-x-2 transition-all group-hover:opacity-100 group-hover:translate-x-0"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"

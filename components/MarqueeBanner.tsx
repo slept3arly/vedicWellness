@@ -9,20 +9,25 @@ export default async function MarqueeBanner() {
   const items = await prisma.marqueeItem.findMany({
     where: { isActive: true },
     orderBy: { order: "asc" },
+    select: {
+      id: true,
+      text: true,
+    },
   })
 
   if (!items.length) return null
 
-  // Repeat enough to always fill wide screens (even with 1 item)
-  const repeatedItems = Array.from({ length: 12 }).flatMap(() => items)
+  /**
+   * ✅ FIX 1 — Smart repeat logic
+   * Prevents DOM from growing too large if more items are added later
+   */
+  const repeatCount = Math.max(6, Math.ceil(10 / items.length))
+  const repeatedItems = Array.from({ length: repeatCount }).flatMap(() => items)
 
   /**
    * CONSTANT SPEED LOGIC
-   * More items = longer duration
-   * Less items = shorter duration
-   * → speed stays visually the same
    */
-  const BASE_SPEED_PER_ITEM = 3.6 // tweak this (lower = faster, higher = slower)
+  const BASE_SPEED_PER_ITEM = 3.6
   const duration = repeatedItems.length * BASE_SPEED_PER_ITEM
 
   return (
@@ -34,7 +39,7 @@ export default async function MarqueeBanner() {
     >
       <div className="overflow-hidden rounded-lg bg-[#84eb4b] marquee-mask">
         <div
-          className="marquee-track animate-marquee"
+          className="marquee-track animate-marquee will-change-transform"
           style={{ animationDuration: `${duration}s` }}
         >
           <MarqueeStrip items={repeatedItems} />

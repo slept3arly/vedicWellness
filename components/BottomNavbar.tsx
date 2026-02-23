@@ -5,7 +5,18 @@ import Image from "next/image";
 import { useMenu } from "@/components/MenuContext";
 
 /* =========================================================
-   Reusable Social Link Button (Accessible)
+   Shared Motion Classes (FIXED HOVER)
+   ========================================================= */
+const motionClass = `
+  transform-gpu
+  transition-transform
+  duration-200 ease-out
+  hover:scale-110 active:scale-95
+  will-change-transform
+`;
+
+/* =========================================================
+   Reusable Social Link Button
    ========================================================= */
 const SocialButton = memo(function SocialButton({
   href,
@@ -28,16 +39,15 @@ const SocialButton = memo(function SocialButton({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={ariaLabel}
-      className="
-        h-9 w-8
+      className={`
+        h-10 w-10
         flex items-center justify-center
         rounded-full
-        cursor-pointer select-none
-        transition-transform duration-200
-        hover:scale-110 active:scale-95
+        select-none outline-none
         focus-visible:ring-2 focus-visible:ring-white/70
-        outline-none
-      "
+        origin-center
+        ${motionClass}
+      `}
     >
       <Image src={iconSrc} alt={iconAlt ?? ""} width={width} height={height} />
     </a>
@@ -64,17 +74,19 @@ const ScrollToTopButton = memo(function ScrollToTopButton() {
       type="button"
       aria-label="Scroll to top"
       onClick={scrollToTop}
-      className="
-        h-10 w-10
+      className={`
+        h-11 w-11
         rounded-full
-        bg-neutral-900/75 shadow-lg
+        bg-neutral-900/80 text-white
+        backdrop-blur-md
+        ring-1 ring-black/10 dark:ring-white/10
+        shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_8px_24px_rgba(0,0,0,0.35)]
         flex items-center justify-center
-        transition-transform duration-200
-        hover:scale-110 active:scale-95
-        focus-visible:ring-2 focus-visible:ring-white/70
         outline-none
-        text-white
-      "
+        focus-visible:ring-2 focus-visible:ring-white/70
+        origin-center
+        ${motionClass}
+      `}
     >
       ↑
     </button>
@@ -88,73 +100,115 @@ export default function BottomNavbar() {
   const { menuOpen } = useMenu();
 
   const [visible, setVisible] = useState(false);
-  const [nearBottomMobile, setNearBottomMobile] = useState(false);
+  const [footerVisible, setFooterVisible] = useState(false);
 
+  /* =========================================================
+     SCROLL VISIBILITY (RAF optimized)
+     ========================================================= */
   useEffect(() => {
-    const MOBILE_QUERY = "(max-width: 768px)";
-    const mobileQuery = window.matchMedia(MOBILE_QUERY);
+    let ticking = false;
 
-    const check = () => {
-      // show after scroll
+    const update = () => {
       const shouldBeVisible = window.scrollY > 100;
-      setVisible((prev) =>
-        prev !== shouldBeVisible ? shouldBeVisible : prev
-      );
+      setVisible((prev) => (prev !== shouldBeVisible ? shouldBeVisible : prev));
+      ticking = false;
+    };
 
-      // hide near bottom only on mobile (viewport-safe)
-      if (mobileQuery.matches) {
-        const remainingScroll =
-          document.documentElement.scrollHeight -
-          (window.scrollY + window.innerHeight);
-
-        const isNearBottom = remainingScroll < 120;
-
-        setNearBottomMobile((prev) =>
-          prev !== isNearBottom ? isNearBottom : prev
-        );
-      } else {
-        setNearBottomMobile(false);
+    const onScroll = () => {
+      if (!ticking) {
+        requestAnimationFrame(update);
+        ticking = true;
       }
     };
 
-    check();
-    window.addEventListener("scroll", check, { passive: true });
-    window.addEventListener("resize", check, { passive: true });
+    update();
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", update);
 
     return () => {
-      window.removeEventListener("scroll", check);
-      window.removeEventListener("resize", check);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", update);
     };
   }, []);
 
-  const shouldShow = visible && !menuOpen && !nearBottomMobile;
+  /* =========================================================
+     FOOTER DETECTION (NEW)
+     ========================================================= */
+  useEffect(() => {
+    const footer = document.getElementById("site-footer");
+    if (!footer) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setFooterVisible(entry.isIntersecting);
+      },
+      {
+        root: null,
+        threshold: 0.05,
+      }
+    );
+
+    observer.observe(footer);
+
+    return () => observer.disconnect();
+  }, []);
+
+  const shouldShow = visible && !menuOpen && !footerVisible;
 
   return (
     <>
-      {/* Floating Social Action Bar */}
+      {/* SCROLL TO TOP */}
       <div
         className={`
-          fixed bottom-6 right-5 z-50
-          transition-all duration-300
-          ${shouldShow
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-6 pointer-events-none"}
+          fixed bottom-6 md:bottom-8 left-4 z-50
+          transition-all duration-300 delay-75
+          ${
+            shouldShow
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-6 pointer-events-none"
+          }
         `}
       >
-        <div className="flex flex-col items-center gap-2 px-2 py-2 rounded-full bg-neutral-900/75 shadow-lg">
+        <ScrollToTopButton />
+      </div>
+
+      {/* SOCIAL BAR */}
+      <div
+        className={`
+          fixed bottom-6 md:bottom-8 right-6 z-50
+          transition-all duration-300
+          ${
+            shouldShow
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-6 pointer-events-none"
+          }
+        `}
+      >
+        <div
+          className="
+            flex flex-col items-center gap-1
+            px-1 py-2
+            rounded-full
+            bg-neutral-900/80
+            backdrop-blur-md
+            ring-1 ring-black/10 dark:ring-white/10
+            shadow-[0_0_0_1px_rgba(255,255,255,0.06),0_12px_30px_rgba(0,0,0,0.4)]
+          "
+        >
           <SocialButton
             href="https://wa.me/+919306025799"
             ariaLabel="Chat with us on WhatsApp"
             iconSrc="/whatsapp.svg"
-            width={26}
-            height={26}
+            width={28}
+            height={28}
           />
           <SocialButton
             href="https://www.instagram.com/vedic.wellness.official"
             ariaLabel="Visit our Instagram profile"
             iconSrc="/instagram.svg"
-            width={32}
-            height={32}
+            width={34}
+            height={34}
           />
           <SocialButton
             href="https://www.facebook.com/vedicwellnessid/"
@@ -164,19 +218,6 @@ export default function BottomNavbar() {
             height={26}
           />
         </div>
-      </div>
-
-      {/* Scroll To Top Button */}
-      <div
-        className={`
-          fixed bottom-44 right-6 z-50
-          transition-all duration-300 delay-75
-          ${shouldShow
-            ? "opacity-100 translate-y-0"
-            : "opacity-0 translate-y-6 pointer-events-none"}
-        `}
-      >
-        <ScrollToTopButton />
       </div>
     </>
   );
