@@ -10,10 +10,10 @@ import {
   MapPin,
   Truck,
   ShieldCheck,
-  CheckCircle2,
 } from "lucide-react";
 
 import { fadeUpSoft, staggerFast } from "@/app/animations";
+import { useRouter } from "next/navigation";
 
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
@@ -109,9 +109,7 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
               transition={{ duration: 0.35, ease: "easeOut" }}
               className="overflow-hidden"
             >
-              <div className="px-6 pb-5 text-sm text-muted">
-                {faq.a}
-              </div>
+              <div className="px-6 pb-5 text-sm text-muted">{faq.a}</div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -125,6 +123,8 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
 /* ------------------------------------------------------------------ */
 
 export default function AboutClient() {
+  const router = useRouter(); // ✅ FIXED: Hook moved inside component
+
   return (
     <section>
       <div className="mx-auto max-w-7xl px-6 py-4 md:py-16 space-y-16">
@@ -275,23 +275,21 @@ export default function AboutClient() {
           </motion.div>
         </div>
 
-        {/* NEW IMPROVED FRANCHISE INFO CARD */}
+        {/* CTA */}
         <Card className="bg-white/75 dark:bg-black/45">
           <div className="grid gap-8 md:grid-cols-2 md:items-center">
-            {/* Left */}
             <div>
               <h3 className="text-2xl font-bold">
                 Start your Ayurvedic Franchise Journey
               </h3>
 
               <p className="mt-2 text-sm text-muted">
-                Join Vedic Wellness and grow with a trusted Ayurvedic brand.
-                We provide monopoly rights, promotional support, and fast
-                dispatch to help you scale confidently.
+                Join Vedic Wellness and grow with a trusted Ayurvedic brand. We
+                provide monopoly rights, promotional support, and fast dispatch
+                to help you scale confidently.
               </p>
             </div>
 
-            {/* Right */}
             <div className="flex md:justify-end flex-col">
               <Button
                 size="lg"
@@ -302,12 +300,11 @@ export default function AboutClient() {
               >
                 Get Product List on WhatsApp
               </Button>
+
               <Button
                 className="my-4"
                 size="lg"
-                onClick={() =>
-                  window.open("/signup")
-                }
+                onClick={() => router.push("/signup")}
               >
                 SignUp to View Products
               </Button>
