@@ -1,15 +1,13 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Image from "next/image";
-
-import Card from "@/components/public/ui/Card";
-import Chip from "@/components/public/ui/Chip";
 
 import {
   getPublicBlogBySlugService,
-  getPublicBlogMetadataService,
   getAllPublishedBlogSlugsService,
+  getRelatedBlogsService,
 } from "@/lib/services/blogService";
+
+import SlugClient from "./SlugClient";
 
 export const dynamicParams = true;
 
@@ -24,6 +22,7 @@ const SITE_URL =
 /* ------------------------------------------------------------------ */
 /* Static Generation */
 /* ------------------------------------------------------------------ */
+export const revalidate = 600;
 
 export async function generateStaticParams() {
   const blogs = await getAllPublishedBlogSlugsService();
@@ -43,16 +42,25 @@ export async function generateMetadata({
   const { slug } = await params;
   const decodedSlug = decodeURIComponent(slug);
 
-  const blog = await getPublicBlogMetadataService(decodedSlug);
+  const blog = await getPublicBlogBySlugService(decodedSlug);
 
   if (!blog) return {};
 
   return {
-    title: `${blog.title} | Vedic Wellness Blogs`,
+    title:
+      blog.metaTitle ??
+      `${blog.title} | Vedic Wellness Blogs`,
+
     description:
+      blog.metaDescription ??
       blog.description ??
-      "Read the latest Ayurveda insights and franchise updates from Vedic Wellness.",
-    alternates: { canonical: `/blogs/${decodedSlug}` },
+      "Read the latest Ayurveda insights from Vedic Wellness.",
+
+    alternates: {
+      canonical:
+        blog.canonicalUrl ??
+        `/blogs/${decodedSlug}`,
+    },
   };
 }
 
@@ -68,8 +76,29 @@ export default async function BlogDetailsPage({ params }: Props) {
 
   if (!blog) return notFound();
 
+  const relatedBlogs = blog.tags?.length
+    ? await getRelatedBlogsService(blog.slug, blog.tags)
+    : [];
+
   const blogUrl = `${SITE_URL}/blogs/${blog.slug}`;
   const imageUrl = blog.thumbnailUrl ?? `${SITE_URL}/og.jpg`;
+
+  const publishedDate = new Date(
+    blog.publishedAt ?? blog.createdAt
+  ).toISOString();
+
+  /* ========================================================= */
+  /* ⭐ SERVER-SIDE HEADINGS EXTRACTION (STEP 4 OPTIMIZATION) */
+  /* ========================================================= */
+
+  const headings =
+    blog.content
+      ?.match(/^##\s(.+)$/gm)
+      ?.map((h) => h.replace(/^##\s/, "")) ?? [];
+
+  /* ========================================================= */
+  /* JSON-LD */
+  /* ========================================================= */
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -78,64 +107,41 @@ export default async function BlogDetailsPage({ params }: Props) {
       "@type": "WebPage",
       "@id": blogUrl,
     },
-    headline: blog.title,
-    description: blog.description ?? "",
+    headline: blog.metaTitle ?? blog.title,
+    description: blog.metaDescription ?? blog.description ?? "",
     image: [imageUrl],
-    datePublished: new Date(blog.createdAt).toISOString(),
-    dateModified: new Date(blog.updatedAt ?? blog.createdAt).toISOString(),
+    datePublished: publishedDate,
+    dateModified: new Date(
+      blog.updatedAt ?? blog.createdAt
+    ).toISOString(),
+    author: {
+      "@type": "Organization",
+      name: blog.author ?? "Vedic Wellness",
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "Vedic Wellness",
+      logo: {
+        "@type": "ImageObject",
+        url: `${SITE_URL}/logo.svg`,
+      },
+    },
   };
 
   return (
-    <section>
-      <div className="mx-auto max-w-5xl px-6 pt-10 pb-20 space-y-8">
-        {/* Structured Data */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(jsonLd),
-          }}
-        />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd),
+        }}
+      />
 
-        <div className="flex flex-wrap gap-2">
-          <Chip>Blogs</Chip>
-          <Chip>Ayurveda</Chip>
-          <Chip>PCD Pharma</Chip>
-        </div>
-
-        {blog.thumbnailUrl && (
-          <div className="relative h-[420px] w-full overflow-hidden rounded-3xl border border-white/10">
-            <Image
-              src={blog.thumbnailUrl}
-              alt={blog.title}
-              fill
-              priority
-              className="object-cover"
-            />
-          </div>
-        )}
-
-        <Card className="bg-white/80 dark:bg-black/45">
-          <article className="prose prose-neutral dark:prose-invert max-w-none">
-            <h1 className="font-heading text-3xl md:text-4xl font-extrabold">
-              {blog.title}
-            </h1>
-
-            {blog.description && (
-              <p className="text-lg text-muted">
-                {blog.description}
-              </p>
-            )}
-
-            <div className="mt-4 text-sm text-muted">
-              {new Date(blog.createdAt).toLocaleDateString("en-IN")}
-            </div>
-
-            <div className="mt-8 whitespace-pre-wrap leading-7">
-              {blog.content}
-            </div>
-          </article>
-        </Card>
-      </div>
-    </section>
+      <SlugClient
+        blog={blog}
+        relatedBlogs={relatedBlogs}
+        headings={headings}
+      />
+    </>
   );
 }

@@ -1,6 +1,10 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
 
+/* ------------------------------------------------------------------ */
+/* Slugs (Static Params) */
+/* ------------------------------------------------------------------ */
+
 export async function getAllPublishedBlogSlugs() {
   return prisma.blog.findMany({
     where: { published: true },
@@ -8,7 +12,10 @@ export async function getAllPublishedBlogSlugs() {
   });
 }
 
-/* ✅ Admin reads (paginated with search) */
+/* ------------------------------------------------------------------ */
+/* Admin Reads (UNCHANGED — Admin needs full data) */
+/* ------------------------------------------------------------------ */
+
 export async function getAdminBlogs(
   page = 1,
   limit = 25,
@@ -16,7 +23,6 @@ export async function getAdminBlogs(
 ) {
   const skip = (page - 1) * limit;
 
-  // Build the filter
   const where = search
     ? {
         OR: [
@@ -34,7 +40,9 @@ export async function getAdminBlogs(
   });
 }
 
-// ... rest of your functions (create, update, delete) stay the same
+/* ------------------------------------------------------------------ */
+/* Admin Writes */
+/* ------------------------------------------------------------------ */
 
 export async function createBlogDB(data: any) {
   return prisma.blog.create({
@@ -51,52 +59,117 @@ export async function updateBlogDB(id: string, data: any) {
 }
 
 export async function deleteBlogDB(id: string) {
-  return prisma.blog.delete({ where: { id } });
+  return prisma.blog.delete({
+    where: { id },
+  });
 }
 
 export async function getBlogById(id: string) {
   return prisma.blog.findUnique({
     where: { id },
-    select: { publishedAt: true, slug: true, thumbnailUrl: true, title: true },
+    select: {
+      publishedAt: true,
+      slug: true,
+      thumbnailUrl: true,
+      title: true,
+    },
   });
 }
 
 /* ------------------------------------------------------------------ */
-/* Public Reads */
+/* Public Reads — ULTRA OPTIMIZED
 /* ------------------------------------------------------------------ */
 
+/**
+ * Blog listing page
+ * Keep lightweight payload
+ */
 export async function getPublicBlogsDB() {
   return prisma.blog.findMany({
     where: { published: true },
-    orderBy: { createdAt: "desc" },
+    orderBy: { publishedAt: "desc" },
     select: {
       id: true,
       title: true,
       slug: true,
       description: true,
       thumbnailUrl: true,
+      author: true,
       createdAt: true,
       updatedAt: true,
+      publishedAt: true,
     },
   });
 }
 
+/**
+ * ⭐ BLOG DETAILS PAGE (OPTIMIZED)
+ *
+ * IMPORTANT:
+ * We DO NOT fetch entire Prisma model.
+ * Only fields actually used by:
+ * - SlugClient
+ * - Metadata
+ * - JSON-LD
+ */
 export async function getPublicBlogBySlugDB(slug: string) {
   return prisma.blog.findFirst({
     where: { slug, published: true },
+    select: {
+      id: true,
+      title: true,
+      slug: true,
+      description: true,
+      content: true,
+      thumbnailUrl: true,
+      author: true,
+      category: true,
+      tags: true,
+
+      /* SEO */
+      metaTitle: true,
+      metaDescription: true,
+      canonicalUrl: true,
+
+      /* Dates */
+      createdAt: true,
+      updatedAt: true,
+      publishedAt: true,
+    },
   });
 }
 
-export async function getPublicBlogMetadataDB(slug: string) {
-  return prisma.blog.findFirst({
-    where: { slug, published: true },
+/**
+ * Related blogs — already optimized
+ */
+export async function getRelatedBlogsDB(
+  slug: string,
+  tags: string[],
+  limit = 3
+) {
+  if (!tags.length) return [];
+
+  return prisma.blog.findMany({
+    where: {
+      published: true,
+      slug: { not: slug },
+      tags: {
+        hasSome: tags,
+      },
+    },
+    orderBy: {
+      publishedAt: "desc",
+    },
+    take: limit,
     select: {
+      id: true,
       title: true,
+      slug: true,
       description: true,
       thumbnailUrl: true,
+      author: true,
       createdAt: true,
-      updatedAt: true,
-      slug: true,
+      publishedAt: true,
     },
   });
 }

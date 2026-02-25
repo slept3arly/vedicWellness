@@ -5,16 +5,27 @@ import {
   getBlogById,
 } from "@/lib/db/blog";
 
-import { unstable_cache } from "next/cache";
-import { parseBlogForm } from "@/lib/validators/blog";
-import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
-import { auditWithContext } from "@/lib/observability/auditWithContext";
 import {
   getPublicBlogsDB,
   getPublicBlogBySlugDB,
-  getPublicBlogMetadataDB,
-  getAllPublishedBlogSlugs
+  getAllPublishedBlogSlugs,
+  getRelatedBlogsDB,
 } from "@/lib/db/blog";
+
+import { unstable_cache, revalidateTag } from "next/cache";
+import { parseBlogForm } from "@/lib/validators/blog";
+import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
+import { auditWithContext } from "@/lib/observability/auditWithContext";
+
+/* ========================================================= */
+/* CONSTANTS */
+/* ========================================================= */
+
+const BLOG_LIST_TAG = "blogs";
+
+/* ========================================================= */
+/* ADMIN SERVICES (WRITES) */
+/* ========================================================= */
 
 export async function getAllPublishedBlogSlugsService() {
   return getAllPublishedBlogSlugs();
@@ -36,6 +47,9 @@ export async function createBlogService(formData: FormData, adminId: string) {
     metadata: { title: data.title, slug: data.slug, published: data.published },
   });
 
+  /* ⭐ invalidate list cache */
+  revalidateTag(BLOG_LIST_TAG, "max");
+
   return blog.id;
 }
 
@@ -55,6 +69,7 @@ export async function updateBlogService(formData: FormData, adminId: string) {
     publishedAt: data.published ? publishedAt : null,
   });
 
+  /* delete old thumbnail */
   if (
     current?.thumbnailUrl &&
     data.thumbnailUrl &&
@@ -76,6 +91,10 @@ export async function updateBlogService(formData: FormData, adminId: string) {
       thumbnailChanged: current?.thumbnailUrl !== data.thumbnailUrl,
     },
   });
+
+  /* ⭐ cache invalidation */
+  revalidateTag(BLOG_LIST_TAG, "max");
+  revalidateTag(`blog:${data.slug}`, "max");
 }
 
 export async function deleteBlogService(id: string, adminId: string) {
@@ -99,6 +118,10 @@ export async function deleteBlogService(id: string, adminId: string) {
       hadThumbnail: Boolean(current?.thumbnailUrl),
     },
   });
+
+  /* ⭐ cache invalidation */
+  revalidateTag(BLOG_LIST_TAG, "max");
+  if (current?.slug) revalidateTag(`blog:${current.slug}`, "max");
 }
 
 export async function toggleBlogPublishedService(
@@ -115,13 +138,16 @@ export async function toggleBlogPublishedService(
     entityId: id,
     metadata: { from: published, to: !published },
   });
+
+  /* ⭐ invalidate blog list */
+  revalidateTag(BLOG_LIST_TAG, "max");
 }
-/* ------------------------------------------------------------------ */
-/* Public Services (Cached) */
-/* ------------------------------------------------------------------ */
 
-const BLOG_LIST_TAG = "blogs";
+/* ========================================================= */
+/* PUBLIC SERVICES (CACHED) */
+/* ========================================================= */
 
+/* ⭐ BLOG LIST */
 export const getPublicBlogsService = unstable_cache(
   async () => {
     return getPublicBlogsDB();
@@ -129,10 +155,11 @@ export const getPublicBlogsService = unstable_cache(
   ["public-blogs"],
   {
     tags: [BLOG_LIST_TAG],
-    revalidate: 60, // fallback ISR safety (1 min)
+    revalidate: 600, // ⭐ aligned
   }
 );
 
+/* ⭐ BLOG BY SLUG */
 export const getPublicBlogBySlugService = (slug: string) =>
   unstable_cache(
     async () => {
@@ -141,18 +168,26 @@ export const getPublicBlogBySlugService = (slug: string) =>
     [`blog-${slug}`],
     {
       tags: [`blog:${slug}`, BLOG_LIST_TAG],
-      revalidate: 60,
+      revalidate: 600, // ⭐ aligned
     }
   )();
 
-export const getPublicBlogMetadataService = (slug: string) =>
+/* ⭐ RELATED BLOGS — FIXED CACHE KEY (STEP 8) */
+export const getRelatedBlogsService = (
+  slug: string,
+  tags: string[]
+) =>
   unstable_cache(
     async () => {
-      return getPublicBlogMetadataDB(slug);
+      return getRelatedBlogsDB(slug, tags);
     },
-    [`blog-meta-${slug}`],
+    [
+      `related-${slug}-${[...tags]
+        .sort()
+        .join("-")}`, // ⭐ IMPORTANT: stable cache key
+    ],
     {
-      tags: [`blog:${slug}`],
-      revalidate: 60,
+      tags: [`blog:${slug}`, BLOG_LIST_TAG],
+      revalidate: 600, // ⭐ aligned
     }
   )();

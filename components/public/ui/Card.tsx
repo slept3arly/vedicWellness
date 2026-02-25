@@ -2,20 +2,20 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
-import { ReactNode } from "react";
+import { ReactNode, forwardRef } from "react";
 
 type CardProps = {
   children: ReactNode;
   className?: string;
 } & React.ComponentPropsWithoutRef<typeof motion.div>;
 
-export default function Card({
-  children,
-  className,
-  ...props
-}: CardProps) {
+const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
+  { children, className, ...props },
+  ref
+) {
   return (
     <motion.div
+      ref={ref}   // ⭐ THIS IS THE FIX
       {...props}
       whileHover={{ y: -4 }}
       transition={{ type: "spring", stiffness: 240, damping: 22 }}
@@ -24,18 +24,30 @@ export default function Card({
       className={cn(
         "relative overflow-hidden",
         "rounded-[var(--radius)]",
+
+        /* footer/global surface system */
         "bg-[var(--bg-surface)]",
         "border border-[var(--border-soft)]",
-        "shadow-[var(--shadow-soft)] hover:shadow-[var(--shadow-hover)]",
+
+        "shadow-sm hover:shadow-md",
         "p-6",
         className
       )}
     >
-      {/* gradient overlay — SAME AS BEFORE */}
-      <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),transparent)] dark:bg-[linear-gradient(180deg,rgba(255,255,255,0.04),transparent)]" />
+      {/* neutral overlay */}
+      <div
+        className="
+          pointer-events-none absolute inset-0
+          bg-gradient-to-b
+          from-black/[0.02]
+          to-transparent
+          dark:from-white/[0.03]
+        "
+      />
 
-      {/* actual content */}
       {children}
     </motion.div>
   );
-}
+});
+
+export default Card;
