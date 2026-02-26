@@ -8,7 +8,7 @@ import {
   getPublicProductMetadataDB,
   getAllPublishedProductSlugs,
 } from "@/lib/db/product";
-import { unstable_cache, revalidatePath } from "next/cache";
+import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
 import { parseProductForm } from "@/lib/validators/product";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
@@ -17,16 +17,17 @@ const PRODUCT_TAG = "products";
 const PUBLIC_PAGE_SIZE = 10;
 
 /* ------------------------------------------------------------------ */
-/* Admin Services */
+/* Admin Services                                                     */
 /* ------------------------------------------------------------------ */
 
 export async function createProductService(formData: FormData, adminId: string) {
   const data = parseProductForm(formData);
   const product = await createProductDB(data);
-  
-  // Using revalidatePath to avoid the "2 arguments" error with revalidateTag
-  revalidatePath("/products"); 
-  
+
+  // Use the "default" profile to satisfy Next.js 15+ types
+  revalidateTag(PRODUCT_TAG, "default");
+  revalidatePath("/products");
+
   await auditWithContext({
     actorId: adminId,
     action: "ADMIN_CREATE",
@@ -42,14 +43,15 @@ export async function updateProductService(formData: FormData, adminId: string) 
   if (!data.id) throw new Error("Missing product id");
   const current = await getProductById(data.id);
   await updateProductDB(data.id, data);
-  
+
   if (current?.imageUrl && data.imageUrl && current.imageUrl !== data.imageUrl) {
     const key = getR2KeyFromPublicUrl(current.imageUrl);
     if (key) await deleteFromR2(key);
   }
-  
+
+  revalidateTag(PRODUCT_TAG, "default");
   revalidatePath("/products");
-  revalidatePath(`/products/${data.slug}`);
+  if (data.slug) revalidatePath(`/products/${data.slug}`);
 
   await auditWithContext({
     actorId: adminId,
@@ -62,8 +64,9 @@ export async function updateProductService(formData: FormData, adminId: string) 
 
 export async function toggleProductPublishedService(id: string, published: boolean, adminId: string) {
   await updateProductDB(id, { published: !published });
-  
   const product = await getProductById(id);
+
+  revalidateTag(PRODUCT_TAG, "default");
   revalidatePath("/products");
   if (product?.slug) revalidatePath(`/products/${product.slug}`);
 
@@ -79,12 +82,12 @@ export async function toggleProductPublishedService(id: string, published: boole
 export async function deleteProductService(id: string, adminId: string) {
   const product = await getProductById(id);
   await deleteProductDB(id);
-  
   if (product?.imageUrl) {
     const key = getR2KeyFromPublicUrl(product.imageUrl);
     if (key) await deleteFromR2(key);
   }
 
+  revalidateTag(PRODUCT_TAG, "default");
   revalidatePath("/products");
 
   await auditWithContext({
@@ -97,12 +100,13 @@ export async function deleteProductService(id: string, adminId: string) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Public Services (Dynamic Cache Key) */
+/* Public Services (DYNAMIC CACHE KEY FIX)                            */
 /* ------------------------------------------------------------------ */
 
 const getCachedPublicProducts = (page: number, query: string, sort: string) =>
   unstable_cache(
     async () => {
+      console.log("DB FETCH:", { page, query, sort });
       const { total, products } = await getPublicProductsDB({
         page,
         limit: PUBLIC_PAGE_SIZE,
@@ -117,8 +121,8 @@ const getCachedPublicProducts = (page: number, query: string, sort: string) =>
         pageSize: PUBLIC_PAGE_SIZE,
       };
     },
-    // The key array MUST include the variables to ensure unique searches
-    ["public-products-list", String(page), query, sort],
+    // FIX: Variables must be in the key array to differentiate searches
+    ["public-products-list", String(page), query, sort], 
     {
       tags: [PRODUCT_TAG],
       revalidate: 3600,
@@ -132,6 +136,10 @@ export const getPublicProductsService = async ({
 }: { page?: number; query?: string; sort?: string }) => {
   return getCachedPublicProducts(page, query, sort);
 };
+
+/* ------------------------------------------------------------------ */
+/* Individual Product (Cached)                                        */
+/* ------------------------------------------------------------------ */
 
 export const getPublicProductBySlugService = (slug: string) =>
   unstable_cache(
