@@ -1,29 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import {
-  Sparkles,
-  BadgeCheck,
-  Truck,
-  MapPin,
-  Search,
-  ArrowUpDown,
-  X,
-} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Sparkles, Search, ArrowUpDown, ArrowUpRight, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import PageHeader from "@/components/public/PageHeader";
 import Card from "@/components/public/ui/Card";
-import SectionHeading from "@/components/public/ui/SectionHeading";
 import Chip from "@/components/public/ui/Chip";
-
-import { reveal, staggerFast } from "@/app/animations";
-
-/* ------------------------------------------------------------------ */
-/* Types */
-/* ------------------------------------------------------------------ */
+import { fadeUpSoft, staggerSlow } from "@/app/animations";
 
 type Product = {
   id: string;
@@ -32,315 +19,230 @@ type Product = {
   shortDescription: string | null;
   price: number;
   imageUrl: string | null;
-  createdAt?: Date;
 };
-
-type SortKey =
-  | "name_asc"
-  | "name_desc"
-  | "price_asc"
-  | "price_desc"
-  | "newest";
-
-/* ------------------------------------------------------------------ */
-/* Pagination Button */
-/* ------------------------------------------------------------------ */
-
-function PageButton({
-  href,
-  children,
-  active,
-}: {
-  href: string;
-  children: React.ReactNode;
-  active?: boolean;
-}) {
-  return (
-    <Link
-      href={href}
-      className={[
-        "min-w-10 h-10 px-4 rounded-[14px] flex items-center justify-center text-sm font-semibold transition",
-        active
-          ? "bg-[color:var(--brand-primary)] text-white shadow-md"
-          : "border border-[var(--border-soft)] bg-[var(--bg-surface)] hover:bg-white/80",
-      ].join(" ")}
-    >
-      {children}
-    </Link>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Component */
-/* ------------------------------------------------------------------ */
 
 export default function ProductsClient({
   products,
   page,
   totalPages,
-  pageSize,
   totalCount,
+  query,
+  sort,
 }: {
   products: Product[];
   page: number;
   totalPages: number;
-  pageSize: number;
   totalCount: number;
+  query: string;
+  sort: string;
 }) {
-  const [query, setQuery] = useState("");
-  const [sort, setSort] = useState<SortKey>("name_asc");
+  const router = useRouter();
+  const filterBarRef = useRef<HTMLDivElement>(null);
 
-  const activeCount = useMemo(() => {
-    let c = 0;
-    if (query.trim()) c++;
-    if (sort !== "name_asc") c++;
-    return c;
-  }, [query, sort]);
+  // Precision Anchor: Keeps the search bar "stuck" at the top during refresh
+  const anchorToFilter = () => {
+    if (filterBarRef.current) {
+      const stickyOffset = window.innerWidth >= 768 ? 160 : 128;
+      const elementPosition = filterBarRef.current.getBoundingClientRect().top + window.scrollY;
+      
+      window.scrollTo({
+        top: elementPosition - stickyOffset,
+        behavior: "smooth",
+      });
+    }
+  };
 
-  const filteredSorted = useMemo(() => {
-    const q = query.toLowerCase();
+  function handleFilter(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const q = (formData.get("query") as string).trim();
+    const s = formData.get("sort") as string;
 
-    let list = products.filter((p) => {
-      if (!q) return true;
-      return `${p.name} ${p.shortDescription ?? ""}`
-        .toLowerCase()
-        .includes(q);
-    });
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    if (q) params.set("query", q);
+    if (s && s !== "name_asc") params.set("sort", s);
 
-    list.sort((a, b) => {
-      if (sort === "name_asc") return a.name.localeCompare(b.name);
-      if (sort === "name_desc") return b.name.localeCompare(a.name);
-      if (sort === "price_asc") return a.price - b.price;
-      if (sort === "price_desc") return b.price - a.price;
-      if (sort === "newest") {
-        return (
-          (b.createdAt ? +new Date(b.createdAt) : 0) -
-          (a.createdAt ? +new Date(a.createdAt) : 0)
-        );
-      }
-      return 0;
-    });
+    router.push(`/products?${params.toString()}`, { scroll: false });
+    requestAnimationFrame(anchorToFilter);
+  }
 
-    return list;
-  }, [products, query, sort]);
+  const handleGlobalClear = () => {
+    router.push("/products?page=1", { scroll: false });
+    anchorToFilter();
+  };
+
+  const windowSize = 2;
+  const start = Math.max(1, page - windowSize);
+  const end = Math.min(totalPages, page + windowSize);
+  const pages = [];
+  for (let i = start; i <= end; i++) pages.push(i);
+
+  function buildHref(targetPage: number) {
+    const params = new URLSearchParams();
+    params.set("page", String(targetPage));
+    if (query) params.set("query", query);
+    if (sort && sort !== "name_asc") params.set("sort", sort);
+    return `/products?${params.toString()}`;
+  }
 
   return (
-    <section>
-      <div className="mx-auto max-w-7xl px-6 pt-10 pb-20 space-y-14">
-
-        {/* Header */}
+    <section className="relative">
+      <div className="max-w-[1200px] mx-auto px-4 sm:px-10 lg:px-16 pt-10 pb-20 space-y-10">
         <PageHeader
-          badge={
-            <Chip className="flex items-center gap-2">
-              <Sparkles size={14} />
-              Ayurvedic Products
-            </Chip>
-          }
-          title={
-            <>
-              Explore our{" "}
-              <span className="text-[color:var(--brand-accent)]">
-                product range
-              </span>
-            </>
-          }
+          badge={<Chip className="flex items-center gap-2"><Sparkles size={14} /> Ayurvedic Products</Chip>}
+          title={<>Explore our <span className="text-accent">product range</span></>}
           subtitle="Premium Ayurvedic formulations designed for demand, trust, and repeat customers."
         />
 
-        {/* Trust Chips */}
         <div className="flex flex-wrap justify-center gap-3">
-          {["High Demand", "Premium Packaging", "PCD Ready", "Fast Dispatch"].map(
-            (t) => (
-              <Chip key={t}>{t}</Chip>
-            )
-          )}
-        </div>
-
-        {/* Highlights */}
-        <div className="grid gap-4 md:grid-cols-3">
-          {[
-            {
-              title: "GMP Quality",
-              desc: "Consistent Manufacturing Quality",
-              icon: BadgeCheck,
-            },
-            {
-              title: "Fast Dispatch",
-              desc: "Quick Packaging and Shipping PAN India",
-              icon: Truck,
-            },
-            {
-              title: "Monopoly Rights",
-              desc: "Location-based franchise availability",
-              icon: MapPin,
-            },
-          ].map((i) => (
-            <motion.div key={i.title} variants={reveal}>
-              <Card>
-                <div className="flex gap-4">
-                  <div className="rounded-xl bg-[color:var(--brand-primary)]/20 p-3 text-[color:var(--brand-accent)]">
-                    <i.icon size={22} />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold">{i.title}</h3>
-                    <p className="text-sm text-muted">{i.desc}</p>
-                  </div>
-                </div>
-              </Card>
-            </motion.div>
+          {["Ayurvedic", "PCD Pharma", "Capsules", "Oils"].map((t) => (
+            <Chip key={t}>{t}</Chip>
           ))}
         </div>
 
-        {/* Catalog */}
-        <div>
-          <SectionHeading
-            title="Products Catalog"
-            subtitle="Browse our available Ayurvedic products"
-          />
-
-          {/* Filters */}
-          <Card className="mt-6">
-            <div className="grid gap-3 lg:grid-cols-12">
-              <div className="lg:col-span-8 relative">
-                <Search
-                  className="absolute left-4 top-1/2 -translate-y-1/2 text-muted"
-                  size={18}
-                />
-                <input
-                  value={query}
-                  onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search products…"
-                  className="h-12 w-full rounded-[14px] border border-[var(--border-soft)] bg-[var(--bg-surface)] pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--brand-primary)]/25"
-                />
+        {/* STICKY FILTER BAR */}
+        <div ref={filterBarRef} className="sticky top-32 md:top-40 z-20 scroll-mt-40">
+          <Card className="bg-[var(--bg-surface)] backdrop-blur-md p-3">
+            <form onSubmit={handleFilter} className="flex flex-col gap-2">
+              <div className="flex gap-2 lg:grid lg:grid-cols-12">
+                <div className="relative flex-1 lg:col-span-8">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
+                  <input
+                    name="query"
+                    defaultValue={query}
+                    placeholder="Search products..."
+                    className="h-10 w-full rounded-lg border border-[var(--border-soft)] bg-[var(--bg-surface)] pl-9 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-accent/25"
+                  />
+                  {(query || (sort && sort !== "name_asc")) && (
+                    <button 
+                      type="button"
+                      onClick={handleGlobalClear}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-muted/10 text-muted hover:bg-accent hover:text-white transition-all"
+                      title="Clear all filters"
+                    >
+                      <X size={14} strokeWidth={3} />
+                    </button>
+                  )}
+                </div>
+                <div className="relative h-10 lg:col-span-4 rounded-lg border border-[var(--border-soft)] bg-[var(--bg-surface)] flex items-center px-3">
+                  <ArrowUpDown size={16} className="mr-2 text-muted" />
+                  <select
+                    name="sort"
+                    defaultValue={sort}
+                    onChange={(e) => e.currentTarget.form?.requestSubmit()}
+                    className="bg-transparent w-full text-sm outline-none cursor-pointer"
+                  >
+                    <option value="name_asc">Name A → Z</option>
+                    <option value="name_desc">Name Z → A</option>
+                    <option value="price_asc">Price low → high</option>
+                    <option value="price_desc">Price high → low</option>
+                    <option value="newest">Newest first</option>
+                  </select>
+                </div>
               </div>
-
-              <div className="lg:col-span-4 flex items-center gap-2 h-12 rounded-[14px] border border-[var(--border-soft)] bg-[var(--bg-surface)] px-4">
-                <ArrowUpDown size={16} />
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value as SortKey)}
-                  className="bg-transparent w-full text-sm outline-none"
-                >
-                  <option value="name_asc">Name A → Z</option>
-                  <option value="name_desc">Name Z → A</option>
-                  <option value="price_asc">Price low → high</option>
-                  <option value="price_desc">Price high → low</option>
-                  <option value="newest">Newest first</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="mt-3 flex justify-between text-sm text-muted">
-              <span>
-                Showing <b>{filteredSorted.length}</b> results
-              </span>
-
-              {activeCount > 0 && (
-                <button
-                  onClick={() => {
-                    setQuery("");
-                    setSort("name_asc");
-                  }}
-                  className="flex items-center gap-2 rounded-full border border-[var(--border-soft)] px-4 py-2"
-                >
-                  <X size={14} /> Clear
-                </button>
-              )}
+              <button type="submit" className="hidden" />
+            </form>
+            <div className="mt-1 text-[11px] text-muted flex justify-between px-1">
+              <span>Showing <b>{totalCount}</b> results</span>
+              {query && <span className="opacity-70">Search: "{query}"</span>}
             </div>
           </Card>
+        </div>
 
-          {/* Grid */}
-          <motion.div
-            variants={staggerFast}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
+        {/* PRODUCT GRID - RESTORED MOBILE 2-COLUMNS */}
+        <AnimatePresence mode="wait">
+          <motion.div 
+            key={`grid-${query}-${sort}-${page}`}
+            variants={staggerSlow} initial="hidden" animate="show" exit="hidden"
+            className="grid grid-cols-2 gap-4 lg:grid-cols-3"
           >
-            {filteredSorted.map((p) => (
-              <motion.div key={p.id} variants={reveal}>
-                <Link
-                  href={`/products/${encodeURIComponent(p.slug)}`}
-                  className="block group h-full"
-                >
-                  <Card className="h-full overflow-hidden">
-                    <div className="relative h-52">
-                      {p.imageUrl ? (
-                        <Image
-                          src={p.imageUrl}
-                          alt={p.name}
-                          fill
-                          className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
-                        />
-                      ) : (
-                        <div className="h-full flex items-center justify-center text-sm text-muted">
-                          No image
+            {products.length > 0 ? (
+              products.map((p) => (
+                <motion.div key={p.id} variants={fadeUpSoft}>
+                  <Link href={`/products/${p.slug}`} className="group block h-full">
+                    <Card className="h-full p-3 flex flex-col">
+                      {p.imageUrl && (
+                        <div className="relative w-full h-32 md:h-44 overflow-hidden rounded-xl mb-3">
+                          <Image 
+                            src={p.imageUrl} 
+                            alt={p.name} 
+                            fill 
+                            className="object-cover transition-transform duration-500 group-hover:scale-110" 
+                          />
                         </div>
                       )}
+                      
+                      {/* Unified Row Layout */}
+                      <div className="flex justify-between items-start gap-2">
+                        {/* Left Side: Info */}
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-heading text-[13px] md:text-sm font-extrabold line-clamp-1 group-hover:text-accent transition-colors">
+                            {p.name}
+                          </h3>
+                          <p className="text-[10px] md:text-[11px] text-muted line-clamp-2 mt-0.5 leading-tight">
+                            {p.shortDescription || "Premium Ayurvedic formulation."}
+                          </p>
+                        </div>
 
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/65 to-transparent" />
-                      <div className="absolute bottom-4 left-4 right-4 text-white font-semibold">
-                        {p.name}
+                        {/* Right Side: Price & Arrow Highlight */}
+                        <div className="flex flex-col items-end shrink-0">
+                          <div className="mb-2 p-1 md:p-1.5 rounded-lg bg-muted/5 group-hover:bg-accent/10 group-hover:scale-110 transition-all">
+                            <ArrowUpRight size={14} className="text-muted group-hover:text-accent" />
+                          </div>
+                          <div className="font-bold text-accent text-[12px] md:text-sm">
+                            ₹{p.price}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-
-                    <div className="p-5 space-y-3">
-                      <p className="text-sm text-muted line-clamp-2">
-                        {p.shortDescription ||
-                          "Premium Ayurvedic formulation."}
-                      </p>
-
-                      <div className="flex justify-between items-center">
-                        <span className="font-semibold text-[color:var(--brand-accent)]">
-                          ₹{p.price}
-                        </span>
-                        <span className="font-semibold text-[color:var(--brand-accent)] transition group-hover:translate-x-1">
-                          View →
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
-                </Link>
+                    </Card>
+                  </Link>
+                </motion.div>
+              ))
+            ) : (
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+                className="col-span-full py-24 text-center"
+              >
+                <Search size={48} className="mx-auto text-muted/20 mb-4" />
+                <h3 className="text-lg font-bold">No products found</h3>
+                <p className="text-sm text-muted mt-1">Try different keywords or clear your filters.</p>
+                <button 
+                  onClick={handleGlobalClear}
+                  className="mt-6 text-sm font-bold text-accent underline underline-offset-4"
+                >
+                  Clear all filters
+                </button>
               </motion.div>
-            ))}
+            )}
           </motion.div>
+        </AnimatePresence>
 
-          {/* Pagination */}
-          <div className="mt-10 flex flex-col items-center gap-3">
-            <p className="text-sm text-muted">
-              Page {page} of {totalPages} · {totalCount} products
+        {/* PAGINATION */}
+        {totalPages > 1 && (
+          <div className="mt-12 flex flex-col items-center gap-4">
+            <p className="text-[11px] text-muted uppercase tracking-widest font-bold">
+              Page {page} of {totalPages}
             </p>
-
-            <div className="flex flex-wrap gap-2 justify-center">
-              {page > 1 && (
-                <PageButton href={`/products?page=${page - 1}`}>
-                  ← Prev
-                </PageButton>
-              )}
-
-              {Array.from({ length: totalPages })
-                .slice(0, 7)
-                .map((_, i) => {
-                  const p = i + 1;
-                  return (
-                    <PageButton
-                      key={p}
-                      href={`/products?page=${p}`}
-                      active={p === page}
-                    >
-                      {p}
-                    </PageButton>
-                  );
-                })}
-
-              {page < totalPages && (
-                <PageButton href={`/products?page=${page + 1}`}>
-                  Next →
-                </PageButton>
-              )}
+            <div className="flex items-center gap-2">
+              {pages.map((p) => (
+                <Link
+                  key={p}
+                  href={buildHref(p)}
+                  scroll={false}
+                  onClick={anchorToFilter}
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${
+                    p === page 
+                    ? "bg-accent text-white shadow-lg shadow-accent/20 scale-110" 
+                    : "bg-[var(--bg-surface)] border border-[var(--border-soft)] hover:border-accent/50"
+                  }`}
+                >
+                  {p}
+                </Link>
+              ))}
             </div>
           </div>
-        </div>
+        )}
       </div>
     </section>
   );

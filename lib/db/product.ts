@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
+import { MedicineForm } from "@prisma/client";
 
 /* ------------------------------------------------------------------ */
 /* Write Operations (Admin) */
@@ -63,37 +64,122 @@ export async function getAdminProducts(
 }
 
 /* ------------------------------------------------------------------ */
-/* Public Reads */
+/* Public Reads (SEARCH + SORT READY) */
 /* ------------------------------------------------------------------ */
 
-export async function getPublicProductsDB(
+type PublicProductQuery = {
+  page?: number;
+  limit?: number;
+  query?: string;
+  sort?: string;
+};
+
+export async function getPublicProductsDB({
   page = 1,
-  limit = 10
-) {
+  limit = 10,
+  query = "",
+  sort = "name_asc",
+}: PublicProductQuery) {
   const skip = (page - 1) * limit;
 
-  const where = { published: true };
+  const q = query.trim();
+
+  /* --------------------------------------------------------------- */
+  /* MedicineForm Enum Matching (case-insensitive user input)        */
+  /* --------------------------------------------------------------- */
+
+  let medicineFormFilter: MedicineForm | undefined;
+
+  if (q) {
+    const upper = q.toUpperCase();
+    if (Object.values(MedicineForm).includes(upper as MedicineForm)) {
+      medicineFormFilter = upper as MedicineForm;
+    }
+  }
+
+  /* --------------------------------------------------------------- */
+  /* WHERE (Loose OR Search)                                         */
+  /* --------------------------------------------------------------- */
+
+  const where = {
+    published: true,
+    ...(q && {
+      OR: [
+        {
+          name: {
+            contains: q,
+            mode: "insensitive" as const,
+          },
+        },
+        {
+          shortDescription: {
+            contains: q,
+            mode: "insensitive" as const,
+          },
+        },
+        {
+          tag: {
+            contains: q,
+            mode: "insensitive" as const,
+          },
+        },
+        ...(medicineFormFilter
+          ? [{ medicineForm: medicineFormFilter }]
+          : []),
+      ],
+    }),
+  };
+
+  /* --------------------------------------------------------------- */
+  /* SORTING                                                         */
+  /* --------------------------------------------------------------- */
+
+  let orderBy:
+    | { name: "asc" | "desc" }
+    | { price: "asc" | "desc" }
+    | { createdAt: "asc" | "desc" } = { name: "asc" };
+
+  switch (sort) {
+    case "name_desc":
+      orderBy = { name: "desc" };
+      break;
+    case "price_asc":
+      orderBy = { price: "asc" };
+      break;
+    case "price_desc":
+      orderBy = { price: "desc" };
+      break;
+    case "newest":
+      orderBy = { createdAt: "desc" };
+      break;
+    default:
+      orderBy = { name: "asc" };
+  }
+
+  /* --------------------------------------------------------------- */
+  /* QUERY                                                           */
+  /* --------------------------------------------------------------- */
 
   const [total, products] = await prisma.$transaction([
-  prisma.product.count({ where }),
-  prisma.product.findMany({
-    where,
-    orderBy: { name: "asc" },
-    skip,
-    take: limit,
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      tag: true,
-      price: true,
-      imageUrl: true,
-      shortDescription: true,
-      createdAt: true,
-      medicineForm: true,
-    },
-  }),
-]);
+    prisma.product.count({ where }),
+    prisma.product.findMany({
+      where,
+      orderBy,
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        tag: true,
+        price: true,
+        imageUrl: true,
+        shortDescription: true,
+        createdAt: true,
+        medicineForm: true,
+      },
+    }),
+  ]);
 
   return { total, products };
 }

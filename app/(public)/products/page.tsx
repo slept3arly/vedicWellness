@@ -4,23 +4,39 @@ import { getPublicProductsService } from "@/lib/services/productService";
 
 export const metadata: Metadata = {
   title: "Products | Vedic Wellness - Ayurvedic Franchise Product Range",
-  description:
-    "Browse Ayurvedic products from Vedic Wellness (Innovia Drugs) for PCD pharma franchise partners. High-demand products, monopoly rights & fast dispatch.",
+  description: "Browse Ayurvedic products from Vedic Wellness.",
   alternates: { canonical: "/products" },
 };
 
-export const dynamic = "force-static";
+// CRITICAL: Search depends on URL params; it cannot be force-static.
+export const dynamic = "force-dynamic";
+
+type SearchParams = {
+  page?: string;
+  query?: string;
+  sort?: string;
+};
 
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<SearchParams>;
 }) {
   const sp = await searchParams;
-  const page = Math.max(1, Number(sp.page ?? "1") || 1);
+
+  const getParam = (v?: string | string[]) =>
+    Array.isArray(v) ? v[v.length - 1] : v;
+
+  const page = Math.max(1, Number(getParam(sp.page)) || 1);
+  const query = (getParam(sp.query) ?? "").trim();
+  const sort = getParam(sp.sort) ?? "name_asc";
 
   const { products, total, totalPages, pageSize } =
-    await getPublicProductsService(page);
+    await getPublicProductsService({
+      page,
+      query,
+      sort,
+    });
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -40,13 +56,13 @@ export default async function ProductsPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-
       <ProductsClient
         products={products}
         page={page}
         totalPages={totalPages}
-        pageSize={pageSize}
         totalCount={total}
+        query={query}
+        sort={sort}
       />
     </>
   );

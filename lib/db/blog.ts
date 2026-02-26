@@ -145,7 +145,7 @@ export async function getPublicBlogBySlugDB(slug: string) {
 export async function getRelatedBlogsDB(
   slug: string,
   tags: string[],
-  limit = 3
+  limit = 4
 ) {
   if (!tags.length) return [];
 
