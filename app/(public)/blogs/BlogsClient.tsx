@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 
-import PageHeader from "@/components/public/PageHeader";
+import PageHeader from "@/components/public/layout/PageHeader";
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
 

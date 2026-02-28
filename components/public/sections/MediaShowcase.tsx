@@ -1,4 +1,4 @@
-import Section from "@/components/public/Section";
+import Section from "@/components/public/ui/Section";
 import MediaSlider from "@/components/public/ui/MediaSlider";
 import { prisma } from "@/lib/db/prisma";
 import { Prisma } from "@prisma/client"; // 1. Add this import

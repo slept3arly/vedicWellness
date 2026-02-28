@@ -48,7 +48,7 @@ export default function SlugClient({
 
   return (
     <section className="w-full pb-16">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-10 lg:px-16 space-y-6">
+      <div className="mx-auto max-w-7xl px-6 space-y-6">
 
         {/* ⭐ HERO */}
         <Card className="mt-4 md:mt-8 overflow-hidden p-0">

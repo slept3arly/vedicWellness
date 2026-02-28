@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Product } from "@prisma/client";
 
 import {
   Search,
@@ -16,6 +17,7 @@ import {
   Eye,
   EyeOff,
   Boxes,
+  Package,
 } from "lucide-react";
 
 import AdminCard from "../../../../components/admin/AdminCard";
@@ -27,21 +29,33 @@ import {
   toggleProductPublished,
 } from "./serverActions";
 
+/* ------------------------------------------------------------------ */
+
 function formatDate(d?: Date | null) {
   if (!d) return "—";
   return new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",
     month: "short",
     year: "numeric",
-  }).format(d);
+  }).format(new Date(d));
 }
+
+function formatCurrency(amount: number, currency = "INR") {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency,
+    maximumFractionDigits: 0,
+  }).format(amount);
+}
+
+/* ------------------------------------------------------------------ */
 
 export default function AdminProductsClient({
   products,
   q,
   page,
 }: {
-  products: any[];
+  products: Product[];
   q: string;
   page: number;
 }) {
@@ -49,7 +63,6 @@ export default function AdminProductsClient({
   const params = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
-  /* 🔍 modern search */
   const [search, setSearch] = useState(q);
 
   useEffect(() => {
@@ -92,7 +105,7 @@ export default function AdminProductsClient({
         </Link>
       </div>
 
-      {/* 🔍 fixed search */}
+      {/* Search */}
       <div className="relative w-full">
         <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
         <input
@@ -109,7 +122,6 @@ export default function AdminProductsClient({
         )}
       </div>
 
-      {/* 📉 fade while searching */}
       <div
         className={`space-y-4 transition-opacity duration-200 ${
           isPending ? "opacity-60" : "opacity-100"
@@ -125,10 +137,12 @@ export default function AdminProductsClient({
               key={p.id}
               className="flex flex-col md:flex-row items-start gap-4 md:gap-6 transition hover:shadow-md"
             >
+              {/* Index */}
               <div className="text-sm text-neutral-500 pt-2 w-6 shrink-0">
                 {(page - 1) * 20 + index + 1}.
               </div>
 
+              {/* Image */}
               <div className="w-20 h-20 rounded-lg bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center shrink-0 overflow-hidden">
                 {p.imageUrl ? (
                   <Image
@@ -143,22 +157,43 @@ export default function AdminProductsClient({
                 )}
               </div>
 
+              {/* Main */}
               <div className="flex-1 min-w-0 space-y-3">
                 <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4">
-                  <h2 className="font-semibold text-lg leading-snug break-words line-clamp-2">
-                    {p.name}
-                  </h2>
+                  <div>
+                    <h2 className="font-semibold text-lg leading-snug break-words line-clamp-2">
+                      {p.name}
+                    </h2>
+
+                    {p.subtitle && (
+                      <p className="text-sm text-neutral-500 line-clamp-1">
+                        {p.subtitle}
+                      </p>
+                    )}
+                  </div>
 
                   <AdminBadge
                     status={p.published ? "ACTIVE" : "INACTIVE"}
                   />
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-x-10 gap-y-2 text-sm">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-x-8 gap-y-3 text-sm">
 
                   <Meta label="Price">
                     <IndianRupee className="h-4 w-4" />
-                    {p.price}
+                    <div>
+                      {formatCurrency(p.price, p.currency)}
+                      {p.compareAtPrice && (
+                        <div className="text-xs text-neutral-400 line-through">
+                          {formatCurrency(p.compareAtPrice, p.currency)}
+                        </div>
+                      )}
+                    </div>
+                  </Meta>
+
+                  <Meta label="Stock">
+                    <Package className="h-4 w-4" />
+                    {p.stock}
                   </Meta>
 
                   <Meta label="Tag">
@@ -184,62 +219,59 @@ export default function AdminProductsClient({
                 </div>
               </div>
 
+              {/* Actions */}
               <div className="grid grid-cols-3 sm:flex sm:flex-col gap-2 pt-2 w-full sm:w-auto">
 
-  {/* Edit — triggers ribbon loader */}
-  <AdminButton
-    className="w-full"
-    onClick={() =>
-      startTransition(() => {
-        router.push(`/admin/products/edit/${p.id}`);
-      })
-    }
-  >
-    <Pencil className="h-4 w-4" />
-    Edit
-  </AdminButton>
+                <AdminButton
+                  className="w-full"
+                  onClick={() =>
+                    startTransition(() => {
+                      router.push(`/admin/products/edit/${p.id}`);
+                    })
+                  }
+                >
+                  <Pencil className="h-4 w-4" />
+                  Edit
+                </AdminButton>
 
-  {/* Publish / Unpublish — processing enabled */}
-  <form action={toggleProductPublished}>
-    <input type="hidden" name="id" value={p.id} />
-    <input
-      type="hidden"
-      name="published"
-      value={String(p.published)}
-    />
+                <form action={toggleProductPublished}>
+                  <input type="hidden" name="id" value={p.id} />
+                  <input
+                    type="hidden"
+                    name="published"
+                    value={String(p.published)}
+                  />
 
-    <AdminActionButton className="w-full">
-      {p.published ? (
-        <>
-          <EyeOff className="h-4 w-4" /> Unpublish
-        </>
-      ) : (
-        <>
-          <Eye className="h-4 w-4" /> Publish
-        </>
-      )}
-    </AdminActionButton>
-  </form>
+                  <AdminActionButton className="w-full">
+                    {p.published ? (
+                      <>
+                        <EyeOff className="h-4 w-4" /> Unpublish
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="h-4 w-4" /> Publish
+                      </>
+                    )}
+                  </AdminActionButton>
+                </form>
 
-  {/* Delete — double confirmation + processing */}
-  <form
-    action={deleteProduct}
-    onSubmit={(e) => {
-      if (!confirm("Delete this product permanently?")) {
-        e.preventDefault();
-      }
-    }}
-  >
-    <input type="hidden" name="id" value={p.id} />
+                <form
+                  action={deleteProduct}
+                  onSubmit={(e) => {
+                    if (!confirm("Delete this product permanently?")) {
+                      e.preventDefault();
+                    }
+                  }}
+                >
+                  <input type="hidden" name="id" value={p.id} />
 
-    <AdminActionButton variant="danger" className="w-full">
-      <Trash2 className="h-4 w-4" />
-      Delete
-    </AdminActionButton>
-  </form>
+                  <AdminActionButton variant="danger" className="w-full">
+                    <Trash2 className="h-4 w-4" />
+                    Delete
+                  </AdminActionButton>
+                </form>
 
-</div>
-
+              </div>
             </AdminCard>
           );
         })}
@@ -248,7 +280,7 @@ export default function AdminProductsClient({
   );
 }
 
-/* ===== Meta helper ===== */
+/* ------------------------------------------------------------------ */
 
 function Meta({
   label,
@@ -259,7 +291,7 @@ function Meta({
 }) {
   return (
     <div>
-      <div className="text-neutral-600 dark:text-neutral-400">
+      <div className="text-neutral-600 dark:text-neutral-400 text-xs">
         {label}
       </div>
       <div className="flex items-center gap-1 text-neutral-900 dark:text-white">

@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import "./globals.css";
 
-import Navbar from "@/components/Navbar";
-import BottomNavbar from "@/components/BottomNavbarClient";
+import Navbar from "@/components/public/layout/Navbar";
+import BottomNavbar from "@/components/public/layout/BottomNavbarClient";
 import { inter, spaceGrotesk } from "./fonts";
-import MarqueeBanner from "@/components/MarqueeBanner";
-import GlobalBackground from "@/components/public/GlobalBackground";
-import RouteLoader from "@/components/public/RouteLoader";
+import MarqueeBanner from "@/components/public/layout/MarqueeBanner";
+import GlobalBackground from "@/components/public/layout/GlobalBackground";
+import RouteLoader from "@/components/public/feedback/RouteLoader";
 import Providers from "@/app/Providers";
 import { Toaster } from "sonner";
-import DeferredFooter from "@/components/DeferredFooter";
+import DeferredFooter from "@/components/public/layout/DeferredFooter";
 
 import Script from "next/script";
 

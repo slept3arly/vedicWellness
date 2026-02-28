@@ -7,7 +7,9 @@ import {
   getPublicProductBySlugDB,
   getPublicProductMetadataDB,
   getAllPublishedProductSlugs,
+  getRelatedProductsDB, // 👈 add this
 } from "@/lib/db/product";
+import { MedicineForm } from "@prisma/client";
 import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
 import { parseProductForm } from "@/lib/validators/product";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
@@ -158,3 +160,32 @@ export const getPublicProductMetadataService = (slug: string) =>
 export async function getAllPublishedProductSlugsService() {
   return getAllPublishedProductSlugs();
 }
+
+/* ------------------------------------------------------------------ */
+/* Related Products (Cached) */
+/* ------------------------------------------------------------------ */
+
+export const getRelatedProductsService = (
+  slug: string,
+  currentId: string,
+  tag?: string | null,
+  medicineForm?: MedicineForm | null
+) =>
+  unstable_cache(
+    async () => {
+      return getRelatedProductsDB(
+        currentId,
+        tag,
+        medicineForm
+      );
+    },
+    [
+      `related-product-${slug}-${tag ?? "none"}-${
+        medicineForm ?? "none"
+      }`,
+    ],
+    {
+      tags: [`product:${slug}`, PRODUCT_TAG],
+      revalidate: 1800, // 30 minutes
+    }
+  )();

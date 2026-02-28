@@ -31,28 +31,119 @@ model Blog {
 }
 
 model Product {
-  id                String        @id @default(cuid())
+  id                String   @id @default(cuid())
   name              String
-  slug              String        @unique
+  slug              String   @unique
+  subtitle          String?
+
+  /* Pricing */
   price             Int
+  compareAtPrice    Int?
+  currency          String   @default("INR")
+
+  /* Inventory */
+  sku               String?  @unique
+  stock             Int      @default(0)
+
+  /* Media */
   imageUrl          String?
-  published         Boolean       @default(false)
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  tag               String?
-  contraindications Json?
-  indications       Json?
-  ingredients       Json?
-  gallery           Json?
+  gallery           String[] @default([])
+
+  /* Core Descriptions */
   shortDescription  String?
-  directionsToUse   Json?
+  longDescription   String?
+
+  /* Structured Content */
+  highlights        String[] @default([])   // Amazon bullets
+  benefits          String[] @default([])   // Icon feature grid
+  whoShouldUse      String[] @default([])
+
+  ingredients       String[] @default([])
+  directionsToUse   String[] @default([])
+  precautions       String[] @default([])
+  packaging         String[] @default([])
+
+  /* Technical Info */
+  manufacturer      String?
+  countryOfOrigin   String?
+  shelfLife         String?
+  netQuantity       String?
+
+  /* Trust Layer */
+  trustBadges       String[] @default([])
+  certifications    String[] @default([])
+
+  /* Categorization */
+  tag               String?
   medicineForm      MedicineForm?
-  packaging         Json?
 
-  cartItems CartItem[]
+  /* Status */
+  published         Boolean  @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
+  /* Relations */
+  cartItems         CartItem[]
+  variants          ProductVariant[]
+  specifications    ProductSpecification[]
+  faqs              ProductFAQ[]
+  reviews           ProductReview[]
+
+  /* Indexes (Aligned With Your Existing Strategy) */
   @@index([published])
   @@index([name])
+  @@index([published, tag])
+  @@index([published, medicineForm])
+  @@index([published, createdAt])
+}
+
+model ProductVariant {
+  id         String   @id @default(cuid())
+  productId  String
+  name       String        // e.g. "Pack of 3"
+  price      Int
+  compareAtPrice Int?
+  stock      Int      @default(0)
+  sku        String?  @unique
+
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductSpecification {
+  id         String   @id @default(cuid())
+  productId  String
+  label      String
+  value      String
+
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductFAQ {
+  id         String   @id @default(cuid())
+  productId  String
+  question   String
+  answer     String
+
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ProductReview {
+  id         String   @id @default(cuid())
+  productId  String
+  rating     Int
+  title      String?
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
 }
 
 model MarqueeItem {

@@ -9,7 +9,7 @@ import { fadeUpSoft, staggerFast } from "@/app/animations";
 
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
-import PageHeader from "@/components/public/PageHeader";
+import PageHeader from "@/components/public/layout/PageHeader";
 
 import LoginForm from "./LoginForm";
 

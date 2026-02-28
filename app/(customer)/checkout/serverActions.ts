@@ -2,10 +2,13 @@
 
 import { secureUserAction } from "@/lib/security/secureUserAction";
 import { z } from "zod";
-import { createOrderFromCart } from "@/lib/services/orderService";
+import { createOrderFromCart, createOrderFromSingleProduct } from "@/lib/services/orderService";
 
 const createOrderSchema = z.object({
-  addressId: z.string().min(1, "Address is required"),
+  addressId: z.string().min(1),
+  buyNow: z.boolean().optional(),
+  productId: z.string().optional(),
+  quantity: z.number().optional(),
 });
 
 /**
@@ -17,11 +20,18 @@ export const createOrderAction = secureUserAction(
   async (user, input: unknown) => {
     const parsed = createOrderSchema.parse(input);
 
-    const order = await createOrderFromCart(
+    if (parsed.buyNow && parsed.productId && parsed.quantity) {
+      return await createOrderFromSingleProduct(
+        user.id,
+        parsed.addressId,
+        parsed.productId,
+        parsed.quantity,
+      );
+    }
+
+    return await createOrderFromCart(
       user.id,
       parsed.addressId
     );
-
-    return order;
   }
 );

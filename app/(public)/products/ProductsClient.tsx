@@ -7,7 +7,7 @@ import { Sparkles, Search, ArrowUpDown, ArrowUpRight, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import PageHeader from "@/components/public/PageHeader";
+import PageHeader from "@/components/public/layout/PageHeader";
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
 import { fadeUpSoft, staggerSlow } from "@/app/animations";
@@ -88,7 +88,7 @@ export default function ProductsClient({
 
   return (
     <section className="relative">
-      <div className="max-w-[1200px] mx-auto px-4 sm:px-10 lg:px-16 pt-10 pb-20 space-y-10">
+      <div className="mx-auto max-w-7xl px-6 pt-10 pb-20 space-y-10">
         <PageHeader
           badge={<Chip className="flex items-center gap-2"><Sparkles size={14} /> Ayurvedic Products</Chip>}
           title={<>Explore our <span className="text-accent">product range</span></>}

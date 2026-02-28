@@ -102,3 +102,71 @@ export async function createOrderFromCart(
 
   return order;
 }
+
+export async function createOrderFromSingleProduct(
+  userId: string,
+  addressId: string,
+  productId: string,
+  quantity: number
+) {
+  // 1️⃣ Fetch product
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+  });
+
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  // 2️⃣ Validate address
+  const address = await prisma.address.findUnique({
+    where: { id: addressId },
+  });
+
+  if (!address || address.userId !== userId) {
+    throw new Error("Invalid address");
+  }
+
+  // 3️⃣ Calculate total
+  const totalAmount = product.price * quantity;
+
+  // 4️⃣ Expiry 48h
+  const expiresAt = new Date();
+  expiresAt.setHours(expiresAt.getHours() + 48);
+
+  // 5️⃣ Create order (NO cart access)
+  const order = await prisma.order.create({
+    data: {
+      userId,
+      status: "CREATED",
+      totalAmount,
+      currency: "INR",
+
+      shippingName: address.fullName,
+      shippingPhone: address.phone,
+      shippingAddr: {
+        line1: address.line1,
+        line2: address.line2,
+        city: address.city,
+        state: address.state,
+        postalCode: address.postalCode,
+        country: address.country,
+      },
+
+      expiresAt,
+
+      items: {
+        create: [
+          {
+            productId: product.id,
+            productName: product.name,
+            price: product.price,
+            quantity,
+          },
+        ],
+      },
+    },
+  });
+
+  return order;
+}

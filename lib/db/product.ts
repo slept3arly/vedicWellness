@@ -60,6 +60,23 @@ export async function getAdminProducts(
     orderBy: { createdAt: "desc" },
     skip,
     take: limit,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      subtitle: true,
+      price: true,
+      compareAtPrice: true,
+      currency: true,
+      stock: true,
+      tag: true,
+      medicineForm: true,
+      imageUrl: true,
+      gallery: true,
+      published: true,
+      createdAt: true,
+      updatedAt: true,
+    },
   });
 }
 
@@ -211,6 +228,53 @@ export async function getAllPublishedProductSlugs() {
     select: {
       slug: true,
       updatedAt: true,
+    },
+  });
+}
+/* ------------------------------------------------------------------ */
+/* Related Products (Optimized - Lightweight Select) */
+/* ------------------------------------------------------------------ */
+
+export async function getRelatedProductsDB(
+  currentId: string,
+  tag?: string | null,
+  medicineForm?: MedicineForm | null,
+  limit = 4
+) {
+  // Build OR conditions safely (no undefined in array)
+  const orConditions: any[] = [];
+
+  if (tag) {
+    orConditions.push({ tag });
+  }
+
+  if (medicineForm) {
+    orConditions.push({ medicineForm });
+  }
+
+  // If no matching criteria → return empty
+  if (orConditions.length === 0) return [];
+
+  return prisma.product.findMany({
+    where: {
+      published: true,
+      id: { not: currentId },
+      OR: orConditions,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: limit,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+      price: true,
+      imageUrl: true,
+      shortDescription: true,
+      tag: true,
+      medicineForm: true,
+      createdAt: true,
     },
   });
 }

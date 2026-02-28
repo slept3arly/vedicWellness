@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { toast } from "sonner";
-import OtpVerificationModal from "@/components/public/ui/OtpVerificationModal";
+import OtpVerificationModal from "@/components/public/feedback/OtpVerificationModal";
 
 export default function SignupForm() {
   const searchParams = useSearchParams();

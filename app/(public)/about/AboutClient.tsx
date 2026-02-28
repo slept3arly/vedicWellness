@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
-import PageHeader from "@/components/public/PageHeader";
+import PageHeader from "@/components/public/layout/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 import Button from "@/components/public/ui/Button";
 

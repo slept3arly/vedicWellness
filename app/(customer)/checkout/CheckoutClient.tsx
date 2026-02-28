@@ -8,11 +8,17 @@ import Button from "@/components/public/ui/Button";
 type Props = {
   cart: any;
   defaultAddress: any | null;
+  isBuyNow?: boolean;
+  buyNowProductId?: string;
+  buyNowQty?: number;
 };
 
 export default function CheckoutClient({
   cart,
   defaultAddress,
+  isBuyNow,
+  buyNowProductId,
+  buyNowQty,
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -30,6 +36,9 @@ export default function CheckoutClient({
       try {
         const order = await createOrderAction({
           addressId: defaultAddress.id,
+          buyNow: isBuyNow,
+          productId: buyNowProductId,
+          quantity: buyNowQty,
         });
 
         // For now redirect to order confirmation page (we'll build later)

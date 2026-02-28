@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import ProductEditForm from "./ProductEditForm";
+import { notFound } from "next/navigation";
 
 export default async function EditProductPage({
   params,
@@ -12,7 +13,7 @@ export default async function EditProductPage({
     where: { id },
   });
 
-  if (!product) return <div>Product not found.</div>;
+  if (!product) return notFound();
 
   return <ProductEditForm product={product} />;
 }

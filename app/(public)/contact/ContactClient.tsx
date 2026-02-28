@@ -15,7 +15,7 @@ import { toast } from "sonner";
 
 import { reveal, staggerFast } from "@/app/animations";
 
-import PageHeader from "@/components/public/PageHeader";
+import PageHeader from "@/components/public/layout/PageHeader";
 import Card from "@/components/public/ui/Card";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 import Button from "@/components/public/ui/Button";
