@@ -1,8 +1,8 @@
 import { MetadataRoute } from "next";
 import { unstable_cache } from "next/cache";
 
-import { getPublicBlogsService } from "@/lib/services/blogService";
 import { getAllPublishedProductSlugsService } from "@/lib/services/productService";
+import { getAllPublishedBlogSlugsService } from "@/lib/services/blogService";
 
 export const dynamic = "force-static";
 
@@ -10,68 +10,59 @@ const BLOG_TAG = "blogs";
 const PRODUCT_TAG = "products";
 
 const getCachedSitemapData = unstable_cache(
-  async () => {
+  async (): Promise<MetadataRoute.Sitemap> => {
     const baseUrl =
       process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
       "https://vedic-wellness.vercel.app";
 
     const now = new Date();
 
-    const blogs = await getPublicBlogsService();
+    const blogs = await getAllPublishedBlogSlugsService();
     const products = await getAllPublishedProductSlugsService();
 
     const staticRoutes: MetadataRoute.Sitemap = [
       {
         url: `${baseUrl}/`,
-        lastModified: now,
         changeFrequency: "weekly",
         priority: 1,
       },
       {
         url: `${baseUrl}/about`,
-        lastModified: now,
         changeFrequency: "monthly",
         priority: 0.6,
       },
       {
         url: `${baseUrl}/contact`,
-        lastModified: now,
         changeFrequency: "monthly",
         priority: 0.6,
       },
       {
         url: `${baseUrl}/privacy-policy`,
-        lastModified: now,
         changeFrequency: "yearly",
         priority: 0.5,
       },
       {
         url: `${baseUrl}/terms-conditions`,
-        lastModified: now,
         changeFrequency: "yearly",
         priority: 0.5,
       },
       {
         url: `${baseUrl}/login`,
-        lastModified: now,
         changeFrequency: "monthly",
         priority: 0.5,
       },
       {
         url: `${baseUrl}/signup`,
-        lastModified: now,
         changeFrequency: "monthly",
         priority: 0.5,
       },
       {
         url: `${baseUrl}/products`,
-        lastModified: now,
         changeFrequency: "weekly",
         priority: 0.9,
       },
       {
         url: `${baseUrl}/blogs`,
-        lastModified: now,
         changeFrequency: "weekly",
         priority: 0.8,
       },

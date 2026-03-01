@@ -25,9 +25,13 @@ type BlogListItem = {
 export default function BlogsClient({
   featuredBlogs,
   newBlogs,
+  page,
+  totalPages,
 }: {
   featuredBlogs: BlogListItem[];
   newBlogs: BlogListItem[];
+  page: number;
+  totalPages: number;
 }) {
   const renderDate = (b: BlogListItem) =>
     new Date(b.publishedAt ?? b.createdAt).toLocaleDateString("en-IN", {
@@ -36,9 +40,19 @@ export default function BlogsClient({
       year: "numeric",
     });
 
+  /* ========================================================= */
+  /* PAGINATION WINDOW (MATCHES PRODUCTS LOGIC)                */
+  /* ========================================================= */
+
+  const windowSize = 2;
+  const start = Math.max(1, page - windowSize);
+  const end = Math.min(totalPages, page + windowSize);
+  const pages = [];
+  for (let i = start; i <= end; i++) pages.push(i);
+
   return (
     <section className="relative">
-      <div className="mx-auto max-w-7xl px-6 pt-10 pb-16 lg:pt-16 lg:pb-20">
+      <div className="mx-auto max-w-7xl px-6 pt-10 pb-20 space-y-10">
 
         {/* HEADER */}
         <PageHeader
@@ -58,7 +72,7 @@ export default function BlogsClient({
         />
 
         {/* KEYWORD CHIPS */}
-        <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
           {["Ayurveda", "Franchise", "PCD Pharma", "Updates"].map((t) => (
             <Chip key={t}>{t}</Chip>
           ))}
@@ -66,7 +80,7 @@ export default function BlogsClient({
 
         {/* ⭐ FEATURED BLOGS */}
         {featuredBlogs.length > 0 && (
-          <div className="mt-16">
+          <div className="mt-10">
             <h2 className="font-heading text-2xl font-extrabold mb-6">
               Featured Blogs
             </h2>
@@ -74,8 +88,7 @@ export default function BlogsClient({
             <motion.div
               variants={staggerSlow}
               initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
+              animate="show"
               className="grid gap-6 lg:grid-cols-3"
             >
               {featuredBlogs.map((b) => (
@@ -106,14 +119,7 @@ export default function BlogsClient({
                         <ArrowUpRight
                           size={26}
                           strokeWidth={2.4}
-                          className="
-                            shrink-0 mt-1
-                            text-muted
-                            transition-all duration-300
-                            group-hover:text-accent
-                            group-hover:translate-x-[2px]
-                            group-hover:-translate-y-[2px]
-                          "
+                          className="shrink-0 mt-1 text-muted transition-all duration-300 group-hover:text-accent group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
                         />
                       </div>
 
@@ -134,17 +140,17 @@ export default function BlogsClient({
           </div>
         )}
 
-        {/* 🆕 NEW BLOGS */}
-        <div className="mt-20">
+        {/* 🆕 LATEST BLOGS */}
+        <div className="mt-16">
           <h2 className="font-heading text-2xl font-extrabold mb-6">
             Latest Articles
           </h2>
 
           <motion.div
+            key={`blogs-page-${page}`}
             variants={staggerSlow}
             initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
+            animate="show"
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           >
             {newBlogs.map((b) => (
@@ -175,14 +181,7 @@ export default function BlogsClient({
                       <ArrowUpRight
                         size={24}
                         strokeWidth={2.3}
-                        className="
-                          shrink-0 mt-1
-                          text-muted
-                          transition-all duration-300
-                          group-hover:text-accent
-                          group-hover:translate-x-[2px]
-                          group-hover:-translate-y-[2px]
-                        "
+                        className="shrink-0 mt-1 text-muted transition-all duration-300 group-hover:text-accent group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
                       />
                     </div>
 
@@ -209,6 +208,31 @@ export default function BlogsClient({
             </div>
           )}
         </div>
+
+        {/* PAGINATION (MATCHES PRODUCTS STYLE) */}
+        {totalPages > 1 && (
+          <div className="mt-16 flex flex-col items-center gap-4">
+            <p className="text-[11px] text-muted uppercase tracking-widest font-bold">
+              Page {page} of {totalPages}
+            </p>
+
+            <div className="flex items-center gap-2">
+              {pages.map((p) => (
+                <Link
+                  key={p}
+                  href={`/blogs?page=${p}`}
+                  className={`w-16 h-10 rounded-lg flex items-center justify-center text-sm font-bold transition-all ${
+                    p === page
+                      ? "bg-[var(--bg-surface)] border border-white/50 shadow-lg shadow-accent/20 scale-110"
+                      : "bg-[var(--bg-surface)] border border-[var(--border-soft)] hover:border-accent/50"
+                  }`}
+                >
+                  {p}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );

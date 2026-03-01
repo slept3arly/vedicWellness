@@ -8,7 +8,10 @@ import { prisma } from "@/lib/db/prisma";
 export async function getAllPublishedBlogSlugs() {
   return prisma.blog.findMany({
     where: { published: true },
-    select: { slug: true },
+    select: {
+      slug: true,
+      updatedAt: true,
+    },
   });
 }
 
