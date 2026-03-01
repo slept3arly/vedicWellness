@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { CheckCircle2, ShoppingCart, Zap, Truck, ShieldCheck } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import Card from "@/components/public/ui/Card";
 import CustomerButton from "../CustomerButton";
@@ -45,7 +45,7 @@ export default function ProductPriceCard({
 
   function increase() {
     if (existingQty + qty >= 20) {
-      toast.warning("Maximum 20 units allowed per product");
+      toast.warning("Maximum limit reached", "You can only purchase up to 20 units per product.");
       return;
     }
     setQty((q) => Math.min(effectiveStock, q + 1));
@@ -56,23 +56,37 @@ export default function ProductPriceCard({
   }
 
   function handleAddToCart() {
-    if (isMaxed) {
-      toast.warning("You already have 20 units in cart");
-      return;
-    }
+  if (isMaxed) {
+    toast.warning(
+      "Cart limit reached",
+      "You already have 20 units of this product."
+    );
+    return;
+  }
 
-    startAddTransition(async () => {
+  startAddTransition(async () => {
+    try {
       await addToCartAction({
         productId: product.id,
         quantity: qty,
       });
 
-      toast.success("Added to cart");
+      toast.success(
+        "Added to cart",
+        `${qty} item${qty > 1 ? "s" : ""} added successfully.`
+      );
+
       setInCart(true);
       setQty(1);
       router.refresh();
-    });
-  }
+    } catch {
+      toast.error(
+        "Failed to add to cart",
+        "Please try again."
+      );
+    }
+  });
+}
 
   function handleBuyNow() {
     router.push(

@@ -37,7 +37,7 @@ export default function FranchiseCTA() {
                 </p>
               </div>
 
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
                 <Button onClick={() => router.push("/contact")}>
                   <FileText size={18} className="mr-2" />
                   Enquiry Form

@@ -3,8 +3,9 @@
 import { useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import OtpVerificationModal from "@/components/public/feedback/OtpVerificationModal";
+import Button from "@/components/public/ui/Button";
 
 export default function SignupForm() {
   const searchParams = useSearchParams();
@@ -30,9 +31,9 @@ export default function SignupForm() {
     if (isLoading) return;
 
     if (!turnstileToken) {
-      toast.warning("Verification required", {
-        description: "Please complete the captcha verification.",
-      });
+      toast.warning("Verification required",
+        "Please complete the captcha verification.",
+      );
       return;
     }
 
@@ -43,18 +44,18 @@ export default function SignupForm() {
     const password = String(formData.get("password"));
 
     if (!email) {
-      toast.warning("Email is required", {
-        description: "Please enter your email address.",
-      });
+      toast.warning("Email is required",
+        "Please enter your email address.",
+      );
       emailRef.current?.focus();
       setIsLoading(false);
       return;
     }
 
     if (!password || password.length < 8) {
-      toast.warning("Weak password", {
-        description: "Password must be at least 8 characters long.",
-      });
+      toast.warning("Weak password",
+        "Password must be at least 8 characters long.",
+      );
       passwordRef.current?.focus();
       setIsLoading(false);
       return;
@@ -74,16 +75,16 @@ export default function SignupForm() {
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        toast.error("Signup failed", {
-          description: data?.error || "Unable to create account.",
-        });
+        toast.error("Signup failed",
+          data?.error || "Unable to create account.",
+        );
         setIsLoading(false);
         return;
       }
 
-      toast.success("OTP sent 🎉", {
-        description: "Please enter the code sent to your email.",
-      });
+      toast.success("OTP sent Successfully",
+        "Please enter the code sent to your email.",
+      );
 
       setSignupEmail(email);
       setShowOtpModal(true);
@@ -91,9 +92,9 @@ export default function SignupForm() {
       setIsLoading(false);
 
     } catch {
-      toast.error("Something went wrong", {
-        description: "Please try again later.",
-      });
+      toast.error("Something went wrong",
+        "Please try again later.",
+      );
       setIsLoading(false);
     }
   }
@@ -165,13 +166,14 @@ export default function SignupForm() {
           onError={() => setTurnstileToken("")}
         />
 
-        <button
+        <Button
           type="submit"
-          disabled={isLoading || !turnstileToken}
-          className="w-full rounded-xl bg-green-600 py-3.5 text-base font-semibold text-white shadow-md hover:bg-green-700 disabled:opacity-60"
+          isLoading={isLoading}
+          disabled={!turnstileToken}
+          className="w-full"
         >
-          {isLoading ? "Creating..." : "Create account"}
-        </button>
+          Create account
+        </Button>
 
         <div className="text-center text-sm text-black/70 dark:text-white/70">
           Already have an account?{" "}

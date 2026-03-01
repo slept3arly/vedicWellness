@@ -138,7 +138,15 @@ export default function RootLayout({
           <DeferredFooter />
           <BottomNavbar />
         </Providers>
-        <Toaster position="top-center" richColors />
+        <Toaster
+          position="top-center"
+          richColors
+          toastOptions={{
+            duration: 4000,
+            className:
+              "mx-auto w-[calc(100%-1.5rem)] lg:w-[calc(100%-4.5rem)] rounded-lg border border-[var(--border-soft)] bg-[var(--bg-surface)] text-[var(--text-main)] shadow-[var(--shadow-soft)]",
+          }}
+        />
       </body>
     </html>
   );

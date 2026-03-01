@@ -3,7 +3,8 @@
 import { useState, useRef } from "react";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
+import Button from "@/components/public/ui/Button";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,18 +30,19 @@ export default function LoginForm() {
     const password = String(formData.get("password"));
 
     if (!email) {
-      toast.warning("Email is required.", {
-        description: "Please enter your email address.",
-      });
+      toast.warning(
+        "Email is required.",
+        "Please enter your email address.",
+      );
       emailRef.current?.focus();
       setIsLoading(false);
       return;
     }
 
     if (!password) {
-      toast.warning("Password is required.", {
-        description: "Please enter your password.",
-      });
+      toast.warning("Password is required.",
+        "Please enter your password.",
+      );
       passwordRef.current?.focus();
       setIsLoading(false);
       return;
@@ -54,24 +56,22 @@ export default function LoginForm() {
       });
 
       if (!res) {
-        toast.error("Login failed", {
-          description: "Unexpected authentication error.",
-        });
+        toast.error("Login failed",
+          "Unexpected authentication error.",
+        );
         setIsLoading(false);
         return;
       }
 
       if (res.error) {
         if (res.error === "EMAIL_NOT_VERIFIED") {
-          toast.error("Email not verified", {
-            description:
+          toast.error("Email not verified",
               "Please verify your email before logging in.",
-          });
+          );
         } else {
-          toast.error("Wrong email or password", {
-            description:
+          toast.error("Wrong email or password",
               "Please check your credentials and try again.",
-          });
+          );
         }
 
         emailRef.current?.focus();
@@ -79,15 +79,15 @@ export default function LoginForm() {
         return;
       }
 
-      toast.success("Login successful 🎉", {
-        description: "Redirecting you now...",
-      });
+      toast.success("Login successful",
+        "Redirecting you now...",
+      );
 
       window.location.href = callbackUrl;
     } catch {
-      toast.error("Something went wrong", {
-        description: "Please try again later.",
-      });
+      toast.error("Something went wrong",
+        "Please try again later.",
+      );
       setIsLoading(false);
     }
   }
@@ -151,13 +151,13 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <button
+      <Button
         type="submit"
-        disabled={isLoading}
-        className="w-full rounded-xl bg-green-600 py-3.5 text-base font-semibold text-white shadow-md hover:bg-green-700 disabled:opacity-60"
+        isLoading={isLoading}
+        className="w-full"
       >
-        {isLoading ? "Logging in..." : "Log in"}
-      </button>
+        Log in
+      </Button>
     </form>
   );
 }

@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createOrderAction } from "./serverActions";
 import Button from "@/components/public/ui/Button";
+import { toast } from "@/lib/toast";
 
 type Props = {
   cart: any;
@@ -45,7 +46,9 @@ export default function CheckoutClient({
         router.push(`/orders/${order.id}`);
       } catch (err) {
         console.error(err);
-        alert("Failed to create order");
+        toast.error("Order creation failed",
+          "Please try again in a moment."
+        );
       }
     });
   }
@@ -120,10 +123,11 @@ export default function CheckoutClient({
 
         <Button
           className="w-full mt-4"
-          disabled={!defaultAddress || isPending}
+          isLoading={isPending}
+          disabled={!defaultAddress}
           onClick={handlePlaceOrder}
         >
-          {isPending ? "Processing..." : "Place Order"}
+          Place Order
         </Button>
       </div>
     </div>

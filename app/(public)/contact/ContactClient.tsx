@@ -11,7 +11,7 @@ import {
   Clock,
 } from "lucide-react";
 import { Turnstile } from "@marsidev/react-turnstile";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 import { reveal, staggerFast } from "@/app/animations";
 
@@ -99,13 +99,17 @@ export default function ContactClient() {
     if (form.message.length < 10) next.message = "Min 10 characters";
 
     if (!turnstileToken) {
-      toast.error("Please complete verification first.");
+      toast.error("Verification required",
+        "Please complete the captcha verification.");
       return;
     }
 
     if (Object.keys(next).length) {
       setErrors(next);
-      toast.error(Object.values(next)[0] || "Please fix highlighted fields.");
+      toast.warning(
+        "Invalid form details",
+        Object.values(next)[0] || "Please fix highlighted fields."
+      );
       return;
     }
 
@@ -120,17 +124,16 @@ export default function ContactClient() {
       return res;
     });
 
-    toast.promise(promise, {
-      loading: "Submitting enquiry...",
-      success: "Enquiry sent successfully",
-      error: "Submission failed. Please try again.",
-    });
-
     try {
       await promise;
       setForm({ name: "", phone: "", email: "", city: "", message: "", website: "" });
       setToken("");
+      toast.success("Enquiry sent successfully",
+        "We'll get back to you shortly."
+      );
     } catch (err) {
+      toast.error("Submission failed.",
+        "Please try again.");
     } finally {
       setLoading(false);
     }
@@ -186,7 +189,7 @@ export default function ContactClient() {
                   <Turnstile siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!} onSuccess={(t) => setToken(t)} />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button type="submit" className="flex-1" disabled={loading}>{loading ? "Submitting..." : "Submit Enquiry"}</Button>
+                  <Button type="submit" className="flex-1" isLoading={loading}> Submit Enquiry </Button>
                   <Button type="button" variant="secondary" className="flex-1" onClick={() => window.open("https://wa.me/+919306025799", "_blank")}>WhatsApp Instead</Button>
                 </div>
               </form>

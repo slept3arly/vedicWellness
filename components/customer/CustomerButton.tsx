@@ -9,14 +9,12 @@ type CustomerButtonProps =
   MotionProps & {
     variant?: "primary" | "secondary" | "ghost";
     size?: "sm" | "md" | "lg";
-    loadingText?: string;
     ignoreFormStatus?: boolean;
     isLoading?: boolean;
   };
 
 export default function CustomerButton({
   ignoreFormStatus = false,
-  loadingText = "Processing...",
   isLoading,
   className,
   ...props
@@ -24,7 +22,6 @@ export default function CustomerButton({
   return (
     <Button
       autoLoading={!ignoreFormStatus}
-      loadingText={loadingText}
       isLoading={isLoading}
       className={cn(className)}
       {...props}

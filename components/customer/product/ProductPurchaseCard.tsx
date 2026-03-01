@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Button from "@/components/public/ui/Button";
 import Chip from "@/components/public/ui/Chip";
 import { addToCartAction } from "@/app/(customer)/cart/serverActions";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type Props = {
   productId: string;
@@ -28,7 +28,8 @@ export default function ProductPurchaseCard({
 
   function increase() {
     if (existingQty + quantity >= 20) {
-      toast.warning("Maximum 20 units allowed per product");
+      toast.warning("Maximum limit reached",
+        "You can only purchase up to 20 units per product.");
       return;
     }
 
@@ -40,18 +41,25 @@ export default function ProductPurchaseCard({
   }
 
   function handleAddToCart(redirect?: boolean) {
-    if (isMaxed) {
-      toast.warning("You already have 20 units in cart");
-      return;
-    }
+  if (isMaxed) {
+    toast.warning(
+      "Cart limit reached",
+      "You already have 20 units of this product."
+    );
+    return;
+  }
 
-    startTransition(async () => {
+  startTransition(async () => {
+    try {
       await addToCartAction({
         productId,
         quantity,
       });
 
-      toast.success("Added to cart");
+      toast.success(
+        "Added to cart",
+        `${quantity} item${quantity > 1 ? "s" : ""} added successfully.`
+      );
 
       setQuantity(1);
       router.refresh();
@@ -59,8 +67,14 @@ export default function ProductPurchaseCard({
       if (redirect) {
         router.push("/cart");
       }
-    });
-  }
+    } catch {
+      toast.error(
+        "Failed to add to cart",
+        "Please try again."
+      );
+    }
+  });
+}
 
   return (
     <div className="mt-8 space-y-5">
@@ -101,19 +115,17 @@ export default function ProductPurchaseCard({
       <div className="flex flex-col sm:flex-row gap-3">
         <Button
           onClick={() => handleAddToCart(false)}
-          disabled={pending || isMaxed}
+          isLoading={pending}
+          disabled={isMaxed}
         >
-          {isMaxed
-            ? "Max 20 Reached"
-            : pending
-            ? "Adding..."
-            : "Add to Cart"}
+          {isMaxed ? "Max 20 Reached" : "Add to Cart"}
         </Button>
 
         <Button
           variant="secondary"
           onClick={() => handleAddToCart(true)}
-          disabled={pending || isMaxed}
+          isLoading={pending}
+          disabled={isMaxed}
         >
           Buy Now
         </Button>

@@ -15,7 +15,6 @@ export default function AdminActionButton({
     <Button
       autoLoading
       variant={variant}
-      loadingText="Processing..."
       className={className}
       type="submit"
     >

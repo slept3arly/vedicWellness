@@ -10,7 +10,7 @@ import {
 } from "@/app/(customer)/cart/serverActions";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 import { Minus, Plus, Leaf, ArrowUpRight, X } from "lucide-react";
 import type { Prisma } from "@prisma/client";
 
@@ -32,25 +32,47 @@ export default function CartItemCard({ item, index }: Props) {
   const lineTotal = item.product.price * item.quantity;
 
   function updateQty(newQty: number) {
-    startQtyTransition(async () => {
+  startQtyTransition(async () => {
+    try {
       await updateCartItemAction({
         itemId: item.id,
         quantity: newQty,
       });
 
-      toast.success("Quantity updated");
+      toast.success(
+        "Quantity updated",
+        "Cart has been updated successfully."
+      );
+
       router.refresh();
-    });
-  }
+    } catch {
+      toast.error(
+        "Update failed",
+        "Unable to update quantity. Please try again."
+      );
+    }
+  });
+}
 
   function handleRemove() {
-    startRemoveTransition(async () => {
+  startRemoveTransition(async () => {
+    try {
       await removeCartItemAction({ itemId: item.id });
 
-      toast.error("Removed from order");
+      toast.delete(
+        "Item removed",
+        "Product removed from your cart."
+      );
+
       router.refresh();
-    });
-  }
+    } catch {
+      toast.error(
+        "Removal failed",
+        "Unable to remove item. Please try again."
+      );
+    }
+  });
+}
 
   return (
     <Card className="p-4 sm:p-6 border border-[var(--border-soft)]">
@@ -221,12 +243,11 @@ export default function CartItemCard({ item, index }: Props) {
             <Button
               variant="ghost"
               onClick={handleRemove}
-              disabled={removePending}
+              isLoading={removePending}
               className="px-5"
             >
-              {removePending ? "Removing…" : "Remove"}
+              Remove
             </Button>
-
           </div>
         </div>
       </div>

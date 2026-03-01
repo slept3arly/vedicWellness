@@ -3,15 +3,17 @@
 import { useEffect, useState } from "react";
 import Button from "@/components/public/ui/Button";
 import { mockMarkPaidAction } from "./mockPaymentAcion";
+import { toast } from "@/lib/toast";
+import { useRouter } from "next/navigation";
 
 type Props = {
   order: any;
 };
 
 export default function OrderDetailsClient({ order }: Props) {
+  const router = useRouter();
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const isPayable =
     order.status === "CREATED" ||
@@ -49,15 +51,17 @@ export default function OrderDetailsClient({ order }: Props) {
 
   async function handleSimulatePayment() {
     try {
-      setError(null);
       setLoading(true);
 
       await mockMarkPaidAction(order.id);
 
       // reload to get updated status
-      window.location.reload();
+      toast.success("Payment successful",
+        "Your order has been marked as paid.");
+      router.refresh();   
     } catch (err: any) {
-      setError(err?.message || "Payment failed");
+      toast.error("Payment failed",
+        err?.message || "Please try again.");
     } finally {
       setLoading(false);
     }
@@ -112,20 +116,13 @@ export default function OrderDetailsClient({ order }: Props) {
       {/* Simulate Payment */}
       {isPayable && !isExpired && (
         <Button
-          disabled={loading}
+          isLoading={loading}
           onClick={handleSimulatePayment}
           className="w-full"
         >
-          {loading ? "Processing..." : "Simulate Payment (Dev Only)"}
+          Simulate Payment (Dev Only)
         </Button>
       )}
-
-      {error && (
-        <p className="text-sm text-red-500 text-center">
-          {error}
-        </p>
-      )}
-
     </div>
   );
 }

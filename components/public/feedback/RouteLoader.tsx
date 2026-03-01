@@ -11,17 +11,29 @@ export default function RouteLoader() {
   const hideTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // 🔥 Always scroll to top immediately on route change
+    window.scrollTo({ top: 0, behavior: "instant" });
+
+    // Delay showing loader to prevent flicker on fast routes
     showTimer.current = setTimeout(() => {
       setVisible(true);
     }, 300);
 
+    // Auto-hide loader after short duration
     hideTimer.current = setTimeout(() => {
       setVisible(false);
-    }, 700); // ← shorter duration feels more natural
+    }, 700);
 
     return () => {
-      if (showTimer.current) clearTimeout(showTimer.current);
-      if (hideTimer.current) clearTimeout(hideTimer.current);
+      if (showTimer.current) {
+        clearTimeout(showTimer.current);
+        showTimer.current = null;
+      }
+
+      if (hideTimer.current) {
+        clearTimeout(hideTimer.current);
+        hideTimer.current = null;
+      }
     };
   }, [pathname]);
 

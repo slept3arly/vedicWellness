@@ -10,10 +10,7 @@ type ButtonProps =
   MotionProps & {
     variant?: "primary" | "secondary" | "ghost";
     size?: "sm" | "md" | "lg";
-
-    /* NEW */
     isLoading?: boolean;
-    loadingText?: string;
     autoLoading?: boolean; // detect form status automatically
   };
 
@@ -23,7 +20,6 @@ export default function Button({
   size = "md",
   className,
   isLoading = false,
-  loadingText,
   autoLoading = false,
   disabled,
   ...props
@@ -40,7 +36,7 @@ export default function Button({
       disabled={loading || disabled}
       aria-busy={loading}
       className={cn(
-        "relative inline-flex items-center justify-center gap-2 rounded-[14px] font-medium",
+        "relative inline-flex items-center justify-center gap-2 rounded-[14px] font-medium whitespace-nowrap min-w-max",
         "transition-shadow focus-visible:outline-none",
         "focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--brand-primary)_35%,transparent)]",
 
@@ -62,14 +58,9 @@ export default function Button({
       )}
       {...props}
     >
-      {loading ? (
-        <>
-          <Spinner />
-          <span>{loadingText ?? children}</span>
-        </>
-      ) : (
-        children
-      )}
+      {loading && <Spinner />}
+      
+  {children}
     </motion.button>
   );
 }

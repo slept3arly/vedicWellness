@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Card from "@/components/public/ui/Card";
 import Button from "@/components/public/ui/Button";
-import { toast } from "sonner";
+import { toast } from "@/lib/toast";
 
 type Props = {
   open: boolean;
@@ -51,16 +51,14 @@ export default function OtpVerificationModal({
 
   async function handleVerify() {
     if (!email) {
-      toast.error("Verification error", {
-        description: "Email not found. Please try signing up again.",
-      });
+      toast.error("Verification error", "Email not found. Please try signing up again.",
+      );
       return;
     }
 
     if (otp.length !== 6) {
-      toast.warning("Invalid OTP", {
-        description: "Please enter the 6-digit code.",
-      });
+      toast.warning("Invalid OTP","Please enter the 6-digit code.",
+      );
       return;
     }
 
@@ -76,23 +74,20 @@ export default function OtpVerificationModal({
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error("Verification failed", {
-          description: data?.error || "Invalid or expired OTP.",
-        });
+        toast.error("Verification failed", data?.error || "Invalid or expired OTP.",
+        );
         setIsLoading(false);
         return;
       }
 
-      toast.success("Account verified successfully 🎉", {
-        description: "You can now login to your account.",
-      });
+      toast.success("Account verified successfully", "You can now login to your account.",
+      );
 
       onVerified();
       onClose();
     } catch (err) {
-      toast.error("Verification failed", {
-        description: "Unexpected server error.",
-      });
+      toast.error("Verification failed", "Unexpected server error.",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -115,22 +110,19 @@ export default function OtpVerificationModal({
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error("Failed to resend OTP", {
-          description: data?.error || "Please try again later.",
-        });
+        toast.error("Failed to resend OTP", data?.error || "Please try again later.",
+        );
         return;
       }
 
-      toast.success("New OTP sent 📩", {
-        description: "Check your email for the new code.",
-      });
+      toast.success("New OTP sent","Check your email for the new code.",
+      );
 
       // start cooldown
       setCooldown(30);
     } catch (err) {
-      toast.error("Resend failed", {
-        description: "Unexpected server error.",
-      });
+      toast.error("Resend failed","Unexpected server error.",
+      );
     } finally {
       setResending(false);
     }
@@ -177,10 +169,10 @@ export default function OtpVerificationModal({
           <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <Button
               onClick={handleVerify}
-              disabled={isLoading}
+              isLoading={isLoading}
               className="flex-1"
             >
-              {isLoading ? "Verifying..." : "Verify OTP"}
+              Verify OTP
             </Button>
 
             <Button
@@ -200,11 +192,7 @@ export default function OtpVerificationModal({
             disabled={resending || cooldown > 0}
             className="text-sm text-blue-500 disabled:opacity-50"
           >
-            {cooldown > 0
-              ? `Resend in ${cooldown}s`
-              : resending
-              ? "Resending..."
-              : "Resend OTP"}
+            {cooldown > 0 ? `Resend in ${cooldown}s` : "Resend OTP"}
           </button>
         </Card>
       </div>
