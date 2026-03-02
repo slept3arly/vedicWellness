@@ -79,19 +79,8 @@ export default function ProductHero({
         </motion.div>
       </section>
 
-      {/* DIVIDER */}
-      <div className="pt-6 pb-6">
-        <div className="flex items-center gap-4 opacity-80">
-          <div className="h-px bg-foreground/30 flex-1" />
-          <div className="w-6 h-6 flex items-center justify-center border border-foreground/30 text-foreground/60 shrink-0">
-            <Plus size={12} />
-          </div>
-          <div className="h-px bg-foreground/30 flex-1" />
-        </div>
-      </div>
-
       {/* CORE */}
-      <section className="pb-6">
+      <section className="pt-10">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
           
           {/* Image */}
