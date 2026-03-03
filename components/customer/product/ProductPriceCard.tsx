@@ -2,7 +2,13 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, ShoppingCart, Zap, Truck, ShieldCheck } from "lucide-react";
+import {
+  CheckCircle2,
+  ShoppingCart,
+  Zap,
+  Truck,
+  ShieldCheck,
+} from "lucide-react";
 import { toast } from "@/lib/toast";
 
 import Card from "@/components/public/ui/Card";
@@ -21,9 +27,14 @@ export default function ProductPriceCard({
   const [addPending, startAddTransition] = useTransition();
 
   const [qty, setQty] = useState(1);
-  const [selectedVariant] = useState<ProductVariant | null>(
-    product.variants?.[0] ?? null
-  );
+
+  const hasVariants =
+    product.variants && product.variants.length > 0;
+
+  const [selectedVariant, setSelectedVariant] =
+    useState<ProductVariant | null>(
+      hasVariants ? product.variants![0] : null
+    );
 
   const [inCart, setInCart] = useState(existingQty > 0);
 
@@ -31,23 +42,32 @@ export default function ProductPriceCard({
     selectedVariant?.price ?? product.price;
 
   const effectiveCompare =
-    selectedVariant?.compareAtPrice ?? product.compareAtPrice;
+    selectedVariant?.compareAtPrice ??
+    product.compareAtPrice;
 
   const effectiveStock =
     selectedVariant?.stock ?? product.stock;
 
   const discount =
     effectiveCompare && effectiveCompare > effectivePrice
-      ? Math.round(((effectiveCompare - effectivePrice) / effectiveCompare) * 100)
+      ? Math.round(
+          ((effectiveCompare - effectivePrice) /
+            effectiveCompare) *
+            100
+        )
       : null;
 
   const isMaxed = existingQty >= 20;
 
   function increase() {
     if (existingQty + qty >= 20) {
-      toast.warning("Maximum limit reached", "You can only purchase up to 20 units per product.");
+      toast.warning(
+        "Maximum limit reached",
+        "You can only purchase up to 20 units per product."
+      );
       return;
     }
+
     setQty((q) => Math.min(effectiveStock, q + 1));
   }
 
@@ -56,41 +76,70 @@ export default function ProductPriceCard({
   }
 
   function handleAddToCart() {
-  if (isMaxed) {
-    toast.warning(
-      "Cart limit reached",
-      "You already have 20 units of this product."
-    );
-    return;
+    if (hasVariants && !selectedVariant) {
+      toast.warning(
+        "Select an option",
+        "Please select a variant before adding to cart."
+      );
+      return;
+    }
+
+    if (effectiveStock <= 0) {
+      toast.error(
+        "Out of stock",
+        "This option is currently unavailable."
+      );
+      return;
+    }
+
+    if (isMaxed) {
+      toast.warning(
+        "Cart limit reached",
+        "You already have 20 units of this product."
+      );
+      return;
+    }
+
+    startAddTransition(async () => {
+      try {
+        await addToCartAction({
+          productId: product.id,
+          variantId: selectedVariant?.id ?? null,
+          quantity: qty,
+        });
+
+        toast.success(
+          "Added to cart",
+          `${qty} item${qty > 1 ? "s" : ""} added successfully.`
+        );
+
+        setInCart(true);
+        setQty(1);
+        router.refresh();
+      } catch {
+        toast.error(
+          "Failed to add to cart",
+          "Please try again."
+        );
+      }
+    });
   }
 
-  startAddTransition(async () => {
-    try {
-      await addToCartAction({
-        productId: product.id,
-        quantity: qty,
-      });
-
-      toast.success(
-        "Added to cart",
-        `${qty} item${qty > 1 ? "s" : ""} added successfully.`
-      );
-
-      setInCart(true);
-      setQty(1);
-      router.refresh();
-    } catch {
-      toast.error(
-        "Failed to add to cart",
-        "Please try again."
-      );
-    }
-  });
-}
-
   function handleBuyNow() {
+    if (hasVariants && !selectedVariant) {
+      toast.warning(
+        "Select an option",
+        "Please select a variant first."
+      );
+      return;
+    }
+
+    const variantParam = selectedVariant
+      ? `&variantId=${selectedVariant.id}`
+      : "";
+
     router.push(
-      `/checkout?buyNow=true&productId=${product.id}&qty=${qty}`
+      `/checkout?buyNow=true&productId=${product.id}&qty=${qty}${variantParam}`
     );
   }
 
@@ -101,6 +150,35 @@ export default function ProductPriceCard({
   return (
     <Card className="p-6 space-y-6 flex flex-col">
 
+      {/* VARIANT SELECTOR */}
+      {hasVariants && (
+        <div className="space-y-2">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted">
+            Select Option
+          </p>
+
+          <div className="flex flex-wrap gap-2">
+            {product.variants!.map((variant) => (
+              <button
+                key={variant.id}
+                type="button"
+                onClick={() => {
+                  setSelectedVariant(variant);
+                  setQty(1); // ✅ reset qty when switching variant
+                }}
+                className={`px-4 py-2 border rounded-lg text-sm ${
+                  selectedVariant?.id === variant.id
+                    ? "bg-black text-white border-black shadow-sm"
+                    : "bg-white"
+                }`}
+              >
+                {variant.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* PRICE */}
       <div className="space-y-3">
         <div className="flex items-baseline gap-3 flex-wrap">
@@ -108,11 +186,12 @@ export default function ProductPriceCard({
             {fmt(effectivePrice)}
           </span>
 
-          {effectiveCompare && effectiveCompare > effectivePrice && (
-            <span className="text-base text-muted line-through">
-              {fmt(effectiveCompare)}
-            </span>
-          )}
+          {effectiveCompare &&
+            effectiveCompare > effectivePrice && (
+              <span className="text-base text-muted line-through">
+                {fmt(effectiveCompare)}
+              </span>
+            )}
 
           {discount && (
             <span className="text-xs font-bold bg-green-500/15 text-green-500 px-2 py-1 rounded-full">
@@ -160,7 +239,7 @@ export default function ProductPriceCard({
             <CustomerButton
               onClick={handleAddToCart}
               isLoading={addPending}
-              disabled={addPending}
+              disabled={addPending || effectiveStock === 0}
               className="flex-1 h-12 flex items-center justify-center gap-2"
             >
               <ShoppingCart size={16} />

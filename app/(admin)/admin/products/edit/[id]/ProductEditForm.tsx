@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { updateProduct } from "../../serverActions";
 import ProductImagesField from "@/components/admin/ProductImagesField";
-import { MedicineForm, Product } from "@prisma/client";
+import { MedicineForm, Product, ProductVariant } from "@prisma/client";
 
 /* -------------------------------------------------- */
 
@@ -31,7 +31,7 @@ function packagingHint(form: MedicineForm | "") {
 export default function ProductEditForm({
   product,
 }: {
-  product: Product;
+  product: Product & { variants?: ProductVariant[] };
 }) {
   const [coverUrl, setCoverUrl] = useState(product.imageUrl ?? "");
   const [gallery, setGallery] = useState<string[]>(
@@ -41,6 +41,43 @@ export default function ProductEditForm({
   const [medicineForm, setMedicineForm] = useState<
     MedicineForm | ""
   >(product.medicineForm ?? "");
+
+  const [variants, setVariants] = useState<ProductVariant[]>(
+    product.variants ?? []
+  );
+
+  /* -------------------------------------------------- */
+  /* Variant Handlers                                   */
+  /* -------------------------------------------------- */
+
+  function addVariant() {
+    setVariants([
+      ...variants,
+      {
+        id: "",
+        productId: product.id,
+        name: "",
+        price: 0,
+        compareAtPrice: null,
+        stock: 0,
+        sku: null,
+      },
+    ]);
+  }
+
+  function updateVariant(
+    index: number,
+    field: keyof ProductVariant,
+    value: any
+  ) {
+    const updated = [...variants];
+    (updated[index] as any)[field] = value;
+    setVariants(updated);
+  }
+
+  function removeVariant(index: number) {
+    setVariants(variants.filter((_, i) => i !== index));
+  }
 
   const packagingPlaceholder = useMemo(
     () => packagingHint(medicineForm),
@@ -63,14 +100,18 @@ export default function ProductEditForm({
       </div>
 
       <form action={updateProduct} className="space-y-6">
-
-        {/* hidden */}
+        {/* Hidden Fields */}
         <input type="hidden" name="id" value={product.id} />
         <input type="hidden" name="imageUrl" value={coverUrl} />
         <input
           type="hidden"
           name="galleryText"
           value={gallery.join("\n")}
+        />
+        <input
+          type="hidden"
+          name="variantsJson"
+          value={JSON.stringify(variants)}
         />
 
         {/* Core */}
@@ -105,6 +146,83 @@ export default function ProductEditForm({
             required
           />
         </div>
+
+        {/* Variants */}
+        <Section title="Variants">
+          <div className="space-y-4">
+            {variants.map((variant, index) => (
+              <div
+                key={index}
+                className="border p-4 rounded-lg grid md:grid-cols-5 gap-3"
+              >
+                <input
+                  placeholder="Variant name"
+                  value={variant.name}
+                  onChange={(e) =>
+                    updateVariant(index, "name", e.target.value)
+                  }
+                />
+
+                <input
+                  type="number"
+                  placeholder="Price"
+                  value={variant.price}
+                  onChange={(e) =>
+                    updateVariant(index, "price", Number(e.target.value))
+                  }
+                />
+
+                <input
+                  type="number"
+                  placeholder="Compare price"
+                  value={variant.compareAtPrice ?? ""}
+                  onChange={(e) =>
+                    updateVariant(
+                      index,
+                      "compareAtPrice",
+                      e.target.value
+                        ? Number(e.target.value)
+                        : null
+                    )
+                  }
+                />
+
+                <input
+                  type="number"
+                  placeholder="Stock"
+                  value={variant.stock}
+                  onChange={(e) =>
+                    updateVariant(index, "stock", Number(e.target.value))
+                  }
+                />
+
+                <input
+                  placeholder="SKU"
+                  value={variant.sku ?? ""}
+                  onChange={(e) =>
+                    updateVariant(index, "sku", e.target.value)
+                  }
+                />
+
+                <button
+                  type="button"
+                  onClick={() => removeVariant(index)}
+                  className="text-red-500 col-span-full text-left"
+                >
+                  Remove
+                </button>
+              </div>
+            ))}
+
+            <button
+              type="button"
+              onClick={addVariant}
+              className="px-4 py-2 border rounded-lg"
+            >
+              + Add Variant
+            </button>
+          </div>
+        </Section>
 
         {/* Images */}
         <ProductImagesField

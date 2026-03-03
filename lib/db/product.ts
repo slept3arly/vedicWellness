@@ -204,6 +204,12 @@ export async function getPublicProductsDB({
 export async function getPublicProductBySlugDB(slug: string) {
   return prisma.product.findFirst({
     where: { slug, published: true },
+    include: {
+      variants: true,
+      specifications: true,
+      faqs: true,
+      reviews: true,
+    },
   });
 }
 

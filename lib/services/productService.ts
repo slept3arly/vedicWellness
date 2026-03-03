@@ -11,9 +11,10 @@ import {
 } from "@/lib/db/product";
 import { MedicineForm } from "@prisma/client";
 import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
-import { parseProductForm } from "@/lib/validators/product";
+import { parseProductForm, ProductVariantsSchema } from "@/lib/validators/product";
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
+import { prisma } from "@/lib/db/prisma";
 
 const PRODUCT_TAG = "products";
 const PUBLIC_PAGE_SIZE = 10;
@@ -40,28 +41,119 @@ export async function createProductService(formData: FormData, adminId: string) 
   return product.id;
 }
 
-export async function updateProductService(formData: FormData, adminId: string) {
+export async function updateProductService(
+  formData: FormData,
+  adminId: string
+) {
   const data = parseProductForm(formData);
   if (!data.id) throw new Error("Missing product id");
-  const current = await getProductById(data.id);
-  await updateProductDB(data.id, data);
 
-  if (current?.imageUrl && data.imageUrl && current.imageUrl !== data.imageUrl) {
+  const current = await getProductById(data.id);
+
+  /* -------------------------------------------------- */
+  /* Parse Variants JSON                               */
+  /* -------------------------------------------------- */
+
+  let variantsRaw: unknown = [];
+  const variantsJson = formData.get("variantsJson");
+
+  if (variantsJson) {
+    try {
+      variantsRaw = JSON.parse(String(variantsJson));
+    } catch {
+      variantsRaw = [];
+    }
+  }
+
+  const variants = ProductVariantsSchema.parse(
+    Array.isArray(variantsRaw)
+      ? variantsRaw.map((v: any) => ({
+          name: String(v.name ?? "").trim(),
+          price: Number(v.price),
+          compareAtPrice:
+            v.compareAtPrice && Number(v.compareAtPrice) > 0
+              ? Number(v.compareAtPrice)
+              : null,
+          stock: Number(v.stock ?? 0),
+          sku: v.sku ? String(v.sku).trim() : null,
+        }))
+      : []
+  );
+
+  /* -------------------------------------------------- */
+  /* Transaction: Update Product + Replace Variants    */
+  /* -------------------------------------------------- */
+
+  await prisma.$transaction(async (tx) => {
+    await tx.product.update({
+      where: { id: data.id },
+      data,
+    });
+
+    // Delete existing variants
+    await tx.productVariant.deleteMany({
+      where: { productId: data.id },
+    });
+
+    // Recreate new ones
+    if (variants.length > 0) {
+      await tx.productVariant.createMany({
+        data: variants.map((v) => ({
+          productId: data.id!,
+          name: v.name,
+          price: v.price,
+          compareAtPrice: v.compareAtPrice,
+          stock: v.stock,
+          sku: v.sku,
+        })),
+      });
+    }
+  });
+
+  /* -------------------------------------------------- */
+  /* Image Cleanup                                      */
+  /* -------------------------------------------------- */
+
+  if (
+    current?.imageUrl &&
+    data.imageUrl &&
+    current.imageUrl !== data.imageUrl
+  ) {
     const key = getR2KeyFromPublicUrl(current.imageUrl);
     if (key) await deleteFromR2(key);
   }
 
+  /* -------------------------------------------------- */
+  /* Revalidation                                       */
+  /* -------------------------------------------------- */
+
   revalidateTag(PRODUCT_TAG, "default");
   revalidatePath("/products");
-  if (data.slug) revalidatePath(`/products/${data.slug}`);
+
+  if (data.slug) {
+    revalidatePath(`/products/${data.slug}`);
+  }
+
+  /* -------------------------------------------------- */
+  /* Audit                                              */
+  /* -------------------------------------------------- */
 
   await auditWithContext({
     actorId: adminId,
     action: "ADMIN_UPDATE",
     entityType: "PRODUCTS",
     entityId: data.id,
-    metadata: { kind: "PRODUCT", name: data.name, slug: data.slug, published: data.published, price: data.price },
+    metadata: {
+      kind: "PRODUCT",
+      name: data.name,
+      slug: data.slug,
+      published: data.published,
+      price: data.price,
+      variantsCount: variants.length,
+    },
   });
+
+  return data.id;
 }
 
 export async function toggleProductPublishedService(id: string, published: boolean, adminId: string) {

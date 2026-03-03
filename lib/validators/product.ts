@@ -2,7 +2,7 @@ import { z } from "zod";
 import { MedicineForm } from "@prisma/client";
 
 /* ------------------------------------------------------------------ */
-/* Schema                                                             */
+/* Product Schema                                                     */
 /* ------------------------------------------------------------------ */
 
 export const ProductSchema = z.object({
@@ -55,6 +55,20 @@ export const ProductSchema = z.object({
   /* Status */
   published: z.boolean(),
 });
+
+/* ------------------------------------------------------------------ */
+/* Variant Schema                                                     */
+/* ------------------------------------------------------------------ */
+
+export const ProductVariantSchema = z.object({
+  name: z.string().min(1, "Variant name is required"),
+  price: z.number().positive("Variant price must be greater than 0"),
+  compareAtPrice: z.number().nullable(),
+  stock: z.number().int().min(0, "Stock cannot be negative"),
+  sku: z.string().nullable(),
+});
+
+export const ProductVariantsSchema = z.array(ProductVariantSchema);
 
 /* ------------------------------------------------------------------ */
 /* Helpers                                                            */
