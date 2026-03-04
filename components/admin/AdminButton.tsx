@@ -32,6 +32,7 @@ export default function AdminButton({
 }: Props) {
   return (
     <Button
+      autoLoading={props.type === "submit"}
       className={clsx(
         `
         h-11 min-w-[104px]

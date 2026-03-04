@@ -1,263 +1,278 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { createProduct } from "../serverActions";
 import ProductImagesField from "@/components/admin/ProductImagesField";
+import AdminCard from "@/components/admin/AdminCard";
+import AdminButton from "@/components/admin/AdminButton";
+import { toast } from "@/lib/toast";
 import { MedicineForm } from "@prisma/client";
 
-/* -------------------------------------------------- */
+/* ── helpers ── */
 
-function packagingHint(form: MedicineForm | "") {
-  if (form === "TABLET" || form === "CAPSULE")
-    return "Example:\nTablets per strip: 10\nStrips per box: 20";
-  if (form === "SYRUP" || form === "SUSPENSION")
-    return "Example:\nBottle size (ml): 200";
-  if (form === "OINTMENT" || form === "CREAM" || form === "GEL")
-    return "Example:\nTube size (gm): 30";
-  if (form === "OIL" || form === "SHAMPOO" || form === "LOTION")
-    return "Example:\nBottle size (ml): 100";
-  return "Example:\nPack size: 1\nUnit: bottle/box/strip";
-}
+const FORM_LABELS: Record<MedicineForm, string> = {
+  TABLET: "Tablet", CAPSULE: "Capsule", SYRUP: "Syrup", DROPS: "Drops",
+  SUSPENSION: "Suspension", POWDER: "Powder", GRANULES: "Granules",
+  OINTMENT: "Ointment", CREAM: "Cream", GEL: "Gel", LOTION: "Lotion",
+  SHAMPOO: "Shampoo", OIL: "Oil", SPRAY: "Spray", INHALER: "Inhaler",
+  INJECTION: "Injection", OTHER: "Other",
+};
 
-/* -------------------------------------------------- */
+const PACKAGING_HINTS: Partial<Record<MedicineForm, string>> = {
+  TABLET: "Tablets per strip: 10\nStrips per box: 20",
+  CAPSULE: "Capsules per strip: 10\nStrips per box: 20",
+  SYRUP: "Bottle size (ml): 200",
+  SUSPENSION: "Bottle size (ml): 100",
+  OINTMENT: "Tube size (gm): 30", CREAM: "Tube size (gm): 30", GEL: "Tube size (gm): 30",
+  OIL: "Bottle size (ml): 100", SHAMPOO: "Bottle size (ml): 100", LOTION: "Bottle size (ml): 100",
+};
 
-export default function ProductNewForm() {
-  const [coverUrl, setCoverUrl] = useState("");
-  const [gallery, setGallery] = useState<string[]>([]);
-  const [form, setForm] = useState<MedicineForm | "">("");
+/* ── shared class strings ── */
 
-  const packagingPlaceholder = useMemo(
-    () => packagingHint(form),
-    [form]
-  );
+const inputCls =
+  "w-full h-10 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow";
 
+const textareaCls =
+  "w-full h-28 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring transition-shadow";
+
+const selectCls =
+  "w-full h-10 rounded-lg border border-border bg-background px-3 pr-8 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow appearance-none cursor-pointer";
+
+const labelCls =
+  "block mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground";
+
+const hintCls = "mt-1 text-xs text-muted-foreground/70";
+
+/* ── primitives ── */
+
+function F({ id, lbl, tip, req, children }: {
+  id?: string; lbl: string; tip?: string; req?: boolean; children: React.ReactNode;
+}) {
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
-      <h1 className="text-3xl font-bold">Add Product</h1>
-
-      <form
-        action={createProduct}
-        className="space-y-6"
-      >
-        {/* ---------------- Core Info ---------------- */}
-
-        <div className="grid md:grid-cols-2 gap-4">
-          <input name="name" placeholder="Product name" required />
-          <input name="slug" placeholder="Slug (hair-oil)" required />
-          <input name="subtitle" placeholder="Subtitle (optional)" />
-          <input name="tag" placeholder='Tag (e.g. "Best Seller")' />
-        </div>
-
-        {/* ---------------- Pricing ---------------- */}
-
-        <div className="grid md:grid-cols-3 gap-4">
-          <input
-            name="price"
-            placeholder="Selling price (₹)"
-            inputMode="numeric"
-            required
-          />
-
-          <input
-            name="compareAtPrice"
-            placeholder="MRP / Compare price (optional)"
-            inputMode="numeric"
-          />
-
-          <input
-            name="stock"
-            placeholder="Stock quantity"
-            inputMode="numeric"
-            defaultValue="0"
-            required
-          />
-        </div>
-
-        {/* ---------------- Images ---------------- */}
-
-        <input type="hidden" name="imageUrl" value={coverUrl} />
-        <input
-          type="hidden"
-          name="galleryText"
-          value={gallery.join("\n")}
-        />
-
-        <ProductImagesField
-          coverUrl={coverUrl}
-          setCoverUrl={setCoverUrl}
-          gallery={gallery}
-          setGallery={setGallery}
-        />
-
-        {/* ---------------- Description ---------------- */}
-
-        <textarea
-          name="shortDescription"
-          placeholder="Short description (1–2 lines)"
-          rows={3}
-        />
-
-        <textarea
-          name="longDescription"
-          placeholder="Long description (detailed product overview)"
-          rows={5}
-        />
-
-        {/* ---------------- Structured Content ---------------- */}
-
-        <Section title="Highlights">
-          <textarea
-            name="highlights"
-            placeholder="One per line (Amazon bullet style)"
-            rows={4}
-          />
-        </Section>
-
-        <Section title="Benefits">
-          <textarea
-            name="benefits"
-            placeholder="One per line"
-            rows={4}
-          />
-        </Section>
-
-        <Section title="Who Should Use">
-          <textarea
-            name="whoShouldUse"
-            placeholder="One per line"
-            rows={4}
-          />
-        </Section>
-
-        <Section title="Ingredients">
-          <textarea
-            name="ingredients"
-            placeholder="One per line"
-            rows={4}
-          />
-        </Section>
-
-        <Section title="Directions To Use">
-          <textarea
-            name="directionsToUse"
-            placeholder="One per line"
-            rows={4}
-          />
-        </Section>
-
-        <Section title="Precautions">
-          <textarea
-            name="precautions"
-            placeholder="One per line"
-            rows={4}
-          />
-        </Section>
-
-        {/* ---------------- Dosage Form ---------------- */}
-
-        <select
-          name="medicineForm"
-          value={form}
-          onChange={(e) =>
-            setForm(e.target.value as MedicineForm)
-          }
-          required
-        >
-          <option value="">Dosage form</option>
-          {Object.values(MedicineForm).map((f) => (
-            <option key={f} value={f}>
-              {f}
-            </option>
-          ))}
-        </select>
-
-        {/* ---------------- Packaging ---------------- */}
-
-        <textarea
-          name="packagingText"
-          placeholder={`Packaging details\n${packagingPlaceholder}`}
-          rows={4}
-        />
-
-        {/* ---------------- Technical Info ---------------- */}
-
-        <div className="grid md:grid-cols-2 gap-4">
-          <input name="manufacturer" placeholder="Manufacturer" />
-          <input
-            name="countryOfOrigin"
-            placeholder="Country of origin"
-            defaultValue="India"
-          />
-          <input name="shelfLife" placeholder="Shelf life" />
-          <input name="netQuantity" placeholder="Net quantity" />
-        </div>
-
-        {/* ---------------- Trust Layer ---------------- */}
-
-        <Section title="Trust Badges">
-          <textarea
-            name="trustBadges"
-            placeholder="One per line (e.g. GMP Certified)"
-            rows={3}
-            defaultValue="GMP Certified"
-          />
-        </Section>
-
-        <Section title="Certifications">
-          <textarea
-            name="certifications"
-            placeholder="One per line"
-            rows={3}
-          />
-        </Section>
-
-        {/* ---------------- Publish ---------------- */}
-
-        <label className="flex items-center gap-2">
-          <input
-            name="published"
-            type="checkbox"
-            defaultChecked
-          />
-          Published
-        </label>
-
-        {/* ---------------- Actions ---------------- */}
-
-        <div className="flex gap-4">
-          <button
-            type="submit"
-            className="px-6 py-2 bg-black text-white rounded-lg"
-          >
-            Create
-          </button>
-
-          <Link
-            href="/admin/products"
-            className="px-6 py-2 border rounded-lg"
-          >
-            Cancel
-          </Link>
-        </div>
-      </form>
+    <div>
+      <label htmlFor={id} className={labelCls}>
+        {lbl}{req && <span className="ml-0.5 text-destructive" aria-hidden>*</span>}
+      </label>
+      {children}
+      {tip && <p className={hintCls}>{tip}</p>}
     </div>
   );
 }
 
-/* -------------------------------------------------- */
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
+function Sec({ title, sub, children }: {
+  title: string; sub?: string; children: React.ReactNode;
 }) {
   return (
-    <div className="space-y-2">
-      <h3 className="font-semibold text-lg">{title}</h3>
-      {children}
+    <AdminCard>
+      <div className="mb-5 pb-4 border-b border-border">
+        <h2 className="text-base font-semibold">{title}</h2>
+        {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+      </div>
+      <div className="space-y-5">{children}</div>
+    </AdminCard>
+  );
+}
+
+/* ── main ── */
+
+export default function ProductNewForm() {
+  const [isPending, start] = useTransition();
+  const [coverUrl, setCoverUrl] = useState("");
+  const [gallery, setGallery]   = useState<string[]>([]);
+  const [medicineForm, setMedicineForm] = useState<MedicineForm | "">("");
+
+  const pkgHint = useMemo(
+    () => PACKAGING_HINTS[medicineForm as MedicineForm] ?? "Pack size: 1\nUnit: bottle/box/strip",
+    [medicineForm]
+  );
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    start(async () => {
+      try {
+        await createProduct(data);
+        toast.success("Product created successfully.");
+      } catch (e: any) {
+        // Next.js throws NEXT_REDIRECT internally when redirect() is called in a server action — not a real error
+        if (e?.message === "NEXT_REDIRECT" || e?.digest?.startsWith("NEXT_REDIRECT")) return;
+        toast.error("Failed to create product", e?.message);
+      }
+    });
+  }
+
+  return (
+    <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-16 py-8 space-y-6">
+      <form onSubmit={handleSubmit} noValidate aria-label="Create product" className="space-y-6">
+
+        {/* header */}
+        <div className="space-y-3">
+          {/* title row */}
+          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Add Product</h1>
+            <div className="flex items-center gap-2 shrink-0">
+              <Link href="/admin/products" tabIndex={isPending ? -1 : 0}>
+                <AdminButton type="button" variant="secondary" disabled={isPending}>
+                  Discard
+                </AdminButton>
+              </Link>
+              <AdminButton type="submit" variant="success" disabled={isPending} aria-busy={isPending}>
+                {isPending ? "Creating…" : "Create Product"}
+              </AdminButton>
+            </div>
+          </div>
+        </div>
+
+        {/* hidden state */}
+        <input type="hidden" name="imageUrl"    value={coverUrl} />
+        <input type="hidden" name="galleryText" value={gallery.join("\n")} />
+
+        {/* core info */}
+        <Sec title="Core Information" sub="Shown on product listing and detail page.">
+          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-5">
+            <F id="name" lbl="Product Name" req>
+              <input id="name" name="name" placeholder="Lady-K Syrup" required autoComplete="off" className={inputCls} aria-required />
+            </F>
+            <F id="slug" lbl="Slug" req tip="URL-safe, e.g. my-product-name">
+              <input id="slug" name="slug" placeholder="lady-k-syrup" required pattern="[a-z0-9-]+" autoComplete="off" className={inputCls} aria-required />
+            </F>
+            <F id="subtitle" lbl="Subtitle">
+              <input id="subtitle" name="subtitle" placeholder="Ayurvedic Uterine Tonic" className={inputCls} />
+            </F>
+            <F id="tag" lbl="Tag" tip="e.g. bestseller, new">
+              <input id="tag" name="tag" placeholder="Women's Care" className={inputCls} />
+            </F>
+          </div>
+        </Sec>
+
+        {/* pricing */}
+        <Sec title="Pricing & Inventory" sub="Base price. You can add variants after creating the product.">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+            <F id="price" lbl="Price (₹)" req>
+              <input id="price" name="price" inputMode="numeric" placeholder="299" required className={inputCls} aria-required />
+            </F>
+            <F id="compareAtPrice" lbl="Compare At (₹)" tip="Strike-through price">
+              <input id="compareAtPrice" name="compareAtPrice" inputMode="numeric" placeholder="399" className={inputCls} />
+            </F>
+            <F id="stock" lbl="Stock" req>
+              <input id="stock" name="stock" inputMode="numeric" placeholder="0" defaultValue="0" required className={inputCls} aria-required />
+            </F>
+            <F id="sku" lbl="SKU" tip="Unique product code">
+              <input id="sku" name="sku" placeholder="SKU-001" className={inputCls} />
+            </F>
+          </div>
+        </Sec>
+
+        {/* images */}
+        <ProductImagesField
+          coverUrl={coverUrl}   setCoverUrl={setCoverUrl}
+          gallery={gallery}     setGallery={setGallery}
+        />
+
+        {/* descriptions */}
+        <Sec title="Descriptions" sub="Short for cards; long for the product page.">
+          <div className="grid sm:grid-cols-2 gap-5">
+            <F id="shortDescription" lbl="Short Description">
+              <textarea id="shortDescription" name="shortDescription" placeholder="1–2 line product summary" className={textareaCls} />
+            </F>
+            <F id="longDescription" lbl="Long Description">
+              <textarea id="longDescription" name="longDescription" placeholder="Detailed product overview" className={textareaCls} />
+            </F>
+          </div>
+        </Sec>
+
+        {/* structured content */}
+        <Sec title="Structured Content" sub="One item per line — powers bullets, icon grids, and tabs.">
+          <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-5">
+            {([
+              ["highlights",      "Highlights",     "Amazon-style bullet points"],
+              ["benefits",        "Benefits",       "Icon feature grid"],
+              ["whoShouldUse",    "Who Should Use", ""],
+              ["ingredients",     "Ingredients",    ""],
+              ["directionsToUse", "Directions",     ""],
+              ["precautions",     "Precautions",    ""],
+            ] as const).map(([name, lbl, tip]) => (
+              <F key={name} id={name} lbl={lbl} tip={tip || undefined}>
+                <textarea id={name} name={name} placeholder="One per line" className={textareaCls} />
+              </F>
+            ))}
+          </div>
+        </Sec>
+
+        {/* product details */}
+        <Sec title="Product Details" sub="Dosage form and packaging info.">
+          <div className="grid sm:grid-cols-2 gap-5">
+            <F id="medicineForm" lbl="Dosage Form">
+              <div className="relative">
+                <select id="medicineForm" name="medicineForm"
+                  value={medicineForm}
+                  onChange={(e) => setMedicineForm(e.target.value as MedicineForm)}
+                  className={selectCls}
+                >
+                  <option value="">Select form</option>
+                  {(Object.keys(FORM_LABELS) as MedicineForm[]).map((f) => (
+                    <option key={f} value={f}>{FORM_LABELS[f]}</option>
+                  ))}
+                </select>
+                <span aria-hidden className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">▾</span>
+              </div>
+            </F>
+            <F id="packagingText" lbl="Packaging" tip="One key: value per line">
+              <textarea id="packagingText" name="packagingText" placeholder={pkgHint} className={textareaCls} />
+            </F>
+          </div>
+        </Sec>
+
+        {/* technical */}
+        <Sec title="Technical Information">
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-5">
+            <F id="manufacturer" lbl="Manufacturer">
+              <input id="manufacturer" name="manufacturer" placeholder="ABC Pharma Ltd." className={inputCls} />
+            </F>
+            <F id="countryOfOrigin" lbl="Country of Origin">
+              <input id="countryOfOrigin" name="countryOfOrigin" placeholder="India" defaultValue="India" className={inputCls} />
+            </F>
+            <F id="shelfLife" lbl="Shelf Life" tip="e.g. 24 months">
+              <input id="shelfLife" name="shelfLife" placeholder="24 months" className={inputCls} />
+            </F>
+            <F id="netQuantity" lbl="Net Quantity" tip="e.g. 60 tablets">
+              <input id="netQuantity" name="netQuantity" placeholder="200 ml" className={inputCls} />
+            </F>
+          </div>
+        </Sec>
+
+        {/* trust */}
+        <Sec title="Trust & Certifications" sub="One item per line — shown as badges or logos.">
+          <div className="grid sm:grid-cols-2 gap-5">
+            <F id="trustBadges" lbl="Trust Badges">
+              <textarea id="trustBadges" name="trustBadges" placeholder="GMP Certified" defaultValue="GMP Certified" className={textareaCls} />
+            </F>
+            <F id="certifications" lbl="Certifications">
+              <textarea id="certifications" name="certifications" placeholder="One per line" className={textareaCls} />
+            </F>
+          </div>
+        </Sec>
+
+        {/* publish */}
+        <AdminCard>
+          <label className="flex items-center gap-3 text-sm font-medium cursor-pointer select-none">
+            <input
+              type="checkbox"
+              name="published"
+              defaultChecked
+              className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
+            />
+            <span>
+              Published
+              <span className="ml-2 text-xs font-normal text-muted-foreground">
+                Visible on storefront immediately
+              </span>
+            </span>
+          </label>
+        </AdminCard>
+
+      </form>
     </div>
   );
 }
