@@ -5,71 +5,99 @@ import { motion, MotionProps } from "framer-motion";
 import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/cn";
 
-type ButtonProps =
-  React.ComponentPropsWithoutRef<"button"> &
+type ButtonProps = React.ComponentPropsWithoutRef<"button"> &
   MotionProps & {
     variant?: "primary" | "secondary" | "ghost";
-    size?: "sm" | "md" | "lg";
     isLoading?: boolean;
-    autoLoading?: boolean; // detect form status automatically
+    autoLoading?: boolean;
+    iconOnly?: boolean;
   };
 
 export default function Button({
   children,
   variant = "primary",
-  size = "md",
   className,
   isLoading = false,
   autoLoading = false,
+  iconOnly = false,
   disabled,
   ...props
 }: ButtonProps) {
-  const form = autoLoading ? useFormStatus() : null;
-  const loading = isLoading || (form?.pending ?? false);
+  // Always call — Rules of Hooks
+  const { pending } = useFormStatus();
+  const loading = isLoading || (autoLoading && pending);
 
   return (
     <motion.button
-      whileHover={!loading ? { y: -2, scale: 1.04 } : undefined}
       whileTap={!loading ? { scale: 0.97 } : undefined}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      style={{ willChange: "transform" }}
+      transition={{ type: "spring", stiffness: 500, damping: 30 }}
       disabled={loading || disabled}
       aria-busy={loading}
       className={cn(
-        "relative inline-flex items-center justify-center gap-2 rounded-[14px] font-medium whitespace-nowrap min-w-max",
-        "transition-shadow focus-visible:outline-none",
-        "focus-visible:ring-2 focus-visible:ring-[color-mix(in_srgb,var(--brand-primary)_35%,transparent)]",
+        // ── Base layout
+        "relative inline-flex items-center justify-center",
+        "h-10 min-w-[140px] px-5",
+        "rounded-md",
+        "text-[13px] font-semibold tracking-wide uppercase",
+        "whitespace-nowrap select-none",
+        "transition-colors duration-150",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
+        "focus-visible:ring-[#84eb4b]/60",
+        "disabled:opacity-50 disabled:cursor-not-allowed",
+        "overflow-hidden",
 
-        size === "sm" && "px-4 py-2 text-sm",
-        size === "md" && "px-6 py-3 text-sm",
-        size === "lg" && "px-8 py-4 text-base",
+        iconOnly && "min-w-[40px] px-0",
 
-        variant === "primary" &&
-          "text-white bg-[linear-gradient(135deg,var(--brand-primary),var(--brand-accent))] shadow-lg hover:shadow-xl",
+        // ── PRIMARY: solid brand green
+        // Light: #039751 bg, white text → hover slightly darker
+        // Dark:  #84eb4b bg, very dark text → hover slightly dimmer
+        variant === "primary" && [
+          "bg-[#039751] text-white shadow-sm",
+          "hover:bg-[#027d44] hover:shadow-md",
+          "dark:bg-[#84eb4b] dark:text-[#0a1a07]",
+          "dark:hover:bg-[#76d441] dark:shadow-none",
+        ],
 
-        variant === "secondary" &&
-          "bg-[var(--bg-surface)] text-[var(--text-main)] border border-[var(--border-soft)] shadow-sm hover:shadow-lg",
+        // ── SECONDARY: solid light bg with brand border + text
+        // Light: white bg, brand green text + border
+        // Dark:  neutral dark bg, white text, subtle grey border — simple & clean
+        variant === "secondary" && [
+          "bg-white text-[#039751] border border-[#039751]/50 shadow-sm",
+          "hover:bg-[#f0fdf4] hover:border-[#039751]",
+          "dark:bg-[#1a1a1a] dark:text-white dark:border-white/10",
+          "dark:hover:bg-[#242424] dark:hover:border-white/20",
+        ],
 
-        variant === "ghost" &&
-          "bg-transparent text-[var(--text-main)] hover:bg-[var(--bg-surface)]",
+        // ── GHOST: no bg, no border — just tinted text
+        variant === "ghost" && [
+          "bg-transparent text-[#039751]",
+          "hover:bg-[#039751]/8 hover:text-[#027d44]",
+          "dark:text-white/70 dark:hover:bg-white/8 dark:hover:text-white",
+        ],
 
-        loading && "opacity-80 cursor-wait",
+        loading && "cursor-wait",
         className
       )}
       {...props}
     >
-      {loading && <Spinner />}
-      
-  {children}
-    </motion.button>
-  );
-}
+      {/* Stable content wrapper — no transform applied to prevent text shifting */}
+      <span className={cn("inline-flex items-center gap-2", loading && "opacity-0")}>
+        {children}
+      </span>
 
-function Spinner() {
-  return (
-    <span
-      className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current/30 border-t-current"
-      aria-hidden
-    />
+      {/* Spinner — absolutely centered, never displaces layout */}
+      {loading && (
+        <span className="absolute inset-0 flex items-center justify-center" aria-hidden>
+          <span
+            className={cn(
+              "h-[14px] w-[14px] animate-spin rounded-full border-[1.5px]",
+              variant === "primary"
+                ? "border-white/30 border-t-white dark:border-[#0a1a07]/30 dark:border-t-[#0a1a07]"
+                : "border-current/30 border-t-current"
+            )}
+          />
+        </span>
+      )}
+    </motion.button>
   );
 }

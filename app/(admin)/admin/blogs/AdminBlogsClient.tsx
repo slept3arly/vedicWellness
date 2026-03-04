@@ -152,9 +152,7 @@ useEffect(() => {
   >
     <input type="hidden" name="id" value={b.id} />
 
-    <AdminActionButton
-      className="w-full border border-red-500 text-red-600 hover:bg-red-50 dark:hover:bg-red-950"
-    >
+    <AdminActionButton variant="danger" className="w-full">
       Delete
     </AdminActionButton>
   </form>

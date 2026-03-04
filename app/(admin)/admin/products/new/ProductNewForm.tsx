@@ -112,12 +112,13 @@ export default function ProductNewForm() {
           <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Add Product</h1>
             <div className="flex items-center gap-2 shrink-0">
-              <Link href="/admin/products" tabIndex={isPending ? -1 : 0}>
-                <AdminButton type="button" variant="secondary" disabled={isPending}>
+              <Link href="/admin/products">
+                <AdminButton type="button" variant="secondary">
                   Discard
                 </AdminButton>
               </Link>
-              <AdminButton type="submit" variant="success" disabled={isPending} aria-busy={isPending}>
+
+              <AdminButton type="submit" variant="success">
                 {isPending ? "Creating…" : "Create Product"}
               </AdminButton>
             </div>

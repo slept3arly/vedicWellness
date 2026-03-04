@@ -292,7 +292,6 @@ export default function AboutClient() {
 
             <div className="flex md:justify-end flex-col">
               <Button
-                size="lg"
                 variant="secondary"
                 onClick={() =>
                   window.open("https://wa.me/+919306025799", "_blank")
@@ -303,7 +302,6 @@ export default function AboutClient() {
 
               <Button
                 className="my-4"
-                size="lg"
                 onClick={() => router.push("/signup")}
               >
                 SignUp to View Products

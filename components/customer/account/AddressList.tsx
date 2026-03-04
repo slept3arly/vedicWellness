@@ -27,7 +27,6 @@ export default function AddressList({ addresses }: Props) {
           <p className="font-medium">Saved Addresses</p>
 
           <CustomerButton
-            size="sm"
             onClick={() => {
               setEditing(null);
               setOpen(true);
@@ -45,7 +44,7 @@ export default function AddressList({ addresses }: Props) {
         )}
 
         {!addresses.length ? (
-          <p className="text-sm text-muted">
+          <p className="text-sm text-[var(--text-muted)]">
             No saved addresses yet.
           </p>
         ) : (
@@ -53,11 +52,11 @@ export default function AddressList({ addresses }: Props) {
             {addresses.map((a) => (
               <div
                 key={a.id}
-                className="border border-[var(--border-soft)] rounded-xl p-4 flex justify-between items-start"
+                className="border border-[var(--border-soft)] rounded-md p-4 flex justify-between items-start gap-3"
               >
-                <div>
-                  <p className="font-medium">{a.fullName}</p>
-                  <p className="text-muted">
+                <div className="min-w-0">
+                  <p className="font-medium truncate">{a.fullName}</p>
+                  <p className="text-[var(--text-muted)] mt-0.5 leading-relaxed">
                     {a.line1}
                     {a.line2 ? `, ${a.line2}` : ""}
                     <br />
@@ -65,16 +64,15 @@ export default function AddressList({ addresses }: Props) {
                   </p>
 
                   {a.isDefault && (
-                    <span className="inline-block mt-2 text-xs text-[color:var(--brand-accent)]">
-                      Default
+                    <span className="inline-block mt-2 text-xs font-semibold text-[#039751] dark:text-[#84eb4b]">
+                      ✦ Default
                     </span>
                   )}
                 </div>
 
-                <div className="flex gap-2 flex-wrap">
+                <div className="flex gap-2 flex-wrap shrink-0">
                   {/* Edit */}
                   <CustomerButton
-                    size="sm"
                     variant="secondary"
                     onClick={() => {
                       setEditing(a);
@@ -88,7 +86,6 @@ export default function AddressList({ addresses }: Props) {
                   {!a.isDefault && (
                     <form action={() => setDefaultAddressAction(a.id)}>
                       <CustomerButton
-                        size="sm"
                         variant="secondary"
                         type="submit"
                       >
@@ -105,9 +102,9 @@ export default function AddressList({ addresses }: Props) {
                     }}
                   >
                     <CustomerButton
-                      size="sm"
                       variant="secondary"
                       type="submit"
+                      className="text-red-500 border-red-400/40 hover:bg-red-50 hover:border-red-400 dark:text-red-400 dark:border-red-400/20 dark:hover:bg-red-950/30 dark:hover:border-red-400/40"
                     >
                       Delete
                     </CustomerButton>

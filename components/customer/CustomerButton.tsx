@@ -4,18 +4,18 @@ import Button from "@/components/public/ui/Button";
 import { cn } from "@/lib/cn";
 import { MotionProps } from "framer-motion";
 
-type CustomerButtonProps =
-  React.ComponentPropsWithoutRef<"button"> &
+type CustomerButtonProps = React.ComponentPropsWithoutRef<"button"> &
   MotionProps & {
     variant?: "primary" | "secondary" | "ghost";
-    size?: "sm" | "md" | "lg";
     ignoreFormStatus?: boolean;
     isLoading?: boolean;
+    iconOnly?: boolean;
   };
 
 export default function CustomerButton({
   ignoreFormStatus = false,
   isLoading,
+  iconOnly = false,
   className,
   ...props
 }: CustomerButtonProps) {
@@ -23,7 +23,8 @@ export default function CustomerButton({
     <Button
       autoLoading={!ignoreFormStatus}
       isLoading={isLoading}
-      className={cn(className)}
+      iconOnly={iconOnly}
+      className={cn("h-11 min-w-[140px]", className)}
       {...props}
     />
   );

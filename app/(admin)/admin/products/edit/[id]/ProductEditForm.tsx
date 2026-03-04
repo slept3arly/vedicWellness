@@ -212,12 +212,13 @@ export default function ProductEditForm({
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
-              <Link href="/admin/products" tabIndex={isPending ? -1 : 0}>
-                <AdminButton type="button" variant="secondary" disabled={isPending}>
+              <Link href="/admin/products">
+                <AdminButton type="button" variant="secondary">
                   Discard
                 </AdminButton>
               </Link>
-              <AdminButton type="submit" variant="success" disabled={isPending} aria-busy={isPending}>
+
+              <AdminButton type="submit" variant="success">
                 {isPending ? "Saving…" : "Save Changes"}
               </AdminButton>
             </div>

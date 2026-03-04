@@ -212,7 +212,6 @@ export default function ContactClient() {
                       <span className="font-medium text-sm sm:text-base truncate">+91 93060 25799</span>
                     </div>
                     <Button 
-                      size="sm" 
                       variant="secondary" 
                       className="min-w-[80px] sm:min-w-[100px]"
                       onClick={() => (window.location.href = "tel:+919306025799")}
@@ -227,8 +226,7 @@ export default function ContactClient() {
                       <MessagesSquare className="text-[color:var(--brand-accent)] shrink-0" size={20} />
                       <span className="font-medium text-sm sm:text-base truncate">WhatsApp Support</span>
                     </div>
-                    <Button 
-                      size="sm" 
+                    <Button
                       className="min-w-[80px] sm:min-w-[100px]"
                       onClick={() => window.open("https://wa.me/+919306025799", "_blank")}
                     >
@@ -242,8 +240,7 @@ export default function ContactClient() {
                       <Mail className="text-[color:var(--brand-accent)] shrink-0" size={20} />
                       <span className="font-medium text-sm sm:text-base truncate break-all">vedicwellnessid@gmail.com</span>
                     </div>
-                    <Button 
-                      size="sm" 
+                    <Button
                       variant="secondary" 
                       className="min-w-[80px] sm:min-w-[100px]"
                       onClick={() => (window.location.href = "mailto:vedicwellnessid@gmail.com")}
