@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db/prisma";
 import { MedicineForm } from "@prisma/client";
 
 /* ------------------------------------------------------------------ */
-/* Write Operations (Admin) */
+/* Write Operations (Admin)                                           */
 /* ------------------------------------------------------------------ */
 
 export async function createProductDB(data: any) {
@@ -25,7 +25,7 @@ export async function deleteProductDB(id: string) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Admin Reads */
+/* Admin Reads                                                        */
 /* ------------------------------------------------------------------ */
 
 export async function getProductById(id: string) {
@@ -47,16 +47,56 @@ export async function getAdminProducts(
   q = ""
 ) {
   const skip = (page - 1) * limit;
+  const query = q.trim();
+
+  /* ---------------------------------------------------------------- */
+  /* MedicineForm enum matching (case-insensitive input)              */
+  /* ---------------------------------------------------------------- */
+
+  let medicineFormFilter: MedicineForm | undefined;
+
+  if (query) {
+    const upper = query.toUpperCase();
+    if (Object.values(MedicineForm).includes(upper as MedicineForm)) {
+      medicineFormFilter = upper as MedicineForm;
+    }
+  }
+
+  /* ---------------------------------------------------------------- */
+  /* WHERE — OR across name, shortDescription, tag, medicineForm      */
+  /* Mirrors getPublicProductsDB, but without the published filter    */
+  /* ---------------------------------------------------------------- */
+
+  const where = query
+    ? {
+        OR: [
+          {
+            name: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+          {
+            shortDescription: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+          {
+            tag: {
+              contains: query,
+              mode: "insensitive" as const,
+            },
+          },
+          ...(medicineFormFilter
+            ? [{ medicineForm: medicineFormFilter }]
+            : []),
+        ],
+      }
+    : undefined;
 
   return prisma.product.findMany({
-    where: q
-      ? {
-          name: {
-            contains: q,
-            mode: "insensitive",
-          },
-        }
-      : undefined,
+    where,
     orderBy: { createdAt: "desc" },
     skip,
     take: limit,
@@ -81,7 +121,7 @@ export async function getAdminProducts(
 }
 
 /* ------------------------------------------------------------------ */
-/* Public Reads (SEARCH + SORT READY) */
+/* Public Reads (SEARCH + SORT READY)                                 */
 /* ------------------------------------------------------------------ */
 
 type PublicProductQuery = {
@@ -225,7 +265,7 @@ export async function getPublicProductMetadataDB(slug: string) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Lightweight Slug Fetch (Sitemap + Static Generation) */
+/* Lightweight Slug Fetch (Sitemap + Static Generation)               */
 /* ------------------------------------------------------------------ */
 
 export async function getAllPublishedProductSlugs() {
@@ -237,8 +277,9 @@ export async function getAllPublishedProductSlugs() {
     },
   });
 }
+
 /* ------------------------------------------------------------------ */
-/* Related Products (Optimized - Lightweight Select) */
+/* Related Products (Optimized - Lightweight Select)                  */
 /* ------------------------------------------------------------------ */
 
 export async function getRelatedProductsDB(
@@ -247,18 +288,10 @@ export async function getRelatedProductsDB(
   medicineForm?: MedicineForm | null,
   limit = 4
 ) {
-  // Build OR conditions safely (no undefined in array)
   const orConditions: any[] = [];
 
-  if (tag) {
-    orConditions.push({ tag });
-  }
-
-  if (medicineForm) {
-    orConditions.push({ medicineForm });
-  }
-
-  // If no matching criteria → return empty
+  if (tag) orConditions.push({ tag });
+  if (medicineForm) orConditions.push({ medicineForm });
   if (orConditions.length === 0) return [];
 
   return prisma.product.findMany({
@@ -267,9 +300,7 @@ export async function getRelatedProductsDB(
       id: { not: currentId },
       OR: orConditions,
     },
-    orderBy: {
-      createdAt: "desc",
-    },
+    orderBy: { createdAt: "desc" },
     take: limit,
     select: {
       id: true,

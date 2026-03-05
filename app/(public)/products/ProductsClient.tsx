@@ -106,7 +106,9 @@ export default function ProductsClient({
           <Card className="bg-[var(--bg-surface)] backdrop-blur-md p-3">
             <form onSubmit={handleFilter} className="flex flex-col gap-2">
               <div className="flex gap-2 lg:grid lg:grid-cols-12">
-                <div className="relative flex-1 lg:col-span-8">
+
+                {/* Search input */}
+                <div className="relative flex-1 lg:col-span-7">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
                   <input
                     name="query"
@@ -125,8 +127,10 @@ export default function ProductsClient({
                     </button>
                   )}
                 </div>
-                <div className="relative h-10 lg:col-span-4 rounded-lg border border-[var(--border-soft)] bg-[var(--bg-surface)] flex items-center px-3">
-                  <ArrowUpDown size={16} className="mr-2 text-muted" />
+
+                {/* Sort */}
+                <div className="relative h-10 lg:col-span-3 rounded-lg border border-[var(--border-soft)] bg-[var(--bg-surface)] flex items-center px-3">
+                  <ArrowUpDown size={16} className="mr-2 text-muted shrink-0" />
                   <select
                     name="sort"
                     defaultValue={sort}
@@ -140,8 +144,17 @@ export default function ProductsClient({
                     <option value="newest">Newest first</option>
                   </select>
                 </div>
+
+                {/* Search button */}
+                <button
+                  type="submit"
+                  className="h-10 lg:col-span-2 px-4 rounded-lg bg-accent text-white text-sm font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shrink-0"
+                >
+                  <Search size={14} />
+                  <span className="hidden sm:inline">Search</span>
+                </button>
+
               </div>
-              <button type="submit" className="hidden" />
             </form>
             <div className="mt-1 text-[11px] text-muted flex justify-between px-1">
               <span>Showing <b>{totalCount}</b> results</span>

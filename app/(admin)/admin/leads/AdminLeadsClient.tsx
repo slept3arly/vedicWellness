@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState, useEffect, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 import {
   Search,
@@ -14,13 +14,28 @@ import {
   Flame,
   Save,
   Trash2,
+  Plus,
+  ArrowUpDown,
 } from "lucide-react";
 
 import AdminCard from "../../../../components/admin/AdminCard";
 import AdminActionButton from "../../../../components/admin/AdminActionButton";
 import AdminBadge from "../../../../components/admin/AdminBadge";
-
+import AdminButton from "../../../../components/admin/AdminButton";
 import { updateLeadStatus, deleteLead, assignLead } from "./serverActions";
+
+/* ------------------------------------------------------------------ */
+
+function formatDate(d?: string | Date | null) {
+  if (!d) return "—";
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(d));
+}
+
+/* ------------------------------------------------------------------ */
 
 export default function AdminLeadsClient({
   leads = [],
@@ -34,246 +49,269 @@ export default function AdminLeadsClient({
   q: string;
 }) {
   const router = useRouter();
-  const params = useSearchParams();
   const [isPending, startTransition] = useTransition();
-
-  /* 🔍 NEW SEARCH STATE */
-  const [search, setSearch] = useState(q);
-
-  /* keep input synced with URL */
-  useEffect(() => {
-    setSearch(q);
-  }, [q]);
-
-  /* debounce + update URL */
-  useEffect(() => {
-    const t = setTimeout(() => {
-      if (search !== q) {
-        const p = new URLSearchParams(params.toString());
-
-        if (!search) p.delete("q");
-        else p.set("q", search);
-
-        p.set("page", "1");
-
-        startTransition(() => {
-          router.replace(`?${p.toString()}`);
-        });
-      }
-    }, 500);
-
-    return () => clearTimeout(t);
-  }, [search, q, params, router]);
-
-  /* EVERYTHING BELOW IS YOUR ORIGINAL CODE */
-
+  const [inputValue, setInputValue] = useState(q);
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [claimFilter, setClaimFilter] = useState("__all");
+
+  function handleFilter(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const fd = new FormData(e.currentTarget);
+    const query = (fd.get("query") as string).trim();
+    const p = new URLSearchParams();
+    p.set("page", "1");
+    if (query) p.set("q", query);
+    startTransition(() => router.push(`?${p.toString()}`));
+  }
+
+  const handleClear = () => {
+    setInputValue("");
+    startTransition(() => router.push("?page=1"));
+  };
 
   const filtered = useMemo(() => {
     return leads.filter((l: any) => {
       if (statusFilter && l.status !== statusFilter) return false;
       if (claimFilter === "unclaimed" && l.ownerId) return false;
-      if (
-        claimFilter !== "__all" &&
-        claimFilter !== "unclaimed" &&
-        l.ownerId !== claimFilter
-      )
-        return false;
-
-      return (
-        l.name.toLowerCase().includes(search.toLowerCase()) ||
-        l.email.toLowerCase().includes(search.toLowerCase())
-      );
+      if (claimFilter !== "__all" && claimFilter !== "unclaimed" && l.ownerId !== claimFilter) return false;
+      return true;
     });
-  }, [leads, search, statusFilter, claimFilter]);
+  }, [leads, statusFilter, claimFilter]);
+
+  const STATUSES = ["NEW", "HOT", "WARM", "CONVERTED", "LOST", "USELESS"];
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 px-4">
 
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold">Leads</h1>
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          Manage and track inquiries
-        </p>
+      {/* ── Header ── */}
+      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
+        <div>
+          <h1 className="text-2xl font-bold">Leads</h1>
+          <p className="text-sm text-neutral-500">Manage and track inquiries</p>
+        </div>
       </div>
 
-      {/* 🔍 FIXED SEARCH BAR */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4" />
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search leads..."
-          className="
-            h-12 w-full rounded-xl
-            bg-white dark:bg-neutral-900/80
-            pl-11 pr-4
-            border border-neutral-300 dark:border-neutral-700
-            focus:ring-2 focus:ring-black outline-none
-          "
-        />
+      {/* ── Search + Filters bar ── */}
+      <AdminCard className="p-3">
+        <form onSubmit={handleFilter} className="flex flex-col gap-2">
 
-        {isPending && (
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-neutral-400 animate-pulse">
-            Searching...
-          </span>
-        )}
-      </div>
-
-      {/* Filters — unchanged */}
-      <div className="flex flex-wrap items-center gap-2">
-
-        <button
-          onClick={() => {
-            setStatusFilter(null);
-            setClaimFilter("__all");
-          }}
-          className="px-3 py-3 rounded-lg bg-red-500/20 hover:bg-red-500/30 transition"
-        >
-          <X size={20} />
-        </button>
-
-        {["NEW", "HOT", "WARM", "CONVERTED", "LOST", "USELESS"].map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatusFilter(statusFilter === s ? null : s)}
-            className={`
-              px-4 py-2 rounded-lg border transition
-              ${
-                statusFilter === s
-                  ? "bg-emerald-500/30 border-emerald-500/40"
-                  : "bg-white dark:bg-neutral-900/80 border-neutral-300 dark:border-neutral-700 hover:brightness-110"
-              }
-            `}
-          >
-            {s}
-          </button>
-        ))}
-
-        <select
-          value={claimFilter}
-          onChange={(e) => setClaimFilter(e.target.value)}
-          className="ml-auto rounded-lg px-2 py-2 bg-white dark:bg-neutral-900/80 border border-neutral-300 dark:border-neutral-700"
-        >
-          <option value="__all">Claim status</option>
-          <option value="unclaimed">Unclaimed</option>
-
-          {salesUsers.map((u: any) => (
-            <option key={u.id} value={u.id}>
-              {u.email}
-            </option>
-          ))}
-        </select>
-      </div>
-<div
-  className={`space-y-4 transition-opacity duration-200 ${
-    isPending ? "opacity-60" : "opacity-100"
-  }`}
->
-      {/* Leads — unchanged */}
-      {filtered.map((lead: any, i: number) => (
-        <AdminCard
-          key={lead.id}
-          className="space-y-4 bg-white dark:bg-neutral-900/80 border border-neutral-300 dark:border-neutral-700 hover:shadow-lg transition"
-        >
-          <div className="space-y-2">
-            <div className="flex items-center gap-3 font-semibold text-lg">
-              <span className="text-neutral-500">
-                {(page - 1) * 25 + i + 1}.
-              </span>
-              {lead.name}
-              <AdminBadge status={lead.status} />
-            </div>
-
-            <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-              <Mail size={14} /> {lead.email}
-            </div>
-
-            <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-              <Phone size={14} /> {lead.phone}
-            </div>
-
-            <div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400">
-              <MapPin size={14} /> {lead.location || "—"}
-            </div>
-          </div>
-
-          <div className="bg-neutral-100 dark:bg-neutral-800 rounded-lg px-4 py-2 text-sm">
-            {lead.message}
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-neutral-500">
-            <Calendar size={14} />
-            {new Date(lead.createdAt).toLocaleDateString()}
-          </div>
-
-          {/* Actions — unchanged */}
-          <div className="flex flex-wrap gap-2 items-center pt-2">
-
-            <form action={assignLead} className="flex items-center gap-2">
-              <input type="hidden" name="leadId" value={lead.id} />
-              <User size={16} />
-
-              <select
-                name="toUserId"
-                defaultValue={lead.ownerId || ""}
-                className="rounded-lg px-3 py-2 bg-white dark:bg-neutral-900/80 border border-neutral-300 dark:border-neutral-700"
+          {/* Row 1: search input */}
+          <div className="relative w-full">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+            <input
+              name="query"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Search by name or email..."
+              className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm focus:ring-2 focus:ring-black outline-none"
+            />
+            {(inputValue || q) && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-400 hover:text-neutral-700 transition-colors"
               >
-                <option value="">Unclaimed</option>
+                <X className="h-3 w-3" strokeWidth={2.5} />
+              </button>
+            )}
+          </div>
+
+          {/* Row 2: status filters + claim select + search button */}
+          <div className="flex gap-2 flex-wrap items-center">
+            <div className="flex gap-1.5 flex-1 flex-wrap">
+              {STATUSES.map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setStatusFilter(statusFilter === s ? null : s)}
+                  className={`px-3 h-10 rounded-lg text-sm font-medium border transition-colors ${
+                    statusFilter === s
+                      ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white"
+                      : "bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 hover:border-neutral-400"
+                  }`}
+                >
+                  {s}
+                </button>
+              ))}
+              {(statusFilter || claimFilter !== "__all") && (
+                <button
+                  type="button"
+                  onClick={() => { setStatusFilter(null); setClaimFilter("__all"); }}
+                  className="px-3 h-10 rounded-lg text-sm border border-neutral-300 dark:border-neutral-700 text-neutral-400 hover:text-neutral-700 transition flex items-center gap-1"
+                >
+                  <X className="h-3.5 w-3.5" /> Clear
+                </button>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 h-10 shrink-0">
+              <ArrowUpDown className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
+              <select
+                value={claimFilter}
+                onChange={(e) => setClaimFilter(e.target.value)}
+                className="bg-transparent text-sm outline-none cursor-pointer"
+              >
+                <option value="__all">All owners</option>
+                <option value="unclaimed">Unclaimed</option>
                 {salesUsers.map((u: any) => (
-                  <option key={u.id} value={u.id}>
-                    {u.email}
-                  </option>
+                  <option key={u.id} value={u.id}>{u.email}</option>
                 ))}
               </select>
+            </div>
 
-              <AdminActionButton>
-                <Save size={14} /> Save
-              </AdminActionButton>
-            </form>
-
-            <form action={updateLeadStatus} className="flex items-center gap-2">
-              <input type="hidden" name="id" value={lead.id} />
-              <Flame size={16} />
-
-              <select
-                name="status"
-                defaultValue={lead.status}
-                className="rounded-lg px-3 py-2 bg-white dark:bg-neutral-900/80 border border-neutral-300 dark:border-neutral-700"
-              >
-                <option>NEW</option>
-                <option>HOT</option>
-                <option>WARM</option>
-                <option>CONVERTED</option>
-                <option>LOST</option>
-                <option>USELESS</option>
-              </select>
-
-              <AdminActionButton>
-                <Save size={14} /> Update
-              </AdminActionButton>
-            </form>
-
-            <form
-  action={deleteLead}
-  onSubmit={(e) => {
-    if (!confirm("Delete this lead permanently?")) {
-      e.preventDefault();
-    }
-  }}
->
-  <input type="hidden" name="id" value={lead.id} />
-
-  <AdminActionButton variant="danger">
-    <Trash2 size={14} /> Delete
-  </AdminActionButton>
-</form>
-
+            <button
+              type="submit"
+              disabled={isPending}
+              className="h-10 px-5 shrink-0 rounded-lg bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-80 disabled:opacity-50 transition-opacity flex items-center gap-2"
+            >
+              <Search className="h-3.5 w-3.5" />
+              Search
+            </button>
           </div>
-        </AdminCard>
-      ))}
+
+        </form>
+
+        <div className="mt-2 text-xs text-neutral-400 flex justify-between px-0.5">
+          <span>
+            {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+            {q && <> for "<span className="text-neutral-600 dark:text-neutral-300 font-medium">{q}</span>"</>}
+            {statusFilter && <> · <span className="text-neutral-600 dark:text-neutral-300 font-medium">{statusFilter}</span></>}
+          </span>
+          <span>Page {page}</span>
+        </div>
+      </AdminCard>
+
+      {/* ── Leads List ── */}
+      <div className={`space-y-3 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
+        {filtered.length === 0 ? (
+          <AdminCard className="py-16 flex flex-col items-center gap-2">
+            <User className="h-8 w-8 text-neutral-300" />
+            <p className="font-medium text-neutral-500">No leads found</p>
+            <button onClick={handleClear} className="text-sm text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white">
+              Clear search
+            </button>
+          </AdminCard>
+        ) : (
+          filtered.map((lead: any, index: number) => (
+            <AdminCard
+              key={lead.id}
+              className="flex flex-col sm:flex-row gap-4 hover:shadow-md transition-shadow"
+            >
+              {/* ── Left: index + icon ── */}
+              <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
+                <span className="text-xs text-neutral-400 tabular-nums w-5 text-center">
+                  {(page - 1) * 12 + index + 1}
+                </span>
+                <div className="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 shrink-0">
+                  <User className="h-5 w-5 text-neutral-400" />
+                </div>
+              </div>
+
+              {/* ── Middle: info + meta + message + actions ── */}
+              <div className="flex-1 min-w-0 space-y-3">
+                <div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="font-semibold text-base leading-snug">{lead.name}</h2>
+                    <AdminBadge status={lead.status} />
+                  </div>
+                  <p className="text-xs text-neutral-500 mt-0.5">{lead.email}</p>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3">
+                  <Meta label="Email">
+                    <Mail className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{lead.email}</span>
+                  </Meta>
+                  <Meta label="Phone">
+                    <Phone className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{lead.phone || "—"}</span>
+                  </Meta>
+                  <Meta label="Location">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">{lead.location || "—"}</span>
+                  </Meta>
+                  <Meta label="Received">
+                    <Calendar className="h-3.5 w-3.5 shrink-0" />
+                    <span>{formatDate(lead.createdAt)}</span>
+                  </Meta>
+                </div>
+
+                {lead.message && (
+                  <div className="rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 line-clamp-2">
+                    {lead.message}
+                  </div>
+                )}
+
+                {/* Assign + Status forms */}
+                <div className="flex flex-wrap gap-3 pt-1">
+                  <form action={assignLead} className="flex items-center gap-2">
+                    <input type="hidden" name="leadId" value={lead.id} />
+                    <User className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
+                    <select
+                      name="toUserId"
+                      defaultValue={lead.ownerId || ""}
+                      className="h-8 rounded-lg px-2 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 outline-none"
+                    >
+                      <option value="">Unclaimed</option>
+                      {salesUsers.map((u: any) => (
+                        <option key={u.id} value={u.id}>{u.email}</option>
+                      ))}
+                    </select>
+                    <AdminActionButton className="h-8 text-xs px-2 justify-center">
+                      <Save className="h-3 w-3" /> Assign
+                    </AdminActionButton>
+                  </form>
+
+                  <form action={updateLeadStatus} className="flex items-center gap-2">
+                    <input type="hidden" name="id" value={lead.id} />
+                    <Flame className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
+                    <select
+                      name="status"
+                      defaultValue={lead.status}
+                      className="h-8 rounded-lg px-2 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 outline-none"
+                    >
+                      {STATUSES.map((s) => <option key={s}>{s}</option>)}
+                    </select>
+                    <AdminActionButton className="h-8 text-xs px-2 justify-center">
+                      <Save className="h-3 w-3" /> Update
+                    </AdminActionButton>
+                  </form>
+                </div>
+              </div>
+
+              {/* ── Right: delete ── */}
+              <div className="flex sm:flex-col gap-2 shrink-0 sm:w-36">
+                <form
+                  action={deleteLead}
+                  className="w-full"
+                  onSubmit={(e) => { if (!confirm("Delete this lead permanently?")) e.preventDefault(); }}
+                >
+                  <input type="hidden" name="id" value={lead.id} />
+                  <AdminActionButton variant="danger" className="w-full justify-center">
+                    <Trash2 className="h-3.5 w-3.5" />
+                    Delete
+                  </AdminActionButton>
+                </form>
+              </div>
+
+            </AdminCard>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+
+function Meta({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <div className="text-[10px] uppercase tracking-wide text-neutral-400 font-medium mb-0.5">
+        {label}
+      </div>
+      <div className="flex items-center gap-1 text-sm text-neutral-800 dark:text-neutral-100 min-w-0">
+        {children}
       </div>
     </div>
   );

@@ -12,7 +12,7 @@ export default async function AdminProductsPage({
   const q = params.q || "";
   const page = Number(params.page) || 1;
 
-  const products: Product[] = await getAdminProducts(page, 20, q);
+  const products: Product[] = await getAdminProducts(page, 12, q);
 
   return (
     <AdminProductsClient

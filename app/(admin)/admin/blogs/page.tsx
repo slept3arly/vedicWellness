@@ -12,7 +12,7 @@ export default async function AdminBlogsPage({
   const q = params.q || "";
   const page = Number(params.page) || 1;
 
-  const blogs = await getAdminBlogs(page, 25, q);
+  const blogs = await getAdminBlogs(page, 12, q);
 
   return (
     // The 'key' ensures React resets the component state when the search changes

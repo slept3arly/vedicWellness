@@ -212,15 +212,17 @@ export default function ProductEditForm({
               </p>
             </div>
             <div className="flex items-center gap-2 shrink-0">
+              <AdminButton type="submit" variant="success">
+                {isPending ? "Saving…" : "Save Changes"}
+              </AdminButton>
+
               <Link href="/admin/products">
                 <AdminButton type="button" variant="secondary">
                   Discard
                 </AdminButton>
               </Link>
 
-              <AdminButton type="submit" variant="success">
-                {isPending ? "Saving…" : "Save Changes"}
-              </AdminButton>
+              
             </div>
           </div>
         </div>
