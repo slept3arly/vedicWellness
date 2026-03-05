@@ -1,7 +1,11 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/requireUser";
-import { prisma } from "@/lib/db/prisma";
 import CheckoutClient from "./CheckoutClient";
+import {
+  getBuyNowProduct,
+  getCartForCheckout,
+  getDefaultAddress,
+} from "@/lib/services/checkoutService";
 
 export default async function CheckoutPage(props: {
   searchParams: Promise<{
@@ -15,16 +19,15 @@ export default async function CheckoutPage(props: {
 
   const isBuyNow = params.buyNow === "true";
   const user = await requireUser();
-  let cart: any;
 
   if (isBuyNow && params.productId) {
-    const product = await prisma.product.findUnique({
-      where: { id: params.productId },
-    });
+    const product = await getBuyNowProduct(params.productId);
 
     if (!product) redirect("/");
 
-    cart = {
+    const defaultAddress = await getDefaultAddress(user.id);
+
+    const cart = {
       items: [
         {
           id: "buy-now",
@@ -33,27 +36,26 @@ export default async function CheckoutPage(props: {
         },
       ],
     };
-  } else {
-    cart = await prisma.cart.findUnique({
-      where: { userId: user.id },
-      include: {
-        items: {
-          include: { product: true },
-        },
-      },
-    });
 
-    if (!cart || cart.items.length === 0) {
-      redirect("/orders");
-    }
+    return (
+      <CheckoutClient
+        cart={cart}
+        defaultAddress={defaultAddress}
+        isBuyNow={isBuyNow}
+        buyNowProductId={params.productId}
+        buyNowQty={Number(params.qty || 1)}
+      />
+    );
   }
 
-  const defaultAddress = await prisma.address.findFirst({
-    where: {
-      userId: user.id,
-      isDefault: true,
-    },
-  });
+  const [cart, defaultAddress] = await Promise.all([
+    getCartForCheckout(user.id),
+    getDefaultAddress(user.id),
+  ]);
+
+  if (!cart || cart.items.length === 0) {
+    redirect("/orders");
+  }
 
   return (
     <CheckoutClient

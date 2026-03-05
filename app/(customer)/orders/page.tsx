@@ -1,14 +1,11 @@
 import { requireUser } from "@/lib/auth/requireUser";
-import { prisma } from "@/lib/db/prisma";
+import { getUserOrders } from "@/lib/services/orderService";
 import Link from "next/link";
 
 export default async function OrdersPage() {
   const user = await requireUser();
 
-  const orders = await prisma.order.findMany({
-    where: { userId: user.id },
-    orderBy: { createdAt: "desc" },
-  });
+  const orders = await getUserOrders(user.id);
 
   return (
     <div className="space-y-6">

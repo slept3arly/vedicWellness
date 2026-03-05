@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
-import { prisma } from "@/lib/db/prisma";
 import { requireUser } from "@/lib/auth/requireUser";
+import { getOrderForUser } from "@/lib/services/orderService";
 import OrderDetailsClient from "./OrderDetailsClient";
 
 export default async function OrderPage({
@@ -12,14 +12,9 @@ export default async function OrderPage({
 
   const user = await requireUser();
 
-  const order = await prisma.order.findUnique({
-    where: { id },
-    include: {
-      items: true,
-    },
-  });
+  const order = await getOrderForUser(id, user.id);
 
-  if (!order || order.userId !== user.id) {
+  if (!order) {
     redirect("/orders");
   }
 

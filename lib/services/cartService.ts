@@ -9,24 +9,48 @@ export async function getOrCreateCart(userId: string) {
   let cart = await prisma.cart.findUnique({
     where: { userId },
     include: {
-      items: {
-        include: {
-          product: true,
+  items: {
+    select: {
+      id: true,
+      productId: true,
+      quantity: true,
+
+      product: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          slug: true,
+          imageUrl: true,
         },
       },
     },
+  },
+},
   });
 
   if (!cart) {
     cart = await prisma.cart.create({
       data: { userId },
       include: {
-        items: {
-          include: {
-            product: true,
-          },
+  items: {
+    select: {
+      id: true,
+      productId: true,
+      quantity: true,
+
+      product: {
+        select: {
+          id: true,
+          name: true,
+          price: true,
+          slug: true,
+          imageUrl: true,
         },
       },
+    },
+  },
+},
     });
   }
 
@@ -80,6 +104,17 @@ export async function updateCartItem(
 ) {
   quantity = Math.max(1, Math.min(quantity, MAX_QUANTITY));
 
+  const item = await prisma.cartItem.findFirst({
+    where: {
+      id: itemId,
+      cart: { userId },
+    },
+  });
+
+  if (!item) {
+    throw new Error("Cart item not found");
+  }
+
   await prisma.cartItem.update({
     where: { id: itemId },
     data: { quantity },
@@ -92,6 +127,17 @@ export async function removeCartItem(
   userId: string,
   itemId: string
 ) {
+  const item = await prisma.cartItem.findFirst({
+    where: {
+      id: itemId,
+      cart: { userId },
+    },
+  });
+
+  if (!item) {
+    throw new Error("Cart item not found");
+  }
+
   await prisma.cartItem.delete({
     where: { id: itemId },
   });

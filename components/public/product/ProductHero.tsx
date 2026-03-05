@@ -11,7 +11,7 @@ import {
 
 import Card from "@/components/public/ui/Card";
 import ProductCarousel from "./ProductCarousel";
-import ProductPriceCard from "./ProductPriceCard";
+import ProductPriceCard from "../../customer/product/ProductPriceCard";
 import { Product } from "./types";
 import { staggerFast, fadeUp, reveal } from "@/app/animations";
 

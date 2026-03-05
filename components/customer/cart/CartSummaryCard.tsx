@@ -4,20 +4,10 @@ import { useRouter } from "next/navigation";
 import Card from "@/components/public/ui/Card";
 import Button from "@/components/public/ui/Button";
 import { FileText, Truck, ArrowRight } from "lucide-react";
-import type { Prisma } from "@prisma/client";
-
-type CartWithItems = Prisma.CartGetPayload<{
-  include: {
-    items: {
-      include: {
-        product: true;
-      };
-    };
-  };
-}>;
+import type { CartType } from "@/lib/types/cart";
 
 type Props = {
-  cart: CartWithItems;
+  cart: CartType;
 };
 
 export default function CartSummaryCard({ cart }: Props) {

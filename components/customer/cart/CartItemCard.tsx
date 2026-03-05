@@ -12,14 +12,10 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "@/lib/toast";
 import { Minus, Plus, Leaf, X } from "lucide-react";
-import type { Prisma } from "@prisma/client";
-
-type CartItem = Prisma.CartItemGetPayload<{
-  include: { product: true };
-}>;
+import type { CartItemType } from "@/lib/types/cart";
 
 type Props = {
-  item: CartItem;
+  item: CartItemType;
   index: number;
 };
 

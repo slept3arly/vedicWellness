@@ -170,3 +170,53 @@ export async function createOrderFromSingleProduct(
 
   return order;
 }
+
+export async function getUserOrderCount(userId: string) {
+  return prisma.order.count({
+    where: {
+      userId,
+    },
+  });
+}
+
+export async function getUserOrders(userId: string) {
+  return prisma.order.findMany({
+    where: { userId },
+    orderBy: { createdAt: "desc" },
+
+    select: {
+      id: true,
+      status: true,
+      createdAt: true,
+      totalAmount: true,
+    },
+  });
+}
+
+export async function getOrderForUser(
+  orderId: string,
+  userId: string
+) {
+  return prisma.order.findFirst({
+    where: {
+      id: orderId,
+      userId,
+    },
+
+    select: {
+      id: true,
+      status: true,
+      totalAmount: true,
+      expiresAt: true,
+
+      items: {
+        select: {
+          id: true,
+          productName: true,
+          price: true,
+          quantity: true,
+        },
+      },
+    },
+  });
+}

@@ -4,20 +4,10 @@ import SectionHeading from "@/components/public/ui/SectionHeading";
 import CartItemCard from "@/components/customer/cart/CartItemCard";
 import CartSummaryCard from "@/components/customer/cart/CartSummaryCard";
 import EmptyCart from "@/components/customer/cart/EmptyCart";
-import type { Prisma } from "@prisma/client";
-
-type CartWithItems = Prisma.CartGetPayload<{
-  include: {
-    items: {
-      include: {
-        product: true;
-      };
-    };
-  };
-}>;
+import type { CartType } from "@/lib/types/cart";
 
 type Props = {
-  cart: CartWithItems;
+  cart: CartType;
 };
 
 export default function CartClient({ cart }: Props) {

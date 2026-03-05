@@ -1,12 +1,12 @@
 "use client";
 
-import ProductHero from "@/components/customer/product/ProductHero";
-import ProductDetailsAccordion from "@/components/customer/product/ProductDetailsAccordion";
-import ProductSpecification from "@/components/customer/product/ProductSpecification";
-import ProductFAQ from "@/components/customer/product/ProductFAQ";
-import ProductReviews from "@/components/customer/product/ProductReviews";
-import ProductRelated from "@/components/customer/product/ProductRelated";
-import { Product, RelatedProduct } from "@/components/customer/product/types";
+import ProductHero from "@/components/public/product/ProductHero";
+import ProductDetailsAccordion from "@/components/public/product/ProductDetailsAccordion";
+import ProductSpecification from "@/components/public/product/ProductSpecification";
+import ProductFAQ from "@/components/public/product/ProductFAQ";
+import ProductReviews from "@/components/public/product/ProductReviews";
+import ProductRelated from "@/components/public/product/ProductRelated";
+import { Product, RelatedProduct } from "@/components/public/product/types";
 
 export type { Product, RelatedProduct };
 

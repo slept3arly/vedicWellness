@@ -5,10 +5,13 @@ import Button from "@/components/public/ui/Button";
 import { mockMarkPaidAction } from "./mockPaymentAcion";
 import { toast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
+import { cancelOrderAction } from "../serverActions";
 
 type Props = {
   order: any;
 };
+
+
 
 export default function OrderDetailsClient({ order }: Props) {
   const router = useRouter();
@@ -48,6 +51,30 @@ export default function OrderDetailsClient({ order }: Props) {
 
     return () => clearInterval(interval);
   }, [order.expiresAt, isPayable]);
+
+  async function handleCancelOrder() {
+  if (!confirm("Cancel this order?")) return;
+
+  try {
+    setLoading(true);
+
+    await cancelOrderAction(order.id);
+
+    toast.success(
+      "Order cancelled",
+      "Your order has been cancelled."
+    );
+
+    router.refresh();
+  } catch (err: any) {
+    toast.error(
+      "Cancel failed",
+      err?.message || "Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+}
 
   async function handleSimulatePayment() {
     try {
@@ -115,14 +142,30 @@ export default function OrderDetailsClient({ order }: Props) {
 
       {/* Simulate Payment */}
       {isPayable && !isExpired && (
-        <Button
-          isLoading={loading}
-          onClick={handleSimulatePayment}
-          className="w-full"
-        >
-          Simulate Payment (Dev Only)
-        </Button>
-      )}
+  <div className="space-y-3">
+
+    <Button
+      isLoading={loading}
+      onClick={handleSimulatePayment}
+      className="w-full"
+    >
+      Simulate Payment (Dev Only)
+    </Button>
+
+    {order.status === "CREATED" && (
+      <Button
+        variant="ghost"
+        onClick={handleCancelOrder}
+        className="w-full"
+      >
+        Cancel Order
+      </Button>
+    )}
+
+  </div>
+)}
+
+      
     </div>
   );
 }

@@ -14,7 +14,7 @@ import { toast } from "@/lib/toast";
 import Card from "@/components/public/ui/Card";
 import CustomerButton from "../CustomerButton";
 import { addToCartAction } from "@/app/(customer)/cart/serverActions";
-import { fmt, Product, ProductVariant } from "./types";
+import { fmt, Product, ProductVariant } from "../../public/product/types";
 
 export default function ProductPriceCard({
   product,
