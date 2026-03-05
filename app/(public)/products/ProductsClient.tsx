@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Search, ArrowUpDown, ArrowUpRight, X } from "lucide-react";
 import Image from "next/image";
@@ -38,6 +38,7 @@ export default function ProductsClient({
 }) {
   const router = useRouter();
   const filterBarRef = useRef<HTMLDivElement>(null);
+  const [inputValue, setInputValue] = useState(query);
 
   // Precision Anchor: Keeps the search bar "stuck" at the top during refresh
   const anchorToFilter = () => {
@@ -68,6 +69,7 @@ export default function ProductsClient({
   }
 
   const handleGlobalClear = () => {
+    setInputValue("");
     router.push("/products?page=1", { scroll: false });
     anchorToFilter();
   };
@@ -101,39 +103,39 @@ export default function ProductsClient({
           ))}
         </div>
 
-        {/* STICKY FILTER BAR */}
+        {/* STICKY FILTER BAR - UPDATED TO 2-ROW ADMIN STYLE */}
         <div ref={filterBarRef} className="sticky top-32 md:top-40 z-20 scroll-mt-40">
-          <Card className="bg-[var(--bg-surface)] backdrop-blur-md p-3">
+          <Card className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 p-3 shadow-xl backdrop-blur-md">
             <form onSubmit={handleFilter} className="flex flex-col gap-2">
-              <div className="flex gap-2 lg:grid lg:grid-cols-12">
+              
+              {/* Row 1: Search Input Full Width */}
+              <div className="relative w-full">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+                <input
+                  name="query"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  placeholder="Search by name, category, or benefits..."
+                  className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm focus:ring-2 focus:ring-accent outline-none transition-all"
+                />
+                {(inputValue || query) && (
+                  <button
+                    type="button"
+                    onClick={handleGlobalClear}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-400 hover:text-accent transition-colors"
+                  >
+                    <X className="h-3 w-3" strokeWidth={2.5} />
+                  </button>
+                )}
+              </div>
 
-                {/* Search input */}
-                <div className="relative flex-1 lg:col-span-7">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" size={16} />
-                  <input
-                    name="query"
-                    defaultValue={query}
-                    placeholder="Search products..."
-                    className="h-10 w-full rounded-lg border border-[var(--border-soft)] bg-[var(--bg-surface)] pl-9 pr-12 text-sm focus:outline-none focus:ring-2 focus:ring-accent/25"
-                  />
-                  {(query || (sort && sort !== "name_asc")) && (
-                    <button 
-                      type="button"
-                      onClick={handleGlobalClear}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-full bg-muted/10 text-muted hover:bg-accent hover:text-white transition-all"
-                      title="Clear all filters"
-                    >
-                      <X size={14} strokeWidth={3} />
-                    </button>
-                  )}
-                </div>
-
-                {/* Sort */}
-                <div className="relative h-10 lg:col-span-3 rounded-lg border border-[var(--border-soft)] bg-[var(--bg-surface)] flex items-center px-3">
-                  <ArrowUpDown size={16} className="mr-2 text-muted shrink-0" />
+              {/* Row 2: Sort + Search Button */}
+              <div className="flex gap-2">
+                <div className="flex-1 flex items-center gap-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 h-10">
+                  <ArrowUpDown className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
                   <select
                     name="sort"
-                    defaultValue={sort}
+                    defaultValue={sort || "name_asc"}
                     onChange={(e) => e.currentTarget.form?.requestSubmit()}
                     className="bg-transparent w-full text-sm outline-none cursor-pointer"
                   >
@@ -145,25 +147,24 @@ export default function ProductsClient({
                   </select>
                 </div>
 
-                {/* Search button */}
                 <button
                   type="submit"
-                  className="h-10 lg:col-span-2 px-4 rounded-lg bg-accent text-white text-sm font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2 shrink-0"
+                  className="h-10 px-6 shrink-0 rounded-lg bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-80 transition-opacity flex items-center gap-2"
                 >
-                  <Search size={14} />
-                  <span className="hidden sm:inline">Search</span>
+                  <Search className="h-3.5 w-3.5" />
+                  <span>Search</span>
                 </button>
-
               </div>
             </form>
-            <div className="mt-1 text-[11px] text-muted flex justify-between px-1">
+
+            <div className="mt-2 text-[11px] text-neutral-400 flex justify-between px-1 font-medium">
               <span>Showing <b>{totalCount}</b> results</span>
-              {query && <span className="opacity-70">Search: "{query}"</span>}
+              {query && <span className="opacity-70">Filtered by: "{query}"</span>}
             </div>
           </Card>
         </div>
 
-        {/* PRODUCT GRID - RESTORED MOBILE 2-COLUMNS */}
+        {/* PRODUCT GRID */}
         <AnimatePresence mode="wait">
           <motion.div 
             key={`grid-${query}-${sort}-${page}`}
@@ -174,7 +175,7 @@ export default function ProductsClient({
               products.map((p) => (
                 <motion.div key={p.id} variants={fadeUpSoft}>
                   <Link href={`/products/${p.slug}`} className="group block h-full">
-                    <Card className="h-full p-3 flex flex-col">
+                    <Card className="h-full p-3 flex flex-col border-neutral-200 dark:border-neutral-800 hover:shadow-lg transition-shadow">
                       {p.imageUrl && (
                         <div className="relative w-full h-32 md:h-44 overflow-hidden rounded-xl mb-3">
                           <Image 
@@ -186,9 +187,7 @@ export default function ProductsClient({
                         </div>
                       )}
                       
-                      {/* Unified Row Layout */}
                       <div className="flex justify-between items-start gap-2">
-                        {/* Left Side: Info */}
                         <div className="flex-1 min-w-0">
                           <h3 className="font-heading text-[13px] md:text-sm font-extrabold line-clamp-1 group-hover:text-accent transition-colors">
                             {p.name}
@@ -198,7 +197,6 @@ export default function ProductsClient({
                           </p>
                         </div>
 
-                        {/* Right Side: Price & Arrow Highlight */}
                         <div className="flex flex-col items-end shrink-0">
                           <div className="mb-2 p-1 md:p-1.5 rounded-lg bg-muted/5 group-hover:bg-accent/10 group-hover:scale-110 transition-all">
                             <ArrowUpRight size={14} className="text-muted group-hover:text-accent" />
@@ -247,7 +245,7 @@ export default function ProductsClient({
                   className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${
                     p === page 
                     ? "bg-accent text-white shadow-lg shadow-accent/20 scale-110" 
-                    : "bg-[var(--bg-surface)] border border-[var(--border-soft)] hover:border-accent/50"
+                    : "bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-accent/50"
                   }`}
                 >
                   {p}
