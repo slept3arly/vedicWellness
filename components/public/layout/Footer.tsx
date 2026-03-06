@@ -18,7 +18,11 @@ export default function Footer() {
   return (
     <footer
       id="site-footer"
-      className="border-t border-[var(--border-soft)] bg-[var(--bg-surface)] text-white"
+      className="
+      border-t border-neutral-200 dark:border-[var(--border-soft)]
+      bg-white dark:bg-[var(--bg-surface)]
+      text-neutral-900 dark:text-white
+      "
     >
       <div
         className="
@@ -30,7 +34,7 @@ export default function Footer() {
       "
       >
         {/* BRAND COLUMN */}
-        <div className="space-y-6 md:border-r md:pr-10 text-center md:text-left">
+        <div className="space-y-6 md:border-r md:border-neutral-200 dark:md:border-neutral-800 md:pr-10 text-center md:text-left">
           <div className="flex justify-center md:justify-start">
             <Image
               src="/logo.svg"
@@ -41,7 +45,7 @@ export default function Footer() {
             />
           </div>
 
-          <p className="text-sm text-neutral-400 leading-relaxed max-w-sm mx-auto md:mx-0">
+          <p className="text-sm text-neutral-600 dark:text-neutral-400 leading-relaxed max-w-sm mx-auto md:mx-0">
             Vedic Wellness is a GMP certified Ayurvedic PCD Pharma company
             delivering high-quality herbal formulations.
           </p>
@@ -83,45 +87,70 @@ export default function Footer() {
           <FooterLink href="/about">Why Partner With Us</FooterLink>
         </FooterColumn>
 
-        {/* CONTACT - WITH GMAPS REDIRECT */}
+        {/* CONTACT */}
         <FooterColumn title="Contact & Support">
-          <div className="space-y-5 text-sm text-neutral-400">
-            {/* GOOGLE MAPS REDIRECT */}
-            <a 
+          <div className="space-y-5 text-sm text-neutral-600 dark:text-neutral-400">
+            
+            {/* MAP */}
+            <a
               href="https://www.google.com/maps/search/?api=1&query=Innovia+Drugs+India"
               target="_blank"
               rel="noopener noreferrer"
               className="flex gap-3 items-start group transition-colors w-fit"
             >
-              <MapPin size={20} className="shrink-0 text-neutral-500 group-hover:text-white transition-colors" />
-              <span className="group-hover:text-white transition-colors">
+              <MapPin
+                size={20}
+                className="shrink-0 text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors"
+              />
+              <span className="group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
                 Plot no. 149–150, Markanda Complex, Dhulkot, Ambala City
               </span>
             </a>
-            
-            <a href="tel:+919306025799" className="flex gap-3 items-center group w-fit">
-              <Phone size={20} className="shrink-0 text-neutral-500 group-hover:text-white transition-colors" />
-              <span className="group-hover:text-white transition-colors">+91 93060 25799</span>
+
+            {/* PHONE */}
+            <a
+              href="tel:+919306025799"
+              className="flex gap-3 items-center group w-fit"
+            >
+              <Phone
+                size={20}
+                className="shrink-0 text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors"
+              />
+              <span className="group-hover:text-neutral-900 dark:group-hover:text-white transition-colors">
+                +91 93060 25799
+              </span>
             </a>
 
-            <a href="mailto:vedicwellnessid@gmail.com" className="flex gap-3 items-center group w-fit">
-              <Mail size={20} className="shrink-0 text-neutral-500 group-hover:text-white transition-colors" />
-              <span className="group-hover:text-white transition-colors break-all">vedicwellnessid@gmail.com</span>
+            {/* EMAIL */}
+            <a
+              href="mailto:vedicwellnessid@gmail.com"
+              className="flex gap-3 items-center group w-fit"
+            >
+              <Mail
+                size={20}
+                className="shrink-0 text-neutral-500 group-hover:text-neutral-900 dark:group-hover:text-white transition-colors"
+              />
+              <span className="group-hover:text-neutral-900 dark:group-hover:text-white transition-colors break-all">
+                vedicwellnessid@gmail.com
+              </span>
             </a>
           </div>
         </FooterColumn>
       </div>
 
       {/* BOTTOM BAR */}
-      <div className="border-t border-neutral-800">
+      <div className="border-t border-neutral-200 dark:border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 py-8 flex flex-col md:flex-row justify-between items-center gap-6 text-xs text-neutral-500">
           <p className="text-center md:text-left">
             © {CURRENT_YEAR} Vedic Wellness — Ayurvedic PCD Pharma Franchise.
           </p>
+
           <div className="flex flex-wrap justify-center gap-6">
             <FooterLink href="/site-map">Site Map</FooterLink>
             <FooterLink href="/privacy-policy">Privacy Policy</FooterLink>
-            <FooterLink href="/terms-conditions">Terms & Conditions</FooterLink>
+            <FooterLink href="/terms-conditions">
+              Terms & Conditions
+            </FooterLink>
           </div>
         </div>
       </div>
@@ -134,7 +163,9 @@ export default function Footer() {
 function FooterColumn({ title, children }: any) {
   return (
     <div className="space-y-5">
-      <h4 className="text-sm font-bold uppercase tracking-wider text-white">{title}</h4>
+      <h4 className="text-sm font-bold uppercase tracking-wider text-neutral-900 dark:text-white">
+        {title}
+      </h4>
       <div className="flex flex-col gap-3">{children}</div>
     </div>
   );
@@ -144,10 +175,21 @@ function FooterLink({ href, children }: any) {
   return (
     <Link
       href={href}
-      className="group relative w-fit text-sm text-neutral-400 hover:text-white transition-colors duration-300"
+      className="
+      group relative w-fit text-sm
+      text-neutral-600 dark:text-neutral-400
+      hover:text-neutral-900 dark:hover:text-white
+      transition-colors duration-300
+      "
     >
       {children}
-      <span className="absolute left-0 -bottom-1 h-[1px] w-0 bg-white transition-all duration-300 group-hover:w-full" />
+      <span
+        className="
+        absolute left-0 -bottom-1 h-[1px] w-0
+        bg-neutral-900 dark:bg-white
+        transition-all duration-300 group-hover:w-full
+        "
+      />
     </Link>
   );
 }
@@ -165,10 +207,20 @@ const SocialLink = memo(function SocialLink({
       aria-label={label}
       className={`group relative h-11 w-11 shrink-0 flex items-center justify-center rounded-full transition-all duration-300 hover:scale-110 ${className}`}
     >
-      <span className="absolute -top-10 scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-200 bg-white text-black text-[10px] font-bold py-1 px-2 rounded whitespace-nowrap pointer-events-none shadow-lg z-50">
+      <span
+        className="
+        absolute -top-10 scale-0 opacity-0
+        group-hover:scale-100 group-hover:opacity-100
+        transition-all duration-200
+        bg-white text-black text-[10px] font-bold
+        py-1 px-2 rounded whitespace-nowrap
+        pointer-events-none shadow-lg z-50
+        "
+      >
         {label}
         <span className="absolute top-full left-1/2 -translate-x-1/2 border-x-4 border-x-transparent border-t-4 border-t-white" />
       </span>
+
       <Icon size={20} className="shrink-0" />
     </a>
   );
