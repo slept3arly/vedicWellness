@@ -1,19 +1,73 @@
 import { getUserAddresses } from "@/lib/services/addressService";
-import { getUserOrderCount } from "@/lib/services/orderService";
+import {
+  getUserOrders,
+  getUserOrderCount,
+  getLastPaidOrder,
+} from "@/lib/services/orderService";
+import { getOrCreateCart } from "@/lib/services/cartService";
 import { requireUser } from "@/lib/auth/requireUser";
+import { prisma } from "@/lib/db/prisma";
+
 import AccountClient from "./AccountClient";
+
+async function getTotalSpent(userId: string): Promise<number> {
+  const result = await prisma.order.aggregate({
+    where: {
+      userId,
+      status: "PAID",
+    },
+    _sum: {
+      totalAmount: true,
+    },
+  });
+
+  return result._sum.totalAmount ?? 0;
+}
 
 export default async function AccountPage() {
   const user = await requireUser();
 
-  const addresses = await getUserAddresses(user.id);
-  const orderCount = await getUserOrderCount(user.id);
+  const [
+    addresses,
+    orders,
+    orderCount,
+    totalSpent,
+    lastPaidOrder,
+    cart,
+  ] = await Promise.all([
+    getUserAddresses(user.id),
+    getUserOrders(user.id),
+    getUserOrderCount(user.id),
+    getTotalSpent(user.id),
+    getLastPaidOrder(user.id),
+    getOrCreateCart(user.id),
+  ]);
+
+  const cartItemCount = cart.items.reduce(
+    (sum, i) => sum + i.quantity,
+    0
+  );
 
   return (
     <AccountClient
       user={user}
       orderCount={orderCount}
+      orders={orders}
       addresses={addresses}
+      totalSpent={totalSpent}
+      cartItemCount={cartItemCount}
+      lastPaidOrder={
+        lastPaidOrder
+          ? {
+              id: lastPaidOrder.id,
+              totalAmount: lastPaidOrder.totalAmount,
+              createdAt: lastPaidOrder.createdAt,
+              firstProductName:
+                lastPaidOrder.items[0]?.productName ?? null,
+              itemCount: lastPaidOrder._count.items,
+            }
+          : null
+      }
     />
   );
 }

@@ -1,171 +1,136 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Button from "@/components/public/ui/Button";
-import { mockMarkPaidAction } from "./mockPaymentAcion";
-import { toast } from "@/lib/toast";
 import { useRouter } from "next/navigation";
+import Button from "@/components/public/ui/Button";
+import { toast } from "@/lib/toast";
+import { mockMarkPaidAction } from "./mockPaymentAcion";
 import { cancelOrderAction } from "../serverActions";
 
-type Props = {
-  order: any;
-};
+import OrderStatusBanner from "@/components/customer/orders/OrderStatusBanner";
+import OrderItemsCard from "@/components/customer/orders/OrderItemsCard";
+import OrderShippingCard from "@/components/customer/orders/OrderShippingCard";
+import OrderTimelineCard from "@/components/customer/orders/OrderTimelineCard";
+import OrderMetaCard from "@/components/customer/orders/OrderMetaCard";
+import type { OrderForClient } from "@/lib/types/order";
 
-
-
-export default function OrderDetailsClient({ order }: Props) {
+export default function OrderDetailsClient({ order }: { order: OrderForClient }) {
   const router = useRouter();
   const [timeLeft, setTimeLeft] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const isPayable =
-    order.status === "CREATED" ||
-    order.status === "PAYMENT_FAILED";
-
-  const isExpired = order.status === "EXPIRED";
+  const isPayable = order.status === "CREATED" || order.status === "PAYMENT_FAILED";
 
   useEffect(() => {
     if (!order.expiresAt || !isPayable) return;
 
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const expiry = new Date(order.expiresAt).getTime();
-      const diff = expiry - now;
+    const tick = () => {
+      const diff = new Date(order.expiresAt!).getTime() - Date.now();
+      if (diff <= 0) { setTimeLeft("Expired"); return; }
+      const h = Math.floor(diff / 3600000);
+      const m = Math.floor((diff % 3600000) / 60000);
+      const s = Math.floor((diff % 60000) / 1000);
+      setTimeLeft(`${h}h ${m}m ${s}s`);
+    };
 
-      if (diff <= 0) {
-        setTimeLeft("Expired");
-        clearInterval(interval);
-        return;
-      }
-
-      const hours = Math.floor(diff / (1000 * 60 * 60));
-      const minutes = Math.floor(
-        (diff % (1000 * 60 * 60)) / (1000 * 60)
-      );
-      const seconds = Math.floor(
-        (diff % (1000 * 60)) / 1000
-      );
-
-      setTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
-    }, 1000);
-
+    tick();
+    const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [order.expiresAt, isPayable]);
 
-  async function handleCancelOrder() {
-  if (!confirm("Cancel this order?")) return;
-
-  try {
+  async function handleCancel() {
+    if (!confirm("Cancel this order?")) return;
     setLoading(true);
-
-    await cancelOrderAction(order.id);
-
-    toast.success(
-      "Order cancelled",
-      "Your order has been cancelled."
-    );
-
-    router.refresh();
-  } catch (err: any) {
-    toast.error(
-      "Cancel failed",
-      err?.message || "Please try again."
-    );
-  } finally {
-    setLoading(false);
-  }
-}
-
-  async function handleSimulatePayment() {
     try {
-      setLoading(true);
+      await cancelOrderAction(order.id);
+      toast.success("Order cancelled", "Your order has been cancelled.");
+      router.refresh();
+    } catch (err: unknown) {
+      toast.error("Cancel failed", err instanceof Error ? err.message : "Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }
 
+  async function handlePay() {
+    setLoading(true);
+    try {
       await mockMarkPaidAction(order.id);
-
-      // reload to get updated status
-      toast.success("Payment successful",
-        "Your order has been marked as paid.");
-      router.refresh();   
-    } catch (err: any) {
-      toast.error("Payment failed",
-        err?.message || "Please try again.");
+      toast.success("Payment successful", "Your order has been marked as paid.");
+      router.refresh();
+    } catch (err: unknown) {
+      toast.error("Payment failed", err instanceof Error ? err.message : "Please try again.");
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
 
-      {/* Status */}
-      <div className="surface p-6 space-y-2">
-        <h1 className="text-lg font-medium">
-          Order Status: {order.status}
-        </h1>
+      {/* Status banner — always full width */}
+      <OrderStatusBanner
+        status={order.status}
+        totalAmount={order.totalAmount}
+        currency={order.currency}
+        timeLeft={timeLeft}
+      />
 
-        {isPayable && timeLeft && (
-          <p className="text-sm text-red-500">
-            Payment expires in: {timeLeft}
-          </p>
-        )}
+      {/* Action buttons — only when payable */}
+      {isPayable && timeLeft !== "Expired" && (
+        <div className="flex flex-col sm:flex-row gap-3">
+          <Button isLoading={loading} onClick={handlePay} className="flex-1">
+            Simulate Payment
+            <span className="ml-1.5 text-[10px] opacity-50 font-normal">(Dev Only)</span>
+          </Button>
 
-        {isExpired && (
-          <p className="text-sm text-red-500">
-            This order has expired.
-          </p>
-        )}
-      </div>
+          {order.status === "CREATED" && (
+            <Button
+              variant="secondary"
+              onClick={handleCancel}
+              disabled={loading}
+              className="flex-1 !border-red-400/40 !text-red-500 hover:!bg-red-50 dark:hover:!bg-red-950/30"
+            >
+              Cancel Order
+            </Button>
+          )}
+        </div>
+      )}
 
-      {/* Items */}
-      <div className="surface p-6 space-y-4">
-        <h2 className="font-medium">Items</h2>
+      {/* Two-col on desktop: items (wider) + right sidebar */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:items-start">
 
-        {order.items.map((item: any) => (
-          <div
-            key={item.id}
-            className="flex justify-between text-sm"
-          >
-            <span>
-              {item.productName} × {item.quantity}
-            </span>
-            <span>
-              ₹{item.price * item.quantity}
-            </span>
-          </div>
-        ))}
+        {/* Left: items */}
+        <div className="lg:col-span-3 space-y-4">
+          <OrderItemsCard
+            items={order.items}
+            totalAmount={order.totalAmount}
+            currency={order.currency}
+          />
+          <OrderShippingCard
+            shippingName={order.shippingName}
+            shippingPhone={order.shippingPhone}
+            shippingAddr={order.shippingAddr}
+          />
+        </div>
 
-        <div className="border-t pt-4 font-medium flex justify-between">
-          <span>Total</span>
-          <span>₹{order.totalAmount}</span>
+        {/* Right: timeline + meta */}
+        <div className="lg:col-span-2 space-y-4">
+          <OrderTimelineCard
+            status={order.status}
+            createdAt={order.createdAt}
+            paidAt={order.paidAt}
+            expiresAt={order.expiresAt}
+          />
+          <OrderMetaCard
+            orderId={order.id}
+            paymentId={order.paymentId}
+            currency={order.currency}
+            createdAt={order.createdAt}
+            paidAt={order.paidAt}
+          />
         </div>
       </div>
-
-      {/* Simulate Payment */}
-      {isPayable && !isExpired && (
-  <div className="space-y-3">
-
-    <Button
-      isLoading={loading}
-      onClick={handleSimulatePayment}
-      className="w-full"
-    >
-      Simulate Payment (Dev Only)
-    </Button>
-
-    {order.status === "CREATED" && (
-      <Button
-        variant="ghost"
-        onClick={handleCancelOrder}
-        className="w-full"
-      >
-        Cancel Order
-      </Button>
-    )}
-
-  </div>
-)}
-
-      
     </div>
   );
 }

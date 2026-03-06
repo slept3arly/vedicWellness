@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { toast } from "@/lib/toast";
+import { X } from "lucide-react";
 import Card from "@/components/public/ui/Card";
-import Button from "@/components/public/ui/Button";
+import CustomerButton from "@/components/customer/CustomerButton";
 import {
   addAddressAction,
   updateAddressAction,
@@ -36,8 +38,6 @@ type FormState = {
   postalCode: string;
 };
 
-type FieldErrors = Partial<Record<keyof FormState, string>>;
-
 function inputClass(hasError?: boolean) {
   return `
     w-full rounded-[14px] px-4 py-3 text-sm
@@ -54,12 +54,10 @@ function inputClass(hasError?: boolean) {
   `;
 }
 
-export default function AddressFormModal({
-  open,
-  onClose,
-  initialData,
-}: Props) {
+export default function AddressFormModal({ open, onClose, initialData }: Props) {
   const [mounted, setMounted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Partial<Record<keyof FormState, boolean>>>({});
 
   const [form, setForm] = useState<FormState>({
     fullName: "",
@@ -71,10 +69,6 @@ export default function AddressFormModal({
     postalCode: "",
   });
 
-  const [errors, setErrors] = useState<FieldErrors>({});
-  const [serverError, setServerError] = useState("");
-
-  /* Mount + scroll lock */
   useEffect(() => {
     setMounted(true);
     document.body.style.overflow = open ? "hidden" : "";
@@ -83,73 +77,95 @@ export default function AddressFormModal({
     };
   }, [open]);
 
-  /* Populate form when editing */
   useEffect(() => {
-    if (initialData) {
-      setForm({
-        fullName: initialData.fullName,
-        phone: initialData.phone,
-        line1: initialData.line1,
-        line2: initialData.line2 ?? "",
-        city: initialData.city,
-        state: initialData.state,
-        postalCode: initialData.postalCode,
-      });
-    } else {
-      setForm({
-        fullName: "",
-        phone: "",
-        line1: "",
-        line2: "",
-        city: "",
-        state: "",
-        postalCode: "",
-      });
-    }
+    setForm(
+      initialData
+        ? {
+            fullName: initialData.fullName,
+            phone: initialData.phone,
+            line1: initialData.line1,
+            line2: initialData.line2 ?? "",
+            city: initialData.city,
+            state: initialData.state,
+            postalCode: initialData.postalCode,
+          }
+        : {
+            fullName: "",
+            phone: "",
+            line1: "",
+            line2: "",
+            city: "",
+            state: "",
+            postalCode: "",
+          }
+    );
+
     setErrors({});
-    setServerError("");
   }, [initialData, open]);
 
   if (!mounted || !open) return null;
 
   function update<K extends keyof FormState>(key: K, value: string) {
     setForm((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => ({ ...prev, [key]: undefined }));
+    setErrors((prev) => ({ ...prev, [key]: false }));
   }
 
-  function validate(): FieldErrors {
-    const next: FieldErrors = {};
+  function validate(): boolean {
+    const next: Partial<Record<keyof FormState, boolean>> = {};
+    const messages: string[] = [];
 
-    if (form.fullName.trim().length < 2)
-      next.fullName = "Full name is required";
+    if (form.fullName.trim().length < 2) {
+      next.fullName = true;
+      messages.push("Full name is required");
+    }
 
-    if (!/^[0-9]{10}$/.test(form.phone))
-      next.phone = "Phone must be 10 digits";
+    if (!/^[0-9]{10}$/.test(form.phone)) {
+      next.phone = true;
+      messages.push("Phone must be 10 digits");
+    }
 
-    if (form.line1.trim().length < 5)
-      next.line1 = "Address line is required";
+    if (form.line1.trim().length < 5) {
+      next.line1 = true;
+      messages.push("Address line is too short");
+    }
 
-    if (form.city.trim().length < 2)
-      next.city = "City is required";
+    if (form.city.trim().length < 2) {
+      next.city = true;
+      messages.push("City is required");
+    }
 
-    if (form.state.trim().length < 2)
-      next.state = "State is required";
+    if (form.state.trim().length < 2) {
+      next.state = true;
+      messages.push("State is required");
+    }
 
-    if (!/^[0-9]{6}$/.test(form.postalCode))
-      next.postalCode = "Postal code must be 6 digits";
+    if (!/^[0-9]{6}$/.test(form.postalCode)) {
+      next.postalCode = true;
+      messages.push("Postal code must be 6 digits");
+    }
 
-    return next;
+    if (messages.length) {
+      setErrors(next);
+
+      toast.error(
+        messages[0],
+        messages.length > 1
+          ? `+${messages.length - 1} more issue${messages.length > 2 ? "s" : ""}`
+          : undefined
+      );
+
+      return false;
+    }
+
+    return true;
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setServerError("");
 
-    const validationErrors = validate();
-    if (Object.keys(validationErrors).length) {
-      setErrors(validationErrors);
-      return;
-    }
+    if (!validate()) return;
+
+    setSubmitting(true);
 
     try {
       if (initialData) {
@@ -157,85 +173,73 @@ export default function AddressFormModal({
           ...form,
           country: "India",
         });
+
+        toast.success("Address updated successfully");
       } else {
         await addAddressAction({
           ...form,
           country: "India",
         });
+
+        toast.success("Address saved successfully");
       }
 
       onClose();
-    } catch (err: any) {
-      setServerError(err?.message || "Something went wrong.");
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setSubmitting(false);
     }
   }
 
   return createPortal(
     <div className="fixed inset-0 z-[9999]">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-lg"
         onClick={onClose}
       />
 
-      {/* Modal */}
       <div className="relative flex min-h-full items-center justify-center p-4 sm:p-6">
         <Card className="w-full max-w-lg p-6 sm:p-8">
-          <p className="font-medium mb-6 text-lg">
-            {initialData ? "Edit Address" : "Add New Address"}
-          </p>
+          {/* Header */}
+          <div className="flex items-center justify-between mb-6">
+            <p className="font-semibold text-lg text-[var(--text-main)]">
+              {initialData ? "Edit Address" : "Add New Address"}
+            </p>
 
+            <button
+              onClick={onClose}
+              className="p-1.5 rounded-lg hover:bg-[var(--bg-subtle)] text-[var(--text-muted)] transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Form */}
           <form className="grid gap-4" onSubmit={handleSubmit}>
-            {/* Full Name */}
-            <div>
-              <input
-                value={form.fullName}
-                onChange={(e) => update("fullName", e.target.value)}
-                className={inputClass(!!errors.fullName)}
-                placeholder="Full Name"
-              />
-              {errors.fullName && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.fullName}
-                </p>
-              )}
-            </div>
+            <input
+              value={form.fullName}
+              onChange={(e) => update("fullName", e.target.value)}
+              className={inputClass(errors.fullName)}
+              placeholder="Full Name"
+            />
 
-            {/* Phone */}
-            <div>
-              <input
-                value={form.phone}
-                onChange={(e) =>
-                  update(
-                    "phone",
-                    e.target.value.replace(/\D/g, "").slice(0, 10)
-                  )
-                }
-                inputMode="numeric"
-                className={inputClass(!!errors.phone)}
-                placeholder="Phone Number"
-              />
-              {errors.phone && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.phone}
-                </p>
-              )}
-            </div>
+            <input
+              value={form.phone}
+              onChange={(e) =>
+                update("phone", e.target.value.replace(/\D/g, "").slice(0, 10))
+              }
+              inputMode="numeric"
+              className={inputClass(errors.phone)}
+              placeholder="Phone Number"
+            />
 
-            {/* Address Line */}
-            <div>
-              <input
-                value={form.line1}
-                onChange={(e) => update("line1", e.target.value)}
-                className={inputClass(!!errors.line1)}
-                placeholder="Address Line"
-              />
-              {errors.line1 && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.line1}
-                </p>
-              )}
-            </div>
+            <input
+              value={form.line1}
+              onChange={(e) => update("line1", e.target.value)}
+              className={inputClass(errors.line1)}
+              placeholder="Address Line"
+            />
 
             <input
               value={form.line2}
@@ -244,81 +248,61 @@ export default function AddressFormModal({
               placeholder="Apartment / Landmark (optional)"
             />
 
-            {/* City & State */}
             <div className="grid grid-cols-2 gap-3">
-              <div>
-                <input
-                  value={form.city}
-                  onChange={(e) => update("city", e.target.value)}
-                  className={inputClass(!!errors.city)}
-                  placeholder="City"
-                />
-                {errors.city && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {errors.city}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <input
-                  value={form.state}
-                  onChange={(e) => update("state", e.target.value)}
-                  className={inputClass(!!errors.state)}
-                  placeholder="State"
-                />
-                {errors.state && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {errors.state}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* Postal Code */}
-            <div>
               <input
-                value={form.postalCode}
-                onChange={(e) =>
-                  update(
-                    "postalCode",
-                    e.target.value.replace(/\D/g, "").slice(0, 6)
-                  )
-                }
-                inputMode="numeric"
-                className={inputClass(!!errors.postalCode)}
-                placeholder="Postal Code (6 digits)"
+                value={form.city}
+                onChange={(e) => update("city", e.target.value)}
+                className={inputClass(errors.city)}
+                placeholder="City"
               />
-              {errors.postalCode && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.postalCode}
-                </p>
-              )}
+
+              <input
+                value={form.state}
+                onChange={(e) => update("state", e.target.value)}
+                className={inputClass(errors.state)}
+                placeholder="State"
+              />
             </div>
 
-            {serverError && (
-              <p className="text-sm text-red-500">{serverError}</p>
-            )}
+            <input
+              value={form.postalCode}
+              onChange={(e) =>
+                update(
+                  "postalCode",
+                  e.target.value.replace(/\D/g, "").slice(0, 6)
+                )
+              }
+              inputMode="numeric"
+              className={inputClass(errors.postalCode)}
+              placeholder="Postal Code (6 digits)"
+            />
 
-            <p className="text-xs text-[var(--text-muted)] pt-2">
+            <p className="text-xs text-[var(--text-muted)] pt-1">
               Please ensure your address details are accurate. Vedic Wellness
               will not be responsible for delivery issues arising from incorrect
               address information.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 pt-4">
-              <Button type="submit" className="flex-1">
+            {/* Buttons */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <CustomerButton
+                type="submit"
+                className="flex-1"
+                isLoading={submitting}
+              >
                 {initialData ? "Update Address" : "Save Address"}
-              </Button>
+              </CustomerButton>
 
-              <Button
+              <CustomerButton
                 type="button"
                 variant="secondary"
                 onClick={onClose}
                 className="flex-1"
+                ignoreFormStatus
+                disabled={submitting}
               >
                 Cancel
-              </Button>
+              </CustomerButton>
             </div>
           </form>
         </Card>
