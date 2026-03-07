@@ -235,20 +235,27 @@ export default function ContactClient() {
                   onChange={(e) => update("message", e.target.value)}
                   className={inputClass(!!errors.message)}
                 />
-                <div className="max-w-full overflow-hidden">
+                
+                <div className="py-2 max-w-full overflow-hidden">
                   <Turnstile
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
                     onSuccess={(t) => setToken(t)}
                   />
                 </div>
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <Button type="submit" className="flex-1" isLoading={loading}>
+
+                {/* FIXED BUTTON LAYOUT */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    isLoading={loading}
+                  >
                     Submit Enquiry
                   </Button>
                   <Button
                     type="button"
                     variant="secondary"
-                    className="flex-1"
+                    className="w-full"
                     onClick={() =>
                       window.open("https://wa.me/+919306025799", "_blank")
                     }
@@ -277,7 +284,6 @@ export default function ContactClient() {
                   subtitle="Choose the easiest way."
                 />
                 <div className="mt-6 space-y-5">
-                  {/* PHONE */}
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
                       <PhoneCall
@@ -299,7 +305,6 @@ export default function ContactClient() {
                     </Button>
                   </div>
 
-                  {/* WHATSAPP */}
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
                       <MessagesSquare
@@ -320,7 +325,6 @@ export default function ContactClient() {
                     </Button>
                   </div>
 
-                  {/* EMAIL */}
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3 min-w-0">
                       <Mail
@@ -346,7 +350,6 @@ export default function ContactClient() {
               </Card>
             </motion.div>
 
-            {/* Office & Availability Card */}
             <motion.div variants={reveal} className="group">
               <Card className="bg-white/80 dark:bg-black/45">
                 <SectionHeading align="left" title="Office & Availability" />

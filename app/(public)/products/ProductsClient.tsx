@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Search, ArrowUpDown, ArrowUpRight, X } from "lucide-react";
+import { Sparkles, Search, ArrowUpDown, ArrowUpRight, X, ListFilter } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -40,7 +40,6 @@ export default function ProductsClient({
   const filterBarRef = useRef<HTMLDivElement>(null);
   const [inputValue, setInputValue] = useState(query);
 
-  // Precision Anchor: Keeps the search bar "stuck" at the top during refresh
   const anchorToFilter = () => {
     if (filterBarRef.current) {
       const stickyOffset = window.innerWidth >= 768 ? 160 : 128;
@@ -112,68 +111,71 @@ export default function ProductsClient({
           ))}
         </div>
 
-        {/* STICKY FILTER BAR */}
+        {/* COMPACT STICKY FILTER BAR */}
         <div
           ref={filterBarRef}
-          className="sticky top-32 md:top-40 z-20 scroll-mt-40 group"
+          className="sticky top-32 md:top-36 z-20 scroll-mt-40"
         >
-          <Card className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 p-3 backdrop-blur-md">
-            <form onSubmit={handleFilter} className="flex flex-col gap-2">
-              {/* Row 1: Search Input Full Width */}
-              <div className="relative w-full">
+          <Card className="bg-white/80 dark:bg-neutral-900/80 border-neutral-200 dark:border-neutral-800 p-2 backdrop-blur-md shadow-xl shadow-black/5">
+            <form onSubmit={handleFilter} className="flex items-center gap-2">
+              {/* Dominant Search Input */}
+              <div className="relative flex-1">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
                 <input
                   name="query"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
-                  placeholder="Search by name, category, or benefits..."
-                  className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm focus:ring-2 focus:ring-accent outline-none transition-all"
+                  placeholder="Search products..."
+                  className="h-11 w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 pl-10 pr-10 text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all"
                 />
                 {(inputValue || query) && (
                   <button
                     type="button"
                     onClick={handleGlobalClear}
-                    className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-400 hover:text-accent transition-colors"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-400 transition-colors"
                   >
-                    <X className="h-3 w-3" strokeWidth={2.5} />
+                    <X className="h-4 w-4" />
                   </button>
                 )}
               </div>
 
-              {/* Row 2: Sort + Search Button */}
-              <div className="flex gap-2">
-                <div className="flex-1 flex items-center gap-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 h-10">
-                  <ArrowUpDown className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
-                  <select
-                    name="sort"
-                    defaultValue={sort || "name_asc"}
-                    onChange={(e) => e.currentTarget.form?.requestSubmit()}
-                    className="bg-transparent w-full text-sm outline-none cursor-pointer"
-                  >
-                    <option value="name_asc">Name A → Z</option>
-                    <option value="name_desc">Name Z → A</option>
-                    <option value="price_asc">Price low → high</option>
-                    <option value="price_desc">Price high → low</option>
-                    <option value="newest">Newest first</option>
-                  </select>
+              {/* Square Sort Button (Hidden Select) */}
+              <div className="relative h-11 w-11 shrink-0 group/sort">
+                <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-600 dark:text-neutral-400 group-hover/sort:border-accent transition-colors pointer-events-none">
+                  <ArrowUpDown className="h-4 w-4" />
                 </div>
-
-                <button
-                  type="submit"
-                  className="h-10 px-6 shrink-0 rounded-lg bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-80 transition-opacity flex items-center gap-2"
+                <select
+                  name="sort"
+                  defaultValue={sort || "name_asc"}
+                  onChange={(e) => e.currentTarget.form?.requestSubmit()}
+                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                  aria-label="Sort products"
                 >
-                  <Search className="h-3.5 w-3.5" />
-                  <span>Search</span>
-                </button>
+                  <option value="name_asc">Name A → Z</option>
+                  <option value="name_desc">Name Z → A</option>
+                  <option value="price_asc">Price low → high</option>
+                  <option value="price_desc">Price high → low</option>
+                  <option value="newest">Newest first</option>
+                </select>
               </div>
+
+              {/* Square Search Submit Button */}
+              <button
+                type="submit"
+                className="h-11 w-11 shrink-0 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center hover:opacity-80 transition-opacity active:scale-95"
+              >
+                <Search className="h-4 w-4" strokeWidth={2.5} />
+              </button>
             </form>
 
-            <div className="mt-2 text-[11px] text-neutral-400 flex justify-between px-1 font-medium">
-              <span>
-                Showing <b>{totalCount}</b> results
+            <div className="mt-1.5 px-2 flex justify-between items-center">
+               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-tight">
+                {totalCount} Results
               </span>
               {query && (
-                <span className="opacity-70">Filtered by: "{query}"</span>
+                <span className="text-[10px] text-accent font-medium truncate max-w-[150px]">
+                  "{query}"
+                </span>
               )}
             </div>
           </Card>
