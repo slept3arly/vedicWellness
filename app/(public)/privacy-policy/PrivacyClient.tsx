@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { fadeUp } from "app/animations";
 import { useRef } from "react";
+import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 
 const sections = [
@@ -20,7 +21,6 @@ const sections = [
 export default function PrivacyClient() {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // 🔥 direct refs for each section (SUPER RELIABLE)
   const sectionRefs = {
     info: useRef<HTMLElement>(null),
     purpose: useRef<HTMLElement>(null),
@@ -54,7 +54,7 @@ export default function PrivacyClient() {
     <section className="w-full">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-[1100px] mx-auto mt-24">
-          <SectionHeading
+          <PageHeader
             title="Privacy Policy"
             subtitle="How Vedic Wellness protects your information with transparency, responsibility, and modern data protection practices."
           />
@@ -63,14 +63,21 @@ export default function PrivacyClient() {
         <div className="mt-10 grid lg:grid-cols-[280px_minmax(0,1fr)] gap-8 items-start mb-24">
           {/* SIDEBAR */}
           <aside className="hidden lg:block sticky top-48 self-start">
-            <div className="surface rounded-xl p-5 space-y-3 text-sm">
+            <div className="surface rounded-xl p-5 space-y-4 text-sm">
               {sections.map((s) => (
                 <button
                   key={s.id}
                   onClick={() => handleScrollTo(s.id as keyof typeof sectionRefs)}
-                  className="block w-full text-left text-muted hover:text-[var(--brand-primary)] transition font-medium"
+                  className="
+                    group relative block w-fit text-left 
+                    text-neutral-500 dark:text-neutral-400 
+                    hover:text-neutral-900 dark:hover:text-white 
+                    transition-colors duration-300 font-medium pb-1
+                  "
                 >
                   {s.label}
+                  {/* Sliding Underline */}
+                  <span className="absolute left-0 bottom-0 h-[1.5px] w-0 bg-neutral-900 dark:bg-white transition-all duration-300 group-hover:w-full" />
                 </button>
               ))}
             </div>
@@ -99,10 +106,7 @@ export default function PrivacyClient() {
 
             {/* 1 */}
             <section ref={sectionRefs.info} id="info" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                1. Information We Collect
-              </h2>
-
+              <SectionHeading title="1. Information We Collect" />
               <p>
                 Vedic Wellness collects information that users voluntarily
                 provide when interacting with our digital platforms, franchise
@@ -127,10 +131,7 @@ export default function PrivacyClient() {
 
             {/* 2 */}
             <section ref={sectionRefs.purpose} id="purpose" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                2. Purpose of Data Processing
-              </h2>
-
+              <SectionHeading title="2. Purpose of Data Processing" />
               <p>
                 All information collected by Vedic Wellness is processed for
                 clearly defined business purposes that align with ethical data
@@ -155,10 +156,7 @@ export default function PrivacyClient() {
 
             {/* 3 */}
             <section ref={sectionRefs.cookies} id="cookies" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                3. Cookies and Technical Tracking
-              </h2>
-
+              <SectionHeading title="3. Cookies and Technical Tracking" />
               <p>
                 Our website utilizes essential cookies and technical tracking
                 mechanisms that support core functionality such as user
@@ -181,10 +179,7 @@ export default function PrivacyClient() {
 
             {/* 4 */}
             <section ref={sectionRefs.thirdparty} id="thirdparty" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                4. Service Providers
-              </h2>
-
+              <SectionHeading title="4. Service Providers" />
               <p>
                 Vedic Wellness collaborates with carefully selected technology
                 partners that provide hosting infrastructure, secure storage,
@@ -208,10 +203,7 @@ export default function PrivacyClient() {
 
             {/* 5 */}
             <section ref={sectionRefs.payments} id="payments" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                5. Payments and Financial Information
-              </h2>
-
+              <SectionHeading title="5. Payments and Financial Information" />
               <p>
                 Vedic Wellness prioritizes financial security by minimizing the
                 collection and storage of sensitive payment information. The
@@ -230,10 +222,7 @@ export default function PrivacyClient() {
 
             {/* 6 */}
             <section ref={sectionRefs.retention} id="retention" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                6. Data Retention
-              </h2>
-
+              <SectionHeading title="6. Data Retention" />
               <p>
                 Information is retained only for durations that support
                 operational continuity, customer communication, and legal
@@ -256,10 +245,7 @@ export default function PrivacyClient() {
 
             {/* 7 */}
             <section ref={sectionRefs.international} id="international" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                7. International Data Processing
-              </h2>
-
+              <SectionHeading title="7. International Data Processing" />
               <p>
                 Depending on operational needs, certain technical services used
                 by Vedic Wellness may operate on infrastructure located outside
@@ -279,11 +265,8 @@ export default function PrivacyClient() {
             </section>
 
             {/* 8 */}
-            <section  ref={sectionRefs.updates} id="updates" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                8. Policy Updates
-              </h2>
-
+            <section ref={sectionRefs.updates} id="updates" className="space-y-6">
+              <SectionHeading title="8. Policy Updates" />
               <p>
                 This Privacy Policy may evolve periodically to reflect updates
                 to technology infrastructure, regulatory requirements, or
@@ -302,10 +285,7 @@ export default function PrivacyClient() {
 
             {/* 9 */}
             <section ref={sectionRefs.contact} id="contact" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                9. Contact Information
-              </h2>
-
+              <SectionHeading title="9. Contact Information" />
               <p>
                 Vedic Wellness — Division of Innovia Drugs, India remains
                 committed to addressing privacy-related questions and ensuring

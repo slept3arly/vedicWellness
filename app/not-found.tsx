@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import Card from "@/components/public/ui/Card";
 import Button from "@/components/public/ui/Button";
+import PageHeader from "@/components/public/ui/PageHeader";
 import { SearchX } from "lucide-react";
 
 export default function NotFoundPage() {
@@ -17,13 +18,10 @@ export default function NotFoundPage() {
           </span>
         </div>
 
-        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">
-          Page not found
-        </h1>
-
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          The page you're looking for doesn't exist or may have been moved.
-        </p>
+        <PageHeader 
+          title="Page not found" 
+          subtitle="The page you're looking for doesn't exist or may have been moved." 
+        />
 
         <div className="mt-7 flex justify-center">
           <Button onClick={() => router.push("/")}>

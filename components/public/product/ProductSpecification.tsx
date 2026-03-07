@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import Card from "@/components/public/ui/Card";
+import SectionHeading from "@/components/public/ui/SectionHeading";
 import { staggerSlow } from "@/app/animations";
 import { Product } from "./types";
 
@@ -26,15 +27,11 @@ type Props = {
 export default function ProductSpecification({ product }: Props) {
   const specifications = product.specifications ?? [];
 
-  /* ===============================
-     COMPOSITION & USAGE
-  =============================== */
-
   const composition = [
     {
-    label: "Brand",
-    value: "Vedic Wellness",
-    icon: <ShieldCheck size={14} />, // ✅ Brand icon
+      label: "Brand",
+      value: "Vedic Wellness",
+      icon: <ShieldCheck size={14} />,
     },
     {
       label: "Dosage Form",
@@ -47,34 +44,21 @@ export default function ProductSpecification({ product }: Props) {
       icon: <Package size={14} />,
     },
     {
-    label: "Packaging",
-    value:
-      product.packaging.length > 0
-        ? product.packaging.join(", ")
-        : null,
-    icon: <Box size={14} />, // ✅ Packaging icon
+      label: "Packaging",
+      value: product.packaging.length > 0 ? product.packaging.join(", ") : null,
+      icon: <Box size={14} />,
     },
     {
       label: "Active Ingredients",
-      value:
-        product.ingredients.length > 0
-          ? product.ingredients.join(", ")
-          : null,
+      value: product.ingredients.length > 0 ? product.ingredients.join(", ") : null,
       icon: <Leaf size={14} />,
     },
     {
       label: "Recommended Dosage",
-      value:
-        product.directionsToUse.length > 0
-          ? product.directionsToUse.join(" • ")
-          : null,
-      icon: <ClipboardList size={14} />, // ✅ Dosage icon
+      value: product.directionsToUse.length > 0 ? product.directionsToUse.join(" • ") : null,
+      icon: <ClipboardList size={14} />,
     },
   ].filter((row) => Boolean(row.value));
-
-  /* ===============================
-     MANUFACTURING & COMPLIANCE
-  =============================== */
 
   const manufacturing = [
     {
@@ -94,19 +78,12 @@ export default function ProductSpecification({ product }: Props) {
     },
     {
       label: "Certifications",
-      value:
-        product.certifications.length > 0
-          ? product.certifications.join(", ")
-          : null,
+      value: product.certifications.length > 0 ? product.certifications.join(", ") : null,
       icon: <ShieldCheck size={14} />,
     },
   ].filter((row) => Boolean(row.value));
 
-  if (
-    composition.length === 0 &&
-    manufacturing.length === 0 &&
-    specifications.length === 0
-  ) {
+  if (composition.length === 0 && manufacturing.length === 0 && specifications.length === 0) {
     return null;
   }
 
@@ -118,11 +95,11 @@ export default function ProductSpecification({ product }: Props) {
       viewport={{ once: true }}
       className="space-y-6"
     >
-      {/* 🔥 Updated Main Title */}
-      <h2 className="font-heading text-2xl font-black flex items-center gap-2">
+      {/* Updated h2 to use SectionHeading while keeping the Info icon */}
+      <div className="flex items-center gap-2 mb-4">
         <Info size={22} className="text-accent" />
-        Product Specifications
-      </h2>
+        <SectionHeading title="Product Specifications" />
+      </div>
 
       <div className="grid md:grid-cols-2 gap-6">
         {/* COMPOSITION */}
@@ -139,28 +116,16 @@ export default function ProductSpecification({ product }: Props) {
                   <tr
                     key={row.label}
                     className={`${
-                      i !== arr.length - 1
-                        ? "border-b border-[var(--border-soft)]"
-                        : ""
-                    } ${
-                      i % 2 === 0
-                        ? "bg-muted/5"
-                        : "bg-[var(--bg-surface)]"
-                    }`}
+                      i !== arr.length - 1 ? "border-b border-[var(--border-soft)]" : ""
+                    } ${i % 2 === 0 ? "bg-muted/5" : "bg-[var(--bg-surface)]"}`}
                   >
                     <td className="px-4 py-3 font-medium w-44 text-muted">
                       <div className="flex items-center gap-2">
-                        {row.icon && (
-                          <span className="text-accent">
-                            {row.icon}
-                          </span>
-                        )}
+                        {row.icon && <span className="text-accent">{row.icon}</span>}
                         {row.label}
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      {row.value as string}
-                    </td>
+                    <td className="px-4 py-3">{row.value as string}</td>
                   </tr>
                 ))}
               </tbody>
@@ -182,28 +147,16 @@ export default function ProductSpecification({ product }: Props) {
                   <tr
                     key={row.label}
                     className={`${
-                      i !== arr.length - 1
-                        ? "border-b border-[var(--border-soft)]"
-                        : ""
-                    } ${
-                      i % 2 === 0
-                        ? "bg-muted/5"
-                        : "bg-[var(--bg-surface)]"
-                    }`}
+                      i !== arr.length - 1 ? "border-b border-[var(--border-soft)]" : ""
+                    } ${i % 2 === 0 ? "bg-muted/5" : "bg-[var(--bg-surface)]"}`}
                   >
                     <td className="px-4 py-3 font-medium w-52 text-muted">
                       <div className="flex items-center gap-2">
-                        {row.icon && (
-                          <span className="text-accent">
-                            {row.icon}
-                          </span>
-                        )}
+                        {row.icon && <span className="text-accent">{row.icon}</span>}
                         {row.label}
                       </div>
                     </td>
-                    <td className="px-4 py-3">
-                      {row.value as string}
-                    </td>
+                    <td className="px-4 py-3">{row.value as string}</td>
                   </tr>
                 ))}
               </tbody>
@@ -215,9 +168,7 @@ export default function ProductSpecification({ product }: Props) {
       {/* EXTRA SPECIFICATIONS */}
       {specifications.length > 0 && (
         <Card className="bg-white/75 dark:bg-black/45 overflow-hidden p-0">
-          <div className="p-4 border-b font-semibold text-lg">
-            Additional Specifications
-          </div>
+          <div className="p-4 border-b font-semibold text-lg">Additional Specifications</div>
 
           <table className="w-full text-sm">
             <tbody>
@@ -225,21 +176,11 @@ export default function ProductSpecification({ product }: Props) {
                 <tr
                   key={spec.id}
                   className={`${
-                    i !== arr.length - 1
-                      ? "border-b border-[var(--border-soft)]"
-                      : ""
-                  } ${
-                    i % 2 === 0
-                      ? "bg-muted/5"
-                      : "bg-[var(--bg-surface)]"
-                  }`}
+                    i !== arr.length - 1 ? "border-b border-[var(--border-soft)]" : ""
+                  } ${i % 2 === 0 ? "bg-muted/5" : "bg-[var(--bg-surface)]"}`}
                 >
-                  <td className="px-4 py-3 font-medium w-52 text-muted">
-                    {spec.label}
-                  </td>
-                  <td className="px-4 py-3">
-                    {spec.value}
-                  </td>
+                  <td className="px-4 py-3 font-medium w-52 text-muted">{spec.label}</td>
+                  <td className="px-4 py-3">{spec.value}</td>
                 </tr>
               ))}
             </tbody>

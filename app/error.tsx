@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Card from "@/components/public/ui/Card";
 import Button from "@/components/public/ui/Button";
+import PageHeader from "@/components/public/ui/PageHeader";
 import { AlertTriangle } from "lucide-react";
 
 export default function ErrorPage({
@@ -28,13 +29,10 @@ export default function ErrorPage({
           </span>
         </div>
 
-        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">
-          Something went wrong
-        </h1>
-
-        <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-          An unexpected issue occurred. Please try again or return home.
-        </p>
+        <PageHeader 
+          title="Something went wrong" 
+          subtitle="An unexpected issue occurred. Please try again or return home." 
+        />
 
         <div className="mt-7 flex justify-center gap-3">
           <Button onClick={reset}>

@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import Card from "@/components/public/ui/Card";
+import SectionHeading from "@/components/public/ui/SectionHeading";
 import { fadeUpSoft, staggerSlow } from "@/app/animations";
 
 const icons = [Heart, UserCheck, ShieldCheck, Stethoscope];
@@ -23,10 +24,12 @@ export default function ProductAudience({
 
   return (
     <section className="mt-12">
-      <h2 className="font-heading text-xl font-extrabold mb-4 flex items-center gap-2">
-        <Users size={18} />
-        Who Should Use This?
-      </h2>
+      <div className="mb-6 flex items-center gap-3">
+        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-accent)]">
+          <Users size={22} />
+        </div>
+        <SectionHeading title="Who Should Use This?" />
+      </div>
 
       <motion.div
         variants={staggerSlow}
@@ -44,16 +47,15 @@ export default function ProductAudience({
               variants={fadeUpSoft}
               className={i === 3 ? "lg:hidden" : ""}
             >
-              <Card className="h-full px-4 py-3 group">
+              <Card className="group h-full bg-white/50 px-4 py-4 transition-all hover:shadow-md dark:bg-black/20">
                 <div className="flex items-start gap-3">
-                  
                   {/* Compact Icon */}
-                  <div className="mt-0.5 text-muted group-hover:text-accent transition-colors duration-300">
-                    <Icon size={18} strokeWidth={2.2} />
+                  <div className="mt-0.5 shrink-0 text-muted-foreground transition-all duration-300 group-hover:scale-110 group-hover:text-[color:var(--brand-accent)]">
+                    <Icon size={20} strokeWidth={2.5} />
                   </div>
 
                   {/* Text */}
-                  <p className="text-sm leading-snug font-medium">
+                  <p className="font-medium text-sm leading-snug text-slate-700 transition-colors group-hover:text-foreground dark:text-slate-200 md:text-base">
                     {w}
                   </p>
                 </div>

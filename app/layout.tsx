@@ -3,7 +3,7 @@ import "./globals.css";
 
 import Navbar from "@/components/public/layout/Navbar";
 import BottomNavbar from "@/components/public/layout/BottomNavbarClient";
-import { inter, spaceGrotesk } from "./fonts";
+import { playfair, montserrat, lato, cormorant } from "./fonts";
 import MarqueeBanner from "@/components/public/layout/MarqueeBanner";
 import GlobalBackground from "@/components/public/layout/GlobalBackground";
 import RouteLoader from "@/components/public/feedback/RouteLoader";
@@ -81,9 +81,9 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${inter.variable} ${spaceGrotesk.variable}`}
+      className={`${playfair.variable} ${montserrat.variable} ${lato.variable} ${cormorant.variable}`}
     >
-      <body className="relative min-h-dvh flex flex-col overflow-x-hidden">
+      <body className="font-body relative min-h-dvh flex flex-col overflow-x-hidden">
         <GlobalBackground />
 
         {/* Structured data */}

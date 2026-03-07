@@ -78,8 +78,12 @@ export default function OrderDetailsClient({ order }: { order: OrderForClient })
 
       {/* Action buttons — only when payable */}
       {isPayable && timeLeft !== "Expired" && (
-        <div className="flex flex-col sm:flex-row gap-3">
-          <Button isLoading={loading} onClick={handlePay} className="flex-1">
+        <div className="flex flex-col sm:flex-row gap-3 w-full">
+          <Button
+            isLoading={loading}
+            onClick={handlePay}
+            className="w-full sm:flex-1"
+          >
             Simulate Payment
             <span className="ml-1.5 text-[10px] opacity-50 font-normal">(Dev Only)</span>
           </Button>
@@ -89,7 +93,7 @@ export default function OrderDetailsClient({ order }: { order: OrderForClient })
               variant="secondary"
               onClick={handleCancel}
               disabled={loading}
-              className="flex-1 !border-red-400/40 !text-red-500 hover:!bg-red-50 dark:hover:!bg-red-950/30"
+              className="w-full sm:flex-1 !border-red-400/40 !text-red-500 hover:!bg-red-50 dark:hover:!bg-red-950/30"
             >
               Cancel Order
             </Button>

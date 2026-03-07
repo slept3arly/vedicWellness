@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { createSlide } from "../serverActions";
 import SlideImagesField from "@/components/admin/SlideImagesField";
+import PageHeader from "@/components/public/ui/PageHeader";
 
 const PLACEMENTS = [
   { value: "HOME_HERO", label: "Home Hero" },
@@ -19,15 +20,12 @@ export default function SlideNewForm() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 px-4">
-      <div>
-        <h1 className="text-2xl font-bold">Create Slide</h1>
-        <p className="text-sm text-muted-foreground">
-          Add a new banner slide.
-        </p>
-      </div>
+      <PageHeader 
+        title="Create Slide" 
+        subtitle="Add a new banner slide." 
+      />
 
       <form action={createSlide} className="space-y-6">
-
         <input type="hidden" name="imageDesktopUrl" value={desktopUrl} />
         <input type="hidden" name="imageMobileUrl" value={mobileUrl} />
 

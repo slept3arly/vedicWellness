@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { uploadManyToR2, uploadToR2 } from "@/lib/client/uploadToR2";
 import AdminCard from "@/components/admin/AdminCard";
+import SectionHeading from "@/components/public/ui/SectionHeading";
 import { toast } from "@/lib/toast";
 
 const MAX_BYTES = 512_000;
@@ -80,12 +81,12 @@ export default function ProductImagesField({
 
   return (
     <AdminCard>
-      <div className="mb-5 pb-4 border-b border-border flex items-center justify-between gap-4">
+      <div className="mb-5 pb-4 border-b border-border">
         <div>
-          <h2 className="text-base font-semibold">Product Images</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Only .webp or .avif — max 512 KB per file
-          </p>
+          <SectionHeading 
+            title="Product Images" 
+            subtitle="Only .webp or .avif — max 512 KB per file" 
+          />
         </div>
         {busy && (
           <span className="text-xs text-muted-foreground animate-pulse">Uploading…</span>

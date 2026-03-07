@@ -3,14 +3,14 @@
 import Link from "next/link";
 import AdminCard from "@/components/admin/AdminCard";
 import AdminActionButton from "@/components/admin/AdminActionButton";
+import PageHeader from "@/components/public/ui/PageHeader";
 import { updateUser } from "../../serverActions";
 
 export default function UserEditForm({ user }: { user: any }) {
   return (
     <div className="max-w-3xl mx-auto px-4">
       <AdminCard className="bg-neutral-200/70 dark:bg-neutral-900/80 space-y-6">
-
-        <h1 className="text-2xl font-bold">Edit User</h1>
+        <PageHeader title="Edit User" />
 
         <form action={updateUser} className="space-y-4">
           <input type="hidden" name="id" value={user.id} />
@@ -35,7 +35,7 @@ export default function UserEditForm({ user }: { user: any }) {
           </select>
 
           <div className="space-y-1">
-            <p className="text-sm font-semibold opacity-70">
+            <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 opacity-70">
               Reset Password (optional)
             </p>
             <input
@@ -47,9 +47,7 @@ export default function UserEditForm({ user }: { user: any }) {
           </div>
 
           <div className="flex gap-3 pt-2">
-            <AdminActionButton>
-              Save Changes
-            </AdminActionButton>
+            <AdminActionButton>Save Changes</AdminActionButton>
 
             <Link
               href="/admin/users"

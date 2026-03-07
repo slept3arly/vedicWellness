@@ -9,6 +9,8 @@ import { fadeUp } from "app/animations";
 
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
+import PageHeader from "@/components/public/ui/PageHeader";
+import SectionHeading from "@/components/public/ui/SectionHeading";
 
 type Blog = any;
 
@@ -34,7 +36,6 @@ export default function SlugClient({
     year: "numeric",
   });
 
-  /* ⭐ Smooth Scroll */
   const handleScrollTo = (h: string) => {
     const container = contentRef.current;
     const el = document.getElementById(slugify(h));
@@ -66,8 +67,8 @@ export default function SlugClient({
             )}
 
             <div className="w-full lg:w-1/2 p-6 md:p-10 flex flex-col justify-center">
-              <div className="flex flex-wrap gap-2 text-[10px] text-muted uppercase tracking-widest mb-4">
-                <span className="text-[var(--brand-primary)] font-bold">
+              <div className="flex flex-wrap gap-2 text-[10px] text-muted uppercase tracking-widest mb-4 font-heading">
+                <span className="text-primary">
                   {blog.category || "Wellness"}
                 </span>
                 <span>•</span>
@@ -76,16 +77,17 @@ export default function SlugClient({
                 </span>
               </div>
 
-              <h1 className="font-heading text-2xl md:text-3xl lg:text-4xl font-extrabold leading-tight mb-6">
-                {blog.title}
-              </h1>
+              <PageHeader 
+                title={blog.title} 
+                className="mb-6 !p-0 !text-left" 
+              />
 
-              <div className="flex items-center gap-4 pt-5 border-t border-[var(--border-soft)] mt-auto">
+              <div className="flex items-center gap-4 pt-5 border-t border-border-soft mt-auto">
                 <div className="space-y-1">
-                  <p className="text-xs font-semibold">
+                  <p className="text-xs font-accent text-slate-600 dark:text-slate-300">
                     By {blog.author ?? "Vedic Wellness Team"}
                   </p>
-                  <p className="text-[10px] text-muted tracking-wider uppercase">
+                  <p className="text-[10px] text-muted tracking-wider uppercase text-slate-600 dark:text-slate-300 font-heading">
                     {formattedDate}
                   </p>
                 </div>
@@ -100,17 +102,7 @@ export default function SlugClient({
           {/* ⭐ TOC SIDEBAR */}
           <aside className="hidden lg:block sticky top-40 self-start">
             <Card className="px-6 py-5 !rounded-2xl">
-              <h3
-                className="
-                text-xs
-                font-semibold
-                uppercase
-                tracking-widest
-                border-b border-[var(--border-soft)]
-                pb-3
-                mb-4
-              "
-              >
+              <h3 className="font-heading text-xs uppercase tracking-widest border-b border-border-soft pb-3 mb-4">
                 On this page
               </h3>
 
@@ -119,14 +111,7 @@ export default function SlugClient({
                   <button
                     key={h}
                     onClick={() => handleScrollTo(h)}
-                    className="
-                      text-left
-                      text-[11px]
-                      leading-relaxed
-                      text-muted
-                      transition-colors
-                      hover:text-[var(--brand-primary)]
-                    "
+                    className="text-left text-[11px] leading-relaxed text-muted transition-colors hover:text-primary font-heading"
                   >
                     {h}
                   </button>
@@ -145,10 +130,9 @@ export default function SlugClient({
                 className="
                   prose max-w-none
                   prose-headings:border-none prose-headings:my-0
-                  prose-h2:text-2xl md:prose-h2:text-3xl prose-h2:mb-8 prose-h2:mt-2
-                  prose-p:text-muted prose-p:leading-8 prose-p:text-[16px]
+                  prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-p:leading-8 prose-p:text-[16px]
                   prose-ul:list-disc prose-ul:pl-5 prose-ul:my-6
-                  prose-li:text-muted prose-li:marker:text-[var(--brand-primary)]
+                  prose-li:text-slate-600 dark:prose-li:text-slate-300 prose-li:marker:text-primary
                 "
               >
                 <ReactMarkdown
@@ -156,18 +140,20 @@ export default function SlugClient({
                     h2({ children }) {
                       const text = String(children);
                       return (
-                        <div className="mt-12 first:mt-0 mb-8">
-                          <h2
-                            id={slugify(text)}
-                            className="flex items-center gap-4"
-                          >
-                            <span className="h-8 w-1.5 bg-[var(--brand-primary)] rounded-full" />
-                            <span className="text-[1.2em] font-bold leading-tight">
-                              {children}
-                            </span>
-                          </h2>
+                        <div 
+                          id={slugify(text)} 
+                          className="mt-12 first:mt-0 mb-8 flex items-center gap-4 scroll-mt-6"
+                        >
+                          <span className="h-8 w-1.5 bg-primary rounded-full" />
+                          <SectionHeading 
+                            title={text} 
+                            className="!mb-0" 
+                          />
                         </div>
                       );
+                    },
+                    h3({ children }) {
+                      return <h3 className="font-heading text-xl mt-8 mb-4">{children}</h3>;
                     },
                     hr: () => null,
                   }}
@@ -177,12 +163,9 @@ export default function SlugClient({
               </article>
 
               {blog.tags?.length > 0 && (
-                <div className="mt-16 pt-8 border-t border-[var(--border-soft)] flex flex-wrap gap-2">
+                <div className="mt-16 pt-8 border-t border-border-soft flex flex-wrap gap-2">
                   {blog.tags.map((tag: string) => (
-                    <Chip
-                      key={tag}
-                      className="opacity-60 text-[10px] hover:opacity-100"
-                    >
+                    <Chip key={tag} className="opacity-60 text-[10px] hover:opacity-100 font-accent">
                       #{tag}
                     </Chip>
                   ))}
@@ -195,9 +178,7 @@ export default function SlugClient({
         {/* ⭐ RELATED */}
         {relatedBlogs.length > 0 && (
           <div className="pt-8 space-y-6">
-            <h2 className="font-heading text-2xl font-bold">
-              Related Reading
-            </h2>
+            <SectionHeading title="Related Reading" />
 
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
               {relatedBlogs.slice(0, 4).map((r) => (
@@ -205,22 +186,12 @@ export default function SlugClient({
                   <Card className="overflow-hidden p-0">
                     {r.thumbnailUrl && (
                       <div className="relative aspect-video w-full max-h-[160px]">
-                        <Image
-                          src={r.thumbnailUrl}
-                          alt={r.title}
-                          fill
-                          className="object-cover"
-                        />
+                        <Image src={r.thumbnailUrl} alt={r.title} fill className="object-cover" />
                       </div>
                     )}
-
                     <div className="p-5 space-y-2">
-                      <h3 className="font-heading font-bold text-lg line-clamp-1">
-                        {r.title}
-                      </h3>
-                      <p className="text-xs text-muted line-clamp-2">
-                        {r.description}
-                      </p>
+                      <h3 className="font-heading text-xl line-clamp-1">{r.title}</h3>
+                      <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">{r.description}</p>
                     </div>
                   </Card>
                 </Link>

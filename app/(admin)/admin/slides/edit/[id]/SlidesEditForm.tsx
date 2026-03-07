@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import SlideImagesField from "@/components/admin/SlideImagesField";
+import PageHeader from "@/components/public/ui/PageHeader";
+import SectionHeading from "@/components/public/ui/SectionHeading";
 import { updateSlide } from "../../serverActions";
 
 const PLACEMENTS = [
@@ -27,25 +29,19 @@ export default function SlideEditForm({ slide }: { slide: any }) {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 px-4">
+      <PageHeader
+        title="Edit Slide"
+        subtitle="Update placement, scheduling and images"
+      />
 
-      <div>
-        <h1 className="text-2xl font-bold">Edit Slide</h1>
-        <p className="text-sm text-neutral-500">
-          Update placement, scheduling and images
-        </p>
-      </div>
-
-      <form
-        action={updateSlide}
-        className="space-y-6"
-      >
+      <form action={updateSlide} className="space-y-6">
         <input type="hidden" name="id" value={slide.id} />
         <input type="hidden" name="imageDesktopUrl" value={desktopUrl} />
         <input type="hidden" name="imageMobileUrl" value={mobileUrl} />
 
         {/* Images */}
         <div className="border rounded-xl p-5 space-y-4">
-          <h3 className="font-semibold text-lg">Images</h3>
+          <SectionHeading title="Images" />
 
           <SlideImagesField
             desktopUrl={desktopUrl}
@@ -57,14 +53,11 @@ export default function SlideEditForm({ slide }: { slide: any }) {
 
         {/* Placement Settings */}
         <div className="border rounded-xl p-5 space-y-4">
-          <h3 className="font-semibold text-lg">Placement Settings</h3>
+          <SectionHeading title="Placement Settings" />
 
           <div className="grid sm:grid-cols-2 gap-4">
-
             <div>
-              <label className="block text-sm mb-1">
-                Placement
-              </label>
+              <label className="block text-sm mb-1">Placement</label>
               <select
                 name="placementKey"
                 defaultValue={placement?.placementKey}
@@ -80,9 +73,7 @@ export default function SlideEditForm({ slide }: { slide: any }) {
             </div>
 
             <div>
-              <label className="block text-sm mb-1">
-                Order
-              </label>
+              <label className="block text-sm mb-1">Order</label>
               <input
                 type="number"
                 name="order"
@@ -90,7 +81,6 @@ export default function SlideEditForm({ slide }: { slide: any }) {
                 className="w-full border rounded-lg p-2 bg-background"
               />
             </div>
-
           </div>
 
           <label className="flex items-center gap-2 mt-2">
@@ -105,16 +95,11 @@ export default function SlideEditForm({ slide }: { slide: any }) {
 
         {/* Scheduling */}
         <div className="border rounded-xl p-5 space-y-4">
-          <h3 className="font-semibold text-lg">
-            Scheduling (Optional)
-          </h3>
+          <SectionHeading title="Scheduling (Optional)" />
 
           <div className="grid sm:grid-cols-2 gap-4">
-
             <div>
-              <label className="block text-sm mb-1">
-                Start At
-              </label>
+              <label className="block text-sm mb-1">Start At</label>
               <input
                 type="datetime-local"
                 name="startAt"
@@ -124,9 +109,7 @@ export default function SlideEditForm({ slide }: { slide: any }) {
             </div>
 
             <div>
-              <label className="block text-sm mb-1">
-                End At
-              </label>
+              <label className="block text-sm mb-1">End At</label>
               <input
                 type="datetime-local"
                 name="endAt"
@@ -134,10 +117,9 @@ export default function SlideEditForm({ slide }: { slide: any }) {
                 className="w-full border rounded-lg p-2 bg-background"
               />
             </div>
-
           </div>
 
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-slate-600 dark:text-slate-300">
             Leave empty to show always. Expired slides auto-hide.
           </p>
         </div>
@@ -151,10 +133,7 @@ export default function SlideEditForm({ slide }: { slide: any }) {
             Update Slide
           </button>
 
-          <Link
-            href="/admin/slides"
-            className="px-4 py-2 rounded-lg border"
-          >
+          <Link href="/admin/slides" className="px-4 py-2 rounded-lg border">
             Cancel
           </Link>
         </div>

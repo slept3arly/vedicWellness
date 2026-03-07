@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import AdminCard from "@/components/admin/AdminCard";
 import AdminButton from "@/components/admin/AdminButton";
 import AdminActionButton from "@/components/admin/AdminActionButton";
+import PageHeader from "@/components/public/ui/PageHeader";
 import { deleteSlide } from "./serverActions";
 import { Pencil, Trash2, ImageIcon, Plus, LayoutGrid } from "lucide-react";
 
@@ -18,13 +19,12 @@ export default function SlidesClient({ slides }: { slides: any[] }) {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 px-4">
-
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Slides</h1>
-          <p className="text-sm text-neutral-500">Manage your hero slideshow</p>
-        </div>
+        <PageHeader 
+          title="Slides" 
+          subtitle="Manage your hero slideshow" 
+        />
         <Link href="/admin/slides/new">
           <AdminButton>
             <Plus className="h-4 w-4" />
@@ -38,7 +38,7 @@ export default function SlidesClient({ slides }: { slides: any[] }) {
         {slides.length === 0 ? (
           <AdminCard className="py-16 flex flex-col items-center gap-2">
             <ImageIcon className="h-8 w-8 text-neutral-300" />
-            <p className="font-medium text-neutral-500">No slides yet</p>
+            <p className="font-medium text-slate-600 dark:text-slate-300">No slides yet</p>
             <Link href="/admin/slides/new" className="text-sm text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white">
               Add your first slide
             </Link>
@@ -80,7 +80,7 @@ export default function SlidesClient({ slides }: { slides: any[] }) {
                       </Meta>
                     ))
                   ) : (
-                    <p className="text-xs text-neutral-400">No placements assigned</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300">No placements assigned</p>
                   )}
                 </div>
               </div>

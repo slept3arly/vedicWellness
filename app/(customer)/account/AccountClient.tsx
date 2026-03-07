@@ -12,6 +12,7 @@ import RecentOrdersCard from "@/components/customer/account/RecentOrdersCard";
 import LastOrderBanner from "@/components/customer/account/LastOrderBanner";
 import PendingOrdersCard from "@/components/customer/account/PendingOrdersCard";
 import AddressList from "@/components/customer/account/AddressList";
+import PageHeader from "@/components/public/ui/PageHeader";
 
 type Order = {
   id: string;
@@ -59,26 +60,25 @@ export default function AccountClient({
   const defaultAddress = addresses.find((a) => a.isDefault) ?? null;
 
   return (
-    <div className="bg-[var(--page-bg)] py-12 px-4 space-y-6">
-
+    <div className="bg-[var(--page-bg)] py-4 px-0 space-y-4 sm:py-8 sm:space-y-6">
       {/* Heading */}
-      <div className="text-center space-y-2">
-        <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight text-[var(--text-main)]">
-          My Account
-        </h1>
-        <p className="text-sm md:text-base text-[var(--text-muted)]">
-          Manage your profile, orders and saved addresses
-        </p>
+      <div className="text-center">
+        <PageHeader
+          title="My Account"
+          subtitle="Manage your profile, orders and saved addresses"
+        />
       </div>
 
       {/* ── MOBILE top section: stacked 1-2-1 ── */}
-      <div className="flex flex-col gap-4 lg:hidden">
-
+      <div className="flex flex-col gap-3 lg:hidden">
         <div className="bg-[var(--card-bg)] hover:bg-[var(--card-hover)] transition-colors rounded-xl">
-          <AccountProfileCard email={user.email} defaultAddress={defaultAddress} />
+          <AccountProfileCard
+            email={user.email}
+            defaultAddress={defaultAddress}
+          />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           <div className="bg-[var(--card-bg)] hover:bg-[var(--card-hover)] transition-colors rounded-xl">
             <AccountStatsCard
               label="Total Orders"
@@ -109,9 +109,11 @@ export default function AccountClient({
 
       {/* ── DESKTOP top section: 5-col row ── */}
       <div className="hidden lg:grid lg:grid-cols-5 gap-4">
-
         <div className="lg:col-span-2 bg-[var(--card-bg)] hover:bg-[var(--card-hover)] transition-colors rounded-xl">
-          <AccountProfileCard email={user.email} defaultAddress={defaultAddress} />
+          <AccountProfileCard
+            email={user.email}
+            defaultAddress={defaultAddress}
+          />
         </div>
 
         <div className="bg-[var(--card-bg)] hover:bg-[var(--card-hover)] transition-colors rounded-xl">
@@ -146,15 +148,14 @@ export default function AccountClient({
 
       {/* Row 2: last order + pending banner */}
       {(lastPaidOrder || pendingCount > 0) && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3">
           {lastPaidOrder && <LastOrderBanner order={lastPaidOrder} />}
           {pendingCount > 0 && <PendingOrdersCard count={pendingCount} />}
         </div>
       )}
 
       {/* Row 3: chart + quick links */}
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-5 lg:items-stretch">
-
+      <div className="grid gap-3 grid-cols-1 lg:grid-cols-5 lg:items-stretch">
         <div className="lg:col-span-3 bg-[var(--card-bg)] rounded-xl flex flex-col">
           <AccountActivityChart orders={orders} />
         </div>
@@ -162,12 +163,10 @@ export default function AccountClient({
         <div className="lg:col-span-2 bg-[var(--card-bg)] rounded-xl flex flex-col">
           <AccountQuickLinks cartItemCount={cartItemCount} />
         </div>
-
       </div>
 
       {/* Row 4: recent orders + address list */}
-      <div className="grid gap-4 grid-cols-1 lg:grid-cols-5 lg:items-stretch">
-
+      <div className="grid gap-3 grid-cols-1 lg:grid-cols-5 lg:items-stretch">
         <div className="lg:col-span-2 bg-[var(--card-bg)] rounded-xl flex flex-col">
           <RecentOrdersCard orders={orders} />
         </div>
@@ -179,9 +178,7 @@ export default function AccountClient({
             onExternalOpenChange={setAddAddressOpen}
           />
         </div>
-
       </div>
-
     </div>
   );
 }

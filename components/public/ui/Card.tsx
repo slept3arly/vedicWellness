@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
-import { ReactNode, forwardRef } from "react";
+import { ReactNode, forwardRef, useEffect, useState } from "react";
 
 type CardProps = {
   children: ReactNode;
@@ -13,28 +13,58 @@ const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
   { children, className, ...props },
   ref
 ) {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 1024px)");
+    setIsDesktop(media.matches);
+
+    const listener = () => setIsDesktop(media.matches);
+    media.addEventListener("change", listener);
+
+    return () => media.removeEventListener("change", listener);
+  }, []);
+
   return (
     <motion.div
-      ref={ref}   // ⭐ THIS IS THE FIX
+      ref={ref}
       {...props}
-      whileHover={{ y: -4 }}
+      whileHover={isDesktop ? { y: -4 } : undefined}
       transition={{ type: "spring", stiffness: 240, damping: 22 }}
       layout
       style={{ willChange: "transform" }}
       className={cn(
-        "relative overflow-hidden",
+        "group relative overflow-hidden",
         "rounded-[var(--radius)]",
 
-        /* footer/global surface system */
         "bg-[var(--bg-surface)]",
         "border border-[var(--border-soft)]",
 
-        "shadow-sm hover:shadow-md",
+        /* base shadow */
+        "shadow-sm",
+
+        /* deep hover shadow (desktop only) */
+        "lg:transition-shadow lg:duration-300",
+        "lg:group-hover:shadow-[0_20px_50px_rgba(2,101,54,0.25),0_8px_20px_rgba(0,0,0,0.12)]",
+
         "p-6",
         className
       )}
     >
-      {/* neutral overlay */}
+      {/* ambient glow */}
+      <span
+        className="
+          pointer-events-none absolute inset-0
+          rounded-[inherit]
+          bg-[color:var(--brand-primary)]/35
+          blur-xl
+          opacity-40
+          lg:transition-opacity lg:duration-300
+          lg:group-hover:opacity-100
+        "
+      />
+
+      {/* subtle overlay */}
       <div
         className="
           pointer-events-none absolute inset-0
@@ -45,7 +75,8 @@ const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
         "
       />
 
-      {children}
+      {/* content */}
+      <div className="relative z-10">{children}</div>
     </motion.div>
   );
 });

@@ -14,14 +14,13 @@ import {
   Flame,
   Save,
   Trash2,
-  Plus,
   ArrowUpDown,
 } from "lucide-react";
 
 import AdminCard from "../../../../components/admin/AdminCard";
 import AdminActionButton from "../../../../components/admin/AdminActionButton";
 import AdminBadge from "../../../../components/admin/AdminBadge";
-import AdminButton from "../../../../components/admin/AdminButton";
+import PageHeader from "@/components/public/ui/PageHeader";
 import { updateLeadStatus, deleteLead, assignLead } from "./serverActions";
 
 /* ------------------------------------------------------------------ */
@@ -84,12 +83,10 @@ export default function AdminLeadsClient({
     <div className="max-w-6xl mx-auto space-y-6 px-4">
 
       {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Leads</h1>
-          <p className="text-sm text-neutral-500">Manage and track inquiries</p>
-        </div>
-      </div>
+      <PageHeader 
+        title="Leads" 
+        subtitle="Manage and track inquiries" 
+      />
 
       {/* ── Search + Filters bar ── */}
       <AdminCard className="p-3">
@@ -186,7 +183,7 @@ export default function AdminLeadsClient({
         {filtered.length === 0 ? (
           <AdminCard className="py-16 flex flex-col items-center gap-2">
             <User className="h-8 w-8 text-neutral-300" />
-            <p className="font-medium text-neutral-500">No leads found</p>
+            <p className="font-semibold text-neutral-500">No leads found</p>
             <button onClick={handleClear} className="text-sm text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white">
               Clear search
             </button>
@@ -211,10 +208,10 @@ export default function AdminLeadsClient({
               <div className="flex-1 min-w-0 space-y-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="font-semibold text-base leading-snug">{lead.name}</h2>
+                    <h3 className="font-heading text-xl font-semibold leading-snug">{lead.name}</h3>
                     <AdminBadge status={lead.status} />
                   </div>
-                  <p className="text-xs text-neutral-500 mt-0.5">{lead.email}</p>
+                  <p className="text-slate-600 dark:text-slate-300 text-xs mt-0.5">{lead.email}</p>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3">
@@ -237,7 +234,7 @@ export default function AdminLeadsClient({
                 </div>
 
                 {lead.message && (
-                  <div className="rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-2 text-sm text-neutral-700 dark:text-neutral-300 line-clamp-2">
+                  <div className="rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 line-clamp-2">
                     {lead.message}
                   </div>
                 )}

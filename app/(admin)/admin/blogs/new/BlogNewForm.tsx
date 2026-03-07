@@ -4,18 +4,21 @@ import Link from "next/link";
 import { useState } from "react";
 import { createBlog } from "../serverActions";
 import BlogImageField from "@/components/admin/BlogImagesField";
+import PageHeader from "@/components/public/ui/PageHeader";
 
 export default function BlogNewForm() {
   const [thumbnailUrl, setThumbnailUrl] = useState("");
 
   return (
-    <div style={{ padding: 24, maxWidth: 760 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700 }}>Add Blog</h1>
-      <p style={{ opacity: 0.7 }}>Create a new blog post.</p>
+    <div className="p-6 max-w-[760px]">
+      <PageHeader 
+        title="Add Blog" 
+        subtitle="Create a new blog post." 
+      />
 
       <form
         action={createBlog}
-        style={{ marginTop: 18, display: "grid", gap: 12 }}
+        className="mt-[18px] grid gap-3"
       >
         <input name="title" placeholder="Blog title" required />
         <input name="slug" placeholder="Slug (example: why-hair-oil)" required />
@@ -28,7 +31,7 @@ export default function BlogNewForm() {
         />
 
         <hr />
-        <h3 style={{ fontWeight: 700 }}>SEO Settings</h3>
+        <h3 className="font-heading text-xl font-semibold">SEO Settings</h3>
 
         <input
           name="metaTitle"
@@ -47,7 +50,7 @@ export default function BlogNewForm() {
         />
 
         <hr />
-        <h3 style={{ fontWeight: 700 }}>Blog Details</h3>
+        <h3 className="font-heading text-xl font-semibold">Blog Details</h3>
 
         <input
           name="author"
@@ -76,12 +79,12 @@ export default function BlogNewForm() {
           rows={12}
         />
 
-        <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        <label className="flex items-center gap-2">
           <input name="published" type="checkbox" />
           Published
         </label>
 
-        <div style={{ display: "flex", gap: 10 }}>
+        <div className="flex gap-[10px]">
           <button type="submit">Create</button>
           <Link href="/admin/blogs">Cancel</Link>
         </div>

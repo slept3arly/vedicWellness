@@ -2,29 +2,55 @@
 
 import Link from "next/link";
 import { updateMarqueeItem } from "../../serverActions";
+import PageHeader from "@/components/public/ui/PageHeader";
 
 export default function MarqueeEditForm({ item }: { item: any }) {
   return (
-    <div style={{ padding: 24, maxWidth: 600 }}>
-      <h1 style={{ fontSize: 28, fontWeight: 700 }}>Edit Marquee Text</h1>
+    <div className="p-6 max-w-[600px]">
+      <PageHeader title="Edit Marquee Text" />
 
       <form
         action={updateMarqueeItem}
-        style={{ marginTop: 16, display: "grid", gap: 12 }}
+        className="mt-4 grid gap-3"
       >
         <input type="hidden" name="id" value={item.id} />
 
-        <input name="text" defaultValue={item.text} required />
-        <input name="order" defaultValue={String(item.order)} />
+        <div className="grid gap-1.5">
+          <label className="text-sm font-medium">Announcement Text</label>
+          <input 
+            name="text" 
+            defaultValue={item.text} 
+            placeholder="Enter marquee text..."
+            required 
+          />
+        </div>
 
-        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          <input name="isActive" type="checkbox" defaultChecked={item.isActive} />
-          Active
+        <div className="grid gap-1.5">
+          <label className="text-sm font-medium">Display Order</label>
+          <input 
+            name="order" 
+            type="number"
+            defaultValue={String(item.order)} 
+          />
+        </div>
+
+        <label className="flex gap-2 items-center cursor-pointer py-2">
+          <input 
+            name="isActive" 
+            type="checkbox" 
+            defaultChecked={item.isActive} 
+          />
+          <span className="text-sm font-medium">Active</span>
         </label>
 
-        <div style={{ display: "flex", gap: 12 }}>
-          <button type="submit">Save</button>
-          <Link href="/admin/marquee">Cancel</Link>
+        <div className="flex gap-3 mt-2">
+          <button type="submit">Save Changes</button>
+          <Link 
+            href="/admin/marquee" 
+            className="px-4 py-2 text-sm font-medium border rounded-md hover:bg-neutral-50 transition-colors"
+          >
+            Cancel
+          </Link>
         </div>
       </form>
     </div>

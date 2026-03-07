@@ -1,6 +1,7 @@
 "use client";
 
 import AdminCard from "../../../../components/admin/AdminCard";
+import PageHeader from "@/components/public/ui/PageHeader";
 import {
   Trash2,
   Pencil,
@@ -51,17 +52,17 @@ export default function AdminLogsClient({
     <div className="max-w-6xl mx-auto space-y-6 px-4">
 
       {/* ── Header ── */}
-      <div>
-        <h1 className="text-2xl font-bold">Activity Log</h1>
-        <p className="text-sm text-neutral-500">Recent admin actions</p>
-      </div>
+      <PageHeader 
+        title="Activity Log" 
+        subtitle="Recent admin actions" 
+      />
 
       {/* ── Log List ── */}
       <div className="space-y-3">
         {logs.length === 0 ? (
           <AdminCard className="py-16 flex flex-col items-center gap-2">
             <FileText className="h-8 w-8 text-neutral-300" />
-            <p className="font-medium text-neutral-500">No activity yet</p>
+            <p className="font-semibold text-neutral-500">No activity yet</p>
           </AdminCard>
         ) : (
           logs.map((l, index) => {
@@ -86,11 +87,11 @@ export default function AdminLogsClient({
                 {/* ── Middle: action + meta ── */}
                 <div className="flex-1 min-w-0 space-y-3">
                   <div>
-                    <h2 className="font-semibold text-base leading-snug capitalize">
+                    <h3 className="font-heading text-xl font-semibold leading-snug capitalize">
                       {humanAction(l.action)} {l.entityType.toLowerCase()}
-                    </h2>
+                    </h3>
                     {actor && (
-                      <p className="text-xs text-neutral-500 mt-0.5">
+                      <p className="text-slate-600 dark:text-slate-300 text-xs mt-0.5">
                         by {actor.email}{actor.name ? ` (${actor.name})` : ""}
                       </p>
                     )}
@@ -132,8 +133,8 @@ export default function AdminLogsClient({
                       <summary className="cursor-pointer text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors">
                         View technical details
                       </summary>
-                      <pre className="mt-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 p-3 text-xs overflow-x-auto">
-{JSON.stringify(l.metadata, null, 2)}
+                      <pre className="mt-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 p-3 text-xs overflow-x-auto text-slate-700 dark:text-slate-300">
+                        {JSON.stringify(l.metadata, null, 2)}
                       </pre>
                     </details>
                   )}

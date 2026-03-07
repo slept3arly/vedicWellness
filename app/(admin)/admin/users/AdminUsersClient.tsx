@@ -22,6 +22,7 @@ import AdminCard from "../../../../components/admin/AdminCard";
 import AdminButton from "../../../../components/admin/AdminButton";
 import AdminBadge from "../../../../components/admin/AdminBadge";
 import AdminActionButton from "../../../../components/admin/AdminActionButton";
+import PageHeader from "@/components/public/ui/PageHeader";
 import { updateUserRole, deleteUser } from "./serverActions";
 
 /* ------------------------------------------------------------------ */
@@ -73,13 +74,9 @@ export default function AdminUsersClient({
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 px-4">
-
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Users</h1>
-          <p className="text-sm text-neutral-500">Manage all registered users</p>
-        </div>
+        <PageHeader title="Users" subtitle="Manage all registered users" />
         <Link href="/admin/users/new">
           <AdminButton>
             <Plus className="h-4 w-4" />
@@ -91,7 +88,6 @@ export default function AdminUsersClient({
       {/* ── Search bar ── */}
       <AdminCard className="p-3">
         <form onSubmit={handleFilter} className="flex flex-col gap-2">
-
           {/* Row 1: search input */}
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
@@ -150,26 +146,51 @@ export default function AdminUsersClient({
               Search
             </button>
           </div>
-
         </form>
 
         <div className="mt-2 text-xs text-neutral-400 flex justify-between px-0.5">
           <span>
             {filtered.length} result{filtered.length !== 1 ? "s" : ""}
-            {q && <> for "<span className="text-neutral-600 dark:text-neutral-300 font-medium">{q}</span>"</>}
-            {roleFilter && <> · <span className="text-neutral-600 dark:text-neutral-300 font-medium">{roleFilter}</span></>}
+            {q && (
+              <>
+                {" "}
+                for "
+                <span className="text-slate-600 dark:text-slate-300 font-medium">
+                  {q}
+                </span>
+                "
+              </>
+            )}
+            {roleFilter && (
+              <>
+                {" "}
+                ·{" "}
+                <span className="text-slate-600 dark:text-slate-300 font-medium">
+                  {roleFilter}
+                </span>
+              </>
+            )}
           </span>
           <span>Page {page}</span>
         </div>
       </AdminCard>
 
       {/* ── Users List ── */}
-      <div className={`space-y-3 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
+      <div
+        className={`space-y-3 transition-opacity duration-200 ${
+          isPending ? "opacity-50 pointer-events-none" : ""
+        }`}
+      >
         {filtered.length === 0 ? (
           <AdminCard className="py-16 flex flex-col items-center gap-2">
             <User className="h-8 w-8 text-neutral-300" />
-            <p className="font-medium text-neutral-500">No users found</p>
-            <button onClick={handleClear} className="text-sm text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white">
+            <p className="font-medium text-slate-600 dark:text-slate-300">
+              No users found
+            </p>
+            <button
+              onClick={handleClear}
+              className="text-sm text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white"
+            >
               Clear search
             </button>
           </AdminCard>
@@ -193,13 +214,15 @@ export default function AdminUsersClient({
               <div className="flex-1 min-w-0 space-y-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="font-semibold text-base leading-snug">
+                    <h3 className="font-heading text-xl font-semibold leading-snug">
                       {u.name || u.email}
-                    </h2>
+                    </h3>
                     <AdminBadge status={u.role} />
                   </div>
                   {u.name && (
-                    <p className="text-xs text-neutral-500 mt-0.5">{u.email}</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
+                      {u.email}
+                    </p>
                   )}
                 </div>
 
@@ -220,7 +243,10 @@ export default function AdminUsersClient({
 
                 {/* Inline role editor */}
                 {editingId === u.id && (
-                  <form action={updateUserRole} className="flex gap-2 items-center">
+                  <form
+                    action={updateUserRole}
+                    className="flex gap-2 items-center"
+                  >
                     <input type="hidden" name="id" value={u.id} />
                     <select
                       name="role"
@@ -249,7 +275,11 @@ export default function AdminUsersClient({
               <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 shrink-0 sm:w-32">
                 <AdminButton
                   className="w-full justify-center"
-                  onClick={() => startTransition(() => router.push(`/admin/users/edit/${u.id}`))}
+                  onClick={() =>
+                    startTransition(() =>
+                      router.push(`/admin/users/edit/${u.id}`)
+                    )
+                  }
                 >
                   <Pencil className="h-3.5 w-3.5" />
                   Edit
@@ -266,16 +296,21 @@ export default function AdminUsersClient({
                 <form
                   action={deleteUser}
                   className="w-full col-span-2 sm:col-span-1"
-                  onSubmit={(e) => { if (!confirm("Delete this user permanently?")) e.preventDefault(); }}
+                  onSubmit={(e) => {
+                    if (!confirm("Delete this user permanently?"))
+                      e.preventDefault();
+                  }}
                 >
                   <input type="hidden" name="id" value={u.id} />
-                  <AdminActionButton variant="danger" className="w-full justify-center">
+                  <AdminActionButton
+                    variant="danger"
+                    className="w-full justify-center"
+                  >
                     <Trash2 className="h-3.5 w-3.5" />
                     Delete
                   </AdminActionButton>
                 </form>
               </div>
-
             </AdminCard>
           ))
         )}
@@ -286,7 +321,13 @@ export default function AdminUsersClient({
 
 /* ------------------------------------------------------------------ */
 
-function Meta({ label, children }: { label: string; children: React.ReactNode }) {
+function Meta({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="min-w-0">
       <div className="text-[10px] uppercase tracking-wide text-neutral-400 font-medium mb-0.5">

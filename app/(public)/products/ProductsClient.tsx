@@ -7,7 +7,7 @@ import { Sparkles, Search, ArrowUpDown, ArrowUpRight, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-import PageHeader from "@/components/public/layout/PageHeader";
+import PageHeader from "@/components/public/ui/PageHeader";
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
 import { fadeUpSoft, staggerSlow } from "@/app/animations";
@@ -44,8 +44,9 @@ export default function ProductsClient({
   const anchorToFilter = () => {
     if (filterBarRef.current) {
       const stickyOffset = window.innerWidth >= 768 ? 160 : 128;
-      const elementPosition = filterBarRef.current.getBoundingClientRect().top + window.scrollY;
-      
+      const elementPosition =
+        filterBarRef.current.getBoundingClientRect().top + window.scrollY;
+
       window.scrollTo({
         top: elementPosition - stickyOffset,
         behavior: "smooth",
@@ -92,8 +93,16 @@ export default function ProductsClient({
     <section className="relative">
       <div className="mx-auto max-w-7xl px-6 pt-10 pb-20 space-y-10">
         <PageHeader
-          badge={<Chip className="flex items-center gap-2"><Sparkles size={14} /> Ayurvedic Products</Chip>}
-          title={<>Explore our <span className="text-accent">product range</span></>}
+          badge={
+            <Chip className="flex items-center gap-2">
+              <Sparkles size={14} /> Ayurvedic Products
+            </Chip>
+          }
+          title={
+            <>
+              Explore our <span className="text-accent">product range</span>
+            </>
+          }
           subtitle="Premium Ayurvedic formulations designed for demand, trust, and repeat customers."
         />
 
@@ -103,11 +112,13 @@ export default function ProductsClient({
           ))}
         </div>
 
-        {/* STICKY FILTER BAR - UPDATED TO 2-ROW ADMIN STYLE */}
-        <div ref={filterBarRef} className="sticky top-32 md:top-40 z-20 scroll-mt-40">
-          <Card className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 p-3 shadow-xl backdrop-blur-md">
+        {/* STICKY FILTER BAR */}
+        <div
+          ref={filterBarRef}
+          className="sticky top-32 md:top-40 z-20 scroll-mt-40 group"
+        >
+          <Card className="bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 p-3 backdrop-blur-md">
             <form onSubmit={handleFilter} className="flex flex-col gap-2">
-              
               {/* Row 1: Search Input Full Width */}
               <div className="relative w-full">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
@@ -158,48 +169,59 @@ export default function ProductsClient({
             </form>
 
             <div className="mt-2 text-[11px] text-neutral-400 flex justify-between px-1 font-medium">
-              <span>Showing <b>{totalCount}</b> results</span>
-              {query && <span className="opacity-70">Filtered by: "{query}"</span>}
+              <span>
+                Showing <b>{totalCount}</b> results
+              </span>
+              {query && (
+                <span className="opacity-70">Filtered by: "{query}"</span>
+              )}
             </div>
           </Card>
         </div>
 
         {/* PRODUCT GRID */}
         <AnimatePresence mode="wait">
-          <motion.div 
+          <motion.div
             key={`grid-${query}-${sort}-${page}`}
-            variants={staggerSlow} initial="hidden" animate="show" exit="hidden"
+            variants={staggerSlow}
+            initial="hidden"
+            animate="show"
+            exit="hidden"
             className="grid grid-cols-2 gap-4 lg:grid-cols-3"
           >
             {products.length > 0 ? (
               products.map((p) => (
-                <motion.div key={p.id} variants={fadeUpSoft}>
-                  <Link href={`/products/${p.slug}`} className="group block h-full">
-                    <Card className="h-full p-3 flex flex-col border-neutral-200 dark:border-neutral-800 hover:shadow-lg transition-shadow">
+                <motion.div key={p.id} variants={fadeUpSoft} className="group">
+                  <Link href={`/products/${p.slug}`} className="block h-full">
+                    <Card className="h-full p-3 flex flex-col border-neutral-200 dark:border-neutral-800">
                       {p.imageUrl && (
                         <div className="relative w-full h-32 md:h-44 overflow-hidden rounded-xl mb-3">
-                          <Image 
-                            src={p.imageUrl} 
-                            alt={p.name} 
-                            fill 
-                            className="object-cover transition-transform duration-500 group-hover:scale-110" 
+                          <Image
+                            src={p.imageUrl}
+                            alt={p.name}
+                            fill
+                            className="object-cover transition-transform duration-500 group-hover:scale-110"
                           />
                         </div>
                       )}
-                      
+
                       <div className="flex justify-between items-start gap-2">
                         <div className="flex-1 min-w-0">
                           <h3 className="font-heading text-[13px] md:text-sm font-extrabold line-clamp-1 group-hover:text-accent transition-colors">
                             {p.name}
                           </h3>
                           <p className="text-[10px] md:text-[11px] text-muted line-clamp-2 mt-0.5 leading-tight">
-                            {p.shortDescription || "Premium Ayurvedic formulation."}
+                            {p.shortDescription ||
+                              "Premium Ayurvedic formulation."}
                           </p>
                         </div>
 
                         <div className="flex flex-col items-end shrink-0">
-                          <div className="mb-2 p-1 md:p-1.5 rounded-lg bg-muted/5 group-hover:bg-accent/10 group-hover:scale-110 transition-all">
-                            <ArrowUpRight size={14} className="text-muted group-hover:text-accent" />
+                          <div className="mb-2 p-1 md:p-1.5 rounded-lg bg-muted/5 transition-all group-hover:bg-accent/10 group-hover:translate-x-0.5 group-hover:-translate-y-0.5">
+                            <ArrowUpRight
+                              size={14}
+                              className="text-muted transition-colors group-hover:text-accent"
+                            />
                           </div>
                           <div className="font-bold text-accent text-[12px] md:text-sm">
                             ₹{p.price}
@@ -211,14 +233,17 @@ export default function ProductsClient({
                 </motion.div>
               ))
             ) : (
-              <motion.div 
-                initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
                 className="col-span-full py-24 text-center"
               >
                 <Search size={48} className="mx-auto text-muted/20 mb-4" />
-                <h3 className="text-lg font-bold">No products found</h3>
-                <p className="text-sm text-muted mt-1">Try different keywords or clear your filters.</p>
-                <button 
+                <h3 className="text-lg font-heading">No products found</h3>
+                <p className="text-sm text-muted mt-1">
+                  Try different keywords or clear your filters.
+                </p>
+                <button
                   onClick={handleGlobalClear}
                   className="mt-6 text-sm font-bold text-accent underline underline-offset-4"
                 >
@@ -243,9 +268,9 @@ export default function ProductsClient({
                   scroll={false}
                   onClick={anchorToFilter}
                   className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${
-                    p === page 
-                    ? "bg-accent text-white shadow-lg shadow-accent/20 scale-110" 
-                    : "bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-accent/50"
+                    p === page
+                      ? "bg-accent text-white shadow-lg shadow-accent/20 scale-110"
+                      : "bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 hover:border-accent/50"
                   }`}
                 >
                   {p}

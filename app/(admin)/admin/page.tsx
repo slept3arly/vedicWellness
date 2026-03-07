@@ -1,5 +1,7 @@
 import Link from "next/link";
 import AdminCard from "../../../components/admin/AdminCard";
+import PageHeader from "@/components/public/ui/PageHeader";
+import SectionHeading from "@/components/public/ui/SectionHeading"; // Assuming the import path based on PageHeader
 import {
   Package,
   FileText,
@@ -58,9 +60,7 @@ const sections = [
 export default function AdminHomePage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">
-        Dashboard
-      </h1>
+      <PageHeader title="Dashboard" />
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {sections.map((s) => {
@@ -71,12 +71,10 @@ export default function AdminHomePage() {
               <AdminCard className="group cursor-pointer transition hover:shadow-md hover:border-primary">
                 <div className="flex items-center gap-3">
                   <Icon className="text-primary" size={26} />
-                  <h2 className="text-lg font-semibold">
-                    {s.label}
-                  </h2>
+                  <SectionHeading title={s.label} />
                 </div>
 
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-slate-600 dark:text-slate-300">
                   {s.desc}
                 </p>
               </AdminCard>

@@ -6,6 +6,8 @@
    DESIGN TOKENS
 ====================================================== */
 
+
+
 :root {
   --brand-primary: #026536;
   --brand-accent: #589d32;
@@ -49,6 +51,15 @@ body {
   background: var(--bg-main);
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
+}
+
+@layer base {
+  p {
+    @apply font-body leading-relaxed;
+  }
+}
+h3 {
+  @apply font-heading text-xl font-semibold;
 }
 
 /* ======================================================

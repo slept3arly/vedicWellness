@@ -9,7 +9,8 @@ import { fadeUpSoft, staggerFast } from "@/app/animations";
 
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
-import PageHeader from "@/components/public/layout/PageHeader";
+import PageHeader from "@/components/public/ui/PageHeader";
+import SectionHeading from "@/components/public/ui/SectionHeading";
 
 import LoginForm from "./LoginForm";
 
@@ -37,7 +38,7 @@ export default function LoginClient() {
           title={
             <>
               Welcome back to{" "}
-              <span className="text-[color:var(--brand-accent)]">
+              <span className="text-brand-accent">
                 Vedic Wellness
               </span>
             </>
@@ -69,15 +70,16 @@ export default function LoginClient() {
           className="max-w-xl mx-auto"
         >
           <Card className="bg-white/80 dark:bg-black/45">
-            <h2 className="text-center text-3xl font-extrabold">
-              Log In
-            </h2>
+            <SectionHeading 
+              title="Log In" 
+              className="text-center" 
+            />
 
             <p className="mt-2 text-center text-sm text-muted">
               Don’t have an account?{" "}
               <a
                 href={signupHref}
-                className="font-semibold text-[color:var(--brand-accent)] hover:underline"
+                className="font-accent hover:underline text-brand-accent"
               >
                 Create one
               </a>

@@ -8,7 +8,8 @@ import { fadeUpSoft, staggerFast } from "@/app/animations";
 
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
-import PageHeader from "@/components/public/layout/PageHeader";
+import PageHeader from "@/components/public/ui/PageHeader";
+import SectionHeading from "@/components/public/ui/SectionHeading";
 
 import SignupForm from "./SignupForm";
 
@@ -70,9 +71,10 @@ export default function SignupClient() {
               shadow-[0_24px_60px_rgba(2,101,54,0.25)]
             "
           >
-            <h2 className="text-center text-3xl font-extrabold">
-              Create your account
-            </h2>
+            <SectionHeading 
+              title="Create your account" 
+              className="text-center" 
+            />
 
             <p className="mt-2 text-center text-sm text-muted">
               It takes less than a minute to get started.

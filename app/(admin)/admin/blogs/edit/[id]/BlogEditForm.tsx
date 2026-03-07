@@ -2,18 +2,19 @@
 
 import { useState } from "react";
 import R2Upload from "@/components/R2Upload";
+import PageHeader from "@/components/public/ui/PageHeader";
 import { updateBlog } from "../../serverActions";
 
 export default function BlogEditForm({ blog }: { blog: any }) {
   const [thumbnailUrl, setThumbnailUrl] = useState(blog.thumbnailUrl ?? "");
 
   return (
-    <div style={{ maxWidth: 760 }}>
-      <h1 style={{ fontSize: 26, fontWeight: 700 }}>Edit Blog</h1>
+    <div className="max-w-[760px]">
+      <PageHeader title="Edit Blog" />
 
       <form
         action={updateBlog}
-        style={{ marginTop: 18, display: "grid", gap: 12 }}
+        className="mt-[18px] grid gap-3"
       >
         <input type="hidden" name="id" value={blog.id} />
 
@@ -26,20 +27,20 @@ export default function BlogEditForm({ blog }: { blog: any }) {
 
         {/* Thumbnail */}
         <div>
-          <p style={{ marginBottom: 8, fontWeight: 600 }}>Thumbnail Image</p>
+          <p className="mb-2 font-semibold">Thumbnail Image</p>
           <R2Upload folder="blogs" onUploaded={setThumbnailUrl} />
           {thumbnailUrl ? (
-            <a href={thumbnailUrl} target="_blank" style={{ fontSize: 12 }}>
+            <a href={thumbnailUrl} target="_blank" className="text-xs">
               View current thumbnail
             </a>
           ) : (
-            <p style={{ fontSize: 12, opacity: 0.7 }}>No thumbnail uploaded.</p>
+            <p className="text-xs opacity-70">No thumbnail uploaded.</p>
           )}
         </div>
 
         {/* SEO */}
         <hr />
-        <h3 style={{ fontWeight: 700 }}>SEO Settings</h3>
+        <h3 className="font-heading text-xl font-semibold">SEO Settings</h3>
 
         <input
           name="metaTitle"
@@ -62,7 +63,7 @@ export default function BlogEditForm({ blog }: { blog: any }) {
 
         {/* Blog Meta */}
         <hr />
-        <h3 style={{ fontWeight: 700 }}>Blog Details</h3>
+        <h3 className="font-heading text-xl font-semibold">Blog Details</h3>
 
         <input
           name="author"
@@ -87,7 +88,7 @@ export default function BlogEditForm({ blog }: { blog: any }) {
         <textarea name="content" defaultValue={blog.content ?? ""} rows={12} />
 
         {/* Publishing */}
-        <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <label className="flex gap-2 items-center">
           <input type="checkbox" name="published" defaultChecked={blog.published} />
           Published (visible on website)
         </label>

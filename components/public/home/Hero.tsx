@@ -1,79 +1,188 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Sparkles, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Shield, Leaf, Zap, MapPin } from "lucide-react";
 
-import Chip from "@/components/public/ui/Chip";
 import Button from "@/components/public/ui/Button";
+
+const pillars = [
+  { icon: Shield, label: "Monopoly PCD Model" },
+  { icon: Leaf, label: "GMP Certified Manufacturing" },
+  { icon: Zap, label: "Fast Dispatch & Support" },
+];
+
+const stats = [
+  { value: "200+", label: "PCD Products", sub: "GMP certified portfolio" },
+  { value: "15+", label: "Therapy Segments", sub: "High-demand wellness ranges" },
+  { value: "500+", label: "Active Partners", sub: "Distributors nationwide" },
+];
+
+const features = [
+  {
+    title: "Exclusive Monopoly Rights",
+    desc: "Own your territory — no other distributor in your district or city.",
+  },
+  {
+    title: "200+ Ayurvedic SKUs",
+    desc: "GMP certified formulations across immunity, digestive, liver, skin & more.",
+  },
+  {
+    title: "Marketing & Dispatch Support",
+    desc: "Promotional materials, visual aids, and fast logistics from day one.",
+  },
+  {
+    title: "Transparent Pricing",
+    desc: "No hidden charges. Clear MRP, PTR, and PTS structure upfront.",
+  },
+];
+
+const certBadges = ["ISO 9001:2015", "GMP Certified", "Ayush Approved"];
 
 export default function Hero() {
   const router = useRouter();
 
   return (
-    <section className="max-w-7xl mx-auto px-4 pt-10 pb-12 md:px-6 md:pt-20 md:pb-24 grid md:grid-cols-2 gap-10 items-center">
-      {/* LEFT */}
-      <div className="space-y-4 md:space-y-5">
-        <div>
-          <Chip className="flex items-center gap-2 w-fit text-xs md:text-sm">
-            <Sparkles size={14} />
-            Trusted Ayurvedic Franchise Network
-          </Chip>
-        </div>
+    <section className="min-h-screen flex flex-col font-body bg-transparent">
+      <div className="flex-1 flex items-center">
+        <div className="w-full max-w-7xl mx-auto px-6 md:px-10 pb-10 md:pb-14">
+          <div className="grid md:grid-cols-[1fr_480px] lg:grid-cols-[1fr_520px] gap-8 lg:gap-12 items-center">
 
-        <h1 className="text-4xl md:text-5xl font-extrabold leading-snug md:leading-tight text-slate-900 dark:text-white">
-          Build Your Monopoly With
-          <br />
-          {/* Light: dark green → mid green. Dark: lime → brighter lime */}
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-[#039751] to-[#04c468] dark:from-[#84eb4b] dark:to-[#a3e635]">
-            Vedic Wellness
-          </span>
-        </h1>
+            {/* LEFT */}
+            <div className="space-y-4 flex flex-col items-center md:items-start text-center md:text-left">
 
-        <p className="text-sm md:text-base text-slate-700 dark:text-slate-300">
-          Vedic Wellness (A Division of Innovia Drugs) enables serious PCD
-          partners to build scalable, long-term businesses with GMP certified
-          Ayurvedic formulations and monopoly rights.
-        </p>
+              {/* Pulse badge */}
+              <div className="opacity-0 md:opacity-100 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[rgba(3,151,81,0.07)] border border-[rgba(3,151,81,0.18)] dark:bg-[rgba(132,235,75,0.05)] dark:border-[rgba(132,235,75,0.15)]">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#039751] dark:bg-[#84eb4b] shrink-0" />
+                <span className="text-[0.7rem] text-[#024a29] dark:text-[#84eb4b]">
+                  500+ Active Franchise Partners Nationwide
+                </span>
+              </div>
 
-        <div className="flex gap-3 pt-2">
-          <Button onClick={() => router.push("/contact")}>
-            Apply for Franchise
-          </Button>
+              {/* Heading — Cormorant Garamond serif with italic accent */}
+              <h1
+                className="font-bold leading-[1.05] tracking-tight text-[#0d1f14] dark:text-[#e8f5ee]"
+                style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: "clamp(2.6rem, 5vw, 4.6rem)",
+                }}
+              >
+                Build Your<br />
+                Monopoly With<br />
+                <em
+                  className="text-[#039751] dark:text-[#84eb4b]"
+                  style={{ fontStyle: "italic", fontWeight: 600 }}
+                >
+                  Vedic Wellness
+                </em>
+              </h1>
 
-          <Button variant="secondary" onClick={() => router.push("/products")}>
-            View Products
-          </Button>
-        </div>
-      </div>
+              <p className="text-sm leading-relaxed text-[#3d5a47] dark:text-[#8db89e] max-w-[420px]">
+                A Division of Innovia Drugs — enabling serious PCD partners to build
+                scalable, long-term businesses backed by GMP certified Ayurvedic
+                formulations and exclusive monopoly rights.
+              </p>
 
-      {/* RIGHT */}
-      <div>
-        <div className="relative rounded-3xl bg-white/70 dark:bg-black/45 p-6 md:p-8 shadow-[0_24px_60px_rgba(2,101,54,0.25)] dark:shadow-[0_24px_60px_rgba(132,235,75,0.08)]">
-          <div className="pointer-events-none absolute inset-0 rounded-3xl bg-[#039751]/15 dark:bg-[#84eb4b]/10 blur-2xl opacity-40" />
+              {/* Pillar chips */}
+              <div className="flex flex-wrap gap-1.5 justify-center md:justify-start">
+                {pillars.map(({ icon: Icon, label }) => (
+                  <span
+                    key={label}
+                    className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-[rgba(3,151,81,0.25)] bg-[rgba(3,151,81,0.05)] text-[0.72rem] font-medium text-[#024a29] dark:border-[rgba(132,235,75,0.2)] dark:bg-[rgba(132,235,75,0.04)] dark:text-lime-400"
+                  >
+                    <Icon size={11} />
+                    {label}
+                  </span>
+                ))}
+              </div>
 
-          <div className="relative space-y-4">
-            <h3 className="text-lg md:text-xl font-semibold text-slate-900 dark:text-white">
-              Why Serious Partners Choose Us
-            </h3>
+              {/* CTAs */}
+              <div className="flex flex-wrap gap-3 pt-1 justify-center md:justify-start">
+                <Button onClick={() => router.push("/contact")}>
+                  Apply for Franchise
+                  <ArrowRight size={13} className="ml-1.5 inline-block" />
+                </Button>
+                <Button variant="secondary" onClick={() => router.push("/products")}>
+                  View Products
+                </Button>
+              </div>
+            </div>
 
-            <ul className="space-y-3 text-sm text-slate-600 dark:text-slate-300">
-              {[
-                "Monopoly-based PCD model",
-                "GMP certified manufacturing",
-                "Fast dispatch & logistics support",
-              ].map((item) => (
-                <li key={item} className="flex gap-2 items-start">
-                  <CheckCircle2
-                    size={16}
-                    className="mt-0.5 shrink-0 text-[#039751] dark:text-[#84eb4b]"
-                  />
-                  {item}
-                </li>
+            {/* RIGHT CARD — uses surface (white in light, dark in dark mode) */}
+            <div className="surface overflow-hidden">
+
+              {/* Stats row */}
+              <div className="grid grid-cols-3 divide-x divide-[var(--border-soft)]">
+                {stats.map(({ value, label, sub }) => (
+                  <div key={label} className="px-2 py-4 text-center">
+                    <div
+                      className="font-bold leading-none text-[var(--brand-primary)] dark:text-[#84eb4b]"
+                      style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}
+                    >
+                      {value}
+                    </div>
+                    <div className="text-[0.6rem] font-bold tracking-widest uppercase text-[var(--text-main)] mt-1">
+                      {label}
+                    </div>
+                    <div className="text-[0.6rem] text-muted mt-0.5">{sub}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="h-px bg-[var(--border-soft)]" />
+
+              {/* Section label */}
+              <div className="px-4 pt-2.5 pb-1">
+                <p className="text-[0.58rem] tracking-[0.18em] uppercase font-bold text-[var(--brand-primary)] dark:text-[#84eb4b] opacity-80">
+                  Why Partners Choose Us
+                </p>
+              </div>
+
+              {/* Feature list */}
+              {features.map(({ title, desc }, i) => (
+                <div
+                  key={title}
+                  className={`flex gap-2.5 items-start px-4 py-2.5 ${i < features.length - 1 ? "border-b border-[var(--border-soft)]" : ""}`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[var(--brand-primary)] dark:bg-[#84eb4b] shrink-0 mt-1" />
+                  <div>
+                    <div className="text-[0.78rem] font-semibold text-[var(--text-main)] leading-snug">{title}</div>
+                    <div className="text-[0.7rem] text-muted leading-relaxed mt-0.5">{desc}</div>
+                  </div>
+                </div>
               ))}
-            </ul>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between flex-wrap gap-2 px-4 py-2.5 border-t border-[var(--border-soft)] bg-[var(--bg-surface)]">
+                <span className="flex items-center gap-1 text-[0.65rem] text-muted">
+                  <MapPin size={9} />
+                  Est. 2018 · Ambala, Haryana
+                </span>
+                <div className="flex gap-1 flex-wrap">
+                  {certBadges.map((b) => (
+                    <span
+                      key={b}
+                      className="text-[0.58rem] font-bold tracking-wide uppercase text-[var(--brand-primary)] dark:text-[#84eb4b] px-1.5 py-0.5 border border-[rgba(2,101,54,0.25)] dark:border-[rgba(132,235,75,0.2)] rounded"
+                    >
+                      {b}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Ornament strip */}
+      <div className="w-full px-6 md:px-10 pb-6">
+        <div className="flex items-center gap-3 w-full before:flex-1 before:h-px before:bg-gradient-to-r before:from-transparent before:via-[rgba(3,151,81,0.2)] before:to-transparent after:flex-1 after:h-px after:bg-gradient-to-r after:from-transparent after:via-[rgba(3,151,81,0.2)] after:to-transparent">
+          <span className="text-[0.6rem] tracking-[0.2em] uppercase text-muted font-medium whitespace-nowrap">
+            Trusted · GMP Certified · ISO Approved
+          </span>
+        </div>
+      </div>
+
     </section>
   );
 }

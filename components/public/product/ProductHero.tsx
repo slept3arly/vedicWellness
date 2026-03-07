@@ -6,12 +6,13 @@ import {
   Zap,
   FileText,
   Info,
-  Plus,
 } from "lucide-react";
 
 import Card from "@/components/public/ui/Card";
 import ProductCarousel from "./ProductCarousel";
 import ProductPriceCard from "../../customer/product/ProductPriceCard";
+import PageHeader from "@/components/public/ui/PageHeader";
+import SectionHeading from "@/components/public/ui/SectionHeading";
 import { Product } from "./types";
 import { staggerFast, fadeUp, reveal } from "@/app/animations";
 
@@ -40,10 +41,10 @@ export default function ProductHero({
           {/* Left */}
           <motion.div variants={reveal} className="hidden lg:block pb-2">
             <div className="border-t border-foreground/30 pt-3">
-              <p className="text-[9px] uppercase tracking-[0.2em] text-foreground/60 font-[var(--font-inter)]">
+              <p className="text-[9px] uppercase tracking-[0.2em] text-foreground/60">
                 Category
               </p>
-              <p className="text-xl font-bold text-foreground font-[var(--font-space-grotesk)]">
+              <p className="font-heading text-xl font-semibold text-foreground">
                 {product.tag || "Natural Care"}
               </p>
             </div>
@@ -51,15 +52,11 @@ export default function ProductHero({
 
           {/* Center */}
           <motion.div variants={reveal} className="text-center">
-            <h1 className="pt-2 text-6xl md:text-7xl lg:text-[5.5rem] font-black leading-[0.9] tracking-tighter text-foreground font-[var(--font-space-grotesk)]">
-              {product.name}
-            </h1>
-
-            {product.subtitle && (
-              <p className="mt-4 text-[11px] uppercase tracking-[0.25em] text-foreground/70 font-[var(--font-inter)]">
-                {product.subtitle}
-              </p>
-            )}
+            <PageHeader 
+              title={product.name} 
+              subtitle={product.subtitle || ""} 
+              className="pt-2"
+            />
           </motion.div>
 
           {/* Right */}
@@ -68,10 +65,10 @@ export default function ProductHero({
             className="hidden lg:flex flex-col items-end pb-2"
           >
             <div className="border-t border-foreground/30 pt-3 text-right w-full">
-              <p className="text-[9px] uppercase tracking-[0.2em] text-foreground/60 font-[var(--font-inter)]">
+              <p className="text-[9px] uppercase tracking-[0.2em] text-foreground/60">
                 Form
               </p>
-              <p className="text-xl font-bold text-foreground font-[var(--font-space-grotesk)]">
+              <p className="font-heading text-xl font-semibold text-foreground">
                 {product.medicineForm || "—"}
               </p>
             </div>
@@ -123,13 +120,13 @@ export default function ProductHero({
                   viewport={{ once: true }}
                   className="space-y-4"
                 >
-                  <h2 className="flex items-center gap-3 text-3xl font-bold text-foreground font-[var(--font-space-grotesk)]">
-                    <Info size={26} />
-                    The Essence
-                  </h2>
+                  <div className="flex items-center gap-3">
+                    <Info size={26} className="text-foreground" />
+                    <SectionHeading title="The Essence" />
+                  </div>
 
                   <Card className="p-6 lg:p-8">
-                    <p className="text-lg lg:text-xl leading-relaxed text-foreground/70 font-[var(--font-inter)]">
+                    <p className="text-lg lg:text-xl leading-relaxed text-slate-600 dark:text-slate-300">
                       {product.shortDescription}
                     </p>
                   </Card>
@@ -144,13 +141,13 @@ export default function ProductHero({
                   viewport={{ once: true }}
                   className="space-y-4"
                 >
-                  <h2 className="flex items-center gap-3 text-3xl font-bold text-foreground font-[var(--font-space-grotesk)]">
-                    <FileText size={26} />
-                    Inside the Formulation
-                  </h2>
+                  <div className="flex items-center gap-3">
+                    <FileText size={26} className="text-foreground" />
+                    <SectionHeading title="Inside the Formulation" />
+                  </div>
 
                   <Card className="p-6 lg:p-8">
-                    <p className="text-base lg:text-lg leading-relaxed text-foreground/70 whitespace-pre-wrap font-[var(--font-inter)]">
+                    <p className="text-base lg:text-lg leading-relaxed text-slate-600 dark:text-slate-300 whitespace-pre-wrap">
                       {`Our proprietary ${product.medicineForm?.toLowerCase() || "formulation"} is engineered to provide targeted therapeutic benefits using a blend of high-purity ingredients and advanced manufacturing standards. Whether designed for preventive care or chronic management, this product reflects our commitment to quality, safety, and efficacy.\n\nProcessed in state-of-the-art facilities, it ensures maximum bioavailability and consistent results, making it a trusted choice for healthcare professionals and patients alike. By combining traditional wisdom with modern pharmacological precision, we deliver a solution that supports long-term health and vitality without compromising on safety standards.`}
                     </p>
                   </Card>
@@ -163,14 +160,14 @@ export default function ProductHero({
               
               {product.highlights?.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-sm uppercase tracking-[0.2em] text-foreground font-[var(--font-space-grotesk)]">
+                  <h3 className="font-heading text-xl font-semibold text-foreground uppercase tracking-[0.2em] text-sm">
                     Highlights
                   </h3>
 
                   <Card className="p-5">
                     <div className="space-y-4">
                       {product.highlights.map((point, idx) => (
-                        <div key={idx} className="flex gap-3 text-foreground/70 font-[var(--font-inter)]">
+                        <div key={idx} className="flex gap-3 text-slate-600 dark:text-slate-300">
                           <Target size={16} className="shrink-0" />
                           <span>{point}</span>
                         </div>
@@ -182,14 +179,14 @@ export default function ProductHero({
 
               {product.benefits?.length > 0 && (
                 <div className="space-y-4">
-                  <h3 className="text-sm uppercase tracking-[0.2em] text-foreground font-[var(--font-space-grotesk)]">
+                  <h3 className="font-heading text-xl font-semibold text-foreground uppercase tracking-[0.2em] text-sm">
                     Key Benefits
                   </h3>
 
                   <Card className="p-5">
                     <ul className="space-y-3">
                       {product.benefits.map((benefit, idx) => (
-                        <li key={idx} className="flex items-center gap-3 text-foreground/70 font-[var(--font-inter)]">
+                        <li key={idx} className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
                           <Zap size={14} className="shrink-0" />
                           <span>{benefit}</span>
                         </li>

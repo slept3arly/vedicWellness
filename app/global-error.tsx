@@ -2,6 +2,7 @@
 
 import Card from "@/components/public/ui/Card";
 import Button from "@/components/public/ui/Button";
+import PageHeader from "@/components/public/ui/PageHeader";
 import { AlertTriangle } from "lucide-react";
 
 export default function GlobalError({
@@ -24,15 +25,14 @@ export default function GlobalError({
               </span>
             </div>
 
-            <h1 className="text-2xl font-extrabold text-slate-900 dark:text-white">
-              Something went wrong
-            </h1>
-
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-              {isDev
-                ? "Global error boundary (development)."
-                : "An unexpected system error occurred."}
-            </p>
+            <PageHeader
+              title="Something went wrong"
+              subtitle={
+                isDev
+                  ? "Global error boundary (development)."
+                  : "An unexpected system error occurred."
+              }
+            />
 
             {isDev && (
               <pre className="mt-5 max-h-60 overflow-auto rounded-md border border-slate-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 p-4 text-xs text-left text-slate-700 dark:text-slate-300">

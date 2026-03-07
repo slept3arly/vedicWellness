@@ -39,7 +39,7 @@ export default function SlideImagesField({
   return (
     <div className="rounded-xl border border-neutral-300 dark:border-neutral-700 p-5 space-y-6">
 
-      <h3 className="font-semibold">Slide Images</h3>
+      <h3 className="font-heading">Slide Images</h3>
 
       <div className="grid md:grid-cols-2 gap-6">
 

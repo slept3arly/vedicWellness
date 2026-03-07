@@ -19,6 +19,7 @@ import AdminCard from "../../../../components/admin/AdminCard";
 import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminButton from "../../../../components/admin/AdminButton";
 import AdminBadge from "../../../../components/admin/AdminBadge";
+import PageHeader from "@/components/public/ui/PageHeader";
 import { deleteMarqueeItem, toggleMarqueeItem } from "./serverActions";
 
 /* ------------------------------------------------------------------ */
@@ -51,10 +52,10 @@ export default function AdminMarqueeClient({
 
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-        <div>
-          <h1 className="text-2xl font-bold">Marquee Text</h1>
-          <p className="text-sm text-neutral-500">Homepage scrolling announcements</p>
-        </div>
+        <PageHeader 
+          title="Marquee Text" 
+          subtitle="Homepage scrolling announcements" 
+        />
         <Link href="/admin/marquee/new">
           <AdminButton>
             <Plus className="h-4 w-4" />
@@ -68,7 +69,7 @@ export default function AdminMarqueeClient({
         {items.length === 0 ? (
           <AdminCard className="py-16 flex flex-col items-center gap-2">
             <Type className="h-8 w-8 text-neutral-300" />
-            <p className="font-medium text-neutral-500">No marquee items yet</p>
+            <p className="font-semibold text-neutral-500">No marquee items yet</p>
             <Link href="/admin/marquee/new" className="text-sm text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white">
               Add your first item
             </Link>
@@ -93,9 +94,9 @@ export default function AdminMarqueeClient({
               <div className="flex-1 min-w-0 space-y-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-semibold text-base leading-snug line-clamp-2 break-words">
+                    <h3 className="font-heading text-xl font-semibold leading-snug line-clamp-2 break-words">
                       {m.text}
-                    </p>
+                    </h3>
                     <AdminBadge status={m.isActive ? "ACTIVE" : "INACTIVE"} />
                   </div>
                 </div>
@@ -118,7 +119,7 @@ export default function AdminMarqueeClient({
                 </div>
               </div>
 
-              {/* ── Right: actions — 2×2 mobile, column desktop ── */}
+              {/* ── Right: actions ── */}
               <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 shrink-0 sm:w-36">
                 <AdminButton
                   className="w-full justify-center"

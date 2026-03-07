@@ -32,7 +32,7 @@ export default function BlogImageField({
   return (
     <div className="rounded-xl border border-neutral-300 dark:border-neutral-700 p-5 space-y-4">
 
-      <h3 className="font-semibold">Thumbnail Image</h3>
+      <h3 className="font-heading">Thumbnail Image</h3>
 
       <input
         ref={inputRef}

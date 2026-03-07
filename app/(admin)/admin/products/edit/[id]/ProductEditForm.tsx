@@ -6,6 +6,8 @@ import { updateProduct } from "../../serverActions";
 import ProductImagesField from "@/components/admin/ProductImagesField";
 import AdminCard from "@/components/admin/AdminCard";
 import AdminButton from "@/components/admin/AdminButton";
+import PageHeader from "@/components/public/ui/PageHeader";
+import SectionHeading from "@/components/public/ui/SectionHeading";
 import { toast } from "@/lib/toast";
 import { MedicineForm, Product, ProductVariant } from "@prisma/client";
 
@@ -59,7 +61,7 @@ function F({ id, lbl, tip, req, children }: {
         {req && <span className="ml-0.5 text-destructive" aria-hidden>*</span>}
       </label>
       {children}
-      {tip && <p className={hintCls}>{tip}</p>}
+      {tip && <p className="text-slate-600 dark:text-slate-300 !text-xs opacity-70">{tip}</p>}
     </div>
   );
 }
@@ -70,8 +72,7 @@ function Sec({ title, sub, children }: {
   return (
     <AdminCard>
       <div className="mb-5 pb-4 border-b border-border">
-        <h2 className="text-base font-semibold">{title}</h2>
-        {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
+        <SectionHeading title={title} subtitle={sub} />
       </div>
       <div className="space-y-5">{children}</div>
     </AdminCard>
@@ -189,7 +190,6 @@ export default function ProductEditForm({
         await updateProduct(data);
         toast.success("Product saved successfully.");
       } catch (e: any) {
-        // Next.js throws NEXT_REDIRECT internally when redirect() is called in a server action — not a real error
         if (e?.message === "NEXT_REDIRECT" || e?.digest?.startsWith("NEXT_REDIRECT")) return;
         toast.error("Failed to save product", e?.message);
       }
@@ -202,28 +202,21 @@ export default function ProductEditForm({
       <form onSubmit={handleSubmit} noValidate aria-label="Edit product" className="space-y-6">
 
         {/* header */}
-        <div className="space-y-3">
-          {/* title row */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Edit Product</h1>
-              <p className="mt-1 text-xs text-muted-foreground font-mono">
-                {product.id}
-              </p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <AdminButton type="submit" variant="success">
-                {isPending ? "Saving…" : "Save Changes"}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+          <PageHeader 
+            title="Edit Product" 
+            subtitle={product.id} 
+          />
+          <div className="flex items-center gap-2 shrink-0">
+            <AdminButton type="submit" variant="success">
+              {isPending ? "Saving…" : "Save Changes"}
+            </AdminButton>
+
+            <Link href="/admin/products">
+              <AdminButton type="button" variant="secondary">
+                Discard
               </AdminButton>
-
-              <Link href="/admin/products">
-                <AdminButton type="button" variant="secondary">
-                  Discard
-                </AdminButton>
-              </Link>
-
-              
-            </div>
+            </Link>
           </div>
         </div>
 
@@ -278,7 +271,7 @@ export default function ProductEditForm({
         <Sec title="Variants" sub="Pack sizes or alternate configs with their own pricing and stock.">
           <div className="space-y-3">
             {variants.length === 0
-              ? <p className="text-sm text-muted-foreground text-center py-3">No variants added yet.</p>
+              ? <p className="text-slate-600 dark:text-slate-300 text-sm text-center py-3">No variants added yet.</p>
               : variants.map((v, i) => (
                   <VariantRow key={v.id || `new-${i}`} v={v} i={i} upd={updVariant} del={delVariant} />
                 ))
@@ -399,7 +392,7 @@ export default function ProductEditForm({
               defaultChecked={product.published}
               className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
             />
-            <span>
+            <span className="text-slate-600 dark:text-slate-300">
               Published
               <span className="ml-2 text-xs font-normal text-muted-foreground">
                 {product.published ? "Visible on storefront" : "Hidden from storefront"}

@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useRef } from "react";
+import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 import { fadeUp } from "app/animations";
 
@@ -45,43 +46,68 @@ export default function TermsClient() {
     <section className="w-full">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-[1100px] mx-auto mt-24">
-          <SectionHeading
+          <PageHeader
             title="Terms & Conditions"
             subtitle="Legal terms governing the use of Vedic Wellness services."
           />
         </div>
 
         <div className="mt-10 grid lg:grid-cols-[280px_minmax(0,1fr)] gap-8 items-start mb-24">
-          {/* SIDEBAR */}
+          {/* SIDEBAR WITH SLIDING UNDERLINE */}
           <aside className="hidden lg:block sticky top-48 self-start">
-            <div className="surface rounded-xl p-5 space-y-3 text-sm">
+            <div className="surface rounded-xl p-6 space-y-4 text-sm">
               {sections.map((s) => (
                 <button
                   key={s.id}
                   onClick={() =>
                     handleScrollTo(s.id as keyof typeof sectionRefs)
                   }
-                  className="block w-full text-left text-muted hover:text-[var(--brand-primary)] transition font-medium"
+                  className="
+                    group relative block w-fit text-left 
+                    text-neutral-500 dark:text-neutral-400
+                    hover:text-neutral-900 dark:hover:text-white 
+                    transition-colors duration-300 font-medium pb-1
+                  "
                 >
                   {s.label}
+                  {/* Sliding Underline Span */}
+                  <span 
+                    className="
+                      absolute left-0 bottom-0 h-[1.5px] w-0 
+                      bg-neutral-900 dark:bg-white 
+                      transition-all duration-300 group-hover:w-full
+                    " 
+                  />
                 </button>
               ))}
             </div>
           </aside>
 
-          {/* TERMS CONTENT */}
+          {/* TERMS CONTENT - INCREASED HEIGHT */}
           <motion.div
             ref={contentRef}
             variants={fadeUp}
             initial="hidden"
             animate="show"
-            className="surface rounded-2xl p-6 md:p-10 leading-relaxed overflow-y-auto h-[70vh] space-y-14"
+            className="
+              surface 
+              rounded-2xl 
+              p-6 md:p-12 
+              leading-relaxed 
+              overflow-y-auto 
+              h-[85vh] 
+              min-h-[700px]
+              scroll-smooth 
+              space-y-20
+            "
           >
-            <p className="text-sm text-muted">Last Updated: 16-Feb-2026</p>
+            <p className="text-sm text-neutral-500 dark:text-neutral-400">
+              Last Updated: 16-Feb-2026
+            </p>
 
             {/* 1 */}
             <section ref={sectionRefs.general} id="general" className="space-y-6">
-              <h2 className="text-xl font-semibold">1. General Use</h2>
+              <SectionHeading title="1. General Use" />
               <p>
                 These Terms & Conditions govern access to and use of the Vedic
                 Wellness website, products, and franchise-related services.
@@ -105,9 +131,7 @@ export default function TermsClient() {
 
             {/* 2 */}
             <section ref={sectionRefs.account} id="account" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                2. Account Responsibility
-              </h2>
+              <SectionHeading title="2. Account Responsibility" />
               <p>
                 Users who create accounts or engage in franchise communication
                 through this platform are responsible for maintaining the
@@ -128,7 +152,7 @@ export default function TermsClient() {
 
             {/* 3 */}
             <section ref={sectionRefs.medical} id="medical" className="space-y-6">
-              <h2 className="text-xl font-semibold">3. Medical Disclaimer</h2>
+              <SectionHeading title="3. Medical Disclaimer" />
               <p>
                 Products listed on this website are Ayurvedic wellness
                 formulations intended to support general health practices.
@@ -141,18 +165,13 @@ export default function TermsClient() {
                 decisions. Franchise partners and distributors must ensure that
                 product promotion, marketing communication, and local
                 distribution activities comply with applicable regulatory
-                guidelines and avoid making unverified medical claims. Any
-                misuse of product information that violates advertising or
-                healthcare regulations remains the responsibility of the
-                distributor or user.
+                guidelines and avoid making unverified medical claims.
               </p>
             </section>
 
             {/* 4 */}
             <section ref={sectionRefs.orders} id="orders" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                4. Orders & Availability
-              </h2>
+              <SectionHeading title="4. Orders & Availability" />
               <p>
                 Product listings, pricing structures, and franchise materials
                 displayed on the platform are subject to change based on market
@@ -164,18 +183,13 @@ export default function TermsClient() {
                 integrity or regulatory compliance. Order placement does not
                 guarantee automatic acceptance, and fulfillment may depend on
                 distributor eligibility, regional considerations, or logistical
-                constraints. Shipment timelines are estimates and may vary due
-                to external factors such as transportation delays or regional
-                restrictions. All business transactions remain subject to
-                applicable invoicing terms communicated separately.
+                constraints.
               </p>
             </section>
 
             {/* 5 */}
             <section ref={sectionRefs.liability} id="liability" className="space-y-6">
-              <h2 className="text-xl font-semibold">
-                5. Limitation of Liability
-              </h2>
+              <SectionHeading title="5. Limitation of Liability" />
               <p>
                 To the fullest extent permitted by law, Vedic Wellness shall not
                 be liable for indirect, incidental, or consequential losses
@@ -187,15 +201,12 @@ export default function TermsClient() {
                 performance. Users and franchise partners assume responsibility
                 for evaluating business decisions, regional marketing
                 activities, and compliance with applicable trade regulations.
-                Vedic Wellness shall not be held responsible for losses arising
-                from third-party logistics delays, distributor actions, or
-                external market conditions beyond its direct control.
               </p>
             </section>
 
             {/* 6 */}
-            <section ref={sectionRefs.law} id="law" className="space-y-6">
-              <h2 className="text-xl font-semibold">6. Governing Law</h2>
+            <section ref={sectionRefs.law} id="law" className="space-y-6 pb-20">
+              <SectionHeading title="6. Governing Law" />
               <p>
                 These Terms & Conditions shall be governed by and interpreted in
                 accordance with the laws of India. Any disputes arising from the

@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createOrderAction } from "./serverActions";
 import Button from "@/components/public/ui/Button";
 import { toast } from "@/lib/toast";
+import SectionHeading from "@/components/public/ui/SectionHeading";
 
 type Props = {
   cart: any;
@@ -59,12 +60,10 @@ export default function CheckoutClient({
       {/* Address Section */}
       <div className="surface p-6 space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="font-medium text-lg">
-            Shipping Address
-          </h2>
+          <SectionHeading title="Shipping Address" />
           <button
             onClick={() => router.push("/account")}
-            className="text-sm text-[color:var(--brand-accent)]"
+            className="text-sm text-brand-accent font-accent hover:underline"
           >
             Change Address
           </button>
@@ -72,7 +71,7 @@ export default function CheckoutClient({
 
         {defaultAddress ? (
           <div className="text-sm space-y-1">
-            <p className="font-medium">
+            <p className="font-bold">
               {defaultAddress.fullName}
             </p>
             <p>{defaultAddress.phone}</p>
@@ -96,9 +95,7 @@ export default function CheckoutClient({
 
       {/* Order Summary */}
       <div className="surface p-6 space-y-4">
-        <h2 className="font-medium text-lg">
-          Order Summary
-        </h2>
+        <SectionHeading title="Order Summary" />
 
         <div className="space-y-3">
           {cart.items.map((item: any) => (
@@ -116,7 +113,7 @@ export default function CheckoutClient({
           ))}
         </div>
 
-        <div className="border-t border-[var(--border-soft)] pt-4 flex justify-between font-medium">
+        <div className="border-t border-border-soft pt-4 flex justify-between font-heading">
           <span>Total</span>
           <span>₹{total}</span>
         </div>

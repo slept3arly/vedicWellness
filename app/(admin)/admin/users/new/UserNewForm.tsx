@@ -3,20 +3,16 @@
 import Link from "next/link";
 import AdminCard from "@/components/admin/AdminCard";
 import AdminActionButton from "@/components/admin/AdminActionButton";
+import PageHeader from "@/components/public/ui/PageHeader";
 import { createUser } from "../serverActions";
 
 export default function UserNewForm() {
   return (
     <div className="max-w-3xl mx-auto px-4">
       <AdminCard className="bg-neutral-200/70 dark:bg-neutral-900/80 space-y-6">
-
-        <div>
-          <h1 className="text-2xl font-bold">Add User</h1>
-          <p className="opacity-70 text-sm">Create a new user account</p>
-        </div>
+        <PageHeader title="Add User" subtitle="Create a new user account" />
 
         <form action={createUser} className="space-y-4">
-
           <input
             name="email"
             type="email"
@@ -44,9 +40,7 @@ export default function UserNewForm() {
           </select>
 
           <div className="flex gap-3 pt-2">
-            <AdminActionButton>
-              Create User
-            </AdminActionButton>
+            <AdminActionButton>Create User</AdminActionButton>
 
             <Link
               href="/admin/users"
