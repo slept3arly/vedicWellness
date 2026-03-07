@@ -16,16 +16,16 @@ export default function PendingOrdersCard({ count }: Props) {
             <AlertTriangle className="w-4.5 h-4.5 text-amber-600 dark:text-amber-400" />
           </div>
           <div>
-            <p className="text-sm font-bold text-amber-900 dark:text-amber-100">
+            <p className="text-sm font-bold font-heading text-amber-900 dark:text-amber-100">
               {count} pending {count === 1 ? "order" : "orders"} awaiting payment
             </p>
-            <p className="text-xs text-amber-600/80 dark:text-amber-400/80 mt-0.5">
+            <p className="text-xs font-body text-amber-600/80 dark:text-amber-400/80 mt-0.5">
               Complete payment before they expire in 48h
             </p>
           </div>
         </div>
         <div className="flex items-center gap-1 text-xs font-bold text-amber-700 dark:text-amber-300 shrink-0">
-          View
+          <span className="text-xs font-semibold font-heading text-amber-700 dark:text-amber-300">View</span>
           <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
         </div>
       </div>

@@ -49,7 +49,7 @@ function buildBars(orders: Order[]): DayBar[] {
   });
 }
 
-const CHART_HEIGHT = 100;
+const CHART_HEIGHT = 120;
 
 export default function AccountActivityChart({ orders }: Props) {
   const bars = buildBars(orders);
@@ -62,11 +62,11 @@ export default function AccountActivityChart({ orders }: Props) {
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <p className="text-base font-bold text-[var(--text-main)]">Order Activity</p>
-          <p className="text-xs text-[var(--text-muted)]">Last 14 days</p>
+          <p className="text-base font-bold font-heading text-[var(--text-main)]">Order Activity</p>
+          <p className="text-xs font-body text-[var(--text-muted)]">Last 14 days</p>
         </div>
         {/* Legend */}
-        <div className="flex gap-3 text-[10px] text-[var(--text-muted)]">
+        <div className="flex gap-3 text-[10px] font-heading text-[var(--text-muted)]">
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 bg-emerald-500 rounded-sm inline-block" />
             Paid

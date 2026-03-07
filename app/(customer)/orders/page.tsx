@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/auth/requireUser";
 import { getUserOrders } from "@/lib/services/orderService";
+import { expireOldOrders } from "@/lib/services/orderExpiryService";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -86,6 +87,10 @@ function buildItemSummary(
 
 export default async function OrdersPage() {
   const user = await requireUser();
+
+  // Opportunistically expire old orders before fetching current state
+  await expireOldOrders();
+
   const orders = await getUserOrders(user.id);
 
   const pendingCount = orders.filter((o) => o.status === "CREATED").length;

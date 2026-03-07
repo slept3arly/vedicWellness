@@ -60,8 +60,8 @@ export default function AddressList({
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h3 className="text-base font-bold text-[var(--text-main)]">Saved Addresses</h3>
-            <p className="text-xs text-[var(--text-muted)] mt-0.5 uppercase tracking-widest">
+            <h3 className="text-base font-bold font-heading text-[var(--text-main)]">Saved Addresses</h3>
+            <p className="text-xs font-body text-[var(--text-muted)] mt-0.5 uppercase tracking-widest">
               {addresses.length} / 5 limit
             </p>
           </div>
@@ -112,7 +112,7 @@ export default function AddressList({
 
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <p className="text-sm font-bold text-[var(--text-main)] truncate">
+                      <p className="text-sm font-bold font-heading text-[var(--text-main)] truncate">
                         {a.fullName}
                       </p>
                       {a.isDefault && (
@@ -121,10 +121,10 @@ export default function AddressList({
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                    <p className="text-xs font-body text-[var(--text-muted)] leading-relaxed">
                       {a.line1}{a.line2 ? `, ${a.line2}` : ""}, {a.city}, {a.state} {a.postalCode}
                     </p>
-                    <p className="text-xs font-medium text-[var(--text-muted)] mt-1">{a.phone}</p>
+                    <p className="text-xs font-body font-medium text-[var(--text-muted)] mt-1">{a.phone}</p>
                   </div>
                 </div>
 

@@ -4,6 +4,7 @@ import {
   getUserOrderCount,
   getLastPaidOrder,
 } from "@/lib/services/orderService";
+import { expireOldOrders } from "@/lib/services/orderExpiryService";
 import { getOrCreateCart } from "@/lib/services/cartService";
 import { requireUser } from "@/lib/auth/requireUser";
 import { prisma } from "@/lib/db/prisma";
@@ -26,6 +27,9 @@ async function getTotalSpent(userId: string): Promise<number> {
 
 export default async function AccountPage() {
   const user = await requireUser();
+
+  // Opportunistically expire old orders before fetching current state
+  await expireOldOrders();
 
   const [
     addresses,

@@ -43,20 +43,20 @@ export default function LastOrderBanner({ order }: Props) {
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold text-sky-500 dark:text-sky-400 uppercase tracking-wide">
+              <span className="text-[10px] font-bold font-heading text-sky-500 dark:text-sky-400 uppercase tracking-wide">
                 Last Order
               </span>
-              <span className="text-[10px] text-sky-400/80 dark:text-sky-500">
+              <span className="text-[10px] font-body text-sky-400/80 dark:text-sky-500">
                 · {formatDate(order.createdAt)}
               </span>
             </div>
-            <p className="text-sm font-bold text-sky-900 dark:text-sky-100 truncate mt-0.5">
+            <p className="text-sm font-bold font-heading text-sky-900 dark:text-sky-100 truncate mt-0.5">
               {productLabel}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <p className="text-sm font-bold text-sky-900 dark:text-sky-100 tabular-nums">
+          <p className="text-sm font-bold font-heading text-sky-900 dark:text-sky-100 tabular-nums">
             {formatAmount(order.totalAmount)}
           </p>
           <ArrowRight className="w-3.5 h-3.5 text-sky-500 group-hover:translate-x-0.5 transition-transform" />

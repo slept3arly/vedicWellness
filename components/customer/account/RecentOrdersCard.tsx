@@ -59,19 +59,20 @@ export default function RecentOrdersCard({ orders }: Props) {
     <Card className="flex flex-col h-full p-5 sm:p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
-        <h3 className="text-base font-bold text-[var(--text-main)]">Recent Orders</h3>
+        <h3 className="text-base font-bold font-heading text-[var(--text-main)]">Recent Orders</h3>
         <Link
           href="/orders"
-          className="text-xs font-semibold text-brand-primary hover:text-brand-accent transition-colors"
+          className="text-xs font-semibold font-heading text-brand-primary hover:text-brand-accent transition-colors flex items-center gap-1 group"
         >
           View All
+          <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
         </Link>
       </div>
 
       {!recent.length ? (
         <div className="flex-1 flex flex-col items-center justify-center gap-2 py-12 text-center">
           <Package className="w-7 h-7 text-[var(--text-muted)] opacity-40 mb-1" />
-          <p className="text-sm text-[var(--text-muted)]">No orders placed yet.</p>
+          <p className="text-sm font-accent italic text-[var(--text-muted)]">No orders placed yet.</p>
         </div>
       ) : (
         <div className="flex flex-col flex-1">
@@ -91,21 +92,21 @@ export default function RecentOrdersCard({ orders }: Props) {
                 }`}
               >
                 <div className="flex flex-col min-w-0 flex-1">
-                  <p className="text-sm font-bold text-[var(--text-main)] group-hover:text-brand-primary uppercase tracking-wider transition-colors">
+                  <p className="text-sm font-bold font-heading text-[var(--text-main)] group-hover:text-brand-primary uppercase tracking-wider transition-colors">
                     #{order.id.slice(-8)}
                   </p>
-                  <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                  <p className="text-xs font-body text-[var(--text-muted)] mt-0.5">
                     {formatDate(order.createdAt)}
                   </p>
                 </div>
 
-                <div className={`flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full shrink-0 ${config.className}`}>
+                <div className={`flex items-center gap-1.5 text-xs font-bold font-heading px-2.5 py-1 rounded-full shrink-0 ${config.className}`}>
                   {config.icon}
                   {config.label}
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0">
-                  <p className="text-sm font-bold text-[var(--text-main)] tabular-nums">
+                  <p className="text-sm font-bold font-heading text-[var(--text-main)] tabular-nums">
                     {formatAmount(order.totalAmount)}
                   </p>
                   <ArrowRight className="w-3.5 h-3.5 text-[var(--text-muted)] opacity-0 -translate-x-1 group-hover:translate-x-0 group-hover:opacity-100 group-hover:text-brand-primary transition-all duration-200" />
