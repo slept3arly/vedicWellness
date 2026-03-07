@@ -35,28 +35,33 @@ export default function LastOrderBanner({ order }: Props) {
     : `${order.itemCount} item${order.itemCount !== 1 ? "s" : ""}`;
 
   return (
-    <Link
-      href={`/orders/${order.id}`}
-      className="group flex items-center gap-4 rounded-xl border border-[var(--border-soft)] bg-white dark:bg-zinc-900 px-4 py-3 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-    >
-      <div className="shrink-0 w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-900 flex items-center justify-center">
-        <Package className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+    <Link href={`/orders/${order.id}`} className="group block active:scale-[0.98] transition-transform">
+      <div className="flex items-center justify-between gap-4 rounded-2xl px-5 py-4 bg-sky-50 dark:bg-sky-950/50 border border-sky-200/60 dark:border-sky-700/40 shadow-sm shadow-sky-100 dark:shadow-none">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
+          <div className="shrink-0 w-9 h-9 rounded-xl bg-sky-100 dark:bg-sky-900/60 flex items-center justify-center">
+            <Package className="w-4.5 h-4.5 text-sky-600 dark:text-sky-400" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold text-sky-500 dark:text-sky-400 uppercase tracking-wide">
+                Last Order
+              </span>
+              <span className="text-[10px] text-sky-400/80 dark:text-sky-500">
+                · {formatDate(order.createdAt)}
+              </span>
+            </div>
+            <p className="text-sm font-bold text-sky-900 dark:text-sky-100 truncate mt-0.5">
+              {productLabel}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          <p className="text-sm font-bold text-sky-900 dark:text-sky-100 tabular-nums">
+            {formatAmount(order.totalAmount)}
+          </p>
+          <ArrowRight className="w-3.5 h-3.5 text-sky-500 group-hover:translate-x-0.5 transition-transform" />
+        </div>
       </div>
-
-      <div className="min-w-0 flex-1">
-        <p className="text-xs text-[var(--text-muted)] mb-0.5">
-          Last order · {formatDate(order.createdAt)}
-        </p>
-        <p className="text-sm font-medium text-[var(--text-main)] truncate">
-          {productLabel}
-        </p>
-      </div>
-
-      <p className="text-sm font-semibold text-[var(--text-main)] shrink-0 tabular-nums">
-        {formatAmount(order.totalAmount)}
-      </p>
-
-      <ArrowRight className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
     </Link>
   );
 }

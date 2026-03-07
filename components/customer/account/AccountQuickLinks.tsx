@@ -1,73 +1,87 @@
 import Link from "next/link";
-import { ShoppingBag, ShoppingCart, ArrowUpRight } from "lucide-react";
+import { ShoppingBag, ShoppingCart, User, Settings, ArrowRight } from "lucide-react";
+import Card from "@/components/public/ui/Card";
 
 type Props = {
   cartItemCount: number;
 };
 
 export default function AccountQuickLinks({ cartItemCount }: Props) {
-  const LINKS = [
-    {
-      label: "My Orders",
-      description: "View history & track deliveries",
-      href: "/orders",
-      icon: ShoppingBag,
-      badge: null,
-      accent: "group-hover:text-emerald-500 dark:group-hover:text-emerald-400",
-      accentBg: "group-hover:bg-emerald-50 dark:group-hover:bg-emerald-950/40",
-      accentBorder: "group-hover:border-emerald-300/50 dark:group-hover:border-emerald-700/40",
-    },
-    {
-      label: "Cart",
-      description: cartItemCount > 0 ? `${cartItemCount} item${cartItemCount > 1 ? "s" : ""} waiting` : "Review items & checkout",
-      href: "/cart",
-      icon: ShoppingCart,
-      badge: cartItemCount > 0 ? cartItemCount : null,
-      accent: "group-hover:text-sky-500 dark:group-hover:text-sky-400",
-      accentBg: "group-hover:bg-sky-50 dark:group-hover:bg-sky-950/40",
-      accentBorder: "group-hover:border-sky-300/50 dark:group-hover:border-sky-700/40",
-    },
-  ];
-
+  // Cart gets special treatment — wide rectangle on top-left
+  // Others fill a 2-col asymmetric bento grid
   return (
-    <div className="rounded-xl border border-[var(--border-soft)] bg-[var(--bg-surface)] p-5 flex flex-col h-full">
-      <p className="text-sm font-semibold text-[var(--text-main)] mb-1">Quick Links</p>
-      <p className="text-xs text-[var(--text-muted)] mb-4">Navigate your account</p>
+    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
 
-      <div className="flex flex-col gap-3 flex-1">
-        {LINKS.map(({ label, description, href, icon: Icon, badge, accent, accentBg, accentBorder }) => (
-          <Link
-            key={label}
-            href={href}
-            className={`
-              group flex items-center gap-4 rounded-xl border border-[var(--border-soft)]
-              bg-[var(--bg-subtle)] px-4 py-4 flex-1
-              transition-colors duration-150
-              ${accentBorder}
-            `}
-          >
-            <div className={`relative shrink-0 w-10 h-10 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-soft)] flex items-center justify-center transition-colors ${accentBg}`}>
-              <Icon className={`w-4 h-4 text-[var(--text-muted)] transition-colors ${accent}`} />
-              {badge !== null && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] rounded-full bg-[var(--brand-primary)] text-white text-[10px] font-bold flex items-center justify-center px-1">
-                  {badge}
-                </span>
-              )}
-            </div>
+      {/* ── Cart — spans 2 cols on mobile, 1 on sm+ ── */}
+      <Link
+        href="/cart"
+        className="col-span-2 sm:col-span-2 group active:scale-[0.98] transition-transform"
+      >
+        <div className="relative flex items-center gap-4 rounded-2xl px-5 py-4 bg-brand-primary text-white shadow-md shadow-brand-primary/25 h-full">
+          {/* Icon */}
+          <div className="relative shrink-0 w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center">
+            <ShoppingCart className="w-6 h-6" />
+            {cartItemCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 bg-red-500 text-white w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold border-2 border-brand-primary">
+                {cartItemCount}
+              </span>
+            )}
+          </div>
 
-            <div className="min-w-0 flex-1">
-              <p className={`text-sm font-semibold text-[var(--text-main)] transition-colors ${accent}`}>
-                {label}
-              </p>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5 truncate">
-                {description}
-              </p>
-            </div>
+          {/* Label */}
+          <div className="flex flex-col min-w-0 flex-1">
+            <span className="text-white/70 text-[10px] font-bold uppercase tracking-widest">
+              My Cart
+            </span>
+            <span className="text-white font-bold text-base leading-tight mt-0.5">
+              {cartItemCount > 0
+                ? `${cartItemCount} item${cartItemCount > 1 ? "s" : ""}`
+                : "Empty"}
+            </span>
+          </div>
 
-            <ArrowUpRight className={`w-4 h-4 text-[var(--text-muted)] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${accent}`} />
-          </Link>
-        ))}
-      </div>
+          {/* Arrow — always visible, clear tap hint */}
+          <ArrowRight className="w-5 h-5 text-white/70 shrink-0" />
+        </div>
+      </Link>
+
+      {/* ── Orders History ── */}
+      <Link href="/orders" className="group active:scale-[0.98] transition-transform">
+        <Card className="flex flex-col items-center justify-center gap-2.5 p-4 text-center h-full hover:border-brand-primary/30 transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-[var(--bg-surface)] flex items-center justify-center text-[var(--text-muted)] group-hover:bg-brand-primary/10 group-hover:text-brand-primary transition-colors">
+            <ShoppingBag className="w-4.5 h-4.5" />
+          </div>
+          <span className="text-xs font-bold text-[var(--text-main)] group-hover:text-brand-primary transition-colors leading-tight">
+            Orders
+          </span>
+        </Card>
+      </Link>
+
+      {/* ── My Profile ── */}
+      <Link href="/account/profile" className="group active:scale-[0.98] transition-transform">
+        <Card className="flex flex-col items-center justify-center gap-2.5 p-4 text-center h-full hover:border-brand-primary/30 transition-colors">
+          <div className="w-10 h-10 rounded-xl bg-[var(--bg-surface)] flex items-center justify-center text-[var(--text-muted)] group-hover:bg-brand-primary/10 group-hover:text-brand-primary transition-colors">
+            <User className="w-4.5 h-4.5" />
+          </div>
+          <span className="text-xs font-bold text-[var(--text-main)] group-hover:text-brand-primary transition-colors leading-tight">
+            Profile
+          </span>
+        </Card>
+      </Link>
+
+      {/* ── Settings — full width on mobile ── */}
+      <Link href="/account/settings" className="col-span-2 sm:col-span-4 group active:scale-[0.98] transition-transform">
+        <Card className="flex items-center gap-4 px-5 py-3.5 h-full hover:border-brand-primary/30 transition-colors">
+          <div className="w-9 h-9 rounded-xl bg-[var(--bg-surface)] flex items-center justify-center text-[var(--text-muted)] group-hover:bg-brand-primary/10 group-hover:text-brand-primary transition-colors shrink-0">
+            <Settings className="w-4 h-4" />
+          </div>
+          <span className="text-sm font-bold text-[var(--text-main)] group-hover:text-brand-primary transition-colors flex-1">
+            Settings
+          </span>
+          <ArrowRight className="w-4 h-4 text-[var(--text-muted)] group-hover:text-brand-primary transition-colors shrink-0" />
+        </Card>
+      </Link>
+
     </div>
   );
 }

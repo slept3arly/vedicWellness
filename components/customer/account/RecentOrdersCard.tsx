@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle2, Clock, XCircle, Package } from "lucide-react";
+import Card from "@/components/public/ui/Card";
 
 type Order = {
   id: string;
@@ -15,23 +16,23 @@ type Props = {
 const STATUS_CONFIG: Record<string, { label: string; icon: React.ReactNode; className: string }> = {
   PAID: {
     label: "Paid",
-    icon: <CheckCircle2 className="w-3 h-3" />,
-    className: "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40",
+    icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+    className: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10",
   },
   CREATED: {
     label: "Pending",
-    icon: <Clock className="w-3 h-3" />,
-    className: "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40",
+    icon: <Clock className="w-3.5 h-3.5" />,
+    className: "text-amber-600 dark:text-amber-500 bg-amber-500/10",
   },
   PAYMENT_FAILED: {
     label: "Failed",
-    icon: <XCircle className="w-3 h-3" />,
-    className: "text-red-500 bg-red-50 dark:bg-red-950/40",
+    icon: <XCircle className="w-3.5 h-3.5" />,
+    className: "text-red-500 bg-red-500/10",
   },
   EXPIRED: {
     label: "Expired",
-    icon: <XCircle className="w-3 h-3" />,
-    className: "text-red-400 bg-red-50/50 dark:bg-red-950/30",
+    icon: <XCircle className="w-3.5 h-3.5" />,
+    className: "text-red-500 bg-red-500/10",
   },
 };
 
@@ -43,80 +44,77 @@ function formatAmount(amount: number) {
   }).format(amount);
 }
 
-function timeAgo(date: Date) {
-  const diff = Date.now() - new Date(date).getTime();
-  const mins = Math.floor(diff / 60000);
-  const hrs = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
-  if (mins < 60) return `${mins}m ago`;
-  if (hrs < 24) return `${hrs}h ago`;
-  if (days < 30) return `${days}d ago`;
-  return new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
+function formatDate(date: Date) {
+  return new Date(date).toLocaleDateString("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
 }
 
 export default function RecentOrdersCard({ orders }: Props) {
   const recent = orders.slice(0, 5);
 
   return (
-    <div className="rounded-xl border border-[var(--border-soft)] bg-[var(--bg-surface)] p-5 flex flex-col h-full">
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <p className="text-sm font-semibold text-[var(--text-main)]">Recent Orders</p>
-          <p className="text-xs text-[var(--text-muted)] mt-0.5">Your last {recent.length} orders</p>
-        </div>
+    <Card className="flex flex-col h-full p-5 sm:p-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5">
+        <h3 className="text-base font-bold text-[var(--text-main)]">Recent Orders</h3>
         <Link
           href="/orders"
-          className="flex items-center gap-1 text-xs text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
+          className="text-xs font-semibold text-brand-primary hover:text-brand-accent transition-colors"
         >
-          View all
-          <ArrowRight className="w-3 h-3" />
+          View All
         </Link>
       </div>
 
       {!recent.length ? (
-        <div className="flex-1 flex flex-col items-center justify-center gap-2 text-center py-6">
-          <Package className="w-8 h-8 text-[var(--text-muted)] opacity-40" />
-          <p className="text-sm text-[var(--text-muted)]">No orders yet</p>
+        <div className="flex-1 flex flex-col items-center justify-center gap-2 py-12 text-center">
+          <Package className="w-7 h-7 text-[var(--text-muted)] opacity-40 mb-1" />
+          <p className="text-sm text-[var(--text-muted)]">No orders placed yet.</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-2 flex-1">
-          {recent.map((order) => {
+        <div className="flex flex-col flex-1">
+          {recent.map((order, i) => {
             const config = STATUS_CONFIG[order.status] ?? {
               label: order.status,
-              icon: <Package className="w-3 h-3" />,
-              className: "text-[var(--text-muted)] bg-[var(--bg-subtle)]",
+              icon: <Package className="w-3.5 h-3.5" />,
+              className: "text-[var(--text-muted)] bg-[var(--bg-surface)]",
             };
 
             return (
               <Link
                 key={order.id}
                 href={`/orders/${order.id}`}
-                className="group flex items-center justify-between gap-3 rounded-lg border border-[var(--border-soft)] px-3 py-2.5 hover:border-[var(--text-muted)]/30 hover:bg-[var(--bg-subtle)] transition-colors"
+                className={`group flex items-center justify-between gap-3 py-3.5 -mx-2 px-2 rounded-xl hover:bg-black/5 dark:hover:bg-white/[0.02] transition-colors ${
+                  i !== recent.length - 1 ? "border-b border-[var(--border-soft)]" : ""
+                }`}
               >
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-mono font-semibold text-[var(--text-main)]">
-                    #{order.id.slice(-8).toUpperCase()}
+                <div className="flex flex-col min-w-0 flex-1">
+                  <p className="text-sm font-bold text-[var(--text-main)] group-hover:text-brand-primary uppercase tracking-wider transition-colors">
+                    #{order.id.slice(-8)}
                   </p>
-                  <p className="text-[10px] text-[var(--text-muted)] mt-0.5">
-                    {timeAgo(order.createdAt)}
+                  <p className="text-xs text-[var(--text-muted)] mt-0.5">
+                    {formatDate(order.createdAt)}
                   </p>
                 </div>
 
-                <div className={`flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${config.className}`}>
+                <div className={`flex items-center gap-1.5 text-xs font-bold px-2.5 py-1 rounded-full shrink-0 ${config.className}`}>
                   {config.icon}
                   {config.label}
                 </div>
 
-                <p className="text-sm font-semibold text-[var(--text-main)] shrink-0 tabular-nums">
-                  {formatAmount(order.totalAmount)}
-                </p>
-
-                <ArrowRight className="w-3.5 h-3.5 text-[var(--text-muted)] shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <div className="flex items-center gap-2 shrink-0">
+                  <p className="text-sm font-bold text-[var(--text-main)] tabular-nums">
+                    {formatAmount(order.totalAmount)}
+                  </p>
+                  <ArrowRight className="w-3.5 h-3.5 text-[var(--text-muted)] opacity-0 -translate-x-1 group-hover:translate-x-0 group-hover:opacity-100 group-hover:text-brand-primary transition-all duration-200" />
+                </div>
               </Link>
             );
           })}
         </div>
       )}
-    </div>
+    </Card>
   );
 }

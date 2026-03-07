@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 import { toast } from "@/lib/toast";
-import { MapPin, Pencil, Trash2, Star, Plus } from "lucide-react";
-import CustomerButton from "@/components/customer/CustomerButton";
+import { Plus, Check, MapPin, Trash, Edit2 } from "lucide-react";
 import type { Address } from "@prisma/client";
 import {
   deleteAddressAction,
   setDefaultAddressAction,
 } from "@/app/(customer)/account/serverActions";
 import AddressFormModal from "./AddressFormModal";
+import CustomerButton from "@/components/customer/CustomerButton";
+import Card from "@/components/public/ui/Card";
 
 type Props = {
   addresses: Address[];
@@ -35,7 +36,7 @@ export default function AddressList({
   const maxReached = addresses.length >= 5;
 
   async function handleDelete(id: string) {
-    if (!confirm("Delete this address?")) return;
+    if (!confirm("Are you sure you want to delete this address?")) return;
     try {
       await deleteAddressAction(id, true);
       toast.success("Address deleted");
@@ -55,22 +56,15 @@ export default function AddressList({
 
   return (
     <>
-      <div
-        className="rounded-xl border border-[var(--border-soft)] bg-[var(--bg-surface)] p-5 flex flex-col h-full"
-        style={{ minHeight: 220 }}
-      >
+      <Card className="flex flex-col h-full p-5 sm:p-6">
         {/* Header */}
-        <div className="flex items-center justify-between mb-3 shrink-0">
-          <div className="flex items-center gap-2">
-            <MapPin className="w-4 h-4 text-[var(--text-muted)]" />
-            <p className="font-semibold text-sm text-[var(--text-main)]">
-              Saved Addresses
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h3 className="text-base font-bold text-[var(--text-main)]">Saved Addresses</h3>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5 uppercase tracking-widest">
+              {addresses.length} / 5 limit
             </p>
-            <span className="text-xs text-[var(--text-muted)] bg-[var(--bg-subtle)] px-2 py-0.5 rounded-full">
-              {addresses.length}/5
-            </span>
           </div>
-
           <CustomerButton
             onClick={() => {
               setEditing(null);
@@ -78,121 +72,89 @@ export default function AddressList({
             }}
             disabled={maxReached}
           >
-            <Plus className="w-3.5 h-3.5 mr-1 inline-block" />
-            Add New
+            <Plus className="w-4 h-4 mr-1 inline" />
+            Add
           </CustomerButton>
         </div>
 
-        {maxReached && (
-          <p className="shrink-0 text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 border border-amber-200/50 dark:border-amber-800/30 rounded-lg px-3 py-2 mb-3">
-            Maximum of 5 addresses reached. Delete one to add another.
-          </p>
-        )}
-
+        {/* List */}
         {!addresses.length ? (
-          <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center py-6">
-            <div className="w-10 h-10 rounded-xl bg-[var(--bg-subtle)] flex items-center justify-center">
-              <MapPin className="w-4 h-4 text-[var(--text-muted)]" />
-            </div>
-
-            <div>
-              <p className="text-sm font-medium text-[var(--text-main)]">
-                No saved addresses
-              </p>
-              <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                Add one to speed up checkout
-              </p>
-            </div>
-
-            <CustomerButton
-              onClick={() => {
-                setEditing(null);
-                setOpen(true);
-              }}
-            >
-              Add your first address
-            </CustomerButton>
+          <div className="flex-1 flex flex-col items-center justify-center gap-2 py-12 text-center">
+            <MapPin className="w-7 h-7 text-[var(--text-muted)] opacity-40 mb-1" />
+            <p className="text-sm text-[var(--text-muted)]">No addresses saved yet.</p>
           </div>
         ) : (
-          <div className="flex-1 overflow-y-auto space-y-3">
+          <div className="flex flex-col gap-3">
             {addresses.map((a) => (
               <div
                 key={a.id}
-                className={`flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-lg border px-3 py-3 text-sm
-                ${
+                className={`group relative flex items-start justify-between gap-3 p-4 rounded-xl border transition-all duration-200 ${
                   a.isDefault
-                    ? "border-emerald-300/60 dark:border-emerald-700/40 bg-emerald-50/30 dark:bg-emerald-950/20"
-                    : "border-[var(--border-soft)]"
+                    ? "border-brand-primary/30 bg-brand-primary/[0.02]"
+                    : "border-[var(--border-soft)] hover:border-brand-primary/30"
                 }`}
               >
-                {/* Address text */}
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="font-medium text-[var(--text-main)]">
-                      {a.fullName}
-                    </p>
-
-                    {a.isDefault && (
-                      <span className="flex items-center gap-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                        <Star className="w-2.5 h-2.5 fill-current" />
-                        Default
-                      </span>
+                {/* Left */}
+                <div className="flex gap-3 items-start flex-1 min-w-0">
+                  <div className="mt-0.5 shrink-0">
+                    {a.isDefault ? (
+                      <div className="w-4 h-4 rounded-full bg-brand-primary flex items-center justify-center text-white">
+                        <Check className="w-2.5 h-2.5" />
+                      </div>
+                    ) : (
+                      <button
+                        onClick={() => handleSetDefault(a.id)}
+                        className="w-4 h-4 rounded-full border-2 border-[var(--text-muted)] opacity-30 hover:border-brand-primary hover:opacity-100 transition-all focus:outline-none"
+                        aria-label="Set as default"
+                      />
                     )}
                   </div>
 
-                  <p className="text-xs text-[var(--text-muted)] mt-1">
-                    {a.line1}
-                  </p>
-
-                  {a.line2 && (
-                    <p className="text-xs text-[var(--text-muted)]">
-                      {a.line2}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <p className="text-sm font-bold text-[var(--text-main)] truncate">
+                        {a.fullName}
+                      </p>
+                      {a.isDefault && (
+                        <span className="text-[10px] font-bold text-brand-primary bg-brand-primary/10 px-1.5 py-0.5 rounded-full shrink-0">
+                          Primary
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                      {a.line1}{a.line2 ? `, ${a.line2}` : ""}, {a.city}, {a.state} {a.postalCode}
                     </p>
-                  )}
-
-                  <p className="text-xs text-[var(--text-muted)]">
-                    {a.city}, {a.state} — {a.postalCode}
-                  </p>
-
-                  <p className="text-xs text-[var(--text-muted)]">
-                    {a.phone}
-                  </p>
+                    <p className="text-xs font-medium text-[var(--text-muted)] mt-1">{a.phone}</p>
+                  </div>
                 </div>
 
-                {/* Buttons */}
-                <div className="flex flex-col md:flex-row gap-2 md:items-center">
+                {/* Actions */}
+                <div className="flex items-center gap-1.5 shrink-0">
                   <CustomerButton
                     variant="secondary"
+                    className="w-8 h-8 min-w-0 px-0 flex items-center justify-center"
                     onClick={() => {
                       setEditing(a);
                       setOpen(true);
                     }}
+                    aria-label="Edit address"
                   >
-                    <Pencil className="w-3 h-3" />
+                    <Edit2 className="w-3.5 h-3.5" />
                   </CustomerButton>
-
-                  {!a.isDefault && (
-                    <CustomerButton
-                      variant="secondary"
-                      onClick={() => handleSetDefault(a.id)}
-                    >
-                      <Star className="w-3 h-3" />
-                    </CustomerButton>
-                  )}
-
                   <CustomerButton
                     variant="secondary"
                     onClick={() => handleDelete(a.id)}
-                    className="text-red-500 border-red-400/40 hover:bg-red-50 hover:border-red-400 dark:text-red-400 dark:border-red-400/20 dark:hover:bg-red-950/30"
+                    className="w-8 h-8 min-w-0 px-0 flex items-center justify-center text-red-500 border-red-500/30 hover:bg-red-500/10 hover:border-red-500/50"
+                    aria-label="Delete address"
                   >
-                    <Trash2 className="w-3 h-3" />
+                    <Trash className="w-3.5 h-3.5" />
                   </CustomerButton>
                 </div>
               </div>
             ))}
           </div>
         )}
-      </div>
+      </Card>
 
       <AddressFormModal
         open={open}
