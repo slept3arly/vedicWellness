@@ -36,7 +36,7 @@ const features = [
   },
 ];
 
-const certBadges = ["ISO 9001:2015", "GMP Certified", "Ayush Approved"];
+const certBadges = ["ISO 9001:2018", "GMP Certified", "Ayush Approved"];
 
 export default function Hero() {
   const router = useRouter();
