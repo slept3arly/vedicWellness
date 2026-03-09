@@ -9,45 +9,43 @@ type Props = {
 
 export default function AccountProfileCard({ email, defaultAddress }: Props) {
   const localPart = email.split("@")[0];
-  const initials =
-    localPart
-      .split(/[._-]/)
-      .slice(0, 2)
-      .map((s) => s[0]?.toUpperCase() ?? "")
-      .join("") ||
-    localPart[0]?.toUpperCase() ||
-    "U";
+  const initials = localPart.slice(0, 2).toUpperCase();
 
   return (
-    <Card className="flex flex-row items-center gap-4 px-5 py-4">
-      {/* Avatar */}
-      <div className="relative shrink-0">
-        <div className="w-14 h-14 rounded-full bg-brand-primary/10 text-brand-primary flex items-center justify-center text-xl font-bold border-2 border-[var(--bg-main)] shadow-sm">
-          {initials}
-        </div>
-        <div className="absolute -bottom-1 -right-1 bg-brand-primary/10 text-brand-primary border border-brand-primary/20 rounded-full p-0.5">
-          <CheckCircle2 className="w-3 h-3" />
-        </div>
-      </div>
-
-      {/* Info */}
-      <div className="flex flex-col min-w-0 flex-1">
-        <h2 className="text-base font-bold text-[var(--text-main)] truncate">
-          Hi, {localPart}!
-        </h2>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-0.5 mt-0.5">
-          <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
-            <Mail className="w-3.5 h-3.5 shrink-0 text-brand-primary/70" />
-            <p className="text-xs font-medium truncate">{email}</p>
+    <Card className="relative overflow-hidden p-0 h-full border-zinc-100 dark:border-zinc-800 flex items-center justify-center">
+      <div className="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 p-5 sm:p-8 w-full max-w-2xl mx-auto">
+        
+        {/* Avatar Section */}
+        <div className="relative shrink-0">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl sm:rounded-3xl bg-zinc-50 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 flex items-center justify-center text-xl sm:text-2xl font-bold text-zinc-900 dark:text-zinc-100 shadow-inner">
+            {initials}
           </div>
-          {defaultAddress && (
-            <div className="flex items-center gap-1.5 text-[var(--text-muted)]">
-              <MapPin className="w-3.5 h-3.5 shrink-0 text-brand-primary/70" />
-              <p className="text-xs font-medium truncate">
-                {defaultAddress.city}, {defaultAddress.state}
-              </p>
+          <div className="absolute -bottom-1 -right-1 bg-emerald-500 text-white rounded-full p-1 sm:p-1.5 shadow-md border-2 border-white dark:border-zinc-900">
+            <CheckCircle2 className="w-3 h-3 sm:w-4 sm:h-4" />
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="flex-1 text-center sm:text-left min-w-0">
+          <span className="text-[9px] sm:text-[10px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-[0.2em] block mb-1 sm:mb-2">Verified Profile</span>
+          <h2 className="text-2xl sm:text-3xl font-black text-zinc-900 dark:text-zinc-50 leading-none truncate mb-2 sm:mb-4">
+            Hi, {localPart}!
+          </h2>
+          
+          <div className="flex flex-col sm:flex-row flex-wrap gap-x-6 gap-y-1.5 justify-center sm:justify-start">
+            <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
+              <Mail className="w-3.5 h-3.5 opacity-60" />
+              <span className="text-xs font-medium truncate">{email}</span>
             </div>
-          )}
+            {defaultAddress && (
+              <div className="flex items-center gap-2 text-zinc-500 dark:text-zinc-400">
+                <MapPin className="w-3.5 h-3.5 opacity-60" />
+                <span className="text-xs font-medium">
+                  {defaultAddress.city}, {defaultAddress.state}
+                </span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </Card>

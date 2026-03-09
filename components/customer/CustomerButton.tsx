@@ -1,7 +1,6 @@
 "use client";
 
 import Button from "@/components/public/ui/Button";
-import { cn } from "@/lib/cn";
 import { MotionProps } from "framer-motion";
 
 type CustomerButtonProps = React.ComponentPropsWithoutRef<"button"> &
@@ -16,15 +15,18 @@ export default function CustomerButton({
   ignoreFormStatus = false,
   isLoading,
   iconOnly = false,
-  className,
+  className = "",
   ...props
 }: CustomerButtonProps) {
+  // Enforces a standard dashboard button height and minimum width
+  const combinedClasses = `h-11 min-w-[140px] ${className}`;
+  
   return (
     <Button
       autoLoading={!ignoreFormStatus}
       isLoading={isLoading}
       iconOnly={iconOnly}
-      className={cn("h-11 min-w-[140px]", className)}
+      className={combinedClasses}
       {...props}
     />
   );

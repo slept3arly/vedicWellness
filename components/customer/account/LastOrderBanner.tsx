@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Package, ArrowRight } from "lucide-react";
+import { Package, ArrowRight, CheckCircle2 } from "lucide-react";
+import Card from "@/components/public/ui/Card";
 
 type Props = {
   order: {
@@ -8,60 +9,60 @@ type Props = {
     createdAt: Date;
     firstProductName: string | null;
     itemCount: number;
-  };
+  } | null;
 };
 
-function formatAmount(amount: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    maximumFractionDigits: 0,
-  }).format(amount);
-}
-
-function formatDate(date: Date) {
-  return new Date(date).toLocaleDateString("en-IN", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
 export default function LastOrderBanner({ order }: Props) {
-  const productLabel = order.firstProductName
-    ? order.itemCount > 1
-      ? `${order.firstProductName} +${order.itemCount - 1} more`
-      : order.firstProductName
-    : `${order.itemCount} item${order.itemCount !== 1 ? "s" : ""}`;
+  const isEmpty = !order;
 
   return (
-    <Link href={`/orders/${order.id}`} className="group block active:scale-[0.98] transition-transform">
-      <div className="flex items-center justify-between gap-4 rounded-2xl px-5 py-4 bg-sky-50 dark:bg-sky-950/50 border border-sky-200/60 dark:border-sky-700/40 shadow-sm shadow-sky-100 dark:shadow-none">
-        <div className="flex items-center gap-3 min-w-0 flex-1">
-          <div className="shrink-0 w-9 h-9 rounded-xl bg-sky-100 dark:bg-sky-900/60 flex items-center justify-center">
-            <Package className="w-4.5 h-4.5 text-sky-600 dark:text-sky-400" />
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] font-bold font-heading text-sky-500 dark:text-sky-400 uppercase tracking-wide">
-                Last Order
-              </span>
-              <span className="text-[10px] font-body text-sky-400/80 dark:text-sky-500">
-                · {formatDate(order.createdAt)}
-              </span>
+    <Link 
+      href={isEmpty ? "#" : `/orders/${order.id}`}
+      className={`block group transition-all duration-300 ${isEmpty ? "pointer-events-none opacity-70" : "active:scale-[0.99]"}`}
+    >
+      <Card className="relative overflow-hidden p-0 border-sky-100 dark:border-sky-500/20">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-5">
+          
+          {/* Visual Indicator */}
+          <div className="flex items-center gap-4 flex-1">
+            <div className="shrink-0 w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-500/10 flex items-center justify-center text-sky-600 shadow-inner">
+              <Package className="w-6 h-6" />
             </div>
-            <p className="text-sm font-bold font-heading text-sky-900 dark:text-sky-100 truncate mt-0.5">
-              {productLabel}
-            </p>
+
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-black text-sky-600 uppercase tracking-widest">
+                  {isEmpty ? "Member Status" : "Last Successful Order"}
+                </span>
+                {!isEmpty && <CheckCircle2 className="w-3 h-3 text-emerald-500" />}
+              </div>
+              <h3 className="font-bold text-zinc-900 dark:text-zinc-100 text-base truncate">
+                {isEmpty ? "Welcome to Vedic Wellness" : order.firstProductName || "Wellness Package"}
+              </h3>
+              {!isEmpty && (
+                <p className="text-xs text-zinc-500 font-medium">
+                  Ordered on {new Date(order.createdAt).toLocaleDateString("en-IN", { day: "2-digit", month: "long" })}
+                </p>
+              )}
+            </div>
           </div>
+
+          {/* Pricing & Action */}
+          {!isEmpty && (
+            <div className="flex items-center justify-between sm:justify-end gap-6 pt-3 sm:pt-0 border-t sm:border-t-0 border-zinc-100 dark:border-zinc-800">
+              <div className="sm:text-right">
+                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">Amount Paid</p>
+                <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50 tabular-nums">
+                  ₹{order.totalAmount}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center group-hover:bg-sky-600 group-hover:text-white transition-all">
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
+              </div>
+            </div>
+          )}
         </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <p className="text-sm font-bold font-heading text-sky-900 dark:text-sky-100 tabular-nums">
-            {formatAmount(order.totalAmount)}
-          </p>
-          <ArrowRight className="w-3.5 h-3.5 text-sky-500 group-hover:translate-x-0.5 transition-transform" />
-        </div>
-      </div>
+      </Card>
     </Link>
   );
 }
