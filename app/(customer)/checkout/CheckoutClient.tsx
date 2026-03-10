@@ -11,14 +11,12 @@ import {
   PackageCheck,
   ArrowRight,
   ShieldCheck,
-  Truck,
-  Tag,
-  IndianRupee,
   AlertCircle,
 } from "lucide-react";
 import Card from "@/components/public/ui/Card";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 import CustomerButton from "@/components/customer/CustomerButton";
+import CartSummaryCard from "@/components/customer/cart/CartSummaryCard"; // Using the component
 import { createOrderAction } from "./serverActions";
 import { toast } from "@/lib/toast";
 
@@ -39,18 +37,6 @@ export default function CheckoutClient({
 }: Props) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-
-  const subtotal: number = cart.items.reduce(
-    (sum: number, item: any) => sum + item.product.price * item.quantity,
-    0
-  );
-
-  const totalMrp: number = cart.items.reduce((sum: number, item: any) => {
-    const compareAt = item.product.compareAtPrice as number | null;
-    return sum + (compareAt ?? item.product.price) * item.quantity;
-  }, 0);
-
-  const totalSavings = totalMrp - subtotal;
 
   function handlePlaceOrder() {
     if (!defaultAddress) {
@@ -111,10 +97,8 @@ export default function CheckoutClient({
 
       {/* ── Two-column layout ── */}
       <div className="grid gap-5 sm:gap-6 lg:grid-cols-[1fr_380px] items-start">
-
         {/* LEFT: Address + Order items */}
         <div className="flex flex-col gap-5">
-
           {/* ── Shipping address ── */}
           <motion.div variants={fadeUpSoft}>
             <Card className="p-0" aria-labelledby="shipping-heading">
@@ -140,7 +124,6 @@ export default function CheckoutClient({
                     aria-label={`Shipping to ${defaultAddress.fullName}`}
                   >
                     <div className="flex flex-col gap-2.5">
-                      {/* Name */}
                       <div className="flex items-center gap-2.5">
                         <User
                           className="w-4 h-4 text-[var(--text-muted)] opacity-60 shrink-0"
@@ -151,7 +134,6 @@ export default function CheckoutClient({
                         </span>
                       </div>
 
-                      {/* Phone */}
                       <div className="flex items-center gap-2.5">
                         <Phone
                           className="w-4 h-4 text-[var(--text-muted)] opacity-60 shrink-0"
@@ -162,7 +144,6 @@ export default function CheckoutClient({
                         </span>
                       </div>
 
-                      {/* Address lines */}
                       <div className="flex items-start gap-2.5">
                         <MapPin
                           className="w-4 h-4 text-[var(--text-muted)] opacity-60 shrink-0 mt-0.5"
@@ -234,7 +215,7 @@ export default function CheckoutClient({
                         <p className="font-heading text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">
                           {item.product.name}
                         </p>
-                        <p className="text-xs font-body text-[var(--text-muted)] mt-0.5">
+                        <p className="text-sm font-body text-[var(--text-muted)] mt-0.5">
                           ₹{item.product.price.toLocaleString()} × {item.quantity}
                         </p>
                       </div>
@@ -260,125 +241,28 @@ export default function CheckoutClient({
           </motion.div>
         </div>
 
-        {/* RIGHT: Price summary + CTA — sticky on desktop */}
+        {/* RIGHT: Unified Price Summary Card */}
         <motion.div variants={fadeUpSoft} className="lg:sticky lg:top-6">
-          <Card className="p-0" aria-label="Order price summary">
-
-            {/* Header */}
-            <div className="px-5 pt-5 pb-4 border-b border-[var(--border-soft)]">
-              <p className="text-[10px] font-black font-heading text-emerald-600 dark:text-emerald-500 uppercase tracking-widest">
-                Price Details
-              </p>
-              <p className="text-xs font-body text-[var(--text-muted)] mt-0.5">
-                {cart.items.length} {cart.items.length === 1 ? "product" : "products"}
-              </p>
-            </div>
-
-            {/* Line items */}
-            <dl className="px-5 py-4 flex flex-col gap-3.5">
-              {totalSavings > 0 && (
-                <div className="flex items-center justify-between">
-                  <dt className="text-sm font-body text-[var(--text-muted)] flex items-center gap-2">
-                    <IndianRupee className="w-3.5 h-3.5 opacity-40 shrink-0" aria-hidden="true" />
-                    Total MRP
-                  </dt>
-                  <dd className="text-sm font-body text-zinc-400 line-through tabular-nums">
-                    ₹{totalMrp.toLocaleString()}
-                  </dd>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between">
-                <dt className="text-sm font-body text-[var(--text-muted)] flex items-center gap-2">
-                  <IndianRupee className="w-3.5 h-3.5 opacity-40 shrink-0" aria-hidden="true" />
-                  Product Value
-                </dt>
-                <dd className="text-sm font-semibold font-heading text-zinc-900 dark:text-zinc-100 tabular-nums">
-                  ₹{subtotal.toLocaleString()}
-                </dd>
-              </div>
-
-              {totalSavings > 0 && (
-                <div className="flex items-center justify-between">
-                  <dt className="text-sm font-body text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
-                    <Tag className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                    Discount
-                  </dt>
-                  <dd className="text-sm font-semibold font-heading text-emerald-600 dark:text-emerald-400 tabular-nums">
-                    −₹{totalSavings.toLocaleString()}
-                  </dd>
-                </div>
-              )}
-
-              <div className="flex items-center justify-between">
-                <dt className="text-sm font-body text-[var(--text-muted)] flex items-center gap-2">
-                  <Truck className="w-3.5 h-3.5 opacity-40 shrink-0" aria-hidden="true" />
-                  Delivery
-                </dt>
-                <dd className="text-sm font-bold font-heading text-emerald-600 dark:text-emerald-400 tracking-wide">
-                  FREE
-                </dd>
-              </div>
-            </dl>
-
-            {/* Total */}
-            <div className="px-5 py-4 border-t border-[var(--border-soft)] bg-zinc-50/60 dark:bg-zinc-800/30">
-              <div className="flex items-baseline justify-between">
-                <span className="text-sm font-semibold font-heading text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
-                  Total Payable
-                </span>
-                <span
-                  className="text-3xl font-semibold font-heading text-zinc-900 dark:text-zinc-50 tabular-nums leading-none"
-                  aria-label={`Total payable ₹${subtotal.toLocaleString()}`}
-                >
-                  ₹{subtotal.toLocaleString()}
-                </span>
-              </div>
-              {totalSavings > 0 && (
-                <p
-                  aria-live="polite"
-                  className="text-xs font-body text-emerald-600 dark:text-emerald-400 mt-1.5"
-                >
-                  🎉 You're saving ₹{totalSavings.toLocaleString()} on this order
-                </p>
-              )}
-            </div>
-
-            {/* CTA */}
-            <div className="px-5 pb-5 pt-4 flex flex-col gap-3">
-              <CustomerButton
+          <CartSummaryCard cart={cart} showCheckoutButton={false} />
+          
+          {/* Checkout CTA block - specific to this page */}
+          <div className="mt-4 flex flex-col gap-3">
+             <CustomerButton
                 onClick={handlePlaceOrder}
                 isLoading={isPending}
                 disabled={!defaultAddress || isPending}
-                className="w-full h-12 gap-2 text-sm"
-                aria-label={
-                  !defaultAddress
-                    ? "Add a shipping address to place your order"
-                    : "Place order"
-                }
+                className="w-full h-12 gap-2 text-sm shadow-md"
               >
                 Place Order
                 <ArrowRight className="w-4 h-4" aria-hidden="true" />
               </CustomerButton>
 
               {!defaultAddress && (
-                <p
-                  role="alert"
-                  className="text-xs font-body text-red-500 text-center"
-                >
+                <p role="alert" className="text-xs font-body text-red-500 text-center">
                   Add a default address in your account first.
                 </p>
               )}
-
-              <p className="flex items-start gap-2 text-[11px] font-body text-[var(--text-muted)]">
-                <ShieldCheck
-                  className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0"
-                  aria-hidden="true"
-                />
-                Order details confirmed by the Vedic Wellness team after placement.
-              </p>
-            </div>
-          </Card>
+          </div>
         </motion.div>
       </div>
     </motion.div>

@@ -1,14 +1,25 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/public/ui/Button";
 import Chip from "@/components/public/ui/Chip";
-import { addToCartAction } from "@/app/(customer)/cart/serverActions";
+import {
+  addToCartAction,
+  updateCartItemAction,
+} from "@/app/(customer)/cart/serverActions";
 import { toast } from "@/lib/toast";
+import {
+  ShoppingCart,
+  Zap,
+  Minus,
+  Plus,
+  ArrowRight,
+} from "lucide-react";
 
 type Props = {
   productId: string;
+  cartItemId?: string;
   tag?: string | null;
   medicineForm?: string | null;
   existingQty: number;
@@ -16,123 +27,144 @@ type Props = {
 
 export default function ProductPurchaseCard({
   productId,
+  cartItemId,
   tag,
   medicineForm,
   existingQty,
 }: Props) {
   const router = useRouter();
-  const [quantity, setQuantity] = useState(1);
   const [pending, startTransition] = useTransition();
 
-  const isMaxed = existingQty >= 20;
+  const [localQty, setLocalQty] = useState(existingQty > 0 ? existingQty : 1);
 
-  function increase() {
-    if (existingQty + quantity >= 20) {
-      toast.warning("Maximum limit reached",
-        "You can only purchase up to 20 units per product.");
-      return;
-    }
+  useEffect(() => {
+    setLocalQty(existingQty > 0 ? existingQty : 1);
+  }, [existingQty]);
 
-    setQuantity((q) => q + 1);
-  }
+  const inCart = Boolean(cartItemId);
 
-  function decrease() {
-    setQuantity((q) => Math.max(1, q - 1));
-  }
+  const handleCart = () => {
+    startTransition(async () => {
+      try {
+        let result;
 
-  function handleAddToCart(redirect?: boolean) {
-  if (isMaxed) {
-    toast.warning(
-      "Cart limit reached",
-      "You already have 20 units of this product."
-    );
-    return;
-  }
+        if (cartItemId) {
+          result = await updateCartItemAction({
+            itemId: cartItemId,
+            quantity: localQty,
+          });
+        } else {
+          result = await addToCartAction({
+            productId,
+            quantity: localQty,
+          });
+        }
 
-  startTransition(async () => {
-    try {
-      await addToCartAction({
-        productId,
-        quantity,
-      });
-
-      toast.success(
-        "Added to cart",
-        `${quantity} item${quantity > 1 ? "s" : ""} added successfully.`
-      );
-
-      setQuantity(1);
-      router.refresh();
-
-      if (redirect) {
-        router.push("/cart");
+        if (result?.success) {
+          toast.success(
+            "Cart updated",
+            cartItemId
+              ? "Quantity updated."
+              : "Added to cart."
+          );
+          router.refresh();
+        }
+      } catch {
+        toast.error("Something went wrong.");
       }
-    } catch {
-      toast.error(
-        "Failed to add to cart",
-        "Please try again."
-      );
-    }
-  });
-}
+    });
+  };
+
+  const handleBuyNow = () => {
+    router.push(
+      `/checkout?buyNow=true&productId=${productId}&qty=${localQty}`
+    );
+  };
 
   return (
-    <div className="mt-8 space-y-5">
+    <div className="flex flex-col gap-4 p-4 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-soft)]">
 
-      <div className="flex flex-wrap gap-2">
-        {tag && <Chip className="text-xs">{tag}</Chip>}
+    <div className="flex items-center justify-between">
+
+      {/* Left: product tags */}
+      <div className="flex gap-2">
+        {tag && (
+          <Chip className="text-xs px-2 py-0.5">
+            {tag}
+          </Chip>
+        )}
+
         {medicineForm && (
-          <Chip className="text-xs">
-            {medicineForm.toLowerCase()}
+          <Chip className="text-xs px-2 py-0.5 bg-zinc-500/10 text-zinc-500 uppercase">
+            {medicineForm}
           </Chip>
         )}
       </div>
 
-      <div className="flex items-center gap-4">
-        <span className="text-sm font-medium">Quantity</span>
+      {/* Right: View Cart */}
+      {inCart && (
+        <button
+          onClick={() => router.push("/cart")}
+          className="flex items-center gap-1 text-xs font-semibold text-[var(--brand-primary)] hover:underline"
+        >
+          View Cart
+          <ArrowRight size={12} />
+        </button>
+      )}
+      </div>
 
-        <div className="flex items-center rounded-xl border border-[var(--border-soft)] bg-[var(--bg-surface)]">
+      {/* Quantity */}
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase text-[var(--text-muted)]">
+          Qty
+        </span>
+
+        <div className="flex items-center gap-1 border border-[var(--border-soft)] rounded-xl p-1">
           <button
-            onClick={decrease}
-            className="px-4 py-2"
+            onClick={() => setLocalQty((q) => Math.max(1, q - 1))}
+            className="p-1.5 hover:bg-[var(--bg-accent)] rounded-lg"
+            disabled={pending}
           >
-            −
+            <Minus size={14} />
           </button>
 
-          <span className="px-6 font-semibold">
-            {quantity}
+          <span className="w-6 text-center font-semibold text-sm">
+            {localQty}
           </span>
 
           <button
-            onClick={increase}
-            className="px-4 py-2"
+            onClick={() => setLocalQty((q) => Math.min(20, q + 1))}
+            className="p-1.5 hover:bg-[var(--bg-accent)] rounded-lg"
+            disabled={pending}
           >
-            +
+            <Plus size={14} />
           </button>
         </div>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-3">
+      {/* Buttons row */}
+      <div className="grid grid-cols-2 gap-2">
         <Button
-          onClick={() => handleAddToCart(false)}
+          className="h-10 text-sm gap-2 rounded-xl"
+          onClick={handleCart}
           isLoading={pending}
-          disabled={isMaxed}
         >
-          {isMaxed ? "Max 20 Reached" : "Add to Cart"}
+          <ShoppingCart size={16} />
+          {inCart ? "Update Cart" : "Add to Cart"}
         </Button>
 
         <Button
           variant="secondary"
-          onClick={() => handleAddToCart(true)}
-          isLoading={pending}
-          disabled={isMaxed}
+          className="h-10 text-sm gap-2 rounded-xl"
+          onClick={handleBuyNow}
         >
+          <Zap size={16} />
           Buy Now
         </Button>
       </div>
 
-      <p className="text-xs text-muted">
-        * Maximum 20 units per product allowed.
+      <p className="text-[10px] text-center text-[var(--text-muted)] uppercase tracking-wide">
+        Secure checkout
       </p>
     </div>
   );

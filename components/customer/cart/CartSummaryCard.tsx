@@ -8,93 +8,79 @@ import type { CartType } from "@/lib/types/cart";
 
 type Props = {
   cart: CartType;
+  /** * Set to false when using this card on the actual Checkout page 
+   * to avoid a redundant "Proceed to Checkout" button.
+   */
+  showCheckoutButton?: boolean;
 };
 
-export default function CartSummaryCard({ cart }: Props) {
+export default function CartSummaryCard({ cart, showCheckoutButton = true }: Props) {
   const router = useRouter();
 
+  // 1. Calculate Subtotal (Price * Qty)
   const subtotal = cart.items.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
     0
   );
 
+  // 2. Calculate MRP/CompareAt to show savings
   const totalMrp = cart.items.reduce((sum, item) => {
     const compareAt = (item.product as any).compareAtPrice as number | null;
     return sum + (compareAt ?? item.product.price) * item.quantity;
   }, 0);
 
   const totalSavings = totalMrp - subtotal;
-  const total = subtotal; // shipping is free
+  const total = subtotal; // Logic: Shipping is free for all wellness orders
   const itemCount = cart.items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
-    <Card className="p-0" aria-label="Order price summary">
-
+    <Card className="p-0 overflow-hidden" aria-label="Order price summary">
       {/* ── Header ── */}
       <div className="px-5 pt-5 pb-4 border-b border-[var(--border-soft)]">
-        <p className="text-[10px] font-black font-heading text-emerald-600 dark:text-emerald-500 uppercase tracking-widest">
-          Price Details
+        <p className="text-[10px] font-bold font-heading text-[var(--text-muted)] uppercase tracking-[0.1em] mb-1">
+          Order Summary
         </p>
-        <p className="text-xs font-body text-[var(--text-muted)] mt-0.5">
-          {itemCount} {itemCount === 1 ? "item" : "items"} in your cart
-        </p>
+        <h3 className="text-sm font-semibold font-heading text-zinc-900 dark:text-zinc-100">
+          {itemCount} {itemCount === 1 ? "Item" : "Items"} in your selection
+        </h3>
       </div>
 
-      {/* ── Line items ── */}
-      <dl className="px-5 py-4 flex flex-col gap-3.5">
-
-        {/* MRP — only when savings exist */}
-        {totalSavings > 0 && (
-          <div className="flex items-center justify-between">
-            <dt className="text-sm font-body text-[var(--text-muted)] flex items-center gap-2">
-              <IndianRupee className="w-3.5 h-3.5 opacity-40 shrink-0" aria-hidden="true" />
-              Total MRP
-            </dt>
-            <dd className="text-sm font-body text-zinc-400 line-through tabular-nums">
-              ₹{totalMrp.toLocaleString()}
-            </dd>
-          </div>
-        )}
-
-        <div className="flex items-center justify-between">
-          <dt className="text-sm font-body text-[var(--text-muted)] flex items-center gap-2">
-            <IndianRupee className="w-3.5 h-3.5 opacity-40 shrink-0" aria-hidden="true" />
-            Product Value
-          </dt>
-          <dd className="text-sm font-semibold font-heading text-zinc-900 dark:text-zinc-100 tabular-nums">
-            ₹{subtotal.toLocaleString()}
-          </dd>
+      {/* ── Pricing Details ── */}
+      <div className="px-5 py-4 flex flex-col gap-3 border-b border-[var(--border-soft)] bg-zinc-50/50 dark:bg-zinc-900/30">
+        <div className="flex justify-between items-center text-sm">
+          <span className="font-body text-[var(--text-muted)] flex items-center gap-2">
+            <Tag className="w-3.5 h-3.5" /> Subtotal (MRP)
+          </span>
+          <span className="font-medium font-heading text-zinc-900 dark:text-zinc-100 tabular-nums">
+            ₹{totalMrp.toLocaleString()}
+          </span>
         </div>
 
-        {/* Discount */}
         {totalSavings > 0 && (
-          <div className="flex items-center justify-between">
-            <dt className="text-sm font-body text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
-              <Tag className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-              Discount
-            </dt>
-            <dd className="text-sm font-semibold font-heading text-emerald-600 dark:text-emerald-400 tabular-nums">
-              −₹{totalSavings.toLocaleString()}
-            </dd>
+          <div className="flex justify-between items-center text-sm">
+            <span className="font-body text-emerald-600 dark:text-emerald-400">
+              Product Discount
+            </span>
+            <span className="font-medium font-heading text-emerald-600 dark:text-emerald-400 tabular-nums">
+              - ₹{totalSavings.toLocaleString()}
+            </span>
           </div>
         )}
 
-        {/* Delivery */}
-        <div className="flex items-center justify-between">
-          <dt className="text-sm font-body text-[var(--text-muted)] flex items-center gap-2">
-            <Truck className="w-3.5 h-3.5 opacity-40 shrink-0" aria-hidden="true" />
-            Delivery
-          </dt>
-          <dd className="text-sm font-bold font-heading text-emerald-600 dark:text-emerald-400 tracking-wide">
+        <div className="flex justify-between items-center text-sm">
+          <span className="font-body text-[var(--text-muted)] flex items-center gap-2">
+            <Truck className="w-3.5 h-3.5" /> Delivery Charges
+          </span>
+          <span className="font-medium font-heading text-emerald-600 dark:text-emerald-400 uppercase text-[10px] tracking-wider">
             FREE
-          </dd>
+          </span>
         </div>
-      </dl>
+      </div>
 
-      {/* ── Total ── */}
-      <div className="px-5 py-4 border-t border-[var(--border-soft)] bg-zinc-50/60 dark:bg-zinc-800/30">
-        <div className="flex items-baseline justify-between">
-          <span className="text-sm font-semibold font-heading text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
+      {/* ── Final Total ── */}
+      <div className="px-5 py-5 bg-[var(--bg-surface)]">
+        <div className="flex justify-between items-end">
+          <span className="text-[11px] font-bold font-heading text-zinc-900 dark:text-zinc-100 uppercase tracking-wider">
             Total Payable
           </span>
           <span
@@ -115,23 +101,28 @@ export default function CartSummaryCard({ cart }: Props) {
         )}
       </div>
 
-      {/* ── CTA + trust ── */}
-      <div className="px-5 pb-5 pt-4 flex flex-col gap-3">
-        <CustomerButton
-          onClick={() => router.push("/checkout")}
-          className="w-full h-12 gap-2 text-sm"
-          aria-label="Proceed to checkout"
-        >
-          Proceed to Checkout
-          <ArrowRight className="w-4 h-4" aria-hidden="true" />
-        </CustomerButton>
+      {/* ── CTA + Trust ── */}
+      <div className="px-5 pb-5 pt-2 flex flex-col gap-3">
+        {showCheckoutButton ? (
+          <CustomerButton
+            onClick={() => router.push("/checkout")}
+            className="w-full h-12 gap-2 text-sm"
+            aria-label="Proceed to checkout"
+          >
+            Proceed to Checkout
+            <ArrowRight className="w-4 h-4" aria-hidden="true" />
+          </CustomerButton>
+        ) : (
+          /* Empty state feedback/spacer when button is hidden in Checkout */
+          <div className="h-2" />
+        )}
 
         <p className="flex items-start gap-2 text-[11px] font-body text-[var(--text-muted)]">
           <ShieldCheck
             className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0"
             aria-hidden="true"
           />
-          Final pricing and dispatch details confirmed by the Vedic Wellness team after placement.
+          Vedic Wellness Guarantee: 100% Authentic Products & Secure Payments.
         </p>
       </div>
     </Card>

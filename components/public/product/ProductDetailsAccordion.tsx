@@ -7,17 +7,14 @@ import {
   ListOrdered,
   FlaskConical,
   AlertTriangle,
+  ChevronDown,
 } from "lucide-react";
 
 import Card from "@/components/public/ui/Card";
 import { fadeUpSoft, staggerFast } from "@/app/animations";
 import { Product } from "./types";
 
-/* ------------------------------------------------------------------ */
-/* Compact Accordion — Background Matches ProductAudience              */
-/* ------------------------------------------------------------------ */
-
-function DetailItem({
+function AccordionItem({
   title,
   icon: Icon,
   iconColor,
@@ -25,7 +22,7 @@ function DetailItem({
   defaultOpen = false,
 }: {
   title: string;
-  icon: any;
+  icon: React.ElementType;
   iconColor: string;
   children: React.ReactNode;
   defaultOpen?: boolean;
@@ -33,43 +30,45 @@ function DetailItem({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <motion.div variants={fadeUpSoft} className="overflow-hidden rounded-2xl">
-      <Card className="p-0 group">
+    <motion.div variants={fadeUpSoft}>
+      <Card className="p-0">
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex w-full items-center justify-between px-5 py-4 text-left"
+          aria-expanded={open}
+          className="
+            flex w-full items-center justify-between
+            px-5 py-4 text-left
+            focus-visible:outline-none focus-visible:ring-2
+            focus-visible:ring-inset focus-visible:ring-emerald-500
+          "
         >
           <span className="flex items-center gap-3">
-            <Icon
-              size={18}
-              strokeWidth={2.2}
-              className={`${iconColor} group-hover:scale-110 transition-transform`}
-            />
-            <span className="font-semibold text-sm tracking-tight">
+            <Icon size={16} strokeWidth={2} className={iconColor} aria-hidden="true" />
+            <span className="font-heading font-semibold text-sm tracking-tight text-[color:var(--text-main)]">
               {title}
             </span>
           </span>
-
-          <span
-            className={`text-lg transition-transform duration-300 ${
-              open ? "rotate-45" : ""
-            }`}
-          >
-            +
-          </span>
+          <ChevronDown
+            size={15}
+            aria-hidden="true"
+            className={`
+              text-[color:var(--text-muted)] transition-transform duration-300 shrink-0
+              ${open ? "rotate-180" : ""}
+            `}
+          />
         </button>
 
         <AnimatePresence initial={false}>
           {open && (
             <motion.div
-              key="content"
+              key="body"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
+              transition={{ duration: 0.26, ease: "easeOut" }}
               className="overflow-hidden"
             >
-              <div className="px-5 pb-4 text-sm text-muted leading-relaxed">
+              <div className="px-5 pb-5 pt-2 border-t border-[color:var(--border-soft)] text-sm font-body text-[color:var(--text-muted)] leading-relaxed">
                 {children}
               </div>
             </motion.div>
@@ -80,20 +79,10 @@ function DetailItem({
   );
 }
 
-/* ------------------------------------------------------------------ */
-/* Main Component                                                      */
-/* ------------------------------------------------------------------ */
-
 export default function ProductDetailsAccordion({
   product,
 }: {
-  product: Pick<
-    Product,
-    | "longDescription"
-    | "ingredients"
-    | "directionsToUse"
-    | "precautions"
-  >;
+  product: Pick<Product, "longDescription" | "ingredients" | "directionsToUse" | "precautions">;
 }) {
   const hasAny =
     product.longDescription ||
@@ -111,74 +100,73 @@ export default function ProductDetailsAccordion({
       viewport={{ once: true }}
       className="space-y-3"
     >
-      {/* Product Description */}
       {product.longDescription && (
-        <DetailItem
+        <AccordionItem
           title="Product Description"
           icon={Info}
-          iconColor="text-blue-400"
+          iconColor="text-blue-500 dark:text-blue-400"
           defaultOpen
         >
-          <p className="whitespace-pre-line font-medium">
-            {product.longDescription}
-          </p>
-        </DetailItem>
+          <p className="whitespace-pre-line">{product.longDescription}</p>
+        </AccordionItem>
       )}
 
-      {/* Directions */}
       {(product.directionsToUse ?? []).length > 0 && (
-        <DetailItem
+        <AccordionItem
           title="Directions to Use"
           icon={ListOrdered}
-          iconColor="text-emerald-400"
+          iconColor="text-emerald-500"
         >
-          <ol className="space-y-3">
+          <ol className="space-y-3 mt-1">
             {product.directionsToUse?.map((d, i) => (
               <li key={i} className="flex items-start gap-3">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10 text-white text-xs font-bold shrink-0 mt-0.5">
+                <span className="
+                  flex h-5 w-5 items-center justify-center rounded-full shrink-0 mt-0.5
+                  bg-emerald-50 dark:bg-emerald-950/40
+                  text-emerald-700 dark:text-emerald-400
+                  text-[10px] font-bold font-heading
+                ">
                   {i + 1}
                 </span>
                 <span>{d}</span>
               </li>
             ))}
           </ol>
-        </DetailItem>
+        </AccordionItem>
       )}
 
-      {/* Ingredients */}
       {(product.ingredients ?? []).length > 0 && (
-        <DetailItem
-          title="Ingredients"
+        <AccordionItem
+          title="Key Ingredients"
           icon={FlaskConical}
-          iconColor="text-violet-400"
+          iconColor="text-violet-500"
         >
-          <ul className="space-y-2">
+          <ul className="mt-1 grid grid-cols-2 gap-x-4 gap-y-2">
             {product.ingredients?.map((ing, i) => (
-              <li key={i} className="flex items-start gap-2">
-                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-white/40 shrink-0" />
+              <li key={i} className="flex items-center gap-2">
+                <span className="h-1 w-1 rounded-full bg-violet-400 shrink-0" aria-hidden="true" />
                 {ing}
               </li>
             ))}
           </ul>
-        </DetailItem>
+        </AccordionItem>
       )}
 
-      {/* Precautions */}
       {(product.precautions ?? []).length > 0 && (
-        <DetailItem
+        <AccordionItem
           title="Precautions & Warnings"
           icon={AlertTriangle}
-          iconColor="text-amber-400"
+          iconColor="text-amber-500"
         >
-          <ul className="space-y-2">
+          <ul className="space-y-2 mt-1">
             {product.precautions?.map((p, i) => (
               <li key={i} className="flex items-start gap-2">
-                <span className="mt-2 h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" />
+                <span className="mt-1.5 h-1 w-1 rounded-full bg-amber-400 shrink-0" aria-hidden="true" />
                 {p}
               </li>
             ))}
           </ul>
-        </DetailItem>
+        </AccordionItem>
       )}
     </motion.div>
   );

@@ -18,7 +18,8 @@ import {
  * Get current user's cart
  */
 export const getCartAction = secureUserAction(async (user) => {
-  return getOrCreateCart(user.id);
+  const cart = await getOrCreateCart(user.id);
+  return { success: true, data: cart };
 });
 
 /**
@@ -27,7 +28,8 @@ export const getCartAction = secureUserAction(async (user) => {
 export const addToCartAction = secureUserAction(
   async (user, input: unknown) => {
     const parsed = addToCartSchema.parse(input);
-    return addToCart(user.id, parsed.productId, parsed.quantity);
+    await addToCart(user.id, parsed.productId, parsed.quantity);
+    return { success: true };
   }
 );
 
@@ -37,7 +39,8 @@ export const addToCartAction = secureUserAction(
 export const updateCartItemAction = secureUserAction(
   async (user, input: unknown) => {
     const parsed = updateCartItemSchema.parse(input);
-    return updateCartItem(user.id, parsed.itemId, parsed.quantity);
+    await updateCartItem(user.id, parsed.itemId, parsed.quantity);
+    return { success: true };
   }
 );
 
@@ -47,6 +50,7 @@ export const updateCartItemAction = secureUserAction(
 export const removeCartItemAction = secureUserAction(
   async (user, input: unknown) => {
     const parsed = removeCartItemSchema.parse(input);
-    return removeCartItem(user.id, parsed.itemId);
+    await removeCartItem(user.id, parsed.itemId);
+    return { success: true };
   }
 );

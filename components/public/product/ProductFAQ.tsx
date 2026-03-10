@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, HelpCircle } from "lucide-react";
+import { ChevronDown, HelpCircle } from "lucide-react";
 
 import Card from "@/components/public/ui/Card";
 import SectionHeading from "@/components/public/ui/SectionHeading";
@@ -13,41 +13,47 @@ function FAQItem({ faq }: { faq: FAQType }) {
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="overflow-hidden rounded-3xl">
-      <Card className="bg-white/75 dark:bg-black/45 p-0 transition-all duration-300">
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="flex w-full items-center justify-between px-6 py-5 text-left group"
-        >
-          <span className="flex items-center gap-2.5 font-heading font-semibold text-sm md:text-base">
-            <ChevronRight 
-              size={14} 
-              className={`text-[color:var(--brand-accent)] transition-transform duration-300 ${open ? "rotate-90" : ""}`} 
-            />
-            {faq.question}
-          </span>
-          <span className={`text-2xl font-light transition-transform duration-300 ${open ? "rotate-45" : ""}`}>
-            +
-          </span>
-        </button>
-        <AnimatePresence initial={false}>
-          {open && (
-            <motion.div
-              key="content"
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.35, ease: "easeOut" }}
-              className="overflow-hidden"
-            >
-              <div className="px-6 pb-6 text-sm md:text-base text-muted-foreground leading-relaxed border-t border-foreground/5 pt-4">
-                {faq.answer}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Card>
-    </div>
+    <Card className="p-0">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="
+          flex w-full items-center justify-between
+          px-5 py-4 text-left
+          focus-visible:outline-none focus-visible:ring-2
+          focus-visible:ring-inset focus-visible:ring-emerald-500
+        "
+      >
+        <span className="font-heading font-semibold text-sm md:text-base text-[color:var(--text-main)] pr-4 leading-snug">
+          {faq.question}
+        </span>
+        <ChevronDown
+          size={15}
+          aria-hidden="true"
+          className={`
+            shrink-0 text-[color:var(--text-muted)] transition-transform duration-300
+            ${open ? "rotate-180" : ""}
+          `}
+        />
+      </button>
+
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="body"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.26, ease: "easeOut" }}
+            className="overflow-hidden"
+          >
+            <div className="px-5 pb-5 pt-2 border-t border-[color:var(--border-soft)] text-sm font-body text-[color:var(--text-muted)] leading-relaxed">
+              {faq.answer}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </Card>
   );
 }
 
@@ -60,14 +66,14 @@ export default function ProductFAQ({ faqs }: { faqs: FAQType[] }) {
       initial="hidden"
       whileInView="show"
       viewport={{ once: true }}
-      className="space-y-8 mt-16"
+      className="space-y-4"
     >
-      <div className="flex items-center gap-3">
-        <HelpCircle size={26} className="text-foreground" />
-        <SectionHeading title="Frequently Asked Questions" />
+      <div className="flex items-center gap-2">
+        <HelpCircle size={18} className="text-[color:var(--brand-primary)]" aria-hidden="true" />
+        <SectionHeading title="Frequently Asked Questions" align="left" />
       </div>
-      
-      <div className="space-y-4">
+
+      <div className="space-y-3">
         {faqs.map((faq) => (
           <motion.div key={faq.id} variants={fadeUpSoft}>
             <FAQItem faq={faq} />

@@ -2,204 +2,145 @@
 
 import { motion } from "framer-motion";
 import {
+  CheckCircle2,
+  XCircle,
+  Star,
   Target,
-  Zap,
-  FileText,
-  Info,
 } from "lucide-react";
 
 import Card from "@/components/public/ui/Card";
-import ProductCarousel from "./ProductCarousel";
-import ProductPriceCard from "../../customer/product/ProductPriceCard";
 import PageHeader from "@/components/public/ui/PageHeader";
-import SectionHeading from "@/components/public/ui/SectionHeading";
+import ProductCarousel from "./ProductCarousel";
 import { Product } from "./types";
-import { staggerFast, fadeUp, reveal } from "@/app/animations";
+import { staggerFast, reveal } from "@/app/animations";
 
-export default function ProductHero({
-  product,
-  existingQty,
-}: {
-  product: Product;
-  existingQty: number;
-}) {
+export default function ProductHero({ product }: { product: Product }) {
   const allImages = [product.imageUrl, ...(product.gallery ?? [])].filter(
     Boolean
   ) as string[];
 
+  const discountPct =
+    product.compareAtPrice && product.compareAtPrice > product.price
+      ? Math.round(
+          ((product.compareAtPrice - product.price) / product.compareAtPrice) * 100
+        )
+      : null;
+
+  const reviewCount = product.reviews?.length ?? 0;
+  const avgRating =
+    reviewCount > 0
+      ? (product.reviews!.reduce((s, r) => s + r.rating, 0) / reviewCount).toFixed(1)
+      : null;
+
+  const inStock = product.stock > 0;
+
   return (
-    <div className="bg-background">
-      
-      {/* HEADER */}
-      <section className="pt-2 pb-1">
+    <Card className="mt-4 md:mt-8 overflow-hidden p-0">
+      <div className="flex flex-col lg:flex-row">
+
+        {/* ── LEFT: Carousel — fixed landscape height ── */}
+        <div className="relative w-full lg:w-1/2 h-[280px] sm:h-[360px] lg:h-[440px] bg-zinc-50 dark:bg-zinc-900/50">
+          <ProductCarousel images={allImages} name={product.name} />
+
+          {discountPct && (
+            <span
+              aria-label={`${discountPct}% discount`}
+              className="
+                absolute top-4 left-4 z-30
+                bg-emerald-500 text-white
+                text-[10px] font-heading font-bold uppercase tracking-widest
+                px-2.5 py-1 rounded-full pointer-events-none
+              "
+            >
+              {discountPct}% OFF
+            </span>
+          )}
+        </div>
+
+        {/* ── RIGHT: Product info only — no price card ── */}
         <motion.div
           variants={staggerFast}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 lg:grid-cols-[200px_1fr_200px] gap-6 items-end"
+          className="w-full lg:w-1/2 p-6 md:p-10 flex flex-col gap-5 justify-center"
         >
-          {/* Left */}
-          <motion.div variants={reveal} className="hidden lg:block pb-2">
-            <div className="border-t border-foreground/30 pt-3">
-              <p className="text-[9px] uppercase tracking-[0.2em] text-foreground/60">
-                Category
-              </p>
-              <p className="font-heading text-xl font-semibold text-foreground">
-                {product.tag || "Natural Care"}
-              </p>
-            </div>
+          {/* Eyebrow: category · form · rating · stock */}
+          <motion.div
+            variants={reveal}
+            className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-heading uppercase tracking-widest text-[color:var(--text-muted)]"
+          >
+            {product.tag && (
+              <span className="text-[color:var(--brand-primary)] font-semibold">
+                {product.tag}
+              </span>
+            )}
+            {product.medicineForm && (
+              <>
+                <span aria-hidden="true" className="opacity-40">·</span>
+                <span>{product.medicineForm}</span>
+              </>
+            )}
+            {avgRating && (
+              <>
+                <span aria-hidden="true" className="opacity-40">·</span>
+                <span className="flex items-center gap-0.5">
+                  <Star size={9} className="fill-amber-400 text-amber-400" aria-hidden="true" />
+                  {avgRating}
+                  <span className="opacity-60 ml-0.5">({reviewCount})</span>
+                </span>
+              </>
+            )}
+            <span aria-hidden="true" className="opacity-40">·</span>
+            {inStock ? (
+              <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
+                <CheckCircle2 size={9} aria-hidden="true" />
+                In Stock
+              </span>
+            ) : (
+              <span className="text-red-500 flex items-center gap-0.5">
+                <XCircle size={9} aria-hidden="true" />
+                Out of Stock
+              </span>
+            )}
           </motion.div>
 
-          {/* Center */}
-          <motion.div variants={reveal} className="text-center">
-            <PageHeader 
-              title={product.name} 
-              subtitle={product.subtitle || ""} 
-              className="pt-2"
+          {/* Title + subtitle */}
+          <motion.div variants={reveal}>
+            <PageHeader
+              title={product.name}
+              subtitle={product.subtitle ?? undefined}
+              align="left"
+              className="!p-0 !max-w-none !space-y-1"
             />
           </motion.div>
 
-          {/* Right */}
-          <motion.div
-            variants={reveal}
-            className="hidden lg:flex flex-col items-end pb-2"
-          >
-            <div className="border-t border-foreground/30 pt-3 text-right w-full">
-              <p className="text-[9px] uppercase tracking-[0.2em] text-foreground/60">
-                Form
-              </p>
-              <p className="font-heading text-xl font-semibold text-foreground">
-                {product.medicineForm || "—"}
-              </p>
-            </div>
-          </motion.div>
+          {/* Short description */}
+          {product.shortDescription && (
+            <motion.p
+              variants={reveal}
+              className="font-body text-sm md:text-base text-[color:var(--text-muted)] leading-relaxed"
+            >
+              {product.shortDescription}
+            </motion.p>
+          )}
+
+          {/* Top highlights — max 3, compact */}
+          {product.highlights?.slice(0, 3).map((h, i) => (
+            <motion.div
+              key={i}
+              variants={reveal}
+              className="flex items-start gap-2 text-sm font-body text-[color:var(--text-main)]"
+            >
+              <Target
+                size={13}
+                className="shrink-0 mt-0.5 text-[color:var(--brand-primary)]"
+                aria-hidden="true"
+              />
+              {h}
+            </motion.div>
+          ))}
         </motion.div>
-      </section>
-
-      {/* CORE */}
-      <section className="pt-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          
-          {/* Image */}
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            className="lg:col-span-7 xl:col-span-8"
-          >
-            <div className="w-full aspect-[16/9] relative">
-              <ProductCarousel images={allImages} name={product.name} />
-            </div>
-          </motion.div>
-
-          {/* Price Card (not sticky) */}
-          <motion.div
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
-            className="lg:col-span-5 xl:col-span-4"
-          >
-            <ProductPriceCard product={product} existingQty={existingQty} />
-          </motion.div>
-        </div>
-      </section>
-
-      {/* DATA SECTION */}
-      <section className="py-8 bg-muted/5">
-        <div>
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16">
-            
-            {/* LEFT CONTENT */}
-            <div className="lg:col-span-8 space-y-8">
-              
-              {product.shortDescription && (
-                <motion.div
-                  variants={fadeUp}
-                  initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true }}
-                  className="space-y-4"
-                >
-                  <div className="flex items-center gap-3">
-                    <Info size={26} className="text-foreground" />
-                    <SectionHeading title="The Essence" />
-                  </div>
-
-                  <Card className="p-6 lg:p-8">
-                    <p className="text-lg lg:text-xl leading-relaxed text-slate-600 dark:text-slate-300">
-                      {product.shortDescription}
-                    </p>
-                  </Card>
-                </motion.div>
-              )}
-
-              {product.longDescription && (
-                <motion.div
-                  variants={fadeUp}
-                  initial="hidden"
-                  whileInView="show"
-                  viewport={{ once: true }}
-                  className="space-y-4"
-                >
-                  <div className="flex items-center gap-3">
-                    <FileText size={26} className="text-foreground" />
-                    <SectionHeading title="Inside the Formulation" />
-                  </div>
-
-                  <Card className="p-6 lg:p-8">
-                    <p className="text-base lg:text-lg leading-relaxed text-slate-600 dark:text-slate-300 whitespace-pre-wrap">
-                      {`Our proprietary ${product.medicineForm?.toLowerCase() || "formulation"} is engineered to provide targeted therapeutic benefits using a blend of high-purity ingredients and advanced manufacturing standards. Whether designed for preventive care or chronic management, this product reflects our commitment to quality, safety, and efficacy.\n\nProcessed in state-of-the-art facilities, it ensures maximum bioavailability and consistent results, making it a trusted choice for healthcare professionals and patients alike. By combining traditional wisdom with modern pharmacological precision, we deliver a solution that supports long-term health and vitality without compromising on safety standards.`}
-                    </p>
-                  </Card>
-                </motion.div>
-              )}
-            </div>
-
-            {/* RIGHT SIDEBAR */}
-            <div className="lg:col-span-4 space-y-8">
-              
-              {product.highlights?.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="font-heading text-xl font-semibold text-foreground uppercase tracking-[0.2em] text-sm">
-                    Highlights
-                  </h3>
-
-                  <Card className="p-5">
-                    <div className="space-y-4">
-                      {product.highlights.map((point, idx) => (
-                        <div key={idx} className="flex gap-3 text-slate-600 dark:text-slate-300">
-                          <Target size={16} className="shrink-0" />
-                          <span>{point}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </Card>
-                </div>
-              )}
-
-              {product.benefits?.length > 0 && (
-                <div className="space-y-4">
-                  <h3 className="font-heading text-xl font-semibold text-foreground uppercase tracking-[0.2em] text-sm">
-                    Key Benefits
-                  </h3>
-
-                  <Card className="p-5">
-                    <ul className="space-y-3">
-                      {product.benefits.map((benefit, idx) => (
-                        <li key={idx} className="flex items-center gap-3 text-slate-600 dark:text-slate-300">
-                          <Zap size={14} className="shrink-0" />
-                          <span>{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </Card>
-                </div>
-              )}
-            </div>
-
-          </div>
-        </div>
-      </section>
-    </div>
+      </div>
+    </Card>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/public/ui/Button";
 import { toast } from "@/lib/toast";
@@ -16,31 +16,15 @@ import type { OrderForClient } from "@/lib/types/order";
 
 export default function OrderDetailsClient({ order }: { order: OrderForClient }) {
   const router = useRouter();
-  const [timeLeft, setTimeLeft] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const isPayable = order.status === "CREATED" || order.status === "PAYMENT_FAILED";
 
-  useEffect(() => {
-    if (!order.expiresAt || !isPayable) return;
-
-    const tick = () => {
-      const diff = new Date(order.expiresAt!).getTime() - Date.now();
-      if (diff <= 0) { setTimeLeft("Expired"); return; }
-      const h = Math.floor(diff / 3600000);
-      const m = Math.floor((diff % 3600000) / 60000);
-      const s = Math.floor((diff % 60000) / 1000);
-      setTimeLeft(`${h}h ${m}m ${s}s`);
-    };
-
-    tick();
-    const interval = setInterval(tick, 1000);
-    return () => clearInterval(interval);
-  }, [order.expiresAt, isPayable]);
-
   async function handleCancel() {
     if (!confirm("Cancel this order?")) return;
+
     setLoading(true);
+
     try {
       await cancelOrderAction(order.id);
       toast.success("Order cancelled", "Your order has been cancelled.");
@@ -54,6 +38,7 @@ export default function OrderDetailsClient({ order }: { order: OrderForClient })
 
   async function handlePay() {
     setLoading(true);
+
     try {
       await mockMarkPaidAction(order.id);
       toast.success("Payment successful", "Your order has been marked as paid.");
@@ -68,16 +53,15 @@ export default function OrderDetailsClient({ order }: { order: OrderForClient })
   return (
     <div className="space-y-4">
 
-      {/* Status banner — always full width */}
+      {/* Status banner */}
       <OrderStatusBanner
         status={order.status}
         totalAmount={order.totalAmount}
         currency={order.currency}
-        timeLeft={timeLeft}
       />
 
-      {/* Action buttons — only when payable */}
-      {isPayable && timeLeft !== "Expired" && (
+      {/* Action buttons */}
+      {isPayable && (
         <div className="flex flex-col sm:flex-row gap-3 w-full">
           <Button
             isLoading={loading}
@@ -85,7 +69,9 @@ export default function OrderDetailsClient({ order }: { order: OrderForClient })
             className="w-full sm:flex-1"
           >
             Simulate Payment
-            <span className="ml-1.5 text-[10px] opacity-50 font-normal">(Dev Only)</span>
+            <span className="ml-1.5 text-[10px] opacity-50 font-normal">
+              (Dev Only)
+            </span>
           </Button>
 
           {order.status === "CREATED" && (
@@ -101,16 +87,17 @@ export default function OrderDetailsClient({ order }: { order: OrderForClient })
         </div>
       )}
 
-      {/* Two-col on desktop: items (wider) + right sidebar */}
+      {/* Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:items-start">
 
-        {/* Left: items */}
+        {/* Left */}
         <div className="lg:col-span-3 space-y-4">
           <OrderItemsCard
             items={order.items}
             totalAmount={order.totalAmount}
             currency={order.currency}
           />
+
           <OrderShippingCard
             shippingName={order.shippingName}
             shippingPhone={order.shippingPhone}
@@ -118,7 +105,7 @@ export default function OrderDetailsClient({ order }: { order: OrderForClient })
           />
         </div>
 
-        {/* Right: timeline + meta */}
+        {/* Right */}
         <div className="lg:col-span-2 space-y-4">
           <OrderTimelineCard
             status={order.status}
@@ -126,6 +113,7 @@ export default function OrderDetailsClient({ order }: { order: OrderForClient })
             paidAt={order.paidAt}
             expiresAt={order.expiresAt}
           />
+
           <OrderMetaCard
             orderId={order.id}
             paymentId={order.paymentId}

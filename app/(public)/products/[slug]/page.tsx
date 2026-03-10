@@ -27,9 +27,6 @@ type Props = {
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {
-  const session = await getSession();
-  if (!session?.user) return {};
-
   const { slug: rawSlug } = await params;
   const slug = decodeURIComponent(rawSlug);
 
@@ -66,14 +63,21 @@ export default async function ProductDetailsPage({
   );
 
   const session = await getSession();
+  
+  // Data to pass to Client Component
   let existingQty = 0;
+  let cartItemId: string | undefined = undefined;
 
   if (session?.user?.id) {
     const cart = await getOrCreateCart(session.user.id);
     const existingItem = cart.items.find(
       (item) => item.productId === product.id
     );
-    existingQty = existingItem?.quantity ?? 0;
+    
+    if (existingItem) {
+      existingQty = existingItem.quantity;
+      cartItemId = existingItem.id; // Capture the DB ID for the client update logic
+    }
   }
 
   return (
@@ -81,6 +85,7 @@ export default async function ProductDetailsPage({
       product={product}
       relatedProducts={relatedProducts}
       existingQty={existingQty}
+      cartItemId={cartItemId}
     />
   );
 }

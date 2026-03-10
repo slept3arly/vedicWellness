@@ -3,7 +3,6 @@
 import { motion } from "framer-motion";
 import {
   CheckCircle2,
-  Clock,
   XCircle,
   AlertTriangle,
   Package,
@@ -14,7 +13,6 @@ type Props = {
   status: string;
   totalAmount: number;
   currency: string;
-  timeLeft?: string | null;
 };
 
 const STATUS = {
@@ -23,14 +21,15 @@ const STATUS = {
     sub: "Your payment was received. Order is being processed.",
     icon: CheckCircle2,
     iconClass: "text-[--brand-accent]",
-    pillClass: "bg-[--brand-accent]/10 text-[--brand-accent] border-[--brand-accent]/20",
+    pillClass:
+      "bg-[--brand-accent]/10 text-[--brand-accent] border-[--brand-accent]/20",
     pill: "Paid",
     barClass: "bg-[--brand-accent]",
   },
   CREATED: {
     label: "Awaiting payment",
     sub: "Complete your payment before this order expires.",
-    icon: Clock,
+    icon: Package,
     iconClass: "text-amber-400",
     pillClass: "bg-amber-400/10 text-amber-400 border-amber-400/20",
     pill: "Pending",
@@ -77,7 +76,6 @@ export default function OrderStatusBanner({
   status,
   totalAmount,
   currency,
-  timeLeft,
 }: Props) {
   const cfg = STATUS[status as keyof typeof STATUS] ?? {
     label: status,
@@ -90,7 +88,6 @@ export default function OrderStatusBanner({
   };
 
   const Icon = cfg.icon;
-  const isPayable = status === "CREATED" || status === "PAYMENT_FAILED";
 
   return (
     <motion.div
@@ -110,7 +107,7 @@ export default function OrderStatusBanner({
 
       <div className="flex items-center justify-between gap-4 px-5 py-4">
         {/* left — icon + text */}
-        <div className="flex items-center gap-3 min-w-0">
+        <div className="flex items-center gap-3 min-w-0 flex-1">
           <motion.div
             variants={fadeUpSoft}
             initial="hidden"
@@ -126,7 +123,7 @@ export default function OrderStatusBanner({
             initial="hidden"
             animate="show"
             transition={{ ...softSpring, delay: 0.1 }}
-            className="min-w-0"
+            className="min-w-0 flex-1"
           >
             <div className="flex items-center gap-2 mb-0.5 flex-wrap">
               <span className="text-sm font-semibold text-[--text-main]">
@@ -138,27 +135,10 @@ export default function OrderStatusBanner({
                 {cfg.pill}
               </span>
             </div>
-            <p className="text-xs text-[--text-muted] leading-snug truncate">
+
+            <p className="text-xs text-[--text-muted] leading-snug whitespace-normal break-words">
               {cfg.sub}
             </p>
-
-            {isPayable && timeLeft && timeLeft !== "Expired" && (
-              <motion.div
-                variants={fadeUpSoft}
-                initial="hidden"
-                animate="show"
-                transition={{ ...softSpring, delay: 0.18 }}
-                className="flex items-center gap-1.5 mt-1.5"
-              >
-                <Clock size={11} className="text-amber-400 shrink-0" />
-                <span className="text-xs text-[--text-muted]">
-                  Expires in{" "}
-                  <span className="font-semibold tabular-nums text-amber-400">
-                    {timeLeft}
-                  </span>
-                </span>
-              </motion.div>
-            )}
           </motion.div>
         </div>
 
