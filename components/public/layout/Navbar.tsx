@@ -71,6 +71,7 @@ export default function Navbar() {
                 <Link
                   key={path}
                   href={path}
+                  prefetch={false}
                   className={`hover:text-white ${
                     activePath === path ? "text-emerald-500" : ""
                   }`}
@@ -83,7 +84,7 @@ export default function Navbar() {
 
           {/* CENTER LOGO */}
           <div className="flex justify-center">
-            <Link href="/" onClick={() => setMenuOpen(false)}>
+            <Link href="/" prefetch={false} onClick={() => setMenuOpen(false)}>
               <Image
                 src="/logo.svg"
                 alt="Vedic Wellness"
@@ -181,6 +182,7 @@ export default function Navbar() {
             <Link
               key={path}
               href={path}
+              prefetch={false}
               onClick={() => setMenuOpen(false)}
               className={`
                 group flex items-center justify-between

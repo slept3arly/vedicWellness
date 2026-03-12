@@ -93,6 +93,7 @@ export default function BlogsClient({
                 <motion.div key={b.id} variants={fadeUpSoft} className="group">
                   <Link
                     href={`/blogs/${encodeURIComponent(b.slug)}`}
+                    prefetch={false}
                     className="block h-full"
                   >
                     <Card className="h-full">
@@ -154,6 +155,7 @@ export default function BlogsClient({
               <motion.div key={b.id} variants={fadeUpSoft} className="group">
                 <Link
                   href={`/blogs/${encodeURIComponent(b.slug)}`}
+                  prefetch={false}
                   className="block h-full"
                 >
                   <Card className="h-full">
@@ -219,6 +221,7 @@ export default function BlogsClient({
                 <Link
                   key={p}
                   href={`/blogs?page=${p}`}
+                  prefetch={false}
                   className={`w-16 h-10 rounded-lg flex items-center justify-center text-sm font-heading transition-all ${
                     p === page
                       ? "bg-surface border border-white/50 shadow-lg shadow-brand-accent/20 scale-110"

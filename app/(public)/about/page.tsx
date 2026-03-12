@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import PageClient from "./AboutClient";
 
+export const revalidate = 86400;
+
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://vedic-wellness.vercel.app";
 

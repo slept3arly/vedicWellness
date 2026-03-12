@@ -4,17 +4,19 @@ import Card from "@/components/public/ui/Card";
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 21600; // 6 hours
 
 export default async function SiteMapPage() {
   const products = await prisma.product.findMany({
     select: { slug: true, name: true },
     orderBy: { createdAt: "desc" },
+    take: 5,
   });
 
   const blogs = await prisma.blog.findMany({
     select: { slug: true, title: true },
     orderBy: { createdAt: "desc" },
+    take: 5,
   });
 
   return (

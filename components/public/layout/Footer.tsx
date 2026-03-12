@@ -175,6 +175,7 @@ function FooterLink({ href, children }: any) {
   return (
     <Link
       href={href}
+      prefetch={false}
       className="
       group relative w-fit text-sm
       text-neutral-600 dark:text-neutral-400

@@ -32,6 +32,7 @@ export default function ProductRelated({
         </div>
         <Link
           href="/products"
+          prefetch={false}
           className="flex items-center gap-1 font-heading text-xs uppercase tracking-widest text-[color:var(--brand-primary)] hover:gap-2 transition-all"
         >
           View All <ArrowUpRight size={13} aria-hidden="true" />
@@ -41,7 +42,7 @@ export default function ProductRelated({
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {relatedProducts.map((rp) => (
           <motion.div key={rp.id} variants={fadeUpSoft}>
-            <Link href={`/products/${rp.slug}`} className="group block h-full">
+            <Link href={`/products/${rp.slug}`} prefetch={false} className="group block h-full">
               <Card className="h-full p-0 flex flex-col">
                 {rp.imageUrl && (
                   <div className="relative w-full h-36 overflow-hidden rounded-t-[calc(var(--radius)-1px)] bg-zinc-50 dark:bg-zinc-900">

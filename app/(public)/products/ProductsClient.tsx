@@ -194,7 +194,7 @@ export default function ProductsClient({
             {products.length > 0 ? (
               products.map((p) => (
                 <motion.div key={p.id} variants={fadeUpSoft} className="group">
-                  <Link href={`/products/${p.slug}`} className="block h-full">
+                  <Link href={`/products/${p.slug}`} prefetch={false} className="block h-full">
                     <Card className="h-full p-3 flex flex-col border-neutral-200 dark:border-neutral-800">
                       {p.imageUrl && (
                         <div className="relative w-full h-32 md:h-44 overflow-hidden rounded-xl mb-3">
@@ -267,6 +267,7 @@ export default function ProductsClient({
                 <Link
                   key={p}
                   href={buildHref(p)}
+                  prefetch={false}
                   scroll={false}
                   onClick={anchorToFilter}
                   className={`w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${

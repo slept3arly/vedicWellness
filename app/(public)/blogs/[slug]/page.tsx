@@ -22,7 +22,7 @@ const SITE_URL =
 /* ------------------------------------------------------------------ */
 /* Static Generation */
 /* ------------------------------------------------------------------ */
-export const revalidate = 600;
+export const revalidate = 86400;
 
 export async function generateStaticParams() {
   const blogs = await getAllPublishedBlogSlugsService();

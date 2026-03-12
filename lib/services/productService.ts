@@ -200,7 +200,6 @@ export async function deleteProductService(id: string, adminId: string) {
 const getCachedPublicProducts = (page: number, query: string, sort: string) =>
   unstable_cache(
     async () => {
-      console.log("DB FETCH:", { page, query, sort });
       const { total, products } = await getPublicProductsDB({
         page,
         limit: PUBLIC_PAGE_SIZE,
@@ -219,7 +218,7 @@ const getCachedPublicProducts = (page: number, query: string, sort: string) =>
     ["public-products-list", String(page), query, sort], 
     {
       tags: [PRODUCT_TAG],
-      revalidate: 3600,
+      revalidate: 21600,
     }
   )();
 
@@ -239,7 +238,10 @@ export const getPublicProductBySlugService = (slug: string) =>
   unstable_cache(
     async () => getPublicProductBySlugDB(slug),
     [`product-${slug}`],
-    { tags: [`product:${slug}`, PRODUCT_TAG] }
+    {
+      tags: [`product:${slug}`, PRODUCT_TAG],
+      revalidate: 86400,
+    }
   )();
 
 export const getPublicProductMetadataService = (slug: string) =>
@@ -278,6 +280,6 @@ export const getRelatedProductsService = (
     ],
     {
       tags: [`product:${slug}`, PRODUCT_TAG],
-      revalidate: 1800, // 30 minutes
+      revalidate: 86400,
     }
   )();

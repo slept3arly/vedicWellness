@@ -1,3 +1,5 @@
+export const revalidate = 86400;
+
 import Hero from "@/components/public/home/Hero";
 import TrustStrip from "@/components/public/home/TrustStrip";
 import StatsSection from "@/components/public/home/StatsFloating";

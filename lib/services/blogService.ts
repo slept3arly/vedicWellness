@@ -155,7 +155,7 @@ export const getPublicBlogsService = unstable_cache(
   ["public-blogs"],
   {
     tags: [BLOG_LIST_TAG],
-    revalidate: 600, // ⭐ aligned
+    revalidate: 21600,
   }
 );
 
@@ -168,7 +168,7 @@ export const getPublicBlogBySlugService = (slug: string) =>
     [`blog-${slug}`],
     {
       tags: [`blog:${slug}`, BLOG_LIST_TAG],
-      revalidate: 600, // ⭐ aligned
+      revalidate: 86400,
     }
   )();
 
@@ -188,6 +188,6 @@ export const getRelatedBlogsService = (
     ],
     {
       tags: [`blog:${slug}`, BLOG_LIST_TAG],
-      revalidate: 600, // ⭐ aligned
+      revalidate: 86400,
     }
   )();

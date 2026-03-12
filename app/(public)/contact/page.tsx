@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import ContactClient from "./ContactClient";
 
+export const revalidate = 86400;
+
 export const metadata: Metadata = {
   title: "Contact Vedic Wellness | Ayurvedic PCD Pharma Franchise Enquiry",
   description:

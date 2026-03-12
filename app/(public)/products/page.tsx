@@ -42,7 +42,8 @@ export async function generateMetadata({
 }
 
 // CRITICAL: Search depends on URL params; it cannot be force-static.
-export const dynamic = "force-dynamic";
+// Enable ISR caching for product listings
+export const revalidate = 21600;
 
 type SearchParams = {
   page?: string;

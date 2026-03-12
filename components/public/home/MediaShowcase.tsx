@@ -1,7 +1,9 @@
 import Section from "@/components/public/ui/Section";
 import MediaSlider from "@/components/public/ui/MediaSlider";
 import { prisma } from "@/lib/db/prisma";
-import { Prisma } from "@prisma/client"; // 1. Add this import
+import { Prisma } from "@prisma/client";
+import { unstable_cache } from "next/cache";
+
 type Props = {
   placementKey:
     | "HOME_HERO"
@@ -11,27 +13,37 @@ type Props = {
     | "FESTIVAL_BANNER";
 };
 
-export default async function MediaShowcase({ placementKey }: Props) {
-  const now = new Date();
+const getCachedSlides = (placementKey: Props["placementKey"]) =>
+  unstable_cache(
+    async () => {
+      const now = new Date();
 
-  // 2. Use 'as const' or a Validator to get the type
-  const queryOptions = {
-    where: {
-      placementKey,
-      isActive: true,
-      AND: [
-        { OR: [{ startAt: null }, { startAt: { lte: now } }] },
-        { OR: [{ endAt: null }, { endAt: { gte: now } }] },
-      ],
+      const queryOptions = {
+        where: {
+          placementKey,
+          isActive: true,
+          AND: [
+            { OR: [{ startAt: null }, { startAt: { lte: now } }] },
+            { OR: [{ endAt: null }, { endAt: { gte: now } }] },
+          ],
+        },
+        orderBy: { order: "asc" },
+        include: { slide: true },
+      } satisfies Prisma.SlidePlacementFindManyArgs;
+
+      const placements = await prisma.slidePlacement.findMany(queryOptions);
+
+      return placements.map((p) => p.slide);
     },
-    orderBy: { order: "asc" },
-    include: { slide: true },
-  } satisfies Prisma.SlidePlacementFindManyArgs;
+    [`slides-${placementKey}`],
+    {
+      revalidate: 86400,
+      tags: ["slides"],
+    }
+  )();
 
-  const placements = await prisma.slidePlacement.findMany(queryOptions);
-
-  // Now 'p.slide' will be recognized!
-  const slides = placements.map((p) => p.slide);
+export default async function MediaShowcase({ placementKey }: Props) {
+  const slides = await getCachedSlides(placementKey);
 
   if (!slides.length) return null;
 
