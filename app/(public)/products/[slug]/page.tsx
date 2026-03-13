@@ -23,7 +23,7 @@ type Props = {
 /* ------------------------------------------------------------------ */
 /* Metadata */
 /* ------------------------------------------------------------------ */
-
+export const revalidate = 86400;
 export async function generateMetadata({
   params,
 }: Props): Promise<Metadata> {

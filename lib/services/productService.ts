@@ -128,12 +128,13 @@ export async function updateProductService(
   /* -------------------------------------------------- */
 
   revalidateTag(PRODUCT_TAG, "default");
-  revalidatePath("/products");
 
   if (data.slug) {
+    revalidateTag(`product:${data.slug}`, "default");   // ⭐ add this
     revalidatePath(`/products/${data.slug}`);
   }
 
+  revalidatePath("/products");
   /* -------------------------------------------------- */
   /* Audit                                              */
   /* -------------------------------------------------- */
@@ -161,8 +162,13 @@ export async function toggleProductPublishedService(id: string, published: boole
   const product = await getProductById(id);
 
   revalidateTag(PRODUCT_TAG, "default");
+
+  if (product?.slug) {
+    revalidateTag(`product:${product.slug}`, "default"); // ⭐ add this
+    revalidatePath(`/products/${product.slug}`);
+  }
+
   revalidatePath("/products");
-  if (product?.slug) revalidatePath(`/products/${product.slug}`);
 
   await auditWithContext({
     actorId: adminId,
@@ -182,6 +188,11 @@ export async function deleteProductService(id: string, adminId: string) {
   }
 
   revalidateTag(PRODUCT_TAG, "default");
+
+  if (product?.slug) {
+    revalidateTag(`product:${product.slug}`, "default"); // ⭐ add this
+  }
+
   revalidatePath("/products");
 
   await auditWithContext({
