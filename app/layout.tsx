@@ -11,6 +11,9 @@ import Providers from "@/app/Providers";
 import { Toaster } from "sonner";
 import DeferredFooter from "@/components/public/layout/DeferredFooter";
 
+import PromotionModal from "@/components/public/layout/PromotionModal";
+import { getActiveBannerService } from "@/lib/services/bannerService";
+
 import Script from "next/script";
 
 const SITE_URL =
@@ -28,7 +31,7 @@ export const metadata: Metadata = {
   verification: {
     google: "7j7lQFxzJjZu_dYzbYtTKEQi5MkqDWWCk96qaOEwTuM",
   },
-  
+
   title: {
     default: `${BRAND_NAME} | Ayurvedic Wellness & Pharma Franchise`,
     template: `%s | ${BRAND_NAME}`,
@@ -72,11 +75,13 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const banner = await getActiveBannerService();
+
   return (
     <html
       lang="en"
@@ -120,6 +125,10 @@ export default function RootLayout({
         />
 
         <Providers>
+
+          {/* Promotion Modal */}
+          <PromotionModal banner={banner} />
+
           {/* Route transition loader (overlay only) */}
           <RouteLoader />
 
@@ -137,7 +146,9 @@ export default function RootLayout({
           {/* Footer + Floating Actions */}
           <DeferredFooter />
           <BottomNavbar />
+
         </Providers>
+
         <Toaster
           position="top-center"
           richColors

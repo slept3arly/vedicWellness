@@ -1,7 +1,8 @@
 import Link from "next/link";
 import AdminCard from "../../../components/admin/AdminCard";
 import PageHeader from "@/components/public/ui/PageHeader";
-import SectionHeading from "@/components/public/ui/SectionHeading"; // Assuming the import path based on PageHeader
+import SectionHeading from "@/components/public/ui/SectionHeading";
+
 import {
   Package,
   FileText,
@@ -10,6 +11,7 @@ import {
   Users,
   ScrollText,
   Image as ImageIcon,
+  LayoutPanelTop,
 } from "lucide-react";
 
 const sections = [
@@ -30,6 +32,12 @@ const sections = [
     href: "/admin/slides",
     icon: ImageIcon,
     desc: "Manage homepage & campaign banners",
+  },
+  {
+    label: "Banners",
+    href: "/admin/banners",
+    icon: LayoutPanelTop,
+    desc: "Popup promotions & announcements",
   },
   {
     label: "Marquee",

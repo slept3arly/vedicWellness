@@ -23,6 +23,7 @@ export type AuditEntityType =
   | "SETTINGS"
   | "LEAD"
   | "MARQUEE"
+  | "BANNER"
   | "OTHER";
 
 export type AuditEvent = {
