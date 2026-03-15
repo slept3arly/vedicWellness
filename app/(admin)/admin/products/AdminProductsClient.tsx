@@ -183,7 +183,7 @@ export default function AdminProductsClient({
                   </span>
                   <div className="relative w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden border border-neutral-200 dark:border-neutral-700 shrink-0">
                     {p.imageUrl ? (
-                      <Image src={p.imageUrl} alt={p.name} fill className="object-cover" />
+                      <Image src={p.imageUrl} alt={p.name} fill sizes="64px" className="object-cover" />
                     ) : (
                       <ImageIcon className="h-5 w-5 text-neutral-400" />
                     )}

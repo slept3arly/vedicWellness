@@ -62,6 +62,7 @@ export default function SlugClient({
                   fill
                   priority
                   className="object-cover"
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                 />
               </div>
             )}
@@ -186,7 +187,12 @@ export default function SlugClient({
                   <Card className="overflow-hidden p-0">
                     {r.thumbnailUrl && (
                       <div className="relative aspect-video w-full max-h-[160px]">
-                        <Image src={r.thumbnailUrl} alt={r.title} fill className="object-cover" />
+                        <Image
+                          src={r.thumbnailUrl}
+                          alt={r.title}
+                          fill className="object-cover"
+                          sizes="(max-width: 640px) 100vw, 50vw"
+                          />
                       </div>
                     )}
                     <div className="p-5 space-y-2">

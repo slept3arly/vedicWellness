@@ -59,7 +59,7 @@ export default function SlideImagesField({
 
           <div className="aspect-video rounded-xl overflow-hidden border bg-neutral-200 dark:bg-neutral-800 relative">
             {desktopUrl ? (
-              <Image src={desktopUrl} alt="" fill className="object-cover" />
+              <Image src={desktopUrl} alt="" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
             ) : (
               <div className="flex items-center justify-center h-full text-xs text-neutral-500">
                 No desktop image
@@ -84,7 +84,7 @@ export default function SlideImagesField({
 
           <div className="aspect-[4/5] rounded-xl overflow-hidden border bg-neutral-200 dark:bg-neutral-800 relative">
             {mobileUrl ? (
-              <Image src={mobileUrl} alt="" fill className="object-cover" />
+              <Image src={mobileUrl} alt="" fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
             ) : (
               <div className="flex items-center justify-center h-full text-xs text-neutral-500">
                 No mobile image

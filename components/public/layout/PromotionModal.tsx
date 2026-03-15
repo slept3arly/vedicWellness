@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import Button from "@/components/public/ui/Button";
 import { softSpring, fastSpring } from "@/app/animations";
+import Image from "next/image";
 
 type Banner = {
   id: string;
@@ -134,9 +135,11 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
             {/* ── IMAGE ONLY mode ── */}
             {banner.type === "IMAGE_ONLY" && banner.imageUrl && (
               // overflow-hidden on parent already clips this; w-full h-full fills the container
-              <img
+              <Image
                 src={banner.imageUrl}
                 alt="Promotion"
+                priority
+                sizes="(max-width: 640px) 100vw, 780px"
                 className="block w-full h-full object-cover"
               />
             )}
@@ -146,12 +149,14 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
               <div className="relative w-full h-full min-h-[460px] sm:min-h-0 sm:aspect-video">
                 {/* Background image */}
                 {banner.imageUrl && (
-                  <img
+                  <Image
                     src={banner.imageUrl}
                     alt=""
                     aria-hidden
-                    className="absolute inset-0 w-full h-full object-cover object-center"
-                  />
+                    fill
+                    priority
+                    sizes="(max-width: 640px) 100vw, 780px"
+                    className="object-cover object-center"                  />
                 )}
 
                 {/* Gradient scrim */}

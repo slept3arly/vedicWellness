@@ -46,7 +46,7 @@ export default function BlogImageField({
 
       <div className="w-64 h-40 rounded-xl overflow-hidden border bg-neutral-200 dark:bg-neutral-800 relative">
         {thumbnailUrl ? (
-          <Image src={thumbnailUrl} alt="" fill className="object-cover" />
+          <Image src={thumbnailUrl} alt="" fill sizes="256px" className="object-cover" />
         ) : (
           <div className="flex items-center justify-center h-full text-xs text-neutral-500">
             No thumbnail uploaded

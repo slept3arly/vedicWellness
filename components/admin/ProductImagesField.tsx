@@ -101,7 +101,7 @@ export default function ProductImagesField({
           <p className={labelCls}>Cover</p>
           <div className="relative w-36 h-36 rounded-lg overflow-hidden border border-border bg-muted">
             {coverUrl ? (
-              <Image src={coverUrl} alt="Cover preview" fill className="object-cover" />
+              <Image src={coverUrl} alt="Cover preview" fill sizes="144px" className="object-cover" />
             ) : (
               <div className="flex h-full items-center justify-center text-xs text-muted-foreground">
                 No image
@@ -154,7 +154,7 @@ export default function ProductImagesField({
               {gallery.map((url, i) => (
                 <div key={url + i} className="shrink-0 w-36 rounded-lg overflow-hidden border border-border bg-muted">
                   <div className="relative w-36 h-36">
-                    <Image src={url} alt={`Gallery image ${i + 1}`} fill className="object-cover" />
+                    <Image src={url} alt={`Gallery image ${i + 1}`} fill sizes="144px" className="object-cover" />
                   </div>
                   <div className="flex items-center justify-between px-2 py-1.5 border-t border-border bg-background/80 backdrop-blur-sm">
                     <div className="flex gap-1">

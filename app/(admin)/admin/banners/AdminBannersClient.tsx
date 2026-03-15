@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-
+import Image from "next/image";
 import Link from "next/link";
 
 import {
@@ -67,10 +67,12 @@ export default function AdminBannersClient({
 
                 <div className="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden border border-neutral-200 dark:border-neutral-700">
                   {b.imageUrl ? (
-                    <img
+                    <Image
                       src={b.imageUrl}
                       alt="banner"
-                      className="object-cover w-full h-full"
+                      fill
+                      sizes="64px"
+                      className="object-cover"
                     />
                   ) : (
                     <ImageIcon className="h-5 w-5 text-neutral-400" />
