@@ -22,6 +22,8 @@ import {
   Plus,
   ArrowUpDown,
   Barcode,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import AdminCard from "../../../../components/admin/AdminCard";
@@ -54,16 +56,21 @@ function formatCurrency(amount: number, currency = "INR") {
 
 export default function AdminProductsClient({
   products,
+  total,
   q,
   page,
 }: {
   products: Product[];
+  total: number;
   q: string;
   page: number;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState(q);
+
+  const LIMIT = 12;
+  const totalPages = Math.ceil(total / LIMIT);
 
   function handleFilter(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -80,9 +87,15 @@ export default function AdminProductsClient({
     startTransition(() => router.push("?page=1"));
   };
 
+  const handlePageChange = (newPage: number) => {
+    const p = new URLSearchParams();
+    if (q) p.set("q", q);
+    p.set("page", newPage.toString());
+    startTransition(() => router.push(`?${p.toString()}`));
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 px-4">
-
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
         <PageHeader 
@@ -150,10 +163,10 @@ export default function AdminProductsClient({
 
         <div className="mt-2 text-[10px] uppercase tracking-wider text-neutral-400 flex justify-between px-0.5 font-bold">
           <span>
-            {products.length} {products.length === 1 ? "Product" : "Products"} Found
+            {total} {total === 1 ? "Product" : "Products"} Found
             {q && <> for "{q}"</>}
           </span>
-          <span>Page {page}</span>
+          <span>Page {page} of {totalPages || 1}</span>
         </div>
       </AdminCard>
 
@@ -179,7 +192,7 @@ export default function AdminProductsClient({
                 {/* ── Left: index + image ── */}
                 <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
                   <span className="text-xs text-neutral-400 tabular-nums w-5 text-center font-medium">
-                    {(page - 1) * 12 + index + 1}
+                    {(page - 1) * LIMIT + index + 1}
                   </span>
                   <div className="relative w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden border border-neutral-200 dark:border-neutral-700 shrink-0">
                     {p.imageUrl ? (
@@ -277,6 +290,31 @@ export default function AdminProductsClient({
           })
         )}
       </div>
+
+      {/* ── Pagination ── */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 pt-6 pb-12">
+          <button
+            onClick={() => handlePageChange(page - 1)}
+            disabled={page <= 1 || isPending}
+            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-bold">{page}</span>
+            <span className="text-sm text-neutral-400">/</span>
+            <span className="text-sm text-neutral-400">{totalPages}</span>
+          </div>
+          <button
+            onClick={() => handlePageChange(page + 1)}
+            disabled={page >= totalPages || isPending}
+            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

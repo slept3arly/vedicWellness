@@ -9,6 +9,7 @@ import {
   updateBannerService,
   deleteBannerService,
   toggleBannerService,
+  getAdminBannersService,
 } from "@/lib/services/bannerService";
 
 const BANNER_TAG = "banner";
@@ -56,3 +57,11 @@ export const toggleBanner = secureAdminAction(
     redirect("/admin/banners");
   }
 );
+
+export async function getAdminBannersAction(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  return getAdminBannersService(page, limit, q);
+}

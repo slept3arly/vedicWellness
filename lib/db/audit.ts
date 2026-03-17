@@ -1,19 +1,44 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
-export async function getRecentAuditLogs(limit = 50) {
-  const logs = await prisma.auditLog.findMany({
-    orderBy: { createdAt: "desc" },
-    take: limit,
-  });
 
-  const userIds = [...new Set(logs.map(l => l.actorId))];
+export async function getAdminAuditLogs(
+  page = 1,
+  limit = 25
+) {
+  const skip = (page - 1) * limit;
 
-  const users = await prisma.user.findMany({
-    where: { id: { in: userIds } },
-    select: { id: true, email: true, name: true },
-  });
+  const [logs, total] = await prisma.$transaction([
+    prisma.auditLog.findMany({
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.auditLog.count(),
+  ]);
 
-  const userMap = Object.fromEntries(users.map(u => [u.id, u]));
+  // ✅ safer userIds extraction
+  const userIds = [
+    ...new Set(logs.map((l) => l.actorId).filter(Boolean)),
+  ];
 
-  return { logs, userMap };
+  let userMap: Record<string, { id: string; name: string | null; email: string }> = {};
+
+  if (userIds.length > 0) {
+    const users = await prisma.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, name: true, email: true },
+    });
+
+    userMap = Object.fromEntries(users.map((u) => [u.id, u]));
+  }
+
+  return {
+    data: logs.map((log) => ({
+      ...log,
+      actor: userMap[log.actorId] || null,
+    })),
+    total,
+    page,
+    limit,
+  };
 }

@@ -49,10 +49,6 @@ export async function getAdminProducts(
   const skip = (page - 1) * limit;
   const query = q.trim();
 
-  /* ---------------------------------------------------------------- */
-  /* MedicineForm enum matching (case-insensitive input)              */
-  /* ---------------------------------------------------------------- */
-
   let medicineFormFilter: MedicineForm | undefined;
 
   if (query) {
@@ -61,11 +57,6 @@ export async function getAdminProducts(
       medicineFormFilter = upper as MedicineForm;
     }
   }
-
-  /* ---------------------------------------------------------------- */
-  /* WHERE — OR across name, shortDescription, tag, medicineForm      */
-  /* Mirrors getPublicProductsDB, but without the published filter    */
-  /* ---------------------------------------------------------------- */
 
   const where = query
     ? {
@@ -93,31 +84,41 @@ export async function getAdminProducts(
             : []),
         ],
       }
-    : undefined;
+    : {};
 
-  return prisma.product.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    skip,
-    take: limit,
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      subtitle: true,
-      price: true,
-      compareAtPrice: true,
-      currency: true,
-      stock: true,
-      tag: true,
-      medicineForm: true,
-      imageUrl: true,
-      gallery: true,
-      published: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
+  const [data, total] = await prisma.$transaction([
+    prisma.product.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        subtitle: true,
+        price: true,
+        compareAtPrice: true,
+        currency: true,
+        stock: true,
+        tag: true,
+        medicineForm: true,
+        imageUrl: true,
+        gallery: true,
+        published: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    }),
+    prisma.product.count({ where }),
+  ]);
+
+  return {
+    data,
+    total,
+    page,
+    limit,
+  };
 }
 
 /* ------------------------------------------------------------------ */

@@ -7,18 +7,18 @@ export default async function AdminUsersPage({
 }: {
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  // 1. Await searchParams for Next.js 15 compatibility
   const params = await searchParams;
   const q = params.q || "";
   const page = Number(params.page) || 1;
+  const limit = 12; // Matches the client-side index multiplier
 
-  // 2. Fetch users based on the URL params
-  const users = await getAdminUsers(page, 20, q);
+  // Fetch users + total count
+  const { data: users, total } = await getAdminUsers(page, limit, q);
 
   return (
     <AdminUsersClient
-      // 3. The key forces a clean UI refresh when params change
       users={users}
+      total={total}
       q={q}
       page={page}
     />

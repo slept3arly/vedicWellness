@@ -15,6 +15,8 @@ import {
   Save,
   Trash2,
   ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import AdminCard from "../../../../components/admin/AdminCard";
@@ -40,11 +42,13 @@ export default function AdminLeadsClient({
   leads = [],
   salesUsers = [],
   page,
+  total,
   q,
 }: {
   leads: any[];
   salesUsers: any[];
   page: number;
+  total: number;
   q: string;
 }) {
   const router = useRouter();
@@ -53,19 +57,44 @@ export default function AdminLeadsClient({
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [claimFilter, setClaimFilter] = useState("__all");
 
+  const LIMIT = 25;
+  const totalPages = Math.ceil(total / LIMIT);
+
+  function updateParams(newParams: Record<string, string>) {
+    const p = new URLSearchParams();
+    if (q) p.set("q", q);
+    p.set("page", page.toString());
+
+    Object.entries(newParams).forEach(([key, value]) => {
+      if (value) p.set(key, value);
+      else p.delete(key);
+    });
+
+    startTransition(() => {
+      router.push(`?${p.toString()}`);
+    });
+  }
+
   function handleFilter(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
     const query = (fd.get("query") as string).trim();
+    
     const p = new URLSearchParams();
     p.set("page", "1");
     if (query) p.set("q", query);
+    
     startTransition(() => router.push(`?${p.toString()}`));
   }
 
   const handleClear = () => {
     setInputValue("");
     startTransition(() => router.push("?page=1"));
+  };
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    updateParams({ page: newPage.toString() });
   };
 
   const filtered = useMemo(() => {
@@ -170,11 +199,11 @@ export default function AdminLeadsClient({
 
         <div className="mt-2 text-xs text-neutral-400 flex justify-between px-0.5">
           <span>
-            {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+            Showing {filtered.length} of {total} result{total !== 1 ? "s" : ""}
             {q && <> for "<span className="text-neutral-600 dark:text-neutral-300 font-medium">{q}</span>"</>}
             {statusFilter && <> · <span className="text-neutral-600 dark:text-neutral-300 font-medium">{statusFilter}</span></>}
           </span>
-          <span>Page {page}</span>
+          <span>Page {page} of {totalPages || 1}</span>
         </div>
       </AdminCard>
 
@@ -197,7 +226,7 @@ export default function AdminLeadsClient({
               {/* ── Left: index + icon ── */}
               <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
                 <span className="text-xs text-neutral-400 tabular-nums w-5 text-center">
-                  {(page - 1) * 12 + index + 1}
+                  {(page - 1) * LIMIT + index + 1}
                 </span>
                 <div className="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 shrink-0">
                   <User className="h-5 w-5 text-neutral-400" />
@@ -295,6 +324,29 @@ export default function AdminLeadsClient({
           ))
         )}
       </div>
+
+      {/* ── Pagination Controls ── */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 pt-4 pb-10">
+          <button
+            onClick={() => handlePageChange(page - 1)}
+            disabled={page <= 1 || isPending}
+            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <span className="text-sm font-medium">
+            {page} / {totalPages}
+          </span>
+          <button
+            onClick={() => handlePageChange(page + 1)}
+            disabled={page >= totalPages || isPending}
+            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

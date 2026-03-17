@@ -41,7 +41,6 @@ export async function getLeadById(id: string) {
 }
 
 /* ✅ Admin paginated read */
-
 export async function getAdminLeads(
   page = 1,
   limit = 25,
@@ -49,21 +48,52 @@ export async function getAdminLeads(
 ) {
   const skip = (page - 1) * limit;
 
-  return prisma.lead.findMany({
-    where: q
-      ? {
-          OR: [
-            { name: { contains: q, mode: "insensitive" } },
-            { email: { contains: q, mode: "insensitive" } },
-            { city: { contains: q, mode: "insensitive" } }, // Added city search
-          ],
-        }
-      : undefined,
-    include: { owner: true },
-    orderBy: { createdAt: "desc" },
-    skip,
-    take: limit,
-  });
+  const where = q
+    ? {
+        OR: [
+          { name: { contains: q, mode: "insensitive" as const } },
+          { email: { contains: q, mode: "insensitive" as const } },
+          { city: { contains: q, mode: "insensitive" as const } },
+        ],
+      }
+    : {};
+
+  const [data, total] = await prisma.$transaction([
+    prisma.lead.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+
+      // 🔥 IMPORTANT: avoid over-fetching
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        phone: true,
+        city: true,
+        status: true,
+        createdAt: true,
+        owner: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
+      },
+    }),
+    prisma.lead.count({
+      where,
+    }),
+  ]);
+
+  return {
+    data,
+    total,
+    page,
+    limit,
+  };
 }
 
 export async function getSalesUsers() {

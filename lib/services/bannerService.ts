@@ -4,6 +4,7 @@ import {
   deleteBannerDB,
   getBannerById,
   getActiveBanner,
+  getAdminBanners
 } from "@/lib/db/banner";
 
 import {
@@ -23,6 +24,21 @@ const BANNER_TAG = "banner";
 /* ========================================================= */
 /* ADMIN SERVICES (WRITES) */
 /* ========================================================= */
+
+export async function getAdminBannersService(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  const result = await getAdminBanners(page, limit, q);
+
+  return {
+    banners: result.data,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+  };
+}
 
 export async function createBannerService(
   formData: FormData,

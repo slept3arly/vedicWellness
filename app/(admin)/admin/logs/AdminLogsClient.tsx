@@ -1,5 +1,7 @@
 "use client";
 
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import AdminCard from "../../../../components/admin/AdminCard";
 import PageHeader from "@/components/public/ui/PageHeader";
 import {
@@ -13,11 +15,13 @@ import {
   FileText,
   Hash,
   Layers,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 /* ------------------------------------------------------------------ */
 
-function formatDate(d: Date) {
+function formatDate(d: string | Date) {
   return new Intl.DateTimeFormat("en-IN", {
     day: "2-digit",
     month: "short",
@@ -42,23 +46,45 @@ function actionIcon(action: string) {
 /* ------------------------------------------------------------------ */
 
 export default function AdminLogsClient({
-  logs,
-  userMap,
+  logs = [],
+  total,
+  page,
 }: {
   logs: any[];
-  userMap: Record<string, any>;
+  total: number;
+  page: number;
 }) {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const LIMIT = 25;
+  const totalPages = Math.ceil(total / LIMIT);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > totalPages) return;
+    startTransition(() => {
+      router.push(`?page=${newPage}`);
+    });
+  };
+
   return (
     <div className="max-w-6xl mx-auto space-y-6 px-4">
-
       {/* ── Header ── */}
       <PageHeader 
         title="Activity Log" 
         subtitle="Recent admin actions" 
       />
 
+      {/* ── Meta Info ── */}
+      <div className="flex justify-between items-center text-xs text-neutral-400 px-1">
+        <span>
+          Showing {logs.length} of {total} events
+        </span>
+        <span>Page {page} of {totalPages || 1}</span>
+      </div>
+
       {/* ── Log List ── */}
-      <div className="space-y-3">
+      <div className={`space-y-3 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
         {logs.length === 0 ? (
           <AdminCard className="py-16 flex flex-col items-center gap-2">
             <FileText className="h-8 w-8 text-neutral-300" />
@@ -66,8 +92,9 @@ export default function AdminLogsClient({
           </AdminCard>
         ) : (
           logs.map((l, index) => {
-            const actor = userMap[l.actorId];
             const Icon = actionIcon(l.action);
+            // Assuming actor info is now nested in the log object based on your page.tsx change
+            const actorEmail = l.actor?.email || l.actorEmail || "System";
 
             return (
               <AdminCard
@@ -77,7 +104,7 @@ export default function AdminLogsClient({
                 {/* ── Left: index + icon ── */}
                 <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
                   <span className="text-xs text-neutral-400 tabular-nums w-5 text-center">
-                    {index + 1}
+                    {(page - 1) * LIMIT + index + 1}
                   </span>
                   <div className="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 shrink-0">
                     <Icon className="h-5 w-5 text-neutral-500" />
@@ -90,11 +117,9 @@ export default function AdminLogsClient({
                     <h3 className="font-heading text-xl font-semibold leading-snug capitalize">
                       {humanAction(l.action)} {l.entityType.toLowerCase()}
                     </h3>
-                    {actor && (
-                      <p className="text-slate-600 dark:text-slate-300 text-xs mt-0.5">
-                        by {actor.email}{actor.name ? ` (${actor.name})` : ""}
-                      </p>
-                    )}
+                    <p className="text-slate-600 dark:text-slate-300 text-xs mt-0.5">
+                      by {actorEmail}
+                    </p>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3">
@@ -112,7 +137,7 @@ export default function AdminLogsClient({
 
                     <Meta label="Actor">
                       <User className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{actor?.email ?? "Unknown"}</span>
+                      <span className="truncate">{actorEmail}</span>
                     </Meta>
 
                     <Meta label="Time">
@@ -139,12 +164,34 @@ export default function AdminLogsClient({
                     </details>
                   )}
                 </div>
-
               </AdminCard>
             );
           })
         )}
       </div>
+
+      {/* ── Pagination ── */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 pt-4 pb-10">
+          <button
+            onClick={() => handlePageChange(page - 1)}
+            disabled={page <= 1 || isPending}
+            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <span className="text-sm font-medium">
+            {page} / {totalPages}
+          </span>
+          <button
+            onClick={() => handlePageChange(page + 1)}
+            disabled={page >= totalPages || isPending}
+            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }

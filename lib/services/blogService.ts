@@ -3,6 +3,7 @@ import {
   updateBlogDB,
   deleteBlogDB,
   getBlogById,
+  getAdminBlogs
 } from "@/lib/db/blog";
 
 import {
@@ -191,3 +192,23 @@ export const getRelatedBlogsService = (
       revalidate: 86400,
     }
   )();
+
+/* ========================================================= */
+/* ADMIN READS (NEW)                                         */
+/* ========================================================= */
+
+export async function getAdminBlogsService(
+  page = 1,
+  limit = 25,
+  search?: string
+) {
+  const result = await getAdminBlogs(page, limit, search);
+
+  return {
+    // Change result.data to result.blogs
+    blogs: result.blogs, 
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+  };
+}

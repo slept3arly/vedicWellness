@@ -6,20 +6,17 @@ export default async function AdminMarqueePage({
 }: {
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  // 1. Await the searchParams for Next.js 15 compatibility
   const params = await searchParams;
   const q = params.q || "";
   const page = Number(params.page) || 1;
 
-  // 2. Fetch fresh data based on current URL state
-  const items = await getAdminMarqueeItems(page, 20, q);
+  // result contains { data, total, page, limit }
+  const result = await getAdminMarqueeItems(page, 20, q);
 
   return (
     <AdminMarqueeClient
-      // 3. The key forces the client component to reset its internal state 
-      // when the search query or page changes.
-      
-      items={items}
+      items={result.data}
+      total={result.total}
       q={q}
       page={page}
     />

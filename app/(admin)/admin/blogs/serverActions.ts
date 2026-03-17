@@ -10,6 +10,7 @@ import {
   updateBlogService,
   deleteBlogService,
   toggleBlogPublishedService,
+  getAdminBlogsService
 } from "@/lib/services/blogService";
 
 const BLOG_LIST_TAG = "blogs";
@@ -58,3 +59,11 @@ export const toggleBlogPublished = secureAdminAction(
     redirect("/admin/blogs");
   }
 );
+
+export async function getAdminBlogsAction(
+  page = 1,
+  limit = 25,
+  search?: string
+) {
+  return getAdminBlogsService(page, limit, search);
+}

@@ -2,8 +2,8 @@ import {
   updateLead,
   deleteLeadDB,
   getLeadById,
+  getAdminLeads
 } from "@/lib/db/lead";
-
 import { LeadStatus } from "@prisma/client";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
 
@@ -82,4 +82,22 @@ export async function assignLeadService(
     status: toUserId ? LeadStatus.WARM : LeadStatus.NEW,
     claimedAt: toUserId ? new Date() : null,
   });
+}
+
+/* ===============================
+   ADMIN LEADS LIST (NEW)
+================================ */
+export async function getAdminLeadsService(
+  page = 1,
+  limit = 25,
+  q = ""
+) {
+  const result = await getAdminLeads(page, limit, q);
+
+  return {
+    leads: result.data,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+  };
 }

@@ -2,14 +2,19 @@
 
 import { prisma } from "@/lib/db/prisma";
 import { Prisma } from "@prisma/client";
+
 import type {
   OrderForClient,
   ShippingAddr,
   UserOrderListItem,
-  OrderItem,
 } from "@/lib/types/order";
 
-// 1. We define the selection using 'as const' to ensure deep inference
+import { getAdminOrders } from "@/lib/db/order"; // ✅ NEW IMPORT
+
+/* ========================================================= */
+/* SELECT CONFIGS                                             */
+/* ========================================================= */
+
 const userOrderListItemSelect = {
   id: true,
   status: true,
@@ -65,7 +70,10 @@ const rawOrderForUserSelect = {
   },
 } as const;
 
-// 2. Explicit Payload Types
+/* ========================================================= */
+/* TYPES                                                     */
+/* ========================================================= */
+
 export type LastPaidOrder = Prisma.OrderGetPayload<{
   select: typeof lastPaidOrderSelect;
 }>;
@@ -74,23 +82,21 @@ type RawOrderForUser = Prisma.OrderGetPayload<{
   select: typeof rawOrderForUserSelect;
 }>;
 
-// This is the type that matches what findMany will return with our select
 type PrismaUserOrderResult = Prisma.OrderGetPayload<{
   select: typeof userOrderListItemSelect;
 }>;
 
-// --- EXPORTED FUNCTIONS ---
+/* ========================================================= */
+/* USER-FACING FUNCTIONS                                     */
+/* ========================================================= */
 
 export async function getUserOrders(userId: string): Promise<UserOrderListItem[]> {
-  // Explicitly tell Prisma what type we expect back from findMany
   const orders = await prisma.order.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
     select: userOrderListItemSelect,
   });
 
-  // Instead of casting the whole array (which TS hates here), we cast the individual
-  // items inside the map to bridge the gap.
   return (orders as any[]).map((order: PrismaUserOrderResult) => ({
     id: order.id,
     status: order.status.toString(),
@@ -124,7 +130,11 @@ export async function createOrderFromCart(userId: string, addressId: string) {
   const address = await prisma.address.findUnique({ where: { id: addressId } });
   if (!address || address.userId !== userId) throw new Error("Invalid address");
 
-  const totalAmount = cart.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const totalAmount = cart.items.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  );
+
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + 48);
 
@@ -162,6 +172,7 @@ export async function createOrderFromCart(userId: string, addressId: string) {
     }
 
     await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+
     return newOrder;
   });
 }
@@ -179,10 +190,11 @@ export async function createOrderFromSingleProduct(
   if (!address || address.userId !== userId) throw new Error("Invalid address");
 
   const totalAmount = product.price * quantity;
+
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + 48);
 
-  return await prisma.order.create({
+  return prisma.order.create({
     data: {
       userId,
       status: "CREATED",
@@ -200,7 +212,14 @@ export async function createOrderFromSingleProduct(
       },
       expiresAt,
       items: {
-        create: [{ productId: product.id, productName: product.name, price: product.price, quantity }],
+        create: [
+          {
+            productId: product.id,
+            productName: product.name,
+            price: product.price,
+            quantity,
+          },
+        ],
       },
     },
   });
@@ -210,13 +229,17 @@ export async function getUserOrderCount(userId: string) {
   return prisma.order.count({ where: { userId } });
 }
 
-export async function getOrderForUser(orderId: string, userId: string): Promise<OrderForClient | null> {
+export async function getOrderForUser(
+  orderId: string,
+  userId: string
+): Promise<OrderForClient | null> {
   const order = await prisma.order.findFirst({
     where: { id: orderId, userId },
     select: rawOrderForUserSelect,
   });
 
   if (!order) return null;
+
   return mapOrderToClient(order as unknown as RawOrderForUser);
 }
 
@@ -226,20 +249,50 @@ export async function getLastPaidOrder(userId: string) {
     orderBy: { createdAt: "desc" },
     select: lastPaidOrderSelect,
   });
+
   return order as LastPaidOrder | null;
 }
 
-// --- HELPERS ---
+/* ========================================================= */
+/* ADMIN FUNCTIONS (NEW)                                      */
+/* ========================================================= */
 
-function mapJsonToShippingAddr(value: Prisma.JsonValue | null): ShippingAddr | null {
+export async function getAdminOrdersService(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  const result = await getAdminOrders(page, limit, q);
+
+  return {
+    orders: result.data,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+  };
+}
+
+/* ========================================================= */
+/* HELPERS                                                   */
+/* ========================================================= */
+
+function mapJsonToShippingAddr(
+  value: Prisma.JsonValue | null
+): ShippingAddr | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+
   const obj = value as Record<string, unknown>;
+
   return {
     line1: typeof obj.line1 === "string" ? obj.line1 : undefined,
-    line2: typeof obj.line2 === "string" || obj.line2 === null ? (obj.line2 as string | null) : null,
+    line2:
+      typeof obj.line2 === "string" || obj.line2 === null
+        ? (obj.line2 as string | null)
+        : null,
     city: typeof obj.city === "string" ? obj.city : undefined,
     state: typeof obj.state === "string" ? obj.state : undefined,
-    postalCode: typeof obj.postalCode === "string" ? obj.postalCode : undefined,
+    postalCode:
+      typeof obj.postalCode === "string" ? obj.postalCode : undefined,
     country: typeof obj.country === "string" ? obj.country : undefined,
   };
 }
@@ -257,12 +310,12 @@ function mapOrderToClient(order: RawOrderForUser): OrderForClient {
     shippingName: order.shippingName,
     shippingPhone: order.shippingPhone,
     shippingAddr: mapJsonToShippingAddr(order.shippingAddr),
-    items: order.items.map(item => ({
+    items: order.items.map((item) => ({
       id: item.id,
       productName: item.productName,
       productId: item.productId,
       price: item.price,
-      quantity: item.quantity
+      quantity: item.quantity,
     })),
   };
 }

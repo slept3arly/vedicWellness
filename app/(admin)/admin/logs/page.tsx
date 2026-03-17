@@ -1,8 +1,22 @@
-import { getRecentAuditLogs } from "@/lib/db/audit";
 import AdminLogsClient from "./AdminLogsClient";
+import { getAdminLogsAction } from "./serverActions";
 
-export default async function AdminLogsPage() {
-  const { logs, userMap } = await getRecentAuditLogs();
+export default async function AdminLogsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string }>;
+}) {
+  const params = await searchParams;
 
-  return <AdminLogsClient logs={logs} userMap={userMap} />;
+  const page = Number(params.page) || 1;
+
+  const { logs, total } = await getAdminLogsAction(page, 25);
+
+  return (
+    <AdminLogsClient
+      logs={logs}
+      total={total}
+      page={page}
+    />
+  );
 }

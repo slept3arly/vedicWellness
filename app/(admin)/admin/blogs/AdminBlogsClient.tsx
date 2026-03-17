@@ -30,6 +30,8 @@ import { deleteBlog, toggleBlogPublished } from "./serverActions";
 
 /* ------------------------------------------------------------------ */
 
+const PAGE_SIZE = 12; // ✅ added
+
 function formatDate(d?: string | Date | null) {
   if (!d) return "—";
   return new Intl.DateTimeFormat("en-IN", {
@@ -43,16 +45,20 @@ function formatDate(d?: string | Date | null) {
 
 export default function AdminBlogsClient({
   blogs,
+  total, // ✅ added
   page,
   q,
 }: {
   blogs: any[];
+  total: number; // ✅ added
   page: number;
   q: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState(q);
+
+  const totalPages = Math.ceil(total / PAGE_SIZE); // ✅ added
 
   function handleFilter(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -147,12 +153,15 @@ export default function AdminBlogsClient({
 
         </form>
 
+        {/* ✅ FIXED INFO BAR (only change here) */}
         <div className="mt-2 text-xs text-neutral-400 flex justify-between px-0.5">
           <span>
-            {blogs.length} result{blogs.length !== 1 ? "s" : ""}
+            {total} result{total !== 1 ? "s" : ""}
             {q && <> for "<span className="text-neutral-600 dark:text-neutral-300 font-medium">{q}</span>"</>}
           </span>
-          <span>Page {page}</span>
+          <span>
+            Page {page} / {totalPages}
+          </span>
         </div>
       </AdminCard>
 
@@ -178,7 +187,7 @@ export default function AdminBlogsClient({
               {/* ── Left: index + thumbnail ── */}
               <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
                 <span className="text-xs text-neutral-400 tabular-nums w-5 text-center">
-                  {(page - 1) * 12 + index + 1}
+                  {(page - 1) * PAGE_SIZE + index + 1} {/* ✅ fixed */}
                 </span>
                 <div className="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden border border-neutral-200 dark:border-neutral-700 shrink-0">
                   {b.thumbnailUrl ? (
@@ -260,7 +269,7 @@ export default function AdminBlogsClient({
         )}
       </div>
 
-      {/* ── Pagination ── */}
+      {/* ✅ FIXED PAGINATION */}
       <div className="flex justify-between pt-2">
         <button
           disabled={page === 1 || isPending}
@@ -269,8 +278,9 @@ export default function AdminBlogsClient({
         >
           ← Previous
         </button>
+
         <button
-          disabled={blogs.length < 12 || isPending}
+          disabled={page === totalPages || isPending}
           onClick={() => updatePage(page + 1)}
           className="px-4 py-2 text-sm border border-neutral-300 dark:border-neutral-700 rounded-lg disabled:opacity-30 hover:bg-neutral-50 dark:hover:bg-neutral-800 transition-colors"
         >

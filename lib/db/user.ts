@@ -66,30 +66,43 @@ export async function getAdminUsers(
 ) {
   const skip = (page - 1) * limit;
 
-  return prisma.user.findMany({
-    where: {
-      deletedAt: null, // ⭐ hide deleted users
+  const where = {
+    deletedAt: null,
 
-      ...(q && {
-        OR: [
-          {
-            email: {
-              contains: q,
-              mode: "insensitive",
-            },
+    ...(q && {
+      OR: [
+        {
+          email: {
+            contains: q,
+            mode: "insensitive" as const,
           },
-          {
-            name: {
-              contains: q,
-              mode: "insensitive",
-            },
+        },
+        {
+          name: {
+            contains: q,
+            mode: "insensitive" as const,
           },
-        ],
-      }),
-    },
+        },
+      ],
+    }),
+  };
 
-    orderBy: { createdAt: "desc" },
-    skip,
-    take: limit,
-  });
+  const [data, total] = await prisma.$transaction([
+    prisma.user.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.user.count({
+      where,
+    }),
+  ]);
+
+  return {
+    data,
+    total,
+    page,
+    limit,
+  };
 }

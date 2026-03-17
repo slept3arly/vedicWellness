@@ -77,31 +77,39 @@ export async function getAdminBanners(
 ) {
   const skip = (page - 1) * limit;
 
-  return prisma.banner.findMany({
-    where: q
-      ? {
-          OR: [
-            {
-              title: {
-                contains: q,
-                mode: "insensitive",
-              },
+  const where = q
+    ? {
+        OR: [
+          {
+            title: {
+              contains: q,
+              mode: "insensitive" as const,
             },
-            {
-              message: {
-                contains: q,
-                mode: "insensitive",
-              },
+          },
+          {
+            message: {
+              contains: q,
+              mode: "insensitive" as const,
             },
-          ],
-        }
-      : undefined,
+          },
+        ],
+      }
+    : {};
 
-    orderBy: {
-      createdAt: "desc",
-    },
+  const [data, total] = await prisma.$transaction([
+    prisma.banner.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.banner.count({ where }),
+  ]);
 
-    skip,
-    take: limit,
-  });
+  return {
+    data,
+    total,
+    page,
+    limit,
+  };
 }

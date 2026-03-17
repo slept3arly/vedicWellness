@@ -16,6 +16,7 @@ import {
   updateLeadStatusService,
   deleteLeadService,
   assignLeadService,
+  getAdminLeadsService
 } from "@/lib/services/leadService";
 
 export const claimLead = secureAdminAction(
@@ -68,3 +69,11 @@ export const assignLead = secureAdminAction(
     revalidatePath("/admin/leads");
   }
 );
+
+export async function getAdminLeadsAction(
+  page = 1,
+  limit = 25,
+  q = ""
+) {
+  return getAdminLeadsService(page, limit, q);
+}

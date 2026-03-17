@@ -16,6 +16,8 @@ import {
   Plus,
   ShieldCheck,
   ArrowUpDown,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 import AdminCard from "../../../../components/admin/AdminCard";
@@ -40,10 +42,12 @@ function formatDate(d?: string | Date | null) {
 
 export default function AdminUsersClient({
   users,
+  total,
   q,
   page,
 }: {
   users: any[];
+  total: number;
   q: string;
   page: number;
 }) {
@@ -52,6 +56,9 @@ export default function AdminUsersClient({
   const [inputValue, setInputValue] = useState(q);
   const [roleFilter, setRoleFilter] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  const LIMIT = 12; // Matches your server-side fetch limit
+  const totalPages = Math.ceil(total / LIMIT);
 
   function handleFilter(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -62,6 +69,13 @@ export default function AdminUsersClient({
     if (query) p.set("q", query);
     startTransition(() => router.push(`?${p.toString()}`));
   }
+
+  const handlePageChange = (newPage: number) => {
+    const p = new URLSearchParams();
+    if (q) p.set("q", q);
+    p.set("page", newPage.toString());
+    startTransition(() => router.push(`?${p.toString()}`));
+  };
 
   const handleClear = () => {
     setInputValue("");
@@ -96,7 +110,7 @@ export default function AdminUsersClient({
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               placeholder="Search by name or email..."
-              className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm focus:ring-2 focus:ring-black outline-none"
+              className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm focus:ring-2 focus:ring-black outline-none transition-all"
             />
             {(inputValue || q) && (
               <button
@@ -150,60 +164,35 @@ export default function AdminUsersClient({
 
         <div className="mt-2 text-xs text-neutral-400 flex justify-between px-0.5">
           <span>
-            {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+            {total} total result{total !== 1 ? "s" : ""}
             {q && (
-              <>
-                {" "}
-                for "
-                <span className="text-slate-600 dark:text-slate-300 font-medium">
-                  {q}
-                </span>
-                "
-              </>
+              <> for "<span className="text-slate-600 dark:text-slate-300 font-medium">{q}</span>"</>
             )}
             {roleFilter && (
-              <>
-                {" "}
-                ·{" "}
-                <span className="text-slate-600 dark:text-slate-300 font-medium">
-                  {roleFilter}
-                </span>
-              </>
+              <> · filtered by <span className="text-slate-600 dark:text-slate-300 font-medium">{roleFilter}</span></>
             )}
           </span>
-          <span>Page {page}</span>
+          <span>Page {page} of {totalPages || 1}</span>
         </div>
       </AdminCard>
 
       {/* ── Users List ── */}
-      <div
-        className={`space-y-3 transition-opacity duration-200 ${
-          isPending ? "opacity-50 pointer-events-none" : ""
-        }`}
-      >
+      <div className={`space-y-3 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
         {filtered.length === 0 ? (
           <AdminCard className="py-16 flex flex-col items-center gap-2">
             <User className="h-8 w-8 text-neutral-300" />
-            <p className="font-medium text-slate-600 dark:text-slate-300">
-              No users found
-            </p>
-            <button
-              onClick={handleClear}
-              className="text-sm text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white"
-            >
+            <p className="font-medium text-slate-600 dark:text-slate-300">No users found</p>
+            <button onClick={handleClear} className="text-sm text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white">
               Clear search
             </button>
           </AdminCard>
         ) : (
           filtered.map((u: any, index: number) => (
-            <AdminCard
-              key={u.id}
-              className="flex flex-col sm:flex-row gap-4 hover:shadow-md transition-shadow"
-            >
+            <AdminCard key={u.id} className="flex flex-col sm:flex-row gap-4 hover:shadow-md transition-shadow">
               {/* ── Left: index + avatar ── */}
               <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
                 <span className="text-xs text-neutral-400 tabular-nums w-5 text-center">
-                  {(page - 1) * 12 + index + 1}
+                  {(page - 1) * LIMIT + index + 1}
                 </span>
                 <div className="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 shrink-0">
                   <User className="h-5 w-5 text-neutral-400" />
@@ -214,16 +203,10 @@ export default function AdminUsersClient({
               <div className="flex-1 min-w-0 space-y-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-heading text-xl font-semibold leading-snug">
-                      {u.name || u.email}
-                    </h3>
+                    <h3 className="font-heading text-xl font-semibold leading-snug">{u.name || u.email}</h3>
                     <AdminBadge status={u.role} />
                   </div>
-                  {u.name && (
-                    <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">
-                      {u.email}
-                    </p>
-                  )}
+                  {u.name && <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">{u.email}</p>}
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3">
@@ -243,10 +226,7 @@ export default function AdminUsersClient({
 
                 {/* Inline role editor */}
                 {editingId === u.id && (
-                  <form
-                    action={updateUserRole}
-                    className="flex gap-2 items-center"
-                  >
+                  <form action={updateUserRole} className="flex gap-2 items-center bg-neutral-50 dark:bg-neutral-800/50 p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-2">
                     <input type="hidden" name="id" value={u.id} />
                     <select
                       name="role"
@@ -257,57 +237,24 @@ export default function AdminUsersClient({
                       <option value="SALES">SALES</option>
                       <option value="VIEWER">VIEWER</option>
                     </select>
-                    <AdminActionButton className="justify-center">
-                      <Save className="h-3.5 w-3.5" /> Save
-                    </AdminActionButton>
-                    <button
-                      type="button"
-                      onClick={() => setEditingId(null)}
-                      className="text-xs text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white"
-                    >
-                      Cancel
-                    </button>
+                    <AdminActionButton className="justify-center h-9"><Save className="h-3.5 w-3.5" /> Save</AdminActionButton>
+                    <button type="button" onClick={() => setEditingId(null)} className="text-xs text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white px-2">Cancel</button>
                   </form>
                 )}
               </div>
 
-              {/* ── Right: actions — 2×2 mobile, column desktop ── */}
+              {/* ── Right: actions ── */}
               <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 shrink-0 sm:w-32">
-                <AdminButton
-                  className="w-full justify-center"
-                  onClick={() =>
-                    startTransition(() =>
-                      router.push(`/admin/users/edit/${u.id}`)
-                    )
-                  }
-                >
-                  <Pencil className="h-3.5 w-3.5" />
-                  Edit
+                <AdminButton className="w-full justify-center" onClick={() => startTransition(() => router.push(`/admin/users/edit/${u.id}`))}>
+                  <Pencil className="h-3.5 w-3.5" /> Edit
                 </AdminButton>
-
-                <AdminButton
-                  className="w-full justify-center"
-                  onClick={() => setEditingId(editingId === u.id ? null : u.id)}
-                >
-                  <ArrowUpDown className="h-3.5 w-3.5" />
-                  Role
+                <AdminButton className="w-full justify-center" onClick={() => setEditingId(editingId === u.id ? null : u.id)}>
+                  <ArrowUpDown className="h-3.5 w-3.5" /> Role
                 </AdminButton>
-
-                <form
-                  action={deleteUser}
-                  className="w-full col-span-2 sm:col-span-1"
-                  onSubmit={(e) => {
-                    if (!confirm("Delete this user permanently?"))
-                      e.preventDefault();
-                  }}
-                >
+                <form action={deleteUser} className="w-full col-span-2 sm:col-span-1" onSubmit={(e) => { if (!confirm("Delete this user permanently?")) e.preventDefault(); }}>
                   <input type="hidden" name="id" value={u.id} />
-                  <AdminActionButton
-                    variant="danger"
-                    className="w-full justify-center"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Delete
+                  <AdminActionButton variant="danger" className="w-full justify-center">
+                    <Trash2 className="h-3.5 w-3.5" /> Delete
                   </AdminActionButton>
                 </form>
               </div>
@@ -315,27 +262,38 @@ export default function AdminUsersClient({
           ))
         )}
       </div>
+
+      {/* ── Pagination ── */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 pt-6 pb-12">
+          <button
+            onClick={() => handlePageChange(page - 1)}
+            disabled={page <= 1 || isPending}
+            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <div className="text-sm font-medium">
+            Page <span className="text-black dark:text-white">{page}</span> of {totalPages}
+          </div>
+          <button
+            onClick={() => handlePageChange(page + 1)}
+            disabled={page >= totalPages || isPending}
+            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
 
-/* ------------------------------------------------------------------ */
-
-function Meta({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
+function Meta({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="min-w-0">
-      <div className="text-[10px] uppercase tracking-wide text-neutral-400 font-medium mb-0.5">
-        {label}
-      </div>
-      <div className="flex items-center gap-1 text-sm text-neutral-800 dark:text-neutral-100 min-w-0">
-        {children}
-      </div>
+      <div className="text-[10px] uppercase tracking-wide text-neutral-400 font-medium mb-0.5">{label}</div>
+      <div className="flex items-center gap-1 text-sm text-neutral-800 dark:text-neutral-100 min-w-0">{children}</div>
     </div>
   );
 }

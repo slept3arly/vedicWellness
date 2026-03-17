@@ -3,6 +3,7 @@ import {
   updateMarqueeDB,
   deleteMarqueeDB,
   getMarqueeById,
+  getAdminMarqueeItems
 } from "@/lib/db/marquee";
 
 import { parseMarqueeForm } from "@/lib/validators/marquee";
@@ -93,4 +94,19 @@ export async function deleteMarqueeService(id: string, adminId: string) {
       wasActive: item?.isActive ?? null,
     },
   });
+}
+
+export async function getAdminMarqueeService(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  const result = await getAdminMarqueeItems(page, limit, q);
+
+  return {
+    marqueeItems: result.data,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+  };
 }

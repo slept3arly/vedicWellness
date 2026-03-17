@@ -8,6 +8,7 @@ import {
   getPublicProductMetadataDB,
   getAllPublishedProductSlugs,
   getRelatedProductsDB, // 👈 add this
+  getAdminProducts
 } from "@/lib/db/product";
 import { MedicineForm } from "@prisma/client";
 import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
@@ -22,6 +23,22 @@ const PUBLIC_PAGE_SIZE = 10;
 /* ------------------------------------------------------------------ */
 /* Admin Services                                                     */
 /* ------------------------------------------------------------------ */
+
+export async function getAdminProductsService(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  const result = await getAdminProducts(page, limit, q);
+
+  return {
+    products: result.data,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+  };
+}
+
 
 export async function createProductService(formData: FormData, adminId: string) {
   const data = parseProductForm(formData);

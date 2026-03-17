@@ -10,6 +10,7 @@ import {
   updateProductService,
   toggleProductPublishedService,
   deleteProductService,
+  getAdminProductsService
 } from "@/lib/services/productService";
 
 const PRODUCT_TAG = "products";
@@ -54,3 +55,11 @@ export const deleteProduct = secureAdminAction(
     revalidateTag(PRODUCT_TAG, "max");
   }
 );
+
+export async function getAdminProductsAction(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  return getAdminProductsService(page, limit, q);
+}

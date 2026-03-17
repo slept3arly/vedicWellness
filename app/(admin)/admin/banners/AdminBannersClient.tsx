@@ -22,17 +22,23 @@ import PageHeader from "@/components/public/ui/PageHeader";
 
 import { deleteBanner, toggleBanner } from "./serverActions";
 
+const PAGE_SIZE = 12;
+
 export default function AdminBannersClient({
   banners,
+  total,
   page,
   q,
 }: {
   banners: any[];
+  total: number;
   page: number;
   q: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
+  const totalPages = Math.ceil(total / PAGE_SIZE);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 px-4">
@@ -65,7 +71,7 @@ export default function AdminBannersClient({
               {/* Banner Preview */}
               <div className="flex items-center gap-3 flex-1 min-w-0">
 
-                <div className="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden border border-neutral-200 dark:border-neutral-700">
+                <div className="relative w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden border border-neutral-200 dark:border-neutral-700">
                   {b.imageUrl ? (
                     <Image
                       src={b.imageUrl}
@@ -149,6 +155,56 @@ export default function AdminBannersClient({
           ))
         )}
       </div>
+
+      {/* ✅ Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center gap-2 pt-4 flex-wrap">
+
+          {/* Prev */}
+          <button
+            disabled={page === 1}
+            onClick={() =>
+              router.push(`/admin/banners?page=${page - 1}&q=${q}`)
+            }
+            className="px-3 py-1 rounded-md border text-sm disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          {/* Page Numbers */}
+          {Array.from({ length: totalPages }).map((_, i) => {
+            const pageNum = i + 1;
+
+            return (
+              <button
+                key={pageNum}
+                onClick={() =>
+                  router.push(`/admin/banners?page=${pageNum}&q=${q}`)
+                }
+                className={`px-3 py-1 rounded-md border text-sm ${
+                  page === pageNum
+                    ? "bg-black text-white"
+                    : "bg-white text-black"
+                }`}
+              >
+                {pageNum}
+              </button>
+            );
+          })}
+
+          {/* Next */}
+          <button
+            disabled={page === totalPages}
+            onClick={() =>
+              router.push(`/admin/banners?page=${page + 1}&q=${q}`)
+            }
+            className="px-3 py-1 rounded-md border text-sm disabled:opacity-50"
+          >
+            Next
+          </button>
+
+        </div>
+      )}
 
     </div>
   );

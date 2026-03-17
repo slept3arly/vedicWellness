@@ -10,6 +10,7 @@ import {
   updateUserRoleService,
   updateUserService,
   deleteUserService,
+  getAdminUsersService
 } from "@/lib/services/userService";
 
 import { parseDeleteUser } from "@/lib/validators/user";
@@ -49,3 +50,11 @@ export const deleteUser = secureAdminAction(
     revalidatePath("/admin/users");
   }
 );
+
+export async function getAdminUsersAction(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  return getAdminUsersService(page, limit, q);
+}

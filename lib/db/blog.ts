@@ -35,12 +35,24 @@ export async function getAdminBlogs(
       }
     : {};
 
-  return prisma.blog.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    skip,
-    take: limit,
-  });
+  const [blogs, total] = await prisma.$transaction([
+    prisma.blog.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.blog.count({ where }),
+  ]);
+
+  return {
+    blogs,  // ✅ renamed
+    total,
+
+    // keep these (useful later)
+    page,
+    limit,
+  };
 }
 
 /* ------------------------------------------------------------------ */

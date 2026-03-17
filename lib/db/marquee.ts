@@ -31,21 +31,32 @@ export async function getAdminMarqueeItems(
 ) {
   const skip = (page - 1) * limit;
 
-  return prisma.marqueeItem.findMany({
-    where: q
-      ? {
-          text: {
-            contains: q,
-            mode: "insensitive",
-          },
-        }
-      : undefined,
-    // Sorts by your custom order first, then by newest
-    orderBy: [
-      { order: "asc" }, 
-      { createdAt: "desc" }
-    ],
-    skip,
-    take: limit,
-  });
+  const where = q
+    ? {
+        text: {
+          contains: q,
+          mode: "insensitive" as const,
+        },
+      }
+    : {};
+
+  const [data, total] = await prisma.$transaction([
+    prisma.marqueeItem.findMany({
+      where,
+      orderBy: [
+        { order: "asc" },
+        { createdAt: "desc" },
+      ],
+      skip,
+      take: limit,
+    }),
+    prisma.marqueeItem.count({ where }),
+  ]);
+
+  return {
+    data,
+    total,
+    page,
+    limit,
+  };
 }

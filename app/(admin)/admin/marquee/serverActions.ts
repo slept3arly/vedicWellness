@@ -10,6 +10,7 @@ import {
   updateMarqueeService,
   toggleMarqueeService,
   deleteMarqueeService,
+  getAdminMarqueeService
 } from "@/lib/services/marqueeService";
 
 import { parseMarqueeId } from "@/lib/validators/marquee";
@@ -55,3 +56,11 @@ export const deleteMarqueeItem = secureAdminAction(
     revalidatePath("/");
   }
 );
+
+export async function getAdminMarqueeAction(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  return getAdminMarqueeService(page, limit, q);
+}

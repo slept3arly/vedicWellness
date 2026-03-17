@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-
+import { getAdminUsers } from "@/lib/db/user";
 import {
   createUserDB,
   updateUserDB,
@@ -103,4 +103,22 @@ export async function deleteUserService(id: string, adminId: string) {
     entityId: id,
     metadata: { email: user?.email ?? null, role: user?.role ?? null },
   });
+}
+
+/* ===============================
+   ADMIN USERS LIST (NEW)
+================================ */
+export async function getAdminUsersService(
+  page = 1,
+  limit = 20,
+  q = ""
+) {
+  const result = await getAdminUsers(page, limit, q);
+
+  return {
+    users: result.data,
+    total: result.total,
+    page: result.page,
+    limit: result.limit,
+  };
 }
