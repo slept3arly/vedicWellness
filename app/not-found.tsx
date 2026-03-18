@@ -25,7 +25,7 @@ export default function NotFoundPage() {
 
         <div className="mt-7 flex justify-center">
           <Button onClick={() => router.push("/")}>
-            Back to home
+            Back to Home
           </Button>
         </div>
       </Card>
