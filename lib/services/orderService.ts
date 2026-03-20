@@ -9,7 +9,10 @@ import type {
   UserOrderListItem,
 } from "@/lib/types/order";
 
-import { getAdminOrders } from "@/lib/db/order"; // ✅ NEW IMPORT
+import {
+  getAdminOrders,
+  getAdminOrderById
+} from "@/lib/db/order"; // ✅ NEW IMPORT
 
 /* ========================================================= */
 /* SELECT CONFIGS                                             */
@@ -270,6 +273,112 @@ export async function getAdminOrdersService(
     page: result.page,
     limit: result.limit,
   };
+}
+
+import { auditWithContext } from "@/lib/observability/auditWithContext";
+import { revalidateTag } from "next/cache";
+
+const ORDER_TAG = "orders";
+
+/* ------------------------------------------------------------------ */
+/* Update Order Status                                                */
+/* ------------------------------------------------------------------ */
+
+export async function updateOrderStatusService(
+  orderId: string,
+  status: string,
+  adminId: string
+) {
+  const existing = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: {
+      id: true,
+      status: true,
+    },
+  });
+
+  if (!existing) {
+    throw new Error("Order not found");
+  }
+
+  const updated = await prisma.order.update({
+    where: { id: orderId },
+    data: {
+      status: status as any,
+      ...(status === "PAID" ? { paidAt: new Date() } : {}),
+    },
+    select: {
+      id: true,
+      status: true,
+    },
+  });
+
+  revalidateTag(ORDER_TAG, "default");
+
+  await auditWithContext({
+    actorId: adminId,
+    action: "ADMIN_UPDATE",
+    entityType: "OTHER",
+    entityId: orderId,
+    metadata: {
+      from: existing.status,
+      to: updated.status,
+    },
+  });
+
+  return updated;
+}
+
+/* ------------------------------------------------------------------ */
+/* Cancel Order                                                       */
+/* ------------------------------------------------------------------ */
+
+export async function cancelOrderService(
+  orderId: string,
+  adminId: string
+) {
+  const existing = await prisma.order.findUnique({
+    where: { id: orderId },
+    select: {
+      id: true,
+      status: true,
+    },
+  });
+
+  if (!existing) {
+    throw new Error("Order not found");
+  }
+
+  const updated = await prisma.order.update({
+    where: { id: orderId },
+    data: {
+      status: "CANCELLED",
+    },
+  });
+
+  revalidateTag(ORDER_TAG, "default");
+
+  await auditWithContext({
+    actorId: adminId,
+    action: "ADMIN_UPDATE",
+    entityType: "OTHER",
+    entityId: orderId,
+    metadata: {
+      previousStatus: existing.status,
+    },
+  });
+
+  return updated;
+}
+
+export async function getAdminOrderByIdService(id: string) {
+  const order = await getAdminOrderById(id);
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
+
+  return order;
 }
 
 /* ========================================================= */

@@ -34,6 +34,12 @@ const sections = [
     desc: "Manage homepage & campaign banners",
   },
   {
+    label: "Orders",
+    href: "/admin/orders",
+    icon: Package, // you can change later
+    desc: "Manage customer orders",
+  },
+  {
     label: "Banners",
     href: "/admin/banners",
     icon: LayoutPanelTop,

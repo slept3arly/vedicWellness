@@ -9,7 +9,17 @@ type BadgeStatus =
   | "SALES"
   | "VIEWER"
   | "ACTIVE"
-  | "INACTIVE";
+  | "INACTIVE"
+
+  // ORDERS
+  | "CREATED"
+  | "PAYMENT_FAILED"
+  | "PAID"
+  | "CONFIRMED"
+  | "SHIPPED"
+  | "DELIVERED"
+  | "CANCELLED"
+  | "EXPIRED";
 
 const BADGE_STYLE: Record<
   BadgeStatus,
@@ -96,6 +106,66 @@ const BADGE_STYLE: Record<
     ring: "ring-neutral-400/25",
     dot: "bg-neutral-400",
   },
+
+  /* ----------------------------- */
+  /* ORDERS                        */
+  /* ----------------------------- */
+
+  CREATED: {
+    bg: "bg-neutral-500/10",
+    text: "text-neutral-400",
+    ring: "ring-neutral-400/25",
+    dot: "bg-neutral-400",
+  },
+
+  PAYMENT_FAILED: {
+    bg: "bg-red-500/10",
+    text: "text-red-400",
+    ring: "ring-red-400/30",
+    dot: "bg-red-400",
+  },
+
+  PAID: {
+    bg: "bg-emerald-500/10",
+    text: "text-emerald-400",
+    ring: "ring-emerald-400/30",
+    dot: "bg-emerald-400",
+  },
+
+  CONFIRMED: {
+    bg: "bg-blue-500/10",
+    text: "text-blue-400",
+    ring: "ring-blue-400/30",
+    dot: "bg-blue-400",
+  },
+
+  SHIPPED: {
+    bg: "bg-indigo-500/10",
+    text: "text-indigo-400",
+    ring: "ring-indigo-400/30",
+    dot: "bg-indigo-400",
+  },
+
+  DELIVERED: {
+    bg: "bg-green-500/10",
+    text: "text-green-400",
+    ring: "ring-green-400/30",
+    dot: "bg-green-400",
+  },
+
+  CANCELLED: {
+    bg: "bg-red-500/10",
+    text: "text-red-400",
+    ring: "ring-red-400/30",
+    dot: "bg-red-400",
+  },
+
+  EXPIRED: {
+    bg: "bg-zinc-500/10",
+    text: "text-zinc-400",
+    ring: "ring-zinc-400/25",
+    dot: "bg-zinc-400",
+  },
 };
 
 export default function AdminBadge({
@@ -121,7 +191,7 @@ export default function AdminBadge({
       `}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${s.dot} shadow-sm`} />
-      {status.replace("_", " ")}
+      {status.replaceAll("_", " ")}
     </span>
   );
 }
