@@ -24,8 +24,8 @@ const items = [
   { icon: Leaf, label: "100% Ayurvedic" },
   { icon: FlaskConical, label: "ISO Grade Manufacturing" },
   { icon: Star, label: "5-Star Partner Reviews" },
-  { icon: Users, label: "500+ Active Partners" },
-  { icon: PackageCheck, label: "200+ PCD Products" },
+  { icon: Users, label: "250+ Active Partners" },
+  { icon: PackageCheck, label: "100+ PCD Products" },
   { icon: Award, label: "15+ Therapy Segments" },
   { icon: Globe, label: "Pan-India Network" },
 ];
