@@ -7,9 +7,9 @@ import Card from "@/components/public/ui/Card";
 import PageHeader from "@/components/public/ui/PageHeader";
 
 const stats = [
-  { icon: Pill, value: "200+", label: "PCD Products", sub: "GMP certified portfolio." },
+  { icon: Pill, value: "100+", label: "PCD Products", sub: "GMP certified portfolio." },
   { icon: Layers, value: "15+", label: "Therapy Segments", sub: "High-demand wellness ranges." },
-  { icon: Users, value: "500+", label: "Partners", sub: "Active distributors nationwide." },
+  { icon: Users, value: "250+", label: "Partners", sub: "Active distributors nationwide." },
   { icon: Truck, value: "PAN India", label: "Logistics", sub: "Fast & reliable supply." },
   { icon: BadgeCheck, value: "ISO & GMP", label: "Certified", sub: "Global quality standards." },
   { icon: Clock, value: "10+ Years", label: "Experience", sub: "Proven pharma expertise." },
