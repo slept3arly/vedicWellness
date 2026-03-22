@@ -75,15 +75,15 @@ export default function Footer() {
         {/* COMPANY */}
         <FooterColumn title="Company Information">
           <FooterLink href="/">Home</FooterLink>
-          <FooterLink href="/about">About Vedic Wellness</FooterLink>
-          <FooterLink href="/products">Product Portfolio</FooterLink>
+          <FooterLink href="/about">About Us</FooterLink>
+          <FooterLink href="/products">Our Formulations</FooterLink>
           <FooterLink href="/blogs">Knowledge Center</FooterLink>
         </FooterColumn>
 
         {/* FRANCHISE */}
         <FooterColumn title="Franchise Opportunities">
           <FooterLink href="/contact">Apply for Franchise</FooterLink>
-          <FooterLink href="/products">Download Catalogue</FooterLink>
+          <FooterLink href="/products">View Products</FooterLink>
           <FooterLink href="/about">Why Partner With Us</FooterLink>
         </FooterColumn>
 
