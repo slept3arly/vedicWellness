@@ -1,5 +1,6 @@
 import AdminMarqueeClient from "./AdminMarqueeClient";
 import { getAdminMarqueeItems } from "@/lib/db/marquee";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export default async function AdminMarqueePage({
   searchParams,
@@ -7,16 +8,20 @@ export default async function AdminMarqueePage({
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   const params = await searchParams;
+
   const q = params.q || "";
   const page = Number(params.page) || 1;
 
-  // result contains { data, total, page, limit }
-  const result = await getAdminMarqueeItems(page, 20, q);
+  const { data, total } = await getAdminMarqueeItems(
+    page,
+    ADMIN_PAGE_SIZE,
+    q
+  );
 
   return (
     <AdminMarqueeClient
-      items={result.data}
-      total={result.total}
+      items={data}
+      total={total}
       q={q}
       page={page}
     />

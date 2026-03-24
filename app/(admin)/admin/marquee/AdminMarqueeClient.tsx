@@ -24,7 +24,9 @@ import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminButton from "../../../../components/admin/AdminButton";
 import AdminBadge from "../../../../components/admin/AdminBadge";
 import PageHeader from "@/components/public/ui/PageHeader";
+
 import { deleteMarqueeItem, toggleMarqueeItem } from "./serverActions";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export default function AdminMarqueeClient({
   items = [],
@@ -41,8 +43,7 @@ export default function AdminMarqueeClient({
   const [isPending, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState(q);
 
-  const LIMIT = 20;
-  const totalPages = Math.ceil(total / LIMIT);
+  const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -68,9 +69,9 @@ export default function AdminMarqueeClient({
     <div className="max-w-6xl mx-auto space-y-6 px-4">
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-        <PageHeader 
-          title="Marquee Text" 
-          subtitle="Homepage scrolling announcements" 
+        <PageHeader
+          title="Marquee Text"
+          subtitle="Homepage scrolling announcements"
         />
         <Link href="/admin/marquee/new">
           <AdminButton>
@@ -105,18 +106,27 @@ export default function AdminMarqueeClient({
             Search
           </AdminButton>
         </form>
+
         <div className="mt-2 text-[10px] text-neutral-400 flex justify-between px-1">
           <span>Found {total} items</span>
-          <span>Page {page} of {totalPages || 1}</span>
+          <span>
+            Page {page} of {totalPages || 1}
+          </span>
         </div>
       </AdminCard>
 
       {/* ── Items List ── */}
-      <div className={`space-y-3 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
+      <div
+        className={`space-y-3 transition-opacity duration-200 ${
+          isPending ? "opacity-50 pointer-events-none" : ""
+        }`}
+      >
         {items.length === 0 ? (
           <AdminCard className="py-16 flex flex-col items-center gap-2">
             <Type className="h-8 w-8 text-neutral-300" />
-            <p className="font-semibold text-neutral-500">No marquee items found</p>
+            <p className="font-semibold text-neutral-500">
+              No marquee items found
+            </p>
           </AdminCard>
         ) : (
           items.map((m, index) => (
@@ -127,8 +137,9 @@ export default function AdminMarqueeClient({
               {/* ── Left: index ── */}
               <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
                 <span className="text-xs text-neutral-400 tabular-nums w-5 text-center">
-                  {(page - 1) * LIMIT + index + 1}
+                  {(page - 1) * ADMIN_PAGE_SIZE + index + 1}
                 </span>
+
                 <div className="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 shrink-0">
                   <Type className="h-5 w-5 text-neutral-400" />
                 </div>
@@ -140,7 +151,9 @@ export default function AdminMarqueeClient({
                   <h3 className="font-heading text-xl font-semibold leading-snug line-clamp-2 break-words">
                     {m.text}
                   </h3>
-                  <AdminBadge status={m.isActive ? "ACTIVE" : "INACTIVE"} />
+                  <AdminBadge
+                    status={m.isActive ? "ACTIVE" : "INACTIVE"}
+                  />
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3">
@@ -148,20 +161,33 @@ export default function AdminMarqueeClient({
                     <ArrowUpDown className="h-3.5 w-3.5 shrink-0" />
                     <span>{m.order}</span>
                   </Meta>
+
                   <Meta label="Visibility">
-                    {m.isActive ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
-                    <span>{m.isActive ? "Visible" : "Hidden"}</span>
+                    {m.isActive ? (
+                      <Eye className="h-3.5 w-3.5" />
+                    ) : (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    )}
+                    <span>
+                      {m.isActive ? "Visible" : "Hidden"}
+                    </span>
                   </Meta>
+
                   <Meta label="Created">
                     <Calendar className="h-3.5 w-3.5 shrink-0" />
-                    <span>{new Date(m.createdAt).toLocaleDateString('en-IN')}</span>
+                    <span>
+                      {new Date(m.createdAt).toLocaleDateString("en-IN")}
+                    </span>
                   </Meta>
                 </div>
               </div>
 
               {/* ── Right: actions ── */}
               <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 shrink-0 sm:w-36">
-                <Link href={`/admin/marquee/edit/${m.id}`} className="w-full">
+                <Link
+                  href={`/admin/marquee/edit/${m.id}`}
+                  className="w-full"
+                >
                   <AdminButton className="w-full justify-center">
                     <Pencil className="h-3.5 w-3.5" /> Edit
                   </AdminButton>
@@ -170,7 +196,11 @@ export default function AdminMarqueeClient({
                 <form action={toggleMarqueeItem} className="w-full">
                   <input type="hidden" name="id" value={m.id} />
                   <AdminActionButton className="w-full justify-center">
-                    {m.isActive ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+                    {m.isActive ? (
+                      <EyeOff className="h-3.5 w-3.5" />
+                    ) : (
+                      <Eye className="h-3.5 w-3.5" />
+                    )}
                     {m.isActive ? "Unpublish" : "Publish"}
                   </AdminActionButton>
                 </form>
@@ -178,10 +208,15 @@ export default function AdminMarqueeClient({
                 <form
                   action={deleteMarqueeItem}
                   className="w-full col-span-2 sm:col-span-1"
-                  onSubmit={(e) => !confirm("Delete permanently?") && e.preventDefault()}
+                  onSubmit={(e) =>
+                    !confirm("Delete permanently?") && e.preventDefault()
+                  }
                 >
                   <input type="hidden" name="id" value={m.id} />
-                  <AdminActionButton variant="danger" className="w-full justify-center">
+                  <AdminActionButton
+                    variant="danger"
+                    className="w-full justify-center"
+                  >
                     <Trash2 className="h-3.5 w-3.5" /> Delete
                   </AdminActionButton>
                 </form>
@@ -201,7 +236,11 @@ export default function AdminMarqueeClient({
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <span className="text-sm font-medium">{page} / {totalPages}</span>
+
+          <span className="text-sm font-medium">
+            {page} / {totalPages}
+          </span>
+
           <button
             onClick={() => handlePageChange(page + 1)}
             disabled={page >= totalPages || isPending}
@@ -215,11 +254,21 @@ export default function AdminMarqueeClient({
   );
 }
 
-function Meta({ label, children }: { label: string; children: React.ReactNode }) {
+function Meta({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <div className="min-w-0">
-      <div className="text-[10px] uppercase tracking-wide text-neutral-400 font-medium mb-0.5">{label}</div>
-      <div className="flex items-center gap-1 text-sm text-neutral-800 dark:text-neutral-100">{children}</div>
+      <div className="text-[10px] uppercase tracking-wide text-neutral-400 font-medium mb-0.5">
+        {label}
+      </div>
+      <div className="flex items-center gap-1 text-sm text-neutral-800 dark:text-neutral-100">
+        {children}
+      </div>
     </div>
   );
 }

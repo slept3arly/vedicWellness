@@ -1,34 +1,30 @@
-import { prisma } from "@/lib/db/prisma"
+import { getActiveMarqueeCached } from "@/lib/services/public/marqueeService";
 
 type MarqueeItem = {
-  id: string
-  text: string
-}
+  id: string;
+  text: string;
+};
 
 export default async function MarqueeBanner() {
-  const items = await prisma.marqueeItem.findMany({
-    where: { isActive: true },
-    orderBy: { order: "asc" },
-    select: {
-      id: true,
-      text: true,
-    },
-  })
+  const items: MarqueeItem[] = await getActiveMarqueeCached();
 
-  if (!items.length) return null
+  if (!items.length) return null;
 
-  /**
-   * ✅ FIX 1 — Smart repeat logic
-   * Prevents DOM from growing too large if more items are added later
-   */
-  const repeatCount = Math.max(6, Math.ceil(10 / items.length))
-  const repeatedItems = Array.from({ length: repeatCount }).flatMap(() => items)
+  /* ──────────────────────────────── */
+  /* Smart repeat logic */
+  /* ──────────────────────────────── */
 
-  /**
-   * CONSTANT SPEED LOGIC
-   */
-  const BASE_SPEED_PER_ITEM = 3.6
-  const duration = repeatedItems.length * BASE_SPEED_PER_ITEM
+  const repeatCount = Math.max(6, Math.ceil(10 / items.length));
+  const repeatedItems = Array.from({ length: repeatCount }).flatMap(
+    () => items
+  );
+
+  /* ──────────────────────────────── */
+  /* Constant speed logic */
+  /* ──────────────────────────────── */
+
+  const BASE_SPEED_PER_ITEM = 3.6;
+  const duration = repeatedItems.length * BASE_SPEED_PER_ITEM;
 
   return (
     <div
@@ -47,7 +43,7 @@ export default async function MarqueeBanner() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function MarqueeStrip({ items }: { items: MarqueeItem[] }) {
@@ -60,5 +56,5 @@ function MarqueeStrip({ items }: { items: MarqueeItem[] }) {
         </span>
       ))}
     </div>
-  )
+  );
 }

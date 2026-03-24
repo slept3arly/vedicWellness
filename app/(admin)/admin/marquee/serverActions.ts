@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { secureAdminAction } from "@/lib/security/secureAdminAction";
@@ -10,30 +10,48 @@ import {
   updateMarqueeService,
   toggleMarqueeService,
   deleteMarqueeService,
-  getAdminMarqueeService
-} from "@/lib/services/marqueeService";
+} from "@/lib/services/admin/marqueeService";
 
-import { parseMarqueeId } from "@/lib/validators/marquee";
+import {
+  parseMarqueeForm,
+  parseMarqueeId,
+} from "@/lib/validators/marquee";
+
+import { MARQUEE_TAG } from "@/lib/constants";
+
+/* ──────────────────────────────── */
+/* Create */
+/* ──────────────────────────────── */
 
 export const createMarqueeItem = secureAdminAction(
   async (admin, formData: FormData) => {
-    await createMarqueeService(formData, admin.id);
+    const data = parseMarqueeForm(formData);
 
-    revalidatePath("/admin/marquee");
-    revalidatePath("/");
+    await createMarqueeService(data, admin.id);
+
+    revalidateTag(MARQUEE_TAG, "max");
     redirect("/admin/marquee");
   }
 );
+
+/* ──────────────────────────────── */
+/* Update */
+/* ──────────────────────────────── */
 
 export const updateMarqueeItem = secureAdminAction(
   async (admin, formData: FormData) => {
-    await updateMarqueeService(formData, admin.id);
+    const data = parseMarqueeForm(formData);
 
-    revalidatePath("/admin/marquee");
-    revalidatePath("/");
+    await updateMarqueeService(data, admin.id);
+
+    revalidateTag(MARQUEE_TAG, "max");
     redirect("/admin/marquee");
   }
 );
+
+/* ──────────────────────────────── */
+/* Toggle */
+/* ──────────────────────────────── */
 
 export const toggleMarqueeItem = secureAdminAction(
   async (admin, formData: FormData) => {
@@ -41,10 +59,13 @@ export const toggleMarqueeItem = secureAdminAction(
 
     await toggleMarqueeService(id, admin.id);
 
-    revalidatePath("/admin/marquee");
-    revalidatePath("/");
+    revalidateTag(MARQUEE_TAG, "max");
   }
 );
+
+/* ──────────────────────────────── */
+/* Delete */
+/* ──────────────────────────────── */
 
 export const deleteMarqueeItem = secureAdminAction(
   async (admin, formData: FormData) => {
@@ -52,15 +73,6 @@ export const deleteMarqueeItem = secureAdminAction(
 
     await deleteMarqueeService(id, admin.id);
 
-    revalidatePath("/admin/marquee");
-    revalidatePath("/");
+    revalidateTag(MARQUEE_TAG, "max");
   }
 );
-
-export async function getAdminMarqueeAction(
-  page = 1,
-  limit = 20,
-  q = ""
-) {
-  return getAdminMarqueeService(page, limit, q);
-}

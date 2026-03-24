@@ -1,29 +1,69 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
 
-export async function createMarqueeDB(data: any) {
+/* ──────────────────────────────── */
+/* Create */
+/* ──────────────────────────────── */
+
+export async function createMarqueeDB(data: {
+  text: string;
+  order: number;
+  isActive: boolean;
+}) {
   return prisma.marqueeItem.create({
     data,
     select: { id: true },
   });
 }
 
-export async function updateMarqueeDB(id: string, data: any) {
+/* ──────────────────────────────── */
+/* Update */
+/* ──────────────────────────────── */
+
+export async function updateMarqueeDB(
+  id: string,
+  data: {
+    text?: string;
+    order?: number;
+    isActive?: boolean;
+  }
+) {
   return prisma.marqueeItem.update({
     where: { id },
     data,
   });
 }
 
+/* ──────────────────────────────── */
+/* Delete */
+/* ──────────────────────────────── */
+
 export async function deleteMarqueeDB(id: string) {
-  return prisma.marqueeItem.delete({ where: { id } });
+  return prisma.marqueeItem.delete({
+    where: { id },
+  });
 }
+
+/* ──────────────────────────────── */
+/* Single */
+/* ──────────────────────────────── */
 
 export async function getMarqueeById(id: string) {
-  return prisma.marqueeItem.findUnique({ where: { id } });
+  return prisma.marqueeItem.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      text: true,
+      order: true,
+      isActive: true,
+    },
+  });
 }
 
-/* ✅ Admin reads (paginated) */
+/* ──────────────────────────────── */
+/* Admin Reads (STRICT) */
+/* ──────────────────────────────── */
+
 export async function getAdminMarqueeItems(
   page = 1,
   limit = 20,
@@ -49,6 +89,13 @@ export async function getAdminMarqueeItems(
       ],
       skip,
       take: limit,
+      select: {
+        id: true,
+        text: true,
+        order: true,
+        isActive: true,
+        createdAt: true,
+      },
     }),
     prisma.marqueeItem.count({ where }),
   ]);
@@ -59,4 +106,24 @@ export async function getAdminMarqueeItems(
     page,
     limit,
   };
+}
+
+/* ──────────────────────────────── */
+/* Public Reads (ACTIVE ONLY) */
+/* ──────────────────────────────── */
+
+export async function getActiveMarqueeItems() {
+  return prisma.marqueeItem.findMany({
+    where: {
+      isActive: true,
+    },
+    orderBy: [
+      { order: "asc" },
+      { createdAt: "desc" },
+    ],
+    select: {
+      id: true,
+      text: true,
+    },
+  });
 }
