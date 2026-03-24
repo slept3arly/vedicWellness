@@ -1,5 +1,9 @@
-import { getAdminSlidesService } from "@/lib/services/slideService";
-import SlidesClient from "./SlidesClient";
+import { getAdminSlides } from "@/lib/db/slide";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+
+import AdminSlidesClient from "./AdminSlidesClient";
+
+type UnsafeSlide = any; // 👈 isolate the compromise here
 
 export default async function AdminSlidesPage({
   searchParams,
@@ -8,9 +12,18 @@ export default async function AdminSlidesPage({
 }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
-  const limit = 10; // You can adjust this
 
-  const { slides, total } = await getAdminSlidesService(page, limit);
+  const { data, total } = await getAdminSlides(
+    page,
+    ADMIN_PAGE_SIZE
+  );
 
-  return <SlidesClient slides={slides} total={total} page={page} limit={limit} />;
+  return (
+    <AdminSlidesClient
+      slides={data as UnsafeSlide[]}
+      total={total}
+      page={page}
+      limit={ADMIN_PAGE_SIZE}
+    />
+  );
 }
