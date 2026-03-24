@@ -71,39 +71,73 @@ function CloseIcon() {
 
 export default function PromotionModal({ banner }: { banner: Banner | null }) {
   const router = useRouter();
+
+  /* ========================================================= */
+  /* HYDRATION-SAFE STATE */
+  /* ========================================================= */
+
+  const [mounted, setMounted] = useState(false);
   const [open, setOpen] = useState(false);
 
+  /* Mount detection */
   useEffect(() => {
-    if (!banner) return;
-    const dismissed = sessionStorage.getItem(`banner-session-${banner.id}`);
-    if (!dismissed) setOpen(true);
-  }, [banner]);
+    setMounted(true);
+  }, []);
 
-  // Scroll lock
+  /* Banner logic (after hydration only) */
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
+    if (!mounted || !banner) return;
+
+    const dismissed = sessionStorage.getItem(`banner-session-${banner.id}`);
+    setOpen(!dismissed);
+  }, [mounted, banner?.id]);
+
+  /* ========================================================= */
+  /* SCROLL LOCK */
+  /* ========================================================= */
+
+  useEffect(() => {
+    if (!open) return;
+
+    const original = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
     return () => {
-      document.body.style.overflow = "";
+      document.body.style.overflow = original;
     };
   }, [open]);
 
+  /* ========================================================= */
+  /* ACTIONS */
+  /* ========================================================= */
+
   function close() {
-    if (banner) sessionStorage.setItem(`banner-session-${banner.id}`, "1");
+    if (banner) {
+      sessionStorage.setItem(`banner-session-${banner.id}`, "1");
+    }
     setOpen(false);
   }
 
   function handleCTA() {
     if (!banner) return;
+
     sessionStorage.setItem(`banner-session-${banner.id}`, "1");
     setOpen(false);
-    if (banner.buttonLink) router.push(banner.buttonLink);
+
+    if (banner.buttonLink) {
+      router.push(banner.buttonLink);
+    }
   }
 
-  if (!banner) return null;
+  /* ========================================================= */
+  /* PREVENT HYDRATION MISMATCH */
+  /* ========================================================= */
+
+  if (!mounted || !banner) return null;
+
+  /* ========================================================= */
+  /* RENDER */
+  /* ========================================================= */
 
   return (
     <AnimatePresence>
@@ -116,13 +150,7 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
           exit="exit"
           onClick={close}
         >
-          {/* ── Modal card ──
-              Mobile : narrow + tall (phone poster feel)    → max-w-[400px], no aspect ratio
-              Desktop: wide 16:9 cinematic banner           → sm:max-w-[780px] + sm:aspect-video
-
-              FIX: replaced rounded-[inherit] with explicit rounded-2xl + overflow-hidden
-              so corners are clipped on both mobile and desktop.
-          */}
+          {/* Modal Card */}
           <motion.div
             className="promo-inner relative w-full max-w-[400px] sm:max-w-[780px] rounded-2xl overflow-hidden"
             style={{ minHeight: "clamp(460px, 65vh, 640px)" }}
@@ -132,9 +160,8 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
             aria-modal="true"
             aria-labelledby={banner.title ? "promo-title" : undefined}
           >
-            {/* ── IMAGE ONLY mode ── */}
+            {/* IMAGE ONLY */}
             {banner.type === "IMAGE_ONLY" && banner.imageUrl && (
-              // overflow-hidden on parent already clips this; w-full h-full fills the container
               <Image
                 src={banner.imageUrl}
                 alt="Promotion"
@@ -144,10 +171,10 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
               />
             )}
 
-            {/* ── TEXT mode ── */}
+            {/* TEXT MODE */}
             {banner.type === "TEXT" && (
               <div className="relative w-full h-full min-h-[460px] sm:min-h-0 sm:aspect-video">
-                {/* Background image */}
+                {/* Background */}
                 {banner.imageUrl && (
                   <Image
                     src={banner.imageUrl}
@@ -156,13 +183,14 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
                     fill
                     priority
                     sizes="(max-width: 640px) 100vw, 780px"
-                    className="object-cover object-center"                  />
+                    className="object-cover object-center"
+                  />
                 )}
 
-                {/* Gradient scrim */}
+                {/* Gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/5 pointer-events-none" />
 
-                {/* Content pinned to bottom */}
+                {/* Content */}
                 <div className="absolute inset-0 flex flex-col justify-end px-6 pb-7 sm:px-8 sm:pb-8">
                   <div className="flex flex-col gap-1.5 mb-5">
                     {banner.title && (
@@ -173,6 +201,7 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
                         {banner.title}
                       </h2>
                     )}
+
                     {banner.message && (
                       <p className="text-sm sm:text-base leading-relaxed m-0 text-white/70">
                         {banner.message}
@@ -180,7 +209,7 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
                     )}
                   </div>
 
-                  {/* CTA row */}
+                  {/* CTA */}
                   {banner.buttonText && banner.buttonLink && (
                     <div className="flex flex-row items-stretch gap-3">
                       <Button
@@ -190,6 +219,7 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
                       >
                         {banner.buttonText}
                       </Button>
+
                       <Button
                         onClick={close}
                         variant="secondary"
@@ -204,14 +234,9 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
             )}
           </motion.div>
 
-          {/* ── External close button below card ── */}
+          {/* Close button */}
           <motion.button
-            className="flex items-center
-            gap-2 px-6 py-2.5 rounded-full
-            text-sm font-medium text-white/60 hover:text-white
-            border border-white/15 hover:border-white/35
-            bg-black/45 hover:bg-white/10 transition-colors
-            cursor-pointer select-none"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium text-white/60 hover:text-white border border-white/15 hover:border-white/35 bg-black/45 hover:bg-white/10 transition-colors cursor-pointer select-none"
             variants={closeBtnVariants}
             onClick={(e) => {
               e.stopPropagation();

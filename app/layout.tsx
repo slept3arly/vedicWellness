@@ -12,7 +12,7 @@ import { Toaster } from "sonner";
 import DeferredFooter from "@/components/public/layout/DeferredFooter";
 
 import PromotionModal from "@/components/public/layout/PromotionModal";
-import { getActiveBannerService } from "@/lib/services/bannerService";
+import { getActiveBannerCached } from "@/lib/services/public/bannerService";
 
 import Script from "next/script";
 
@@ -80,7 +80,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const banner = await getActiveBannerService();
+  const banner = await getActiveBannerCached();
 
   return (
     <html

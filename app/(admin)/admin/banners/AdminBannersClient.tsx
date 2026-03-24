@@ -21,8 +21,7 @@ import AdminBadge from "@/components/admin/AdminBadge";
 import PageHeader from "@/components/public/ui/PageHeader";
 
 import { deleteBanner, toggleBanner } from "./serverActions";
-
-const PAGE_SIZE = 12;
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export default function AdminBannersClient({
   banners,
@@ -38,7 +37,7 @@ export default function AdminBannersClient({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 px-4">
@@ -156,7 +155,7 @@ export default function AdminBannersClient({
         )}
       </div>
 
-      {/* ✅ Pagination */}
+      {/* Pagination */}
       {totalPages > 1 && (
         <div className="flex justify-center gap-2 pt-4 flex-wrap">
 

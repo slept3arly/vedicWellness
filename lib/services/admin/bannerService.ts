@@ -3,49 +3,35 @@ import {
   updateBannerDB,
   deleteBannerDB,
   getBannerById,
-  getActiveBanner,
-  getAdminBanners
 } from "@/lib/db/banner";
 
-import {
-  parseBannerForm,
-  parseBannerId,
-} from "@/lib/validators/banner";
-
-import { unstable_cache, revalidateTag } from "next/cache";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
 
 /* ========================================================= */
-/* CONSTANTS */
+/* TYPES */
 /* ========================================================= */
 
-const BANNER_TAG = "banner";
+export type BannerInput = {
+  id?: string;
+  type: "IMAGE_ONLY" | "TEXT";
+  title?: string | null;
+  message?: string | null;
+  imageUrl?: string | null;
+  buttonText?: string | null;
+  buttonLink?: string | null;
+  isActive: boolean;
+  startAt?: Date | null;
+  endAt?: Date | null;
+};
 
 /* ========================================================= */
-/* ADMIN SERVICES (WRITES) */
+/* CREATE */
 /* ========================================================= */
-
-export async function getAdminBannersService(
-  page = 1,
-  limit = 20,
-  q = ""
-) {
-  const result = await getAdminBanners(page, limit, q);
-
-  return {
-    banners: result.data,
-    total: result.total,
-    page: result.page,
-    limit: result.limit,
-  };
-}
 
 export async function createBannerService(
-  formData: FormData,
+  data: BannerInput,
   adminId: string
 ) {
-  const data = parseBannerForm(formData);
-
   const banner = await createBannerDB(data);
 
   await auditWithContext({
@@ -63,19 +49,20 @@ export async function createBannerService(
     },
   });
 
-  /* ⭐ invalidate banner cache */
-  revalidateTag(BANNER_TAG, "max");
-
   return banner.id;
 }
 
+/* ========================================================= */
+/* UPDATE */
+/* ========================================================= */
+
 export async function updateBannerService(
-  formData: FormData,
+  data: BannerInput,
   adminId: string
 ) {
-  const data = parseBannerForm(formData);
-
-  if (!data.id) throw new Error("Missing banner id");
+  if (!data.id) {
+    throw new Error("Missing banner id");
+  }
 
   await updateBannerDB(data.id, data);
 
@@ -94,9 +81,12 @@ export async function updateBannerService(
     },
   });
 
-  /* ⭐ invalidate banner cache */
-  revalidateTag(BANNER_TAG, "max");
+  return data.id;
 }
+
+/* ========================================================= */
+/* TOGGLE ACTIVE */
+/* ========================================================= */
 
 export async function toggleBannerService(
   id: string,
@@ -105,7 +95,9 @@ export async function toggleBannerService(
   const banner = await getBannerById(id);
   if (!banner) return;
 
-  await updateBannerDB(id, { isActive: !banner.isActive });
+  const nextValue = !banner.isActive;
+
+  await updateBannerDB(id, { isActive: nextValue });
 
   await auditWithContext({
     actorId: adminId,
@@ -114,23 +106,22 @@ export async function toggleBannerService(
     entityId: id,
     metadata: {
       kind: "PROMOTION_BANNER",
-      title: banner.title,
       field: "isActive",
       from: banner.isActive,
-      to: !banner.isActive,
+      to: nextValue,
+      title: banner.title,
     },
   });
-
-  /* ⭐ invalidate banner cache */
-  revalidateTag(BANNER_TAG, "max");
 }
 
+/* ========================================================= */
+/* DELETE */
+/* ========================================================= */
+
 export async function deleteBannerService(
-  formData: FormData,
+  id: string,
   adminId: string
 ) {
-  const id = parseBannerId(formData);
-
   const banner = await getBannerById(id);
 
   await deleteBannerDB(id);
@@ -147,23 +138,4 @@ export async function deleteBannerService(
       type: banner?.type ?? null,
     },
   });
-
-  /* ⭐ invalidate banner cache */
-  revalidateTag(BANNER_TAG, "max");
 }
-
-/* ========================================================= */
-/* PUBLIC SERVICES (CACHED) */
-/* ========================================================= */
-
-/* ⭐ ACTIVE BANNER */
-export const getActiveBannerService = unstable_cache(
-  async () => {
-    return getActiveBanner();
-  },
-  ["active-banner"],
-  {
-    tags: [BANNER_TAG],
-    revalidate: 86400, // 5 minutes
-  }
-);

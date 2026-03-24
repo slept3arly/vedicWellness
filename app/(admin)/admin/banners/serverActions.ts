@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { revalidateTag } from "next/cache";
+
 import { secureAdminAction } from "@/lib/security/secureAdminAction";
 
 import {
@@ -9,36 +10,56 @@ import {
   updateBannerService,
   deleteBannerService,
   toggleBannerService,
-  getAdminBannersService,
-} from "@/lib/services/bannerService";
+} from "@/lib/services/admin/bannerService";
 
-const BANNER_TAG = "banner";
+import {
+  parseBannerForm,
+  parseBannerId,
+} from "@/lib/validators/banner";
+
+import { BANNER_TAG } from "@/lib/constants";
+
+/* ========================================================= */
+/* CREATE */
+/* ========================================================= */
 
 export const createBanner = secureAdminAction(
   async (admin, formData: FormData) => {
-    await createBannerService(formData, admin.id);
+    const data = parseBannerForm(formData);
+
+    await createBannerService(data, admin.id);
 
     revalidateTag(BANNER_TAG, "max");
 
     redirect("/admin/banners");
   }
 );
+
+/* ========================================================= */
+/* UPDATE */
+/* ========================================================= */
 
 export const updateBanner = secureAdminAction(
   async (admin, formData: FormData) => {
-    await updateBannerService(formData, admin.id);
+    const data = parseBannerForm(formData);
+
+    await updateBannerService(data, admin.id);
 
     revalidateTag(BANNER_TAG, "max");
 
     redirect("/admin/banners");
   }
 );
+
+/* ========================================================= */
+/* DELETE */
+/* ========================================================= */
 
 export const deleteBanner = secureAdminAction(
   async (admin, formData: FormData) => {
-    const id = String(formData.get("id") ?? "");
+    const id = parseBannerId(formData);
 
-    await deleteBannerService(formData, admin.id);
+    await deleteBannerService(id, admin.id);
 
     revalidateTag(BANNER_TAG, "max");
 
@@ -46,9 +67,13 @@ export const deleteBanner = secureAdminAction(
   }
 );
 
+/* ========================================================= */
+/* TOGGLE */
+/* ========================================================= */
+
 export const toggleBanner = secureAdminAction(
   async (admin, formData: FormData) => {
-    const id = String(formData.get("id") ?? "");
+    const id = parseBannerId(formData);
 
     await toggleBannerService(id, admin.id);
 
@@ -57,11 +82,3 @@ export const toggleBanner = secureAdminAction(
     redirect("/admin/banners");
   }
 );
-
-export async function getAdminBannersAction(
-  page = 1,
-  limit = 20,
-  q = ""
-) {
-  return getAdminBannersService(page, limit, q);
-}

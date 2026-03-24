@@ -1,5 +1,7 @@
 import AdminBannersClient from "./AdminBannersClient";
-import { getAdminBannersAction } from "./serverActions";
+
+import { getAdminBanners } from "@/lib/db/banner";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export default async function AdminBannersPage({
   searchParams,
@@ -9,15 +11,15 @@ export default async function AdminBannersPage({
   const q = searchParams.q ?? "";
   const page = Number(searchParams.page ?? 1);
 
-  const { banners, total } = await getAdminBannersAction(
+  const { data, total } = await getAdminBanners(
     page,
-    12,
+    ADMIN_PAGE_SIZE,
     q
   );
 
   return (
     <AdminBannersClient
-      banners={banners}
+      banners={data}
       total={total}
       page={page}
       q={q}

@@ -1,7 +1,28 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
-/* Create Banner */
+/* ========================================================= */
+/* TYPES */
+/* ========================================================= */
+
+const bannerSelect = {
+  id: true,
+  title: true,
+  message: true,
+  type: true,
+  imageUrl: true,
+  buttonText: true,
+  buttonLink: true,
+  isActive: true,
+  startAt: true,
+  endAt: true,
+  createdAt: true,
+} as const;
+
+/* ========================================================= */
+/* CREATE */
+/* ========================================================= */
 
 export async function createBannerDB(data: any) {
   return prisma.banner.create({
@@ -10,32 +31,43 @@ export async function createBannerDB(data: any) {
   });
 }
 
-/* Update Banner */
+/* ========================================================= */
+/* UPDATE */
+/* ========================================================= */
 
 export async function updateBannerDB(id: string, data: any) {
   return prisma.banner.update({
     where: { id },
     data,
+    select: { id: true },
   });
 }
 
-/* Delete Banner */
+/* ========================================================= */
+/* DELETE */
+/* ========================================================= */
 
 export async function deleteBannerDB(id: string) {
   return prisma.banner.delete({
     where: { id },
+    select: { id: true },
   });
 }
 
-/* Get Single Banner */
+/* ========================================================= */
+/* GET SINGLE */
+/* ========================================================= */
 
 export async function getBannerById(id: string) {
   return prisma.banner.findUnique({
     where: { id },
+    select: bannerSelect,
   });
 }
 
-/* Get Active Banner (Public API use) */
+/* ========================================================= */
+/* PUBLIC: ACTIVE BANNER */
+/* ========================================================= */
 
 export async function getActiveBanner() {
   const now = new Date();
@@ -44,35 +76,26 @@ export async function getActiveBanner() {
     where: {
       isActive: true,
       OR: [
-        {
-          startAt: null,
-          endAt: null,
-        },
-        {
-          startAt: { lte: now },
-          endAt: null,
-        },
-        {
-          startAt: null,
-          endAt: { gte: now },
-        },
-        {
-          startAt: { lte: now },
-          endAt: { gte: now },
-        },
+        { startAt: null, endAt: null },
+        { startAt: { lte: now }, endAt: null },
+        { startAt: null, endAt: { gte: now } },
+        { startAt: { lte: now }, endAt: { gte: now } },
       ],
     },
     orderBy: {
       createdAt: "desc",
     },
+    select: bannerSelect,
   });
 }
 
-/* Admin List (Paginated + Search) */
+/* ========================================================= */
+/* ADMIN: LIST (PAGINATED + SEARCH) */
+/* ========================================================= */
 
 export async function getAdminBanners(
   page = 1,
-  limit = 20,
+  limit = ADMIN_PAGE_SIZE,
   q = ""
 ) {
   const skip = (page - 1) * limit;
@@ -102,6 +125,7 @@ export async function getAdminBanners(
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
+      select: bannerSelect,
     }),
     prisma.banner.count({ where }),
   ]);
