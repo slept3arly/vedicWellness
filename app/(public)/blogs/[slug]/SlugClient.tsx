@@ -12,7 +12,32 @@ import Chip from "@/components/public/ui/Chip";
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 
-type Blog = any;
+type Blog = {
+  id: string;
+  title: string;
+  slug: string;
+
+  description?: string | null;
+  content?: string | null;
+
+  thumbnailUrl?: string | null;
+  author?: string | null;
+  category?: string | null;
+
+  tags?: string[];
+
+  createdAt: string | Date;
+  updatedAt?: string | Date;
+  publishedAt?: string | Date | null;
+};
+
+type RelatedBlog = {
+  id: string;
+  title: string;
+  slug: string;
+  description?: string | null;
+  thumbnailUrl?: string | null;
+};
 
 export default function SlugClient({
   blog,
@@ -20,14 +45,14 @@ export default function SlugClient({
   headings,
 }: {
   blog: Blog;
-  relatedBlogs: any[];
+  relatedBlogs: RelatedBlog[];
   headings: string[];
-}) {
+}){
   const slugify = (str: string) =>
     str.toLowerCase().replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
 
   const contentRef = useRef<HTMLDivElement>(null);
-
+  const tags = blog.tags ?? [];
   const formattedDate = new Date(
     blog.publishedAt ?? blog.createdAt
   ).toLocaleDateString("en-IN", {
@@ -163,9 +188,9 @@ export default function SlugClient({
                 </ReactMarkdown>
               </article>
 
-              {blog.tags?.length > 0 && (
+              {tags.length > 0 && (
                 <div className="mt-16 pt-8 border-t border-border-soft flex flex-wrap gap-2">
-                  {blog.tags.map((tag: string) => (
+                  {tags.map((tag) => (
                     <Chip key={tag} className="opacity-60 text-[10px] hover:opacity-100 font-accent">
                       #{tag}
                     </Chip>

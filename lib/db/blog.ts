@@ -16,7 +16,7 @@ export async function getAllPublishedBlogSlugs() {
 }
 
 /* ------------------------------------------------------------------ */
-/* Admin Reads (UNCHANGED — Admin needs full data) */
+/* Admin Reads */
 /* ------------------------------------------------------------------ */
 
 export async function getAdminBlogs(
@@ -35,21 +35,30 @@ export async function getAdminBlogs(
       }
     : {};
 
-  const [blogs, total] = await prisma.$transaction([
+  const [data, total] = await prisma.$transaction([
     prisma.blog.findMany({
       where,
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
+      select: {
+        id: true,
+        title: true,
+        slug: true,
+        author: true,
+        category: true,
+        thumbnailUrl: true,
+        published: true,
+        createdAt: true,
+        publishedAt: true,
+      },
     }),
     prisma.blog.count({ where }),
   ]);
 
   return {
-    blogs,  // ✅ renamed
+    data,
     total,
-
-    // keep these (useful later)
     page,
     limit,
   };
@@ -83,22 +92,19 @@ export async function getBlogById(id: string) {
   return prisma.blog.findUnique({
     where: { id },
     select: {
-      publishedAt: true,
+      id: true,
+      title: true,
       slug: true,
       thumbnailUrl: true,
-      title: true,
+      publishedAt: true,
     },
   });
 }
 
 /* ------------------------------------------------------------------ */
-/* Public Reads — ULTRA OPTIMIZED
+/* Public Reads */
 /* ------------------------------------------------------------------ */
 
-/**
- * Blog listing page
- * Keep lightweight payload
- */
 export async function getPublicBlogsDB() {
   return prisma.blog.findMany({
     where: { published: true },
@@ -117,16 +123,6 @@ export async function getPublicBlogsDB() {
   });
 }
 
-/**
- * ⭐ BLOG DETAILS PAGE (OPTIMIZED)
- *
- * IMPORTANT:
- * We DO NOT fetch entire Prisma model.
- * Only fields actually used by:
- * - SlugClient
- * - Metadata
- * - JSON-LD
- */
 export async function getPublicBlogBySlugDB(slug: string) {
   return prisma.blog.findFirst({
     where: { slug, published: true },
@@ -154,9 +150,6 @@ export async function getPublicBlogBySlugDB(slug: string) {
   });
 }
 
-/**
- * Related blogs — already optimized
- */
 export async function getRelatedBlogsDB(
   slug: string,
   tags: string[],

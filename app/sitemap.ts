@@ -2,7 +2,7 @@ import { MetadataRoute } from "next";
 import { unstable_cache } from "next/cache";
 
 import { getAllPublishedProductSlugsService } from "@/lib/services/productService";
-import { getAllPublishedBlogSlugsService } from "@/lib/services/blogService";
+import { getAllPublishedBlogSlugsService } from "@/lib/services/public/blogService";
 
 export const dynamic = "force-static";
 

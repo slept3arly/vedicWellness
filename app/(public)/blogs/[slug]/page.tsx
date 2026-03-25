@@ -5,7 +5,7 @@ import {
   getPublicBlogBySlugService,
   getAllPublishedBlogSlugsService,
   getRelatedBlogsService,
-} from "@/lib/services/blogService";
+} from "@/lib/services/public/blogService";
 
 import SlugClient from "./SlugClient";
 
@@ -22,7 +22,6 @@ const SITE_URL =
 /* ------------------------------------------------------------------ */
 /* Static Generation */
 /* ------------------------------------------------------------------ */
-export const revalidate = 86400;
 
 export async function generateStaticParams() {
   const blogs = await getAllPublishedBlogSlugsService();
@@ -59,7 +58,7 @@ export async function generateMetadata({
     alternates: {
       canonical:
         blog.canonicalUrl ??
-        `/blogs/${decodedSlug}`,
+        `${SITE_URL}/blogs/${decodedSlug}`, // ✅ absolute
     },
   };
 }
@@ -88,7 +87,7 @@ export default async function BlogDetailsPage({ params }: Props) {
   ).toISOString();
 
   /* ========================================================= */
-  /* ⭐ SERVER-SIDE HEADINGS EXTRACTION (STEP 4 OPTIMIZATION) */
+  /* HEADINGS EXTRACTION */
   /* ========================================================= */
 
   const headings =

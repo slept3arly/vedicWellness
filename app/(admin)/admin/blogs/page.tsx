@@ -1,5 +1,6 @@
 import AdminBlogsClient from "./AdminBlogsClient";
 import { getAdminBlogs } from "@/lib/db/blog";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export default async function AdminBlogsPage({
   searchParams,
@@ -11,11 +12,15 @@ export default async function AdminBlogsPage({
   const q = params.q || "";
   const page = Number(params.page) || 1;
 
-  const { blogs, total } = await getAdminBlogs(page, 12, q);
+  const { data, total } = await getAdminBlogs(
+    page,
+    ADMIN_PAGE_SIZE,
+    q
+  );
 
   return (
     <AdminBlogsClient
-      blogs={blogs}
+      blogs={data}
       total={total}
       page={page}
       q={q}

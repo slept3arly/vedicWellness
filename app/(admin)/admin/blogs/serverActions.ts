@@ -10,30 +10,52 @@ import {
   updateBlogService,
   deleteBlogService,
   toggleBlogPublishedService,
-  getAdminBlogsService
-} from "@/lib/services/blogService";
+} from "@/lib/services/admin/blogService";
+
+import { parseBlogForm } from "@/lib/validators/blog";
+
+/* ========================================================= */
+/* CONSTANTS */
+/* ========================================================= */
 
 const BLOG_LIST_TAG = "blogs";
 
+/* ========================================================= */
+/* CREATE */
+/* ========================================================= */
+
 export const createBlog = secureAdminAction(
   async (admin, formData: FormData) => {
-    await createBlogService(formData, admin.id);
+    const data = parseBlogForm(formData);
+
+    await createBlogService(data, admin.id);
 
     revalidateTag(BLOG_LIST_TAG, "max");
 
     redirect("/admin/blogs");
   }
 );
+
+/* ========================================================= */
+/* UPDATE */
+/* ========================================================= */
 
 export const updateBlog = secureAdminAction(
   async (admin, formData: FormData) => {
-    await updateBlogService(formData, admin.id);
+    const data = parseBlogForm(formData);
+
+    await updateBlogService(data, admin.id);
 
     revalidateTag(BLOG_LIST_TAG, "max");
+    revalidateTag(`blog:${data.slug}`, "max");
 
     redirect("/admin/blogs");
   }
 );
+
+/* ========================================================= */
+/* DELETE */
+/* ========================================================= */
 
 export const deleteBlog = secureAdminAction(
   async (admin, formData: FormData) => {
@@ -47,6 +69,10 @@ export const deleteBlog = secureAdminAction(
   }
 );
 
+/* ========================================================= */
+/* TOGGLE PUBLISH */
+/* ========================================================= */
+
 export const toggleBlogPublished = secureAdminAction(
   async (admin, formData: FormData) => {
     const id = String(formData.get("id") ?? "");
@@ -59,11 +85,3 @@ export const toggleBlogPublished = secureAdminAction(
     redirect("/admin/blogs");
   }
 );
-
-export async function getAdminBlogsAction(
-  page = 1,
-  limit = 25,
-  search?: string
-) {
-  return getAdminBlogsService(page, limit, search);
-}

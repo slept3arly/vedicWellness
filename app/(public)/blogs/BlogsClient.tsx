@@ -19,8 +19,10 @@ type BlogListItem = {
   description: string | null;
   thumbnailUrl: string | null;
   author?: string | null;
-  createdAt: Date;
-  publishedAt?: Date | null;
+
+  createdAt: string | Date;
+  updatedAt?: string | Date;
+  publishedAt?: string | Date | null;
 };
 
 export default function BlogsClient({
@@ -34,12 +36,14 @@ export default function BlogsClient({
   page: number;
   totalPages: number;
 }) {
-  const renderDate = (b: BlogListItem) =>
-    new Date(b.publishedAt ?? b.createdAt).toLocaleDateString("en-IN", {
+  const renderDate = (b: BlogListItem) => {
+  const date = b.publishedAt ?? b.createdAt;
+    return new Date(date).toLocaleDateString("en-IN", {
       day: "numeric",
       month: "short",
       year: "numeric",
     });
+  };
 
   /* ========================================================= */
   /* PAGINATION WINDOW (MATCHES PRODUCTS LOGIC)                */

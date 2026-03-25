@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 import BlogsClient from "./BlogsClient";
-import { getPublicBlogsService } from "@/lib/services/blogService";
+import { getPublicBlogsService } from "@/lib/services/public/blogService";
+import { PUBLIC_BLOG_PAGE_SIZE } from "@/lib/constants";
 
-export const revalidate = 21600;
+/* ========================================================= */
+/* CONSTANTS */
+/* ========================================================= */
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
   "https://vedic-wellness.vercel.app";
+
+/* ========================================================= */
+/* METADATA */
+/* ========================================================= */
 
 export async function generateMetadata({
   searchParams,
@@ -15,10 +22,6 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const sp = await searchParams;
   const page = Math.max(1, Number(sp?.page) || 1);
-
-  const baseUrl =
-    process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
-    "https://vedic-wellness.vercel.app";
 
   const canonical =
     page > 1 ? `/blogs?page=${page}` : "/blogs";
@@ -35,6 +38,10 @@ export async function generateMetadata({
     },
   };
 }
+
+/* ========================================================= */
+/* PAGE */
+/* ========================================================= */
 
 type SearchParams = {
   page?: string;
@@ -53,18 +60,18 @@ export default async function BlogsPage({
   const page = Math.max(1, Number(getParam(sp.page)) || 1);
 
   const FEATURED_COUNT = 3;
-  const PAGE_SIZE = 9;
+  const PAGE_SIZE = PUBLIC_BLOG_PAGE_SIZE;
 
   const blogs = await getPublicBlogsService();
 
   /* ========================================================= */
-  /* FEATURED BLOGS (ALWAYS SAME)                              */
+  /* FEATURED BLOGS */
   /* ========================================================= */
 
   const featuredBlogs = blogs.slice(0, FEATURED_COUNT);
 
   /* ========================================================= */
-  /* PAGINATED BLOGS (AFTER FEATURED)                          */
+  /* PAGINATED BLOGS */
   /* ========================================================= */
 
   const remainingBlogs = blogs.slice(FEATURED_COUNT);
@@ -77,7 +84,7 @@ export default async function BlogsPage({
   const newBlogs = remainingBlogs.slice(start, end);
 
   /* ========================================================= */
-  /* JSON-LD SEO STRUCTURED DATA                                */
+  /* JSON-LD */
   /* ========================================================= */
 
   const jsonLd = {
