@@ -1,9 +1,10 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export async function getAdminOrders(
   page = 1,
-  limit = 20,
+  limit = ADMIN_PAGE_SIZE,
   q = ""
 ) {
   const skip = (page - 1) * limit;
@@ -70,7 +71,7 @@ export async function getAdminOrders(
             productName: true,
             quantity: true,
           },
-          take: 2, // preview only
+          take: 2,
         },
 
         _count: {

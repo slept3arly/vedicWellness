@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth/requireUser";
-import { getOrderForUser } from "@/lib/services/orderService";
+import { getOrderForUser } from "@/lib/services/public/orderService";
 import OrderDetailsClient from "./OrderDetailsClient";
 import PageHeader from "@/components/public/ui/PageHeader";
 

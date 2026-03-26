@@ -2,7 +2,10 @@
 
 import { secureUserAction } from "@/lib/security/secureUserAction";
 import { z } from "zod";
-import { createOrderFromCart, createOrderFromSingleProduct } from "@/lib/services/orderService";
+import { createOrderFromCart, createOrderFromSingleProduct } from "@/lib/services/public/orderService";
+import { revalidateTag } from "next/cache";
+
+import { ORDER_TAG } from "@/lib/constants";
 
 const createOrderSchema = z.object({
   addressId: z.string().min(1),
@@ -20,18 +23,25 @@ export const createOrderAction = secureUserAction(
   async (user, input: unknown) => {
     const parsed = createOrderSchema.parse(input);
 
+    let order;
+
     if (parsed.buyNow && parsed.productId && parsed.quantity) {
-      return await createOrderFromSingleProduct(
+      order = await createOrderFromSingleProduct(
         user.id,
         parsed.addressId,
         parsed.productId,
-        parsed.quantity,
+        parsed.quantity
+      );
+    } else {
+      order = await createOrderFromCart(
+        user.id,
+        parsed.addressId
       );
     }
 
-    return await createOrderFromCart(
-      user.id,
-      parsed.addressId
-    );
+    // ✅ REQUIRED
+    revalidateTag(ORDER_TAG, "max");
+
+    return order;
   }
 );

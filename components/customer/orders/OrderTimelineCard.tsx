@@ -17,12 +17,20 @@ function formatDateTime(date: Date | string) {
   });
 }
 
-export default function OrderTimelineCard({ status, createdAt, paidAt, expiresAt }: Props) {
+export default function OrderTimelineCard({
+  status,
+  createdAt,
+  paidAt,
+  expiresAt,
+}: Props) {
   const isCancelled = status === "CANCELLED";
   const isExpired = status === "EXPIRED";
   const isFailed = status === "PAYMENT_FAILED";
   const isPaid = status === "PAID";
-  const isPending = status === "CREATED";
+
+  const isConfirmed = status === "CONFIRMED";
+  const isShipped = status === "SHIPPED";
+  const isDelivered = status === "DELIVERED";
 
   const steps: {
     label: string;
@@ -38,36 +46,46 @@ export default function OrderTimelineCard({ status, createdAt, paidAt, expiresAt
       active: false,
     },
     {
-      label: isPaid
-        ? "Payment confirmed"
-        : isFailed
-        ? "Payment failed"
-        : isCancelled
-        ? "Order cancelled"
-        : isExpired
-        ? "Order expired"
-        : "Awaiting payment",
-      time: isPaid && paidAt
-        ? formatDateTime(paidAt)
-        : isExpired && expiresAt
-        ? formatDateTime(expiresAt)
-        : isPending && expiresAt
-        ? `Expires ${formatDateTime(expiresAt)}`
-        : null,
-      done: isPaid,
-      active: isPending,
+      label:
+        status === "PAYMENT_FAILED"
+          ? "Payment failed"
+          : status === "CANCELLED"
+          ? "Order cancelled"
+          : status === "EXPIRED"
+          ? "Order expired"
+          : isPaid || isConfirmed || isShipped || isDelivered
+          ? "Payment confirmed"
+          : "Awaiting payment",
+
+      time:
+        isPaid && paidAt
+          ? formatDateTime(paidAt)
+          : isExpired && expiresAt
+          ? formatDateTime(expiresAt)
+          : status === "CREATED" && expiresAt
+          ? `Expires ${formatDateTime(expiresAt)}`
+          : null,
+
+      done: isPaid || isConfirmed || isShipped || isDelivered,
+      active: status === "CREATED",
       failed: isFailed || isCancelled || isExpired,
     },
     {
       label: "Processing",
       time: null,
-      done: isPaid,
-      active: false,
+      done: isShipped || isDelivered,
+      active: isConfirmed && !isShipped,
+    },
+    {
+      label: "Shipped",
+      time: null,
+      done: isShipped || isDelivered,
+      active: isShipped && !isDelivered,
     },
     {
       label: "Delivered",
       time: null,
-      done: false,
+      done: isDelivered,
       active: false,
     },
   ];

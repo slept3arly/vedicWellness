@@ -14,45 +14,69 @@ import OrderTimelineCard from "@/components/customer/orders/OrderTimelineCard";
 import OrderMetaCard from "@/components/customer/orders/OrderMetaCard";
 import type { OrderForClient } from "@/lib/types/order";
 
-export default function OrderDetailsClient({ order }: { order: OrderForClient }) {
+export default function OrderDetailsClient({
+  order,
+}: {
+  order: OrderForClient;
+}) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
-  const isPayable = order.status === "CREATED" || order.status === "PAYMENT_FAILED";
+  const [payLoading, setPayLoading] = useState(false);
+  const [cancelLoading, setCancelLoading] = useState(false);
+  const [locked, setLocked] = useState(false);
+
+  const isPayable =
+    order.status === "CREATED" || order.status === "PAYMENT_FAILED";
 
   async function handleCancel() {
+    if (cancelLoading || locked) return;
+
     if (!confirm("Cancel this order?")) return;
 
-    setLoading(true);
+    setCancelLoading(true);
+    setLocked(true);
 
     try {
       await cancelOrderAction(order.id);
       toast.success("Order cancelled", "Your order has been cancelled.");
       router.refresh();
     } catch (err: unknown) {
-      toast.error("Cancel failed", err instanceof Error ? err.message : "Please try again.");
+      setLocked(false);
+      toast.error(
+        "Cancel failed",
+        err instanceof Error ? err.message : "Please try again."
+      );
     } finally {
-      setLoading(false);
+      setCancelLoading(false);
     }
   }
 
   async function handlePay() {
-    setLoading(true);
+    if (payLoading || locked) return;
+
+    setPayLoading(true);
+    setLocked(true);
 
     try {
       await mockMarkPaidAction(order.id);
-      toast.success("Payment successful", "Your order has been marked as paid.");
+      toast.success(
+        "Payment successful",
+        "Your order has been marked as paid."
+      );
       router.refresh();
     } catch (err: unknown) {
-      toast.error("Payment failed", err instanceof Error ? err.message : "Please try again.");
+      setLocked(false);
+      toast.error(
+        "Payment failed",
+        err instanceof Error ? err.message : "Please try again."
+      );
     } finally {
-      setLoading(false);
+      setPayLoading(false);
     }
   }
 
   return (
     <div className="space-y-4">
-
       {/* Status banner */}
       <OrderStatusBanner
         status={order.status}
@@ -64,9 +88,12 @@ export default function OrderDetailsClient({ order }: { order: OrderForClient })
       {isPayable && (
         <div className="flex flex-col sm:flex-row gap-3 w-full">
           <Button
-            isLoading={loading}
+            isLoading={payLoading}
+            disabled={locked || payLoading || cancelLoading}
             onClick={handlePay}
-            className="w-full sm:flex-1"
+            className={`w-full sm:flex-1 ${
+              locked ? "opacity-50 pointer-events-none" : ""
+            }`}
           >
             Simulate Payment
             <span className="ml-1.5 text-[10px] opacity-50 font-normal">
@@ -77,9 +104,12 @@ export default function OrderDetailsClient({ order }: { order: OrderForClient })
           {order.status === "CREATED" && (
             <Button
               variant="secondary"
+              isLoading={cancelLoading}
               onClick={handleCancel}
-              disabled={loading}
-              className="w-full sm:flex-1 !border-red-400/40 !text-red-500 hover:!bg-red-50 dark:hover:!bg-red-950/30"
+              disabled={locked || payLoading || cancelLoading}
+              className={`w-full sm:flex-1 !border-red-400/40 !text-red-500 hover:!bg-red-50 dark:hover:!bg-red-950/30 ${
+                locked ? "opacity-50 pointer-events-none" : ""
+              }`}
             >
               Cancel Order
             </Button>
@@ -89,7 +119,6 @@ export default function OrderDetailsClient({ order }: { order: OrderForClient })
 
       {/* Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:items-start">
-
         {/* Left */}
         <div className="lg:col-span-3 space-y-4">
           <OrderItemsCard

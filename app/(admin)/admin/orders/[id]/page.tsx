@@ -1,4 +1,4 @@
-import { getAdminOrderByIdService } from "@/lib/services/orderService";
+import { getAdminOrderById } from "@/lib/db/order";
 import AdminOrderDetailClient from "./AdminOrderDetailClient";
 
 export default async function Page({
@@ -12,7 +12,11 @@ export default async function Page({
     throw new Error("Invalid order id");
   }
 
-  const order = await getAdminOrderByIdService(id);
+  const order = await getAdminOrderById(id);
+
+  if (!order) {
+    throw new Error("Order not found");
+  }
 
   return <AdminOrderDetailClient order={order} />;
 }

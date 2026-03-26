@@ -2,14 +2,15 @@
 
 import type { AuthUser } from "@/lib/auth/requireUser";
 import { secureUserAction } from "@/lib/security/secureUserAction";
+import { revalidateTag } from "next/cache";
+
+const ORDER_TAG = "orders";
 
 /**
  * Cancel order
  */
 export const cancelOrderAction = secureUserAction(
   async (user: AuthUser, orderId: string) => {
-
-    // 🔥 Lazy import prisma to avoid client graph analysis
     const { prisma } = await import("@/lib/db/prisma");
 
     const order = await prisma.order.findUnique({
@@ -28,5 +29,8 @@ export const cancelOrderAction = secureUserAction(
       where: { id: orderId },
       data: { status: "CANCELLED" },
     });
+
+    // ✅ REQUIRED
+    revalidateTag(ORDER_TAG, "max");
   }
 );

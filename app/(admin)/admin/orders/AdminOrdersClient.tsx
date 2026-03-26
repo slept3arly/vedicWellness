@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 import {
   Search,
@@ -55,8 +56,7 @@ export default function AdminOrdersClient({
   const [isPending, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState(q);
 
-  const LIMIT = 20;
-  const totalPages = Math.ceil(total / LIMIT);
+  const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
   /* --------------------------------------------------------------- */
   /* Search                                                          */
@@ -166,7 +166,7 @@ export default function AdminOrdersClient({
                 {/* LEFT */}
                 <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
                   <span className="text-xs text-neutral-400 tabular-nums w-6 text-center font-medium">
-                    {(page - 1) * LIMIT + index + 1}
+                    {(page - 1) * ADMIN_PAGE_SIZE + index + 1}
                   </span>
                 </div>
 

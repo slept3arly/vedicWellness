@@ -1,9 +1,12 @@
 import { prisma } from "@/lib/db/prisma";
+import { revalidateTag } from "next/cache";
+
+const ORDER_TAG = "orders";
 
 export async function expireOldOrders() {
   const now = new Date();
 
-  await prisma.order.updateMany({
+  const result = await prisma.order.updateMany({
     where: {
       status: "CREATED",
       expiresAt: {
@@ -14,4 +17,9 @@ export async function expireOldOrders() {
       status: "EXPIRED",
     },
   });
+
+  // ✅ Only revalidate if something actually changed
+  if (result.count > 0) {
+    revalidateTag(ORDER_TAG, "max");
+  }
 }

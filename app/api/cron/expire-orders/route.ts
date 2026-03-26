@@ -1,4 +1,4 @@
-import { expireOldOrders } from "@/lib/services/orderExpiryService";
+import { expireOldOrders } from "@/lib/services/system/orderExpiryService";
 import { NextResponse } from "next/server";
 
 // Using Node.js runtime instead of edge to ensure Prisma has full access

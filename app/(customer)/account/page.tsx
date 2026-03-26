@@ -3,8 +3,8 @@ import {
   getUserOrders,
   getUserOrderCount,
   getLastPaidOrder,
-} from "@/lib/services/orderService";
-import { expireOldOrders } from "@/lib/services/orderExpiryService";
+} from "@/lib/services/public/orderService";
+import { expireOldOrders } from "@/lib/services/system/orderExpiryService";
 import { getOrCreateCart } from "@/lib/services/cartService";
 import { requireUser } from "@/lib/auth/requireUser";
 import { prisma } from "@/lib/db/prisma";

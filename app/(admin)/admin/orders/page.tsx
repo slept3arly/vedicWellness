@@ -1,7 +1,6 @@
-// app/admin/orders/page.tsx
-
 import AdminOrdersClient from "./AdminOrdersClient";
-import { getAdminOrdersService } from "@/lib/services/orderService";
+import { getAdminOrders } from "@/lib/db/order";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export default async function AdminOrdersPage({
   searchParams,
@@ -13,14 +12,16 @@ export default async function AdminOrdersPage({
   const q = params.q || "";
   const page = Number(params.page) || 1;
 
-  const LIMIT = 20;
-
-  const result = await getAdminOrdersService(page, LIMIT, q);
+  const { data, total } = await getAdminOrders(
+    page,
+    ADMIN_PAGE_SIZE,
+    q
+  );
 
   return (
     <AdminOrdersClient
-      orders={result.orders}
-      total={result.total}
+      orders={data}
+      total={total}
       q={q}
       page={page}
     />

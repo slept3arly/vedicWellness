@@ -1,6 +1,6 @@
 import { requireUser } from "@/lib/auth/requireUser";
-import { getUserOrders } from "@/lib/services/orderService";
-import { expireOldOrders } from "@/lib/services/orderExpiryService";
+import { getUserOrders } from "@/lib/services/public/orderService";
+import { expireOldOrders } from "@/lib/services/system/orderExpiryService";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -14,6 +14,32 @@ import {
 import PageHeader from "@/components/public/ui/PageHeader";
 
 const STATUS = {
+  CONFIRMED: {
+    label: "Confirmed",
+    icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+    badgeClass:
+      "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 border-blue-200/60 dark:border-blue-700/40",
+    rowHighlight: "",
+    dotClass: "bg-blue-400",
+  },
+
+  SHIPPED: {
+    label: "Shipped",
+    icon: <Package className="w-3.5 h-3.5" />,
+    badgeClass:
+      "text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/40 border-indigo-200/60 dark:border-indigo-700/40",
+    rowHighlight: "",
+    dotClass: "bg-indigo-400",
+  },
+
+  DELIVERED: {
+    label: "Delivered",
+    icon: <CheckCircle2 className="w-3.5 h-3.5" />,
+    badgeClass:
+      "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/60 dark:border-emerald-700/40",
+    rowHighlight: "",
+    dotClass: "bg-emerald-500",
+  },
   PAID: {
     label: "Paid",
     icon: <CheckCircle2 className="w-3.5 h-3.5" />,

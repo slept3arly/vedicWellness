@@ -1,18 +1,13 @@
-// lib/services/orderService.ts
-
 import { prisma } from "@/lib/db/prisma";
 import { Prisma } from "@prisma/client";
+import { revalidateTag } from "next/cache";
+import { ORDER_TAG } from "@/lib/constants";
 
 import type {
   OrderForClient,
   ShippingAddr,
   UserOrderListItem,
 } from "@/lib/types/order";
-
-import {
-  getAdminOrders,
-  getAdminOrderById
-} from "@/lib/db/order"; // ✅ NEW IMPORT
 
 /* ========================================================= */
 /* SELECT CONFIGS                                             */
@@ -90,10 +85,12 @@ type PrismaUserOrderResult = Prisma.OrderGetPayload<{
 }>;
 
 /* ========================================================= */
-/* USER-FACING FUNCTIONS                                     */
+/* USER FUNCTIONS                                             */
 /* ========================================================= */
 
-export async function getUserOrders(userId: string): Promise<UserOrderListItem[]> {
+export async function getUserOrders(
+  userId: string
+): Promise<UserOrderListItem[]> {
   const orders = await prisma.order.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
@@ -110,7 +107,10 @@ export async function getUserOrders(userId: string): Promise<UserOrderListItem[]
   }));
 }
 
-export async function createOrderFromCart(userId: string, addressId: string) {
+export async function createOrderFromCart(
+  userId: string,
+  addressId: string
+) {
   const activeOrders = await prisma.order.count({
     where: {
       userId,
@@ -128,10 +128,17 @@ export async function createOrderFromCart(userId: string, addressId: string) {
     include: { items: { include: { product: true } } },
   });
 
-  if (!cart || cart.items.length === 0) throw new Error("Cart is empty");
+  if (!cart || cart.items.length === 0) {
+    throw new Error("Cart is empty");
+  }
 
-  const address = await prisma.address.findUnique({ where: { id: addressId } });
-  if (!address || address.userId !== userId) throw new Error("Invalid address");
+  const address = await prisma.address.findUnique({
+    where: { id: addressId },
+  });
+
+  if (!address || address.userId !== userId) {
+    throw new Error("Invalid address");
+  }
 
   const totalAmount = cart.items.reduce(
     (sum, item) => sum + item.product.price * item.quantity,
@@ -141,7 +148,7 @@ export async function createOrderFromCart(userId: string, addressId: string) {
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + 48);
 
-  return await prisma.$transaction(async (tx) => {
+  const order = await prisma.$transaction(async (tx) => {
     const newOrder = await tx.order.create({
       data: {
         userId,
@@ -174,10 +181,13 @@ export async function createOrderFromCart(userId: string, addressId: string) {
       });
     }
 
-    await tx.cartItem.deleteMany({ where: { cartId: cart.id } });
+    await tx.cartItem.deleteMany({
+      where: { cartId: cart.id },
+    });
 
     return newOrder;
   });
+  return order;
 }
 
 export async function createOrderFromSingleProduct(
@@ -186,18 +196,28 @@ export async function createOrderFromSingleProduct(
   productId: string,
   quantity: number
 ) {
-  const product = await prisma.product.findUnique({ where: { id: productId } });
-  if (!product) throw new Error("Product not found");
+  const product = await prisma.product.findUnique({
+    where: { id: productId },
+  });
 
-  const address = await prisma.address.findUnique({ where: { id: addressId } });
-  if (!address || address.userId !== userId) throw new Error("Invalid address");
+  if (!product) {
+    throw new Error("Product not found");
+  }
+
+  const address = await prisma.address.findUnique({
+    where: { id: addressId },
+  });
+
+  if (!address || address.userId !== userId) {
+    throw new Error("Invalid address");
+  }
 
   const totalAmount = product.price * quantity;
 
   const expiresAt = new Date();
   expiresAt.setHours(expiresAt.getHours() + 48);
 
-  return prisma.order.create({
+  const order = await prisma.order.create({
     data: {
       userId,
       status: "CREATED",
@@ -226,6 +246,7 @@ export async function createOrderFromSingleProduct(
       },
     },
   });
+  return order;
 }
 
 export async function getUserOrderCount(userId: string) {
@@ -243,7 +264,7 @@ export async function getOrderForUser(
 
   if (!order) return null;
 
-  return mapOrderToClient(order as unknown as RawOrderForUser);
+  return mapOrderToClient(order as RawOrderForUser);
 }
 
 export async function getLastPaidOrder(userId: string) {
@@ -254,131 +275,6 @@ export async function getLastPaidOrder(userId: string) {
   });
 
   return order as LastPaidOrder | null;
-}
-
-/* ========================================================= */
-/* ADMIN FUNCTIONS (NEW)                                      */
-/* ========================================================= */
-
-export async function getAdminOrdersService(
-  page = 1,
-  limit = 20,
-  q = ""
-) {
-  const result = await getAdminOrders(page, limit, q);
-
-  return {
-    orders: result.data,
-    total: result.total,
-    page: result.page,
-    limit: result.limit,
-  };
-}
-
-import { auditWithContext } from "@/lib/observability/auditWithContext";
-import { revalidateTag } from "next/cache";
-
-const ORDER_TAG = "orders";
-
-/* ------------------------------------------------------------------ */
-/* Update Order Status                                                */
-/* ------------------------------------------------------------------ */
-
-export async function updateOrderStatusService(
-  orderId: string,
-  status: string,
-  adminId: string
-) {
-  const existing = await prisma.order.findUnique({
-    where: { id: orderId },
-    select: {
-      id: true,
-      status: true,
-    },
-  });
-
-  if (!existing) {
-    throw new Error("Order not found");
-  }
-
-  const updated = await prisma.order.update({
-    where: { id: orderId },
-    data: {
-      status: status as any,
-      ...(status === "PAID" ? { paidAt: new Date() } : {}),
-    },
-    select: {
-      id: true,
-      status: true,
-    },
-  });
-
-  revalidateTag(ORDER_TAG, "default");
-
-  await auditWithContext({
-    actorId: adminId,
-    action: "ADMIN_UPDATE",
-    entityType: "OTHER",
-    entityId: orderId,
-    metadata: {
-      from: existing.status,
-      to: updated.status,
-    },
-  });
-
-  return updated;
-}
-
-/* ------------------------------------------------------------------ */
-/* Cancel Order                                                       */
-/* ------------------------------------------------------------------ */
-
-export async function cancelOrderService(
-  orderId: string,
-  adminId: string
-) {
-  const existing = await prisma.order.findUnique({
-    where: { id: orderId },
-    select: {
-      id: true,
-      status: true,
-    },
-  });
-
-  if (!existing) {
-    throw new Error("Order not found");
-  }
-
-  const updated = await prisma.order.update({
-    where: { id: orderId },
-    data: {
-      status: "CANCELLED",
-    },
-  });
-
-  revalidateTag(ORDER_TAG, "default");
-
-  await auditWithContext({
-    actorId: adminId,
-    action: "ADMIN_UPDATE",
-    entityType: "OTHER",
-    entityId: orderId,
-    metadata: {
-      previousStatus: existing.status,
-    },
-  });
-
-  return updated;
-}
-
-export async function getAdminOrderByIdService(id: string) {
-  const order = await getAdminOrderById(id);
-
-  if (!order) {
-    throw new Error("Order not found");
-  }
-
-  return order;
 }
 
 /* ========================================================= */

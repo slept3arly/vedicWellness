@@ -10,15 +10,17 @@ export default function AdminActionButton({
   variant = "secondary",
   className,
   form,
+  type = "submit",
 }: {
   children: React.ReactNode;
   variant?: Variant;
   className?: string;
   form?: string;
+  type?: "button" | "submit";
 }) {
   return (
     <AdminButton
-      type="submit"
+      type={type}
       autoLoading
       variant={variant}
       form={form}

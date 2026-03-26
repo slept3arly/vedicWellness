@@ -64,22 +64,25 @@ export default function AdminOrderDetailClient({
           <AdminBadge status={order.status} />
 
           {/* STATUS UPDATE */}
-          <form action={updateOrderStatus}>
-            <input type="hidden" name="id" value={order.id} />
+          <form action={updateOrderStatus} className="mt-2 flex gap-2 items-center">
+  <input type="hidden" name="id" value={order.id} />
 
-            <select
-              name="status"
-              defaultValue={order.status}
-              className="mt-2 w-full sm:w-auto h-9 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-xs px-2"
-              onChange={(e) => e.currentTarget.form?.requestSubmit()}
-            >
-              {ORDER_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </form>
+  <select
+    name="status"
+    defaultValue={order.status}
+    className="h-9 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-xs px-2"
+  >
+    {ORDER_STATUSES.map((s) => (
+      <option key={s} value={s}>
+        {s}
+      </option>
+    ))}
+  </select>
+
+  <AdminActionButton type="submit">
+    Save
+  </AdminActionButton>
+</form>
         </div>
 
         {/* RIGHT */}
