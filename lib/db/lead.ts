@@ -1,5 +1,6 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
+import { Prisma } from "@prisma/client";
 
 type CreateLeadInput = {
   name: string;
@@ -25,7 +26,10 @@ export async function createLead(input: CreateLeadInput) {
   });
 }
 
-export async function updateLead(id: string, data: any) {
+export async function updateLead(
+  id: string,
+  data: Prisma.LeadUpdateInput
+) {
   return prisma.lead.update({
     where: { id },
     data,
@@ -33,11 +37,15 @@ export async function updateLead(id: string, data: any) {
 }
 
 export async function deleteLeadDB(id: string) {
-  return prisma.lead.delete({ where: { id } });
+  return prisma.lead.delete({
+    where: { id },
+  });
 }
 
 export async function getLeadById(id: string) {
-  return prisma.lead.findUnique({ where: { id } });
+  return prisma.lead.findUnique({
+    where: { id },
+  });
 }
 
 /* ✅ Admin paginated read */
@@ -64,8 +72,6 @@ export async function getAdminLeads(
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
-
-      // 🔥 IMPORTANT: avoid over-fetching
       select: {
         id: true,
         name: true,
@@ -74,6 +80,7 @@ export async function getAdminLeads(
         city: true,
         status: true,
         createdAt: true,
+        ownerId: true,
         owner: {
           select: {
             id: true,
@@ -83,9 +90,7 @@ export async function getAdminLeads(
         },
       },
     }),
-    prisma.lead.count({
-      where,
-    }),
+    prisma.lead.count({ where }),
   ]);
 
   return {

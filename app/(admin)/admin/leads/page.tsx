@@ -1,5 +1,6 @@
 import AdminLeadsClient from "./AdminLeadsClient";
 import { getAdminLeads, getSalesUsers } from "@/lib/db/lead";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export default async function AdminLeadsPage({
   searchParams,
@@ -12,15 +13,13 @@ export default async function AdminLeadsPage({
   const page = Number(params.page) || 1;
 
   const [{ data, total }, salesUsers] = await Promise.all([
-    getAdminLeads(page, 25, q),
+    getAdminLeads(page, ADMIN_PAGE_SIZE, q),
     getSalesUsers(),
   ]);
 
-  const leads = data; // ✅ important
-
   return (
     <AdminLeadsClient
-      leads={leads}
+      leads={data}
       total={total}
       salesUsers={salesUsers}
       page={page}
