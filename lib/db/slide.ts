@@ -1,7 +1,30 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
-import { PlacementKey } from "@prisma/client";
+import { PlacementKey, Prisma } from "@prisma/client";
+
+/* ===============================
+   EXPORTED TYPES
+================================ */
+
+export type SlideListItem = Prisma.SlideGetPayload<{
+  select: {
+    id: true;
+    imageDesktopUrl: true;
+    imageMobileUrl: true;
+    createdAt: true;
+    placements: {
+      select: {
+        id: true;
+        placementKey: true;
+        order: true;
+        isActive: true;
+        startAt: true;
+        endAt: true;
+      };
+    };
+  };
+}>;
 
 /* ===============================
    TYPES
@@ -102,17 +125,48 @@ export async function deleteSlideDB(id: string) {
 }
 
 /* ===============================
+   GET BY ID (FOR AUDIT + EDIT)
+================================ */
+
+export async function getSlideById(id: string) {
+  return prisma.slide.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      imageDesktopUrl: true,
+      imageMobileUrl: true,
+      placements: {
+        select: {
+          id: true,
+          placementKey: true,
+          order: true,
+          isActive: true,
+          startAt: true,
+          endAt: true,
+        },
+      },
+    },
+  });
+}
+
+/* ===============================
    ADMIN LIST (PAGINATED)
 ================================ */
 
 export async function getAdminSlides(
   page = 1,
-  limit = ADMIN_PAGE_SIZE
+  limit = ADMIN_PAGE_SIZE,
+  q = ""
 ) {
   const skip = (page - 1) * limit;
 
+  const where = q && Object.values(PlacementKey).includes(q as PlacementKey)
+    ? { placements: { some: { placementKey: q as PlacementKey } } }
+    : {};
+
   const [data, total] = await Promise.all([
     prisma.slide.findMany({
+      where,
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
@@ -133,13 +187,26 @@ export async function getAdminSlides(
         },
       },
     }),
-    prisma.slide.count(),
+    prisma.slide.count({ where }),
   ]);
 
   return {
-    data,
+    data: data as unknown as SlideListItem[],
     total,
     page,
     limit,
   };
+}
+
+/* ===============================
+   ADMIN READ SINGLE SLIDE
+================================ */
+
+export async function getAdminSlideById(id: string) {
+  return prisma.slide.findUnique({
+    where: { id },
+    include: {
+      placements: true,
+    },
+  });
 }

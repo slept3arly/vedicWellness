@@ -2,6 +2,7 @@
 
 import { revalidateTag } from "next/cache";
 import { secureAdminAction } from "@/lib/security/secureAdminAction";
+import { OrderStatus } from "@prisma/client"; // ✅ ADD
 
 import {
   updateOrderStatusService,
@@ -17,15 +18,22 @@ import { ORDER_TAG } from "@/lib/constants";
 export const updateOrderStatus = secureAdminAction(
   async (admin, formData: FormData) => {
     const id = String(formData.get("id") ?? "").trim();
-    const status = String(formData.get("status") ?? "").trim();
+    const rawStatus = String(formData.get("status") ?? "").trim(); // renamed
 
-    if (!id || !status) {
+    if (!id || !rawStatus) {
       throw new Error("Invalid input");
     }
 
+    // ✅ ENUM VALIDATION (CRITICAL FIX)
+    if (!Object.values(OrderStatus).includes(rawStatus as OrderStatus)) {
+      throw new Error("Invalid order status");
+    }
+
+    const status = rawStatus as OrderStatus;
+
     await updateOrderStatusService(id, status, admin.id);
 
-    revalidateTag(ORDER_TAG,"max");
+    revalidateTag(ORDER_TAG, "max");
   }
 );
 
@@ -43,6 +51,6 @@ export const cancelOrder = secureAdminAction(
 
     await cancelOrderService(id, admin.id);
 
-    revalidateTag(ORDER_TAG,"max");
+    revalidateTag(ORDER_TAG, "max");
   }
 );

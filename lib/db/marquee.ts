@@ -127,3 +127,13 @@ export async function getActiveMarqueeItems() {
     },
   });
 }
+
+/* ──────────────────────────────── */
+/* ADMIN READ SINGLE */
+/* ──────────────────────────────── */
+
+export async function getAdminMarqueeItemById(id: string) {
+  return prisma.marqueeItem.findFirst({
+    where: { id },
+  });
+}

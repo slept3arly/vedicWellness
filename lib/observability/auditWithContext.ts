@@ -2,7 +2,7 @@ import { auditLog, AuditEvent } from "@/lib/observability/audit";
 import { getRequestContext } from "@/lib/utils/requestContext";
 
 export async function auditWithContext(
-  event: Omit<AuditEvent, "ip" | "userAgent">
+  event: AuditEvent
 ) {
   const ctx = await getRequestContext();
 

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db/prisma";
+import { getAdminProductById } from "@/lib/db/product";
 import ProductEditForm from "./ProductEditForm";
 import { notFound } from "next/navigation";
 
@@ -9,12 +9,7 @@ export default async function EditProductPage({
 }) {
   const { id } = await params;
 
-  const product = await prisma.product.findUnique({
-    where: { id },
-    include: {
-      variants: true, // ✅ critical
-    },
-  });
+  const product = await getAdminProductById(id);
 
   if (!product) return notFound();
 

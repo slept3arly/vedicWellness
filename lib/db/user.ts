@@ -1,30 +1,48 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
 import { randomUUID } from "crypto";
+import { Prisma } from "@prisma/client";
 
-/* ===============================
+/* =========================================================
+   TYPES
+========================================================= */
+
+export type CreateUserInput = Prisma.UserCreateInput;
+export type UpdateUserInput = Prisma.UserUpdateInput;
+
+/* =========================================================
    CREATE
-================================ */
-export async function createUserDB(data: any) {
+========================================================= */
+
+export async function createUserDB(data: CreateUserInput) {
   return prisma.user.create({
     data,
-    select: { id: true, email: true, role: true },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+    },
   });
 }
 
-/* ===============================
+/* =========================================================
    UPDATE
-================================ */
-export async function updateUserDB(id: string, data: any) {
+========================================================= */
+
+export async function updateUserDB(
+  id: string,
+  data: UpdateUserInput
+) {
   return prisma.user.update({
     where: { id },
     data,
   });
 }
 
-/* ===============================
+/* =========================================================
    SOFT DELETE + ANONYMIZE
-================================ */
+========================================================= */
+
 export async function deleteUserDB(id: string) {
   const deletedEmail = `deleted-${Date.now()}-${randomUUID()}@deleted.local`;
 
@@ -33,32 +51,42 @@ export async function deleteUserDB(id: string) {
     data: {
       deletedAt: new Date(),
 
-      // 🔐 anonymize personal info
       email: deletedEmail,
       name: "Deleted User",
       phone: null,
-      password: randomUUID(), // invalidate login
+      password: randomUUID(),
       verified: false,
       verifiedAt: null,
     },
   });
 }
 
-/* ===============================
-   READ SINGLE USER
-================================ */
+/* =========================================================
+   READ SINGLE USER (SAFE)
+========================================================= */
+
 export async function getUserById(id: string) {
   return prisma.user.findFirst({
     where: {
       id,
-      deletedAt: null, // ⭐ hide deleted users
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      phone: true,
+      role: true,
+      verified: true,
+      createdAt: true,
     },
   });
 }
 
-/* ===============================
-   ADMIN USERS LIST
-================================ */
+/* =========================================================
+   ADMIN USERS LIST (SAFE + PAGINATED)
+========================================================= */
+
 export async function getAdminUsers(
   page = 1,
   limit = 20,
@@ -68,7 +96,6 @@ export async function getAdminUsers(
 
   const where = {
     deletedAt: null,
-
     ...(q && {
       OR: [
         {
@@ -93,10 +120,17 @@ export async function getAdminUsers(
       orderBy: { createdAt: "desc" },
       skip,
       take: limit,
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        phone: true,
+        role: true,
+        verified: true,
+        createdAt: true,
+      },
     }),
-    prisma.user.count({
-      where,
-    }),
+    prisma.user.count({ where }),
   ]);
 
   return {
@@ -105,4 +139,26 @@ export async function getAdminUsers(
     page,
     limit,
   };
+}
+
+/* =========================================================
+   ADMIN READ SINGLE USER
+========================================================= */
+
+export async function getAdminUserById(id: string) {
+  return prisma.user.findFirst({
+    where: {
+      id,
+      deletedAt: null,
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      phone: true,
+      role: true,
+      verified: true,
+      createdAt: true,
+    },
+  });
 }

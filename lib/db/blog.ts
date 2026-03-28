@@ -96,6 +96,7 @@ export async function getBlogById(id: string) {
       title: true,
       slug: true,
       thumbnailUrl: true,
+      published: true,
       publishedAt: true,
     },
   });
@@ -179,5 +180,15 @@ export async function getRelatedBlogsDB(
       createdAt: true,
       publishedAt: true,
     },
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* ADMIN READ SINGLE BLOG                                             */
+/* ------------------------------------------------------------------ */
+
+export async function getAdminBlogById(id: string) {
+  return prisma.blog.findFirst({
+    where: { id },
   });
 }

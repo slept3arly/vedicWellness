@@ -12,7 +12,7 @@ export default async function AdminMarqueePage({
   const q = params.q || "";
   const page = Number(params.page) || 1;
 
-  const { data, total } = await getAdminMarqueeItems(
+  const { data: marqueeItems, total } = await getAdminMarqueeItems(
     page,
     ADMIN_PAGE_SIZE,
     q
@@ -20,7 +20,7 @@ export default async function AdminMarqueePage({
 
   return (
     <AdminMarqueeClient
-      items={data}
+      marqueeItems={marqueeItems}
       total={total}
       q={q}
       page={page}

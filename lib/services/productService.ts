@@ -7,12 +7,12 @@ import {
   getPublicProductBySlugDB,
   getPublicProductMetadataDB,
   getAllPublishedProductSlugs,
-  getRelatedProductsDB, // 👈 add this
-  getAdminProducts
+  getRelatedProductsDB,
 } from "@/lib/db/product";
+
 import { MedicineForm } from "@prisma/client";
-import { unstable_cache, revalidateTag, revalidatePath } from "next/cache";
-import { parseProductForm, ProductVariantsSchema } from "@/lib/validators/product";
+import { unstable_cache } from "next/cache"; // ✅ FIXED
+
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
 import { prisma } from "@/lib/db/prisma";
@@ -24,81 +24,40 @@ const PUBLIC_PAGE_SIZE = 10;
 /* Admin Services                                                     */
 /* ------------------------------------------------------------------ */
 
-export async function getAdminProductsService(
-  page = 1,
-  limit = 20,
-  q = ""
-) {
-  const result = await getAdminProducts(page, limit, q);
-
-  return {
-    products: result.data,
-    total: result.total,
-    page: result.page,
-    limit: result.limit,
-  };
-}
-
-
-export async function createProductService(formData: FormData, adminId: string) {
-  const data = parseProductForm(formData);
+export async function createProductService(data: any, adminId: string) {
   const product = await createProductDB(data);
-
-  // Use the "default" profile to satisfy Next.js 15+ types
-  revalidateTag(PRODUCT_TAG, "default");
-  revalidatePath("/products");
 
   await auditWithContext({
     actorId: adminId,
     action: "ADMIN_CREATE",
-    entityType: "PRODUCTS",
+    entityType: "PRODUCTS", // ✅ FIXED
     entityId: product.id,
-    metadata: { kind: "PRODUCT", name: data.name, slug: data.slug, published: data.published, price: data.price },
+    entityLabel: `Product: ${data.name}`,
+    metadata: {
+      type: "CREATE",
+      snapshot: {
+        name: data.name,
+        slug: data.slug,
+        published: data.published,
+        price: data.price,
+      },
+    },
   });
+
   return product.id;
 }
 
 export async function updateProductService(
-  formData: FormData,
+  data: any,
+  variants: any[],
   adminId: string
 ) {
-  const data = parseProductForm(formData);
   if (!data.id) throw new Error("Missing product id");
 
   const current = await getProductById(data.id);
 
   /* -------------------------------------------------- */
-  /* Parse Variants JSON                               */
-  /* -------------------------------------------------- */
-
-  let variantsRaw: unknown = [];
-  const variantsJson = formData.get("variantsJson");
-
-  if (variantsJson) {
-    try {
-      variantsRaw = JSON.parse(String(variantsJson));
-    } catch {
-      variantsRaw = [];
-    }
-  }
-
-  const variants = ProductVariantsSchema.parse(
-    Array.isArray(variantsRaw)
-      ? variantsRaw.map((v: any) => ({
-          name: String(v.name ?? "").trim(),
-          price: Number(v.price),
-          compareAtPrice:
-            v.compareAtPrice && Number(v.compareAtPrice) > 0
-              ? Number(v.compareAtPrice)
-              : null,
-          stock: Number(v.stock ?? 0),
-          sku: v.sku ? String(v.sku).trim() : null,
-        }))
-      : []
-  );
-
-  /* -------------------------------------------------- */
-  /* Transaction: Update Product + Replace Variants    */
+  /* Transaction: Update Product + Replace Variants     */
   /* -------------------------------------------------- */
 
   await prisma.$transaction(async (tx) => {
@@ -107,16 +66,14 @@ export async function updateProductService(
       data,
     });
 
-    // Delete existing variants
     await tx.productVariant.deleteMany({
       where: { productId: data.id },
     });
 
-    // Recreate new ones
     if (variants.length > 0) {
       await tx.productVariant.createMany({
         data: variants.map((v) => ({
-          productId: data.id!,
+          productId: data.id,
           name: v.name,
           price: v.price,
           compareAtPrice: v.compareAtPrice,
@@ -141,88 +98,118 @@ export async function updateProductService(
   }
 
   /* -------------------------------------------------- */
-  /* Revalidation                                       */
-  /* -------------------------------------------------- */
-
-  revalidateTag(PRODUCT_TAG, "default");
-
-  if (data.slug) {
-    revalidateTag(`product:${data.slug}`, "default");   // ⭐ add this
-    revalidatePath(`/products/${data.slug}`);
-  }
-
-  revalidatePath("/products");
-  /* -------------------------------------------------- */
   /* Audit                                              */
   /* -------------------------------------------------- */
 
-  await auditWithContext({
-    actorId: adminId,
-    action: "ADMIN_UPDATE",
-    entityType: "PRODUCTS",
-    entityId: data.id,
-    metadata: {
-      kind: "PRODUCT",
-      name: data.name,
-      slug: data.slug,
-      published: data.published,
-      price: data.price,
-      variantsCount: variants.length,
-    },
-  });
+  const changes: any[] = [];
+
+  if (current?.name !== data.name) {
+    changes.push({ field: "name", from: current?.name, to: data.name });
+  }
+
+  if (current?.slug !== data.slug) {
+    changes.push({ field: "slug", from: current?.slug, to: data.slug });
+  }
+
+  if (current?.published !== data.published) {
+    changes.push({
+      field: "published",
+      from: current?.published,
+      to: data.published,
+    });
+  }
+
+  if (current?.price !== data.price) {
+    changes.push({
+      field: "price",
+      from: current?.price,
+      to: data.price,
+    });
+  }
+
+  if ((current as any)?.variants?.length !== variants.length) {
+    changes.push({
+      field: "variantsCount",
+      from: (current as any)?.variants?.length ?? 0,
+      to: variants.length,
+    });
+  }
+
+  if (changes.length > 0) {
+    await auditWithContext({
+      actorId: adminId,
+      action: "ADMIN_UPDATE",
+      entityType: "PRODUCTS", // ✅ FIXED
+      entityId: data.id,
+      entityLabel: `Product: ${data.name}`,
+      metadata: {
+        type: "UPDATE",
+        changes,
+      },
+    });
+  }
 
   return data.id;
 }
 
-export async function toggleProductPublishedService(id: string, published: boolean, adminId: string) {
+export async function toggleProductPublishedService(
+  id: string,
+  published: boolean,
+  adminId: string
+) {
   await updateProductDB(id, { published: !published });
+
   const product = await getProductById(id);
-
-  revalidateTag(PRODUCT_TAG, "default");
-
-  if (product?.slug) {
-    revalidateTag(`product:${product.slug}`, "default"); // ⭐ add this
-    revalidatePath(`/products/${product.slug}`);
-  }
-
-  revalidatePath("/products");
 
   await auditWithContext({
     actorId: adminId,
     action: !published ? "ADMIN_PUBLISH" : "ADMIN_UNPUBLISH",
-    entityType: "PRODUCTS",
+    entityType: "PRODUCTS", // ✅ FIXED
     entityId: id,
-    metadata: { kind: "PRODUCT", name: product?.name ?? null, from: published, to: !published },
+    entityLabel: `Product: ${product?.name ?? "Unknown"}`,
+    metadata: {
+      type: "UPDATE",
+      changes: [
+        {
+          field: "published",
+          from: published,
+          to: !published,
+        },
+      ],
+    },
   });
 }
 
 export async function deleteProductService(id: string, adminId: string) {
   const product = await getProductById(id);
+
   await deleteProductDB(id);
+
   if (product?.imageUrl) {
     const key = getR2KeyFromPublicUrl(product.imageUrl);
     if (key) await deleteFromR2(key);
   }
 
-  revalidateTag(PRODUCT_TAG, "default");
-
-  if (product?.slug) {
-    revalidateTag(`product:${product.slug}`, "default"); // ⭐ add this
-  }
-
-  revalidatePath("/products");
-
   await auditWithContext({
     actorId: adminId,
     action: "ADMIN_DELETE",
-    entityType: "PRODUCTS",
+    entityType: "PRODUCTS", // ✅ FIXED
     entityId: id,
-    metadata: { kind: "PRODUCT", name: product?.name ?? null, slug: product?.slug ?? null },
+    entityLabel: `Product: ${product?.name ?? "Unknown"}`,
+    metadata: {
+      type: "DELETE",
+      snapshot: {
+        name: product?.name ?? null,
+        slug: product?.slug ?? null,
+        price: product?.price ?? null,
+        published: product?.published ?? null,
+      },
+    },
   });
 }
 
 /* ------------------------------------------------------------------ */
-/* Public Services (DYNAMIC CACHE KEY FIX)                            */
+/* Public Services (UNCHANGED — already correct)                       */
 /* ------------------------------------------------------------------ */
 
 const getCachedPublicProducts = (page: number, query: string, sort: string) =>
@@ -242,8 +229,7 @@ const getCachedPublicProducts = (page: number, query: string, sort: string) =>
         pageSize: PUBLIC_PAGE_SIZE,
       };
     },
-    // FIX: Variables must be in the key array to differentiate searches
-    ["public-products-list", String(page), query, sort], 
+    ["public-products-list", String(page), query, sort],
     {
       tags: [PRODUCT_TAG],
       revalidate: 21600,
@@ -254,13 +240,13 @@ export const getPublicProductsService = async ({
   page = 1,
   query = "",
   sort = "name_asc",
-}: { page?: number; query?: string; sort?: string }) => {
+}: {
+  page?: number;
+  query?: string;
+  sort?: string;
+}) => {
   return getCachedPublicProducts(page, query, sort);
 };
-
-/* ------------------------------------------------------------------ */
-/* Individual Product (Cached)                                        */
-/* ------------------------------------------------------------------ */
 
 export const getPublicProductBySlugService = (slug: string) =>
   unstable_cache(
@@ -283,10 +269,6 @@ export async function getAllPublishedProductSlugsService() {
   return getAllPublishedProductSlugs();
 }
 
-/* ------------------------------------------------------------------ */
-/* Related Products (Cached) */
-/* ------------------------------------------------------------------ */
-
 export const getRelatedProductsService = (
   slug: string,
   currentId: string,
@@ -295,11 +277,7 @@ export const getRelatedProductsService = (
 ) =>
   unstable_cache(
     async () => {
-      return getRelatedProductsDB(
-        currentId,
-        tag,
-        medicineForm
-      );
+      return getRelatedProductsDB(currentId, tag, medicineForm);
     },
     [
       `related-product-${slug}-${tag ?? "none"}-${

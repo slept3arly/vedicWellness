@@ -39,13 +39,16 @@ export async function createBannerService(
     action: "ADMIN_CREATE",
     entityType: "BANNER",
     entityId: banner.id,
+    entityLabel: `Banner: ${data.title ?? "Untitled"}`,
     metadata: {
-      kind: "PROMOTION_BANNER",
-      type: data.type,
-      title: data.title,
-      isActive: data.isActive,
-      startAt: data.startAt,
-      endAt: data.endAt,
+      type: "CREATE",
+      snapshot: {
+        bannerType: data.type,
+        title: data.title,
+        isActive: data.isActive,
+        startAt: data.startAt,
+        endAt: data.endAt,
+      },
     },
   });
 
@@ -64,20 +67,54 @@ export async function updateBannerService(
     throw new Error("Missing banner id");
   }
 
+  const before = await getBannerById(data.id);
+  if (!before) throw new Error("Banner not found");
+
   await updateBannerDB(data.id, data);
+
+  const changes = [];
+
+  if (before.title !== data.title) {
+    changes.push({ field: "title", from: before.title, to: data.title });
+  }
+
+  if (before.type !== data.type) {
+    changes.push({ field: "type", from: before.type, to: data.type });
+  }
+
+  if (before.isActive !== data.isActive) {
+    changes.push({
+      field: "isActive",
+      from: before.isActive,
+      to: data.isActive,
+    });
+  }
+
+  if (before.startAt?.toISOString() !== data.startAt?.toISOString()) {
+    changes.push({
+      field: "startAt",
+      from: before.startAt,
+      to: data.startAt,
+    });
+  }
+
+  if (before.endAt?.toISOString() !== data.endAt?.toISOString()) {
+    changes.push({
+      field: "endAt",
+      from: before.endAt,
+      to: data.endAt,
+    });
+  }
 
   await auditWithContext({
     actorId: adminId,
     action: "ADMIN_UPDATE",
     entityType: "BANNER",
     entityId: data.id,
+    entityLabel: `Banner: ${before.title ?? "Untitled"}`,
     metadata: {
-      kind: "PROMOTION_BANNER",
-      type: data.type,
-      title: data.title,
-      isActive: data.isActive,
-      startAt: data.startAt,
-      endAt: data.endAt,
+      type: "UPDATE",
+      changes,
     },
   });
 
@@ -104,12 +141,16 @@ export async function toggleBannerService(
     action: "ADMIN_UPDATE",
     entityType: "BANNER",
     entityId: id,
+    entityLabel: `Banner: ${banner.title ?? "Untitled"}`,
     metadata: {
-      kind: "PROMOTION_BANNER",
-      field: "isActive",
-      from: banner.isActive,
-      to: nextValue,
-      title: banner.title,
+      type: "UPDATE",
+      changes: [
+        {
+          field: "isActive",
+          from: banner.isActive,
+          to: nextValue,
+        },
+      ],
     },
   });
 }
@@ -131,11 +172,14 @@ export async function deleteBannerService(
     action: "ADMIN_DELETE",
     entityType: "BANNER",
     entityId: id,
+    entityLabel: `Banner: ${banner?.title ?? "Untitled"}`,
     metadata: {
-      kind: "PROMOTION_BANNER",
-      title: banner?.title ?? null,
-      wasActive: banner?.isActive ?? null,
-      type: banner?.type ?? null,
+      type: "DELETE",
+      snapshot: {
+        title: banner?.title ?? null,
+        isActive: banner?.isActive ?? null,
+        type: banner?.type ?? null,
+      },
     },
   });
 }

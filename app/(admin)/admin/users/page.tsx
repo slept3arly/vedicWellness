@@ -1,6 +1,6 @@
-// app/admin/users/page.tsx
 import AdminUsersClient from "./AdminUsersClient";
 import { getAdminUsers } from "@/lib/db/user";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export default async function AdminUsersPage({
   searchParams,
@@ -8,12 +8,15 @@ export default async function AdminUsersPage({
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   const params = await searchParams;
+
   const q = params.q || "";
   const page = Number(params.page) || 1;
-  const limit = 12; // Matches the client-side index multiplier
 
-  // Fetch users + total count
-  const { data: users, total } = await getAdminUsers(page, limit, q);
+  const { data: users, total } = await getAdminUsers(
+    page,
+    ADMIN_PAGE_SIZE,
+    q
+  );
 
   return (
     <AdminUsersClient

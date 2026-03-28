@@ -1,19 +1,25 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
 import { MedicineForm } from "@prisma/client";
-
+import { Prisma } from "@prisma/client";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 /* ------------------------------------------------------------------ */
 /* Write Operations (Admin)                                           */
 /* ------------------------------------------------------------------ */
 
-export async function createProductDB(data: any) {
+export async function createProductDB(
+  data: Prisma.ProductCreateInput
+){
   return prisma.product.create({
     data,
     select: { id: true },
   });
 }
 
-export async function updateProductDB(id: string, data: any) {
+export async function updateProductDB(
+  id: string,
+  data: Prisma.ProductUpdateInput
+){
   return prisma.product.update({
     where: { id },
     data,
@@ -32,18 +38,29 @@ export async function getProductById(id: string) {
   return prisma.product.findUnique({
     where: { id },
     select: {
+  id: true,
+  name: true,
+  slug: true,
+  imageUrl: true,
+  gallery: true,
+
+  // 🔥 ADD THESE
+  price: true,
+  published: true,
+
+  // 🔥 REQUIRED for audit diff
+  variants: {
+    select: {
       id: true,
-      name: true,
-      slug: true,
-      imageUrl: true,
-      gallery: true,
     },
+  },
+}
   });
 }
 
 export async function getAdminProducts(
   page = 1,
-  limit = 20,
+  limit = ADMIN_PAGE_SIZE,
   q = ""
 ) {
   const skip = (page - 1) * limit;
@@ -289,7 +306,7 @@ export async function getRelatedProductsDB(
   medicineForm?: MedicineForm | null,
   limit = 4
 ) {
-  const orConditions: any[] = [];
+  const orConditions: Prisma.ProductWhereInput[] = [];
 
   if (tag) orConditions.push({ tag });
   if (medicineForm) orConditions.push({ medicineForm });
@@ -313,6 +330,19 @@ export async function getRelatedProductsDB(
       tag: true,
       medicineForm: true,
       createdAt: true,
+    },
+  });
+}
+
+/* ------------------------------------------------------------------ */
+/* ADMIN READ SINGLE PRODUCT                                          */
+/* ------------------------------------------------------------------ */
+
+export async function getAdminProductById(id: string) {
+  return prisma.product.findUnique({
+    where: { id },
+    include: {
+      variants: true,
     },
   });
 }

@@ -1,5 +1,6 @@
 import AdminLogsClient from "./AdminLogsClient";
-import { getAdminLogsAction } from "./serverActions";
+import { getAdminAuditLogs } from "@/lib/db/audit";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export default async function AdminLogsPage({
   searchParams,
@@ -10,7 +11,10 @@ export default async function AdminLogsPage({
 
   const page = Number(params.page) || 1;
 
-  const { logs, total } = await getAdminLogsAction(page, 25);
+  const { data: logs, total } = await getAdminAuditLogs(
+    page,
+    ADMIN_PAGE_SIZE
+  );
 
   return (
     <AdminLogsClient

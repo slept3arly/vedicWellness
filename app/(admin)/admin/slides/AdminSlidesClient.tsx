@@ -14,7 +14,8 @@ import {
   ChevronRight,
 } from "lucide-react";
 
-import { PlacementKey } from "@prisma/client";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+import type { SlideListItem } from "@/lib/db/slide";
 
 import AdminCard from "@/components/admin/AdminCard";
 import AdminButton from "@/components/admin/AdminButton";
@@ -23,50 +24,30 @@ import PageHeader from "@/components/public/ui/PageHeader";
 
 import { deleteSlide } from "./serverActions";
 
-/* ===============================
-   TYPES (MATCH DB EXACTLY)
-================================ */
 
-type SlidePlacement = {
-  id: string;
-  placementKey: PlacementKey;
-  order: number;
-  isActive: boolean;
-  startAt: Date | null;
-  endAt: Date | null;
-};
 
-type Slide = {
-  id: string;
-  imageDesktopUrl: string;
-  imageMobileUrl: string;
-  createdAt: Date;
-  placements: SlidePlacement[];
-};
-
-/* ===============================
-   COMPONENT
-================================ */
+// add q to props, remove limit usage
 
 export default function AdminSlidesClient({
   slides,
   total,
   page,
-  limit,
+  q,
 }: {
-  slides: Slide[];
+  slides: SlideListItem[];
   total: number;
   page: number;
-  limit: number;
+  q: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const totalPages = Math.ceil(total / limit);
+  const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
   const handlePageChange = (newPage: number) => {
     startTransition(() => {
-      router.push(`/admin/slides?page=${newPage}`);
+      const query = q ? `&q=${encodeURIComponent(q)}` : "";
+      router.push(`/admin/slides?page=${newPage}${query}`);
     });
   };
 
@@ -115,7 +96,7 @@ export default function AdminSlidesClient({
               {/* ── Left: index + image ── */}
               <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
                 <span className="text-xs text-neutral-400 tabular-nums w-5 text-center font-bold">
-                  {(page - 1) * limit + index + 1}
+                  {(page - 1) * ADMIN_PAGE_SIZE + index + 1}
                 </span>
 
                 <div className="w-28 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden border border-neutral-200 dark:border-neutral-700 shrink-0">

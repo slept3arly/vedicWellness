@@ -1,5 +1,5 @@
 import AdminLeadsClient from "./AdminLeadsClient";
-import { getAdminLeads, getSalesUsers } from "@/lib/db/lead";
+import { getAdminLeads, getAdminSalesUsers } from "@/lib/db/lead";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export default async function AdminLeadsPage({
@@ -12,14 +12,14 @@ export default async function AdminLeadsPage({
   const q = params.q || "";
   const page = Number(params.page) || 1;
 
-  const [{ data, total }, salesUsers] = await Promise.all([
+  const [{ data: leads, total }, salesUsers] = await Promise.all([
     getAdminLeads(page, ADMIN_PAGE_SIZE, q),
-    getSalesUsers(),
+    getAdminSalesUsers(),
   ]);
 
   return (
     <AdminLeadsClient
-      leads={data}
+      leads={leads}
       total={total}
       salesUsers={salesUsers}
       page={page}

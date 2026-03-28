@@ -37,11 +37,14 @@ export async function createMarqueeService(
     action: "ADMIN_CREATE",
     entityType: "MARQUEE",
     entityId: item.id,
+    entityLabel: `Marquee: ${data.text}`,
     metadata: {
-      kind: "MARQUEE_ITEM",
-      text: data.text,
-      order: data.order,
-      isActive: data.isActive,
+      type: "CREATE",
+      snapshot: {
+        text: data.text,
+        order: data.order,
+        isActive: data.isActive,
+      },
     },
   });
 
@@ -60,22 +63,42 @@ export async function updateMarqueeService(
     throw new Error("Missing marquee item id");
   }
 
+  const before = await getMarqueeById(data.id);
+  if (!before) return;
+
   await updateMarqueeDB(data.id, {
     text: data.text,
     order: data.order,
     isActive: data.isActive,
   });
 
+  const changes = [];
+
+  if (before.text !== data.text) {
+    changes.push({ field: "text", from: before.text, to: data.text });
+  }
+
+  if (before.order !== data.order) {
+    changes.push({ field: "order", from: before.order, to: data.order });
+  }
+
+  if (before.isActive !== data.isActive) {
+    changes.push({
+      field: "isActive",
+      from: before.isActive,
+      to: data.isActive,
+    });
+  }
+
   await auditWithContext({
     actorId: adminId,
     action: "ADMIN_UPDATE",
     entityType: "MARQUEE",
     entityId: data.id,
+    entityLabel: `Marquee: ${before.text}`,
     metadata: {
-      kind: "MARQUEE_ITEM",
-      text: data.text,
-      order: data.order,
-      isActive: data.isActive,
+      type: "UPDATE",
+      changes,
     },
   });
 }
@@ -100,12 +123,16 @@ export async function toggleMarqueeService(
     action: "ADMIN_UPDATE",
     entityType: "MARQUEE",
     entityId: id,
+    entityLabel: `Marquee: ${item.text}`,
     metadata: {
-      kind: "MARQUEE_ITEM",
-      text: item.text,
-      field: "isActive",
-      from: item.isActive,
-      to: next,
+      type: "UPDATE",
+      changes: [
+        {
+          field: "isActive",
+          from: item.isActive,
+          to: next,
+        },
+      ],
     },
   });
 }
@@ -127,11 +154,14 @@ export async function deleteMarqueeService(
     action: "ADMIN_DELETE",
     entityType: "MARQUEE",
     entityId: id,
+    entityLabel: `Marquee: ${item?.text ?? "Unknown"}`,
     metadata: {
-      kind: "MARQUEE_ITEM",
-      text: item?.text ?? null,
-      order: item?.order ?? null,
-      wasActive: item?.isActive ?? null,
+      type: "DELETE",
+      snapshot: {
+        text: item?.text ?? null,
+        order: item?.order ?? null,
+        isActive: item?.isActive ?? null,
+      },
     },
   });
 }

@@ -6,12 +6,14 @@ import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 export default async function AdminBannersPage({
   searchParams,
 }: {
-  searchParams: { q?: string; page?: string };
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  const q = searchParams.q ?? "";
-  const page = Number(searchParams.page ?? 1);
+  const params = await searchParams;
 
-  const { data, total } = await getAdminBanners(
+  const q = params.q ?? "";
+  const page = Number(params.page) || 1;
+
+  const { data: banners, total } = await getAdminBanners(
     page,
     ADMIN_PAGE_SIZE,
     q
@@ -19,7 +21,7 @@ export default async function AdminBannersPage({
 
   return (
     <AdminBannersClient
-      banners={data}
+      banners={banners}
       total={total}
       page={page}
       q={q}

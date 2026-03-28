@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db/prisma";
+import { getAdminUserById } from "@/lib/db/user";
 import UserEditForm from "./UserEditForm";
 
 export default async function EditUserPage({
@@ -8,13 +8,7 @@ export default async function EditUserPage({
 }) {
   const { id } = await params;
 
-  // ⭐ IMPORTANT: block deleted users
-  const user = await prisma.user.findFirst({
-    where: {
-      id,
-      deletedAt: null,
-    },
-  });
+  const user = await getAdminUserById(id);
 
   if (!user) {
     return <div>User not found.</div>;

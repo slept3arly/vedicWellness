@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import type { Prisma } from "@prisma/client";
 import SlideImagesField from "@/components/admin/SlideImagesField";
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
@@ -21,7 +22,9 @@ function formatDateTimeLocal(date?: Date | null) {
   return d.toISOString().slice(0, 16);
 }
 
-export default function SlideEditForm({ slide }: { slide: any }) {
+type SlideWithPlacements = Prisma.SlideGetPayload<{ include: { placements: true } }>;
+
+export default function SlideEditForm({ slide }: { slide: SlideWithPlacements }) {
   const placement = slide.placements[0];
 
   const [desktopUrl, setDesktopUrl] = useState(slide.imageDesktopUrl);

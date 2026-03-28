@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db/prisma";
+import { getAdminMarqueeItemById } from "@/lib/db/marquee";
 import MarqueeEditForm from "./MarqueeEditForm";
 
 export default async function EditMarqueeItemPage({
@@ -8,9 +8,7 @@ export default async function EditMarqueeItemPage({
 }) {
   const { id } = await params;
 
-  const item = await prisma.marqueeItem.findFirst({
-    where: { id },
-  });
+  const item = await getAdminMarqueeItemById(id);
 
   if (!item) return <div style={{ padding: 24 }}>Not found</div>;
 

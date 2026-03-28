@@ -29,12 +29,12 @@ import { deleteMarqueeItem, toggleMarqueeItem } from "./serverActions";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 export default function AdminMarqueeClient({
-  items = [],
+  marqueeItems = [],
   total,
   q,
   page,
 }: {
-  items: any[];
+  marqueeItems: any[];
   total: number;
   q: string;
   page: number;
@@ -121,7 +121,7 @@ export default function AdminMarqueeClient({
           isPending ? "opacity-50 pointer-events-none" : ""
         }`}
       >
-        {items.length === 0 ? (
+        {marqueeItems.length === 0 ? (
           <AdminCard className="py-16 flex flex-col items-center gap-2">
             <Type className="h-8 w-8 text-neutral-300" />
             <p className="font-semibold text-neutral-500">
@@ -129,7 +129,7 @@ export default function AdminMarqueeClient({
             </p>
           </AdminCard>
         ) : (
-          items.map((m, index) => (
+          marqueeItems.map((m, index) => (
             <AdminCard
               key={m.id}
               className="flex flex-col sm:flex-row gap-4 hover:shadow-md transition-shadow"

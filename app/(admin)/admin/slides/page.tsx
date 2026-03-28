@@ -3,27 +3,28 @@ import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 import AdminSlidesClient from "./AdminSlidesClient";
 
-type UnsafeSlide = any; // 👈 isolate the compromise here
-
 export default async function AdminSlidesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ q?: string; page?: string }>;
 }) {
   const params = await searchParams;
+
+  const q = params.q || "";
   const page = Number(params.page) || 1;
 
-  const { data, total } = await getAdminSlides(
+  const { data: slides, total } = await getAdminSlides(
     page,
-    ADMIN_PAGE_SIZE
+    ADMIN_PAGE_SIZE,
+    q
   );
 
   return (
     <AdminSlidesClient
-      slides={data as UnsafeSlide[]}
+      slides={slides}
       total={total}
       page={page}
-      limit={ADMIN_PAGE_SIZE}
+      q={q}
     />
   );
 }

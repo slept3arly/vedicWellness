@@ -2,8 +2,11 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+
 import AdminCard from "../../../../components/admin/AdminCard";
 import PageHeader from "@/components/public/ui/PageHeader";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+
 import {
   Trash2,
   Pencil,
@@ -43,6 +46,55 @@ function actionIcon(action: string) {
   return FileText;
 }
 
+/* =========================================================
+   METADATA RENDERING
+========================================================= */
+
+function renderMetadata(meta: any) {
+  if (!meta) return null;
+
+  /* UPDATE → show diff */
+  if (meta.type === "UPDATE" && Array.isArray(meta.changes)) {
+    return (
+      <div className="space-y-1 text-xs">
+        {meta.changes.map((c: any, i: number) => (
+          <div key={i} className="flex gap-2">
+            <span className="font-medium text-neutral-500">{c.field}:</span>
+            <span className="text-red-500 line-through">
+              {String(c.from ?? "—")}
+            </span>
+            <span>→</span>
+            <span className="text-green-600">
+              {String(c.to ?? "—")}
+            </span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  /* CREATE / DELETE → snapshot */
+  if (meta.snapshot) {
+    return (
+      <div className="text-xs text-neutral-600 dark:text-neutral-300">
+        {Object.entries(meta.snapshot).map(([k, v]) => (
+          <div key={k}>
+            <span className="font-medium">{k}:</span>{" "}
+            {String(v ?? "—")}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  /* fallback */
+  return (
+    <pre className="text-xs bg-neutral-100 dark:bg-neutral-800 p-2 rounded">
+      {JSON.stringify(meta, null, 2)}
+    </pre>
+  );
+}
+
 /* ------------------------------------------------------------------ */
 
 export default function AdminLogsClient({
@@ -57,7 +109,7 @@ export default function AdminLogsClient({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const LIMIT = 25;
+  const LIMIT = ADMIN_PAGE_SIZE;
   const totalPages = Math.ceil(total / LIMIT);
 
   const handlePageChange = (newPage: number) => {
@@ -69,13 +121,12 @@ export default function AdminLogsClient({
 
   return (
     <div className="max-w-6xl mx-auto space-y-6 px-4">
-      {/* ── Header ── */}
-      <PageHeader 
-        title="Activity Log" 
-        subtitle="Recent admin actions" 
+
+      <PageHeader
+        title="Activity Log"
+        subtitle="Recent admin actions"
       />
 
-      {/* ── Meta Info ── */}
       <div className="flex justify-between items-center text-xs text-neutral-400 px-1">
         <span>
           Showing {logs.length} of {total} events
@@ -83,8 +134,7 @@ export default function AdminLogsClient({
         <span>Page {page} of {totalPages || 1}</span>
       </div>
 
-      {/* ── Log List ── */}
-      <div className={`space-y-3 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
+      <div className={`space-y-3 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
         {logs.length === 0 ? (
           <AdminCard className="py-16 flex flex-col items-center gap-2">
             <FileText className="h-8 w-8 text-neutral-300" />
@@ -93,102 +143,79 @@ export default function AdminLogsClient({
         ) : (
           logs.map((l, index) => {
             const Icon = actionIcon(l.action);
-            // Assuming actor info is now nested in the log object based on your page.tsx change
-            const actorEmail = l.actor?.email || l.actorEmail || "System";
+            const actorEmail = l.actor?.email || "System";
 
             return (
-              <AdminCard
-                key={l.id}
-                className="flex flex-col sm:flex-row gap-4 hover:shadow-md transition-shadow"
-              >
-                {/* ── Left: index + icon ── */}
-                <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
-                  <span className="text-xs text-neutral-400 tabular-nums w-5 text-center">
-                    {(page - 1) * LIMIT + index + 1}
-                  </span>
-                  <div className="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 shrink-0">
-                    <Icon className="h-5 w-5 text-neutral-500" />
-                  </div>
+              <AdminCard key={l.id} className="flex flex-col gap-4">
+
+                {/* Header */}
+                <div className="flex items-center gap-3">
+                  <Icon className="h-5 w-5 text-neutral-500" />
+                  <h3 className="font-semibold capitalize">
+                    {humanAction(l.action)}{" "}
+                    <span className="text-neutral-500">
+                      {l.entityLabel || l.entityType}
+                    </span>
+                  </h3>
                 </div>
 
-                {/* ── Middle: action + meta ── */}
-                <div className="flex-1 min-w-0 space-y-3">
-                  <div>
-                    <h3 className="font-heading text-xl font-semibold leading-snug capitalize">
-                      {humanAction(l.action)} {l.entityType.toLowerCase()}
-                    </h3>
-                    <p className="text-slate-600 dark:text-slate-300 text-xs mt-0.5">
-                      by {actorEmail}
-                    </p>
-                  </div>
+                {/* Meta */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
 
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3">
-                    <Meta label="Entity">
-                      <Layers className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{l.entityType}</span>
+                  <Meta label="Actor">
+                    <User className="h-3.5 w-3.5" />
+                    {actorEmail}
+                  </Meta>
+
+                  <Meta label="Time">
+                    <Clock className="h-3.5 w-3.5" />
+                    {formatDate(l.createdAt)}
+                  </Meta>
+
+                  {l.entityId && (
+                    <Meta label="ID">
+                      <Hash className="h-3.5 w-3.5" />
+                      {l.entityId}
                     </Meta>
+                  )}
 
-                    {l.entityId && (
-                      <Meta label="ID">
-                        <Hash className="h-3.5 w-3.5 shrink-0" />
-                        <span className="truncate font-mono text-xs">{l.entityId}</span>
-                      </Meta>
-                    )}
-
-                    <Meta label="Actor">
-                      <User className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{actorEmail}</span>
+                  {l.ip && (
+                    <Meta label="IP">
+                      <Globe className="h-3.5 w-3.5" />
+                      {l.ip}
                     </Meta>
-
-                    <Meta label="Time">
-                      <Clock className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{formatDate(l.createdAt)}</span>
-                    </Meta>
-
-                    {l.ip && (
-                      <Meta label="IP">
-                        <Globe className="h-3.5 w-3.5 shrink-0" />
-                        <span className="truncate font-mono text-xs">{l.ip}</span>
-                      </Meta>
-                    )}
-                  </div>
-
-                  {l.metadata && Object.keys(l.metadata).length > 0 && (
-                    <details className="pt-1">
-                      <summary className="cursor-pointer text-xs text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 transition-colors">
-                        View technical details
-                      </summary>
-                      <pre className="mt-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 p-3 text-xs overflow-x-auto text-slate-700 dark:text-slate-300">
-                        {JSON.stringify(l.metadata, null, 2)}
-                      </pre>
-                    </details>
                   )}
                 </div>
+
+                {/* Metadata */}
+                {l.metadata && (
+                  <div className="pt-2 border-t border-neutral-200 dark:border-neutral-700">
+                    {renderMetadata(l.metadata)}
+                  </div>
+                )}
+
               </AdminCard>
             );
           })
         )}
       </div>
 
-      {/* ── Pagination ── */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 pt-4 pb-10">
+        <div className="flex justify-center gap-4 pt-4 pb-10">
           <button
             onClick={() => handlePageChange(page - 1)}
             disabled={page <= 1 || isPending}
-            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
           >
-            <ChevronLeft className="h-5 w-5" />
+            <ChevronLeft />
           </button>
-          <span className="text-sm font-medium">
-            {page} / {totalPages}
-          </span>
+
+          <span>{page} / {totalPages}</span>
+
           <button
             onClick={() => handlePageChange(page + 1)}
             disabled={page >= totalPages || isPending}
-            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition"
           >
-            <ChevronRight className="h-5 w-5" />
+            <ChevronRight />
           </button>
         </div>
       )}
@@ -198,15 +225,11 @@ export default function AdminLogsClient({
 
 /* ------------------------------------------------------------------ */
 
-function Meta({ label, children }: { label: string; children: React.ReactNode }) {
+function Meta({ label, children }: any) {
   return (
-    <div className="min-w-0">
-      <div className="text-[10px] uppercase tracking-wide text-neutral-400 font-medium mb-0.5">
-        {label}
-      </div>
-      <div className="flex items-center gap-1 text-sm text-neutral-800 dark:text-neutral-100 min-w-0">
-        {children}
-      </div>
+    <div>
+      <div className="text-xs text-neutral-400">{label}</div>
+      <div className="flex items-center gap-1">{children}</div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db/prisma";
+import { getAdminBannerById } from "@/lib/db/banner";
 import BannerEditForm from "./BannerEditForm";
 
 export default async function EditBannerPage({
@@ -8,9 +8,7 @@ export default async function EditBannerPage({
 }) {
   const { id } = await params;
 
-  const banner = await prisma.banner.findFirst({
-    where: { id },
-  });
+  const banner = await getAdminBannerById(id);
 
   if (!banner) return <div>Banner not found.</div>;
 

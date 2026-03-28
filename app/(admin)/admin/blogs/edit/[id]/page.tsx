@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db/prisma";
+import { getAdminBlogById } from "@/lib/db/blog";
 import BlogEditForm from "./BlogEditForm";
 
 export default async function EditBlogPage({
@@ -8,9 +8,7 @@ export default async function EditBlogPage({
 }) {
   const { id } = await params;
 
-  const blog = await prisma.blog.findFirst({
-    where: { id },
-  });
+  const blog = await getAdminBlogById(id);
 
   if (!blog) return <div>Blog not found.</div>;
 

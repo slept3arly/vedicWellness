@@ -26,6 +26,7 @@ import AdminBadge from "../../../../components/admin/AdminBadge";
 import AdminActionButton from "../../../../components/admin/AdminActionButton";
 import PageHeader from "@/components/public/ui/PageHeader";
 import { updateUserRole, deleteUser } from "./serverActions";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 /* ------------------------------------------------------------------ */
 
@@ -56,8 +57,10 @@ export default function AdminUsersClient({
   const [inputValue, setInputValue] = useState(q);
   const [roleFilter, setRoleFilter] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [locked, setLocked] = useState(false);
 
-  const LIMIT = 12; // Matches your server-side fetch limit
+  const LIMIT = ADMIN_PAGE_SIZE;
   const totalPages = Math.ceil(total / LIMIT);
 
   function handleFilter(e: React.FormEvent<HTMLFormElement>) {
@@ -87,7 +90,8 @@ export default function AdminUsersClient({
     : users;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-4">
+    <div className="max-w-6xl mx-auto space-y-4 px-4">
+
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
         <PageHeader title="Users" subtitle="Manage all registered users" />
@@ -99,10 +103,11 @@ export default function AdminUsersClient({
         </Link>
       </div>
 
-      {/* ── Search bar ── */}
+      {/* ── Search + Filters bar ── */}
       <AdminCard className="p-3">
         <form onSubmit={handleFilter} className="flex flex-col gap-2">
-          {/* Row 1: search input */}
+
+          {/* Row 1: search */}
           <div className="relative w-full">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <input
@@ -131,7 +136,7 @@ export default function AdminUsersClient({
                   key={r}
                   type="button"
                   onClick={() => setRoleFilter(roleFilter === r ? null : r)}
-                  className={`px-3 h-10 rounded-lg text-sm font-medium border transition-colors ${
+                  className={`px-3 h-8 rounded-lg text-xs font-medium border transition-colors ${
                     roleFilter === r
                       ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white"
                       : "bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 hover:border-neutral-400"
@@ -144,9 +149,9 @@ export default function AdminUsersClient({
                 <button
                   type="button"
                   onClick={() => setRoleFilter(null)}
-                  className="px-3 h-10 rounded-lg text-sm border border-neutral-300 dark:border-neutral-700 text-neutral-400 hover:text-neutral-700 transition flex items-center gap-1"
+                  className="px-2 h-8 rounded-lg text-xs border border-neutral-300 dark:border-neutral-700 text-neutral-400 hover:text-neutral-700 transition flex items-center gap-1"
                 >
-                  <X className="h-3.5 w-3.5" /> Clear
+                  <X className="h-3 w-3" /> Clear
                 </button>
               )}
             </div>
@@ -154,32 +159,29 @@ export default function AdminUsersClient({
             <button
               type="submit"
               disabled={isPending}
-              className="h-10 px-5 shrink-0 rounded-lg bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-80 disabled:opacity-50 transition-opacity flex items-center gap-2"
+              className="h-8 px-4 shrink-0 rounded-lg bg-black dark:bg-white text-white dark:text-black text-xs font-medium hover:opacity-80 disabled:opacity-50 transition-opacity flex items-center gap-1.5"
             >
               <Search className="h-3.5 w-3.5" />
               Search
             </button>
           </div>
+
         </form>
 
         <div className="mt-2 text-xs text-neutral-400 flex justify-between px-0.5">
           <span>
             {total} total result{total !== 1 ? "s" : ""}
-            {q && (
-              <> for "<span className="text-slate-600 dark:text-slate-300 font-medium">{q}</span>"</>
-            )}
-            {roleFilter && (
-              <> · filtered by <span className="text-slate-600 dark:text-slate-300 font-medium">{roleFilter}</span></>
-            )}
+            {q && <> for "<span className="text-slate-600 dark:text-slate-300 font-medium">{q}</span>"</>}
+            {roleFilter && <> · filtered by <span className="text-slate-600 dark:text-slate-300 font-medium">{roleFilter}</span></>}
           </span>
           <span>Page {page} of {totalPages || 1}</span>
         </div>
       </AdminCard>
 
       {/* ── Users List ── */}
-      <div className={`space-y-3 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
+      <div className={`space-y-2 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
         {filtered.length === 0 ? (
-          <AdminCard className="py-16 flex flex-col items-center gap-2">
+          <AdminCard className="py-12 flex flex-col items-center gap-2">
             <User className="h-8 w-8 text-neutral-300" />
             <p className="font-medium text-slate-600 dark:text-slate-300">No users found</p>
             <button onClick={handleClear} className="text-sm text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white">
@@ -188,75 +190,124 @@ export default function AdminUsersClient({
           </AdminCard>
         ) : (
           filtered.map((u: any, index: number) => (
-            <AdminCard key={u.id} className="flex flex-col sm:flex-row gap-4 hover:shadow-md transition-shadow">
-              {/* ── Left: index + avatar ── */}
-              <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
-                <span className="text-xs text-neutral-400 tabular-nums w-5 text-center">
+            <AdminCard key={u.id} className="hover:shadow-md transition-shadow">
+              <div className="flex gap-3">
+
+                {/* Index */}
+                <span className="text-xs text-neutral-400 tabular-nums w-5 pt-1 text-center shrink-0">
                   {(page - 1) * LIMIT + index + 1}
                 </span>
-                <div className="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 shrink-0">
-                  <User className="h-5 w-5 text-neutral-400" />
-                </div>
-              </div>
 
-              {/* ── Middle: info + meta ── */}
-              <div className="flex-1 min-w-0 space-y-3">
-                <div>
+                {/* Main content */}
+                <div className="flex-1 min-w-0 space-y-2">
+
+                  {/* Name + badge + date */}
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-heading text-xl font-semibold leading-snug">{u.name || u.email}</h3>
+                    <h3 className="font-semibold text-base leading-snug">{u.name || u.email}</h3>
                     <AdminBadge status={u.role} />
+                    {/* Date: full-width on mobile, pushed right on desktop */}
+                    <span className="w-full sm:w-auto sm:ml-auto flex items-center gap-1 text-xs text-neutral-400">
+                      <Calendar className="h-3 w-3 shrink-0" />
+                      {formatDate(u.createdAt)}
+                    </span>
                   </div>
-                  {u.name && <p className="text-xs text-slate-600 dark:text-slate-300 mt-0.5">{u.email}</p>}
-                </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3">
-                  <Meta label="Email">
-                    <Mail className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">{u.email}</span>
-                  </Meta>
-                  <Meta label="Role">
-                    <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-                    <span>{u.role}</span>
-                  </Meta>
-                  <Meta label="Joined">
-                    <Calendar className="h-3.5 w-3.5 shrink-0" />
-                    <span>{formatDate(u.createdAt)}</span>
-                  </Meta>
-                </div>
+                  {/* Contact + role grid — 1 col mobile, 3 col desktop */}
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-1.5 gap-x-6">
+                    <Meta label="Email">
+                      <Mail className="h-3.5 w-3.5 shrink-0" />
+                      <span className="truncate">{u.email}</span>
+                    </Meta>
+                    <Meta label="Role">
+                      <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+                      <span>{u.role}</span>
+                    </Meta>
+                  </div>
 
-                {/* Inline role editor */}
-                {editingId === u.id && (
-                  <form action={updateUserRole} className="flex gap-2 items-center bg-neutral-50 dark:bg-neutral-800/50 p-2 rounded-lg border border-neutral-200 dark:border-neutral-700 mt-2">
-                    <input type="hidden" name="id" value={u.id} />
-                    <select
-                      name="role"
-                      defaultValue={u.role}
-                      className="h-9 rounded-lg px-2 text-sm bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 outline-none"
+                  {/* Inline role editor */}
+                  {editingId === u.id && (
+                    <form
+                      action={async (fd) => {
+                        if (loadingId === u.id || locked) return;
+                        setLoadingId(u.id);
+                        await updateUserRole(fd);
+                        setLocked(true);
+                        setLoadingId(null);
+                        setEditingId(null);
+                      }}
+                      className="flex flex-wrap gap-2 items-center bg-neutral-50 dark:bg-neutral-800/50 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700"
                     >
-                      <option value="ADMIN">ADMIN</option>
-                      <option value="SALES">SALES</option>
-                      <option value="VIEWER">VIEWER</option>
-                    </select>
-                    <AdminActionButton className="justify-center h-9"><Save className="h-3.5 w-3.5" /> Save</AdminActionButton>
-                    <button type="button" onClick={() => setEditingId(null)} className="text-xs text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white px-2">Cancel</button>
-                  </form>
-                )}
-              </div>
+                      <input type="hidden" name="id" value={u.id} />
+                      <select
+                        name="role"
+                        defaultValue={u.role}
+                        className="h-8 flex-1 sm:flex-none rounded-lg px-2 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 outline-none min-w-0"
+                      >
+                        <option value="ADMIN">ADMIN</option>
+                        <option value="SALES">SALES</option>
+                        <option value="VIEWER">VIEWER</option>
+                      </select>
+                      <AdminActionButton className="h-8 text-xs px-2 gap-1 shrink-0">
+                        <Save className="h-3 w-3" /> Save
+                      </AdminActionButton>
+                      <button
+                        type="button"
+                        onClick={() => setEditingId(null)}
+                        className="text-xs text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white px-1"
+                      >
+                        Cancel
+                      </button>
+                    </form>
+                  )}
 
-              {/* ── Right: actions ── */}
-              <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 shrink-0 sm:w-32">
-                <AdminButton className="w-full justify-center" onClick={() => startTransition(() => router.push(`/admin/users/edit/${u.id}`))}>
-                  <Pencil className="h-3.5 w-3.5" /> Edit
-                </AdminButton>
-                <AdminButton className="w-full justify-center" onClick={() => setEditingId(editingId === u.id ? null : u.id)}>
-                  <ArrowUpDown className="h-3.5 w-3.5" /> Role
-                </AdminButton>
-                <form action={deleteUser} className="w-full col-span-2 sm:col-span-1" onSubmit={(e) => { if (!confirm("Delete this user permanently?")) e.preventDefault(); }}>
-                  <input type="hidden" name="id" value={u.id} />
-                  <AdminActionButton variant="danger" className="w-full justify-center">
-                    <Trash2 className="h-3.5 w-3.5" /> Delete
-                  </AdminActionButton>
-                </form>
+                  {/* ── Actions ──
+                      Mobile: stacked vertically, full-width buttons
+                      Desktop: single inline row with dividers
+                  */}
+                  <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 pt-0.5">
+
+                    <AdminButton
+                      className="h-8 text-xs px-2 gap-1 w-full sm:w-auto justify-center"
+                      onClick={() => startTransition(() => router.push(`/admin/users/edit/${u.id}`))}
+                    >
+                      <Pencil className="h-3.5 w-3.5" /> Edit
+                    </AdminButton>
+
+                    {/* Divider — hidden on mobile */}
+                    <div className="hidden sm:block w-px h-5 bg-neutral-200 dark:bg-neutral-700 shrink-0" />
+
+                    <AdminButton
+                      className="h-8 text-xs px-2 gap-1 w-full sm:w-auto justify-center"
+                      onClick={() => setEditingId(editingId === u.id ? null : u.id)}
+                    >
+                      <ArrowUpDown className="h-3.5 w-3.5" /> Role
+                    </AdminButton>
+
+                    {/* Divider — hidden on mobile */}
+                    <div className="hidden sm:block w-px h-5 bg-neutral-200 dark:bg-neutral-700 shrink-0" />
+
+                    <form
+                      action={async (fd) => {
+                        if (loadingId === u.id || locked) return;
+                        if (!confirm("Delete this user permanently?")) return;
+                        setLoadingId(u.id);
+                        await deleteUser(fd);
+                        setLocked(true);
+                        setLoadingId(null);
+                      }}
+                      className="w-full sm:w-auto"
+                    >
+                      <input type="hidden" name="id" value={u.id} />
+                      <AdminActionButton
+                        variant="danger"
+                        className="h-8 text-xs px-2 gap-1 w-full sm:w-auto justify-center"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" /> Delete
+                      </AdminActionButton>
+                    </form>
+
+                  </div>
+                </div>
               </div>
             </AdminCard>
           ))
@@ -265,7 +316,7 @@ export default function AdminUsersClient({
 
       {/* ── Pagination ── */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 pt-6 pb-12">
+        <div className="flex justify-center items-center gap-4 pt-2 pb-10">
           <button
             onClick={() => handlePageChange(page - 1)}
             disabled={page <= 1 || isPending}
@@ -285,15 +336,18 @@ export default function AdminUsersClient({
           </button>
         </div>
       )}
+
     </div>
   );
 }
+
+/* ------------------------------------------------------------------ */
 
 function Meta({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="min-w-0">
       <div className="text-[10px] uppercase tracking-wide text-neutral-400 font-medium mb-0.5">{label}</div>
-      <div className="flex items-center gap-1 text-sm text-neutral-800 dark:text-neutral-100 min-w-0">{children}</div>
+      <div className="flex items-center gap-1 text-xs text-neutral-800 dark:text-neutral-100 min-w-0">{children}</div>
     </div>
   );
 }

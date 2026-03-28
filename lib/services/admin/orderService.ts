@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db/prisma";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
+import { OrderStatus } from "@prisma/client";
 
 /* ========================================================= */
 /* Update Order Status                                        */
@@ -7,7 +8,7 @@ import { auditWithContext } from "@/lib/observability/auditWithContext";
 
 export async function updateOrderStatusService(
   orderId: string,
-  status: string,
+  status: OrderStatus,
   adminId: string
 ) {
   const existing = await prisma.order.findUnique({
@@ -25,7 +26,7 @@ export async function updateOrderStatusService(
   const updated = await prisma.order.update({
     where: { id: orderId },
     data: {
-      status: status as any,
+      status,
       ...(status === "PAID" ? { paidAt: new Date() } : {}),
     },
     select: {
@@ -39,9 +40,16 @@ export async function updateOrderStatusService(
     action: "ADMIN_UPDATE",
     entityType: "ORDER",
     entityId: orderId,
+    entityLabel: `Order: ${orderId}`,
     metadata: {
-      from: existing.status,
-      to: updated.status,
+      type: "UPDATE",
+      changes: [
+        {
+          field: "status",
+          from: existing.status,
+          to: updated.status,
+        },
+      ],
     },
   });
 
@@ -73,6 +81,10 @@ export async function cancelOrderService(
     data: {
       status: "CANCELLED",
     },
+    select: {
+      id: true,
+      status: true,
+    },
   });
 
   await auditWithContext({
@@ -80,8 +92,16 @@ export async function cancelOrderService(
     action: "ADMIN_UPDATE",
     entityType: "ORDER",
     entityId: orderId,
+    entityLabel: `Order: ${orderId}`,
     metadata: {
-      previousStatus: existing.status,
+      type: "UPDATE",
+      changes: [
+        {
+          field: "status",
+          from: existing.status,
+          to: "CANCELLED",
+        },
+      ],
     },
   });
 

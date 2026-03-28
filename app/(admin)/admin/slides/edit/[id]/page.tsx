@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db/prisma";
+import { getAdminSlideById } from "@/lib/db/slide";
 import SlideEditForm from "./SlidesEditForm";
 
 export default async function EditSlidePage({
@@ -6,12 +6,9 @@ export default async function EditSlidePage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const { id } = await params; // ✅ MUST await in Next 16
+  const { id } = await params;
 
-  const slide = await prisma.slide.findUnique({
-    where: { id },
-    include: { placements: true },
-  });
+  const slide = await getAdminSlideById(id);
 
   if (!slide) {
     return <div style={{ padding: 24 }}>Slide not found</div>;

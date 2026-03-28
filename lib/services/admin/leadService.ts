@@ -7,17 +7,18 @@ import {
 import { auditWithContext } from "@/lib/observability/auditWithContext";
 
 /* =========================================================
-   CLAIM / UNCLAIM
+   CLAIM
 ========================================================= */
 
 export async function claimLeadService(
   id: string,
   adminId: string
 ) {
+  const before = await getLeadById(id);
+  if (!before) return;
+
   await updateLead(id, {
-    owner: {
-      connect: { id: adminId },
-    },
+    owner: { connect: { id: adminId } },
     status: LeadStatus.WARM,
     claimedAt: new Date(),
   });
@@ -27,21 +28,38 @@ export async function claimLeadService(
     action: "ADMIN_UPDATE",
     entityType: "LEAD",
     entityId: id,
+    entityLabel: `Lead: ${before.email}`,
     metadata: {
-      kind: "LEAD",
-      action: "CLAIM",
+      type: "UPDATE",
+      changes: [
+        {
+          field: "ownerId",
+          from: before.ownerId,
+          to: adminId,
+        },
+        {
+          field: "status",
+          from: before.status,
+          to: LeadStatus.WARM,
+        },
+      ],
     },
   });
 }
+
+/* =========================================================
+   UNCLAIM
+========================================================= */
 
 export async function unclaimLeadService(
   id: string,
   adminId: string
 ) {
+  const before = await getLeadById(id);
+  if (!before) return;
+
   await updateLead(id, {
-    owner: {
-      disconnect: true,
-    },
+    owner: { disconnect: true },
     claimedAt: null,
     status: LeadStatus.NEW,
   });
@@ -51,9 +69,21 @@ export async function unclaimLeadService(
     action: "ADMIN_UPDATE",
     entityType: "LEAD",
     entityId: id,
+    entityLabel: `Lead: ${before.email}`,
     metadata: {
-      kind: "LEAD",
-      action: "UNCLAIM",
+      type: "UPDATE",
+      changes: [
+        {
+          field: "ownerId",
+          from: before.ownerId,
+          to: null,
+        },
+        {
+          field: "status",
+          from: before.status,
+          to: LeadStatus.NEW,
+        },
+      ],
     },
   });
 }
@@ -67,6 +97,9 @@ export async function updateLeadStatusService(
   status: LeadStatus,
   adminId: string
 ) {
+  const before = await getLeadById(id);
+  if (!before) return;
+
   await updateLead(id, { status });
 
   await auditWithContext({
@@ -74,9 +107,16 @@ export async function updateLeadStatusService(
     action: "ADMIN_UPDATE",
     entityType: "LEAD",
     entityId: id,
+    entityLabel: `Lead: ${before.email}`,
     metadata: {
-      kind: "LEAD",
-      status,
+      type: "UPDATE",
+      changes: [
+        {
+          field: "status",
+          from: before.status,
+          to: status,
+        },
+      ],
     },
   });
 }
@@ -90,11 +130,16 @@ export async function assignLeadService(
   toUserId: string | null,
   adminId: string
 ) {
+  const before = await getLeadById(leadId);
+  if (!before) return;
+
+  const nextStatus = toUserId ? LeadStatus.WARM : LeadStatus.NEW;
+
   await updateLead(leadId, {
     owner: toUserId
       ? { connect: { id: toUserId } }
       : { disconnect: true },
-    status: toUserId ? LeadStatus.WARM : LeadStatus.NEW,
+    status: nextStatus,
     claimedAt: toUserId ? new Date() : null,
   });
 
@@ -103,10 +148,21 @@ export async function assignLeadService(
     action: "ADMIN_UPDATE",
     entityType: "LEAD",
     entityId: leadId,
+    entityLabel: `Lead: ${before.email}`,
     metadata: {
-      kind: "LEAD",
-      action: "ASSIGN",
-      toUserId,
+      type: "UPDATE",
+      changes: [
+        {
+          field: "ownerId",
+          from: before.ownerId,
+          to: toUserId,
+        },
+        {
+          field: "status",
+          from: before.status,
+          to: nextStatus,
+        },
+      ],
     },
   });
 }
@@ -128,10 +184,14 @@ export async function deleteLeadService(
     action: "ADMIN_DELETE",
     entityType: "LEAD",
     entityId: id,
+    entityLabel: `Lead: ${lead?.email ?? "Unknown"}`,
     metadata: {
-      kind: "LEAD",
-      email: lead?.email ?? null,
-      name: lead?.name ?? null,
+      type: "DELETE",
+      snapshot: {
+        email: lead?.email ?? null,
+        name: lead?.name ?? null,
+        status: lead?.status ?? null,
+      },
     },
   });
 }

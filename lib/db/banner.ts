@@ -137,3 +137,14 @@ export async function getAdminBanners(
     limit,
   };
 }
+
+/* ========================================================= */
+/* ADMIN READ SINGLE                                         */
+/* ========================================================= */
+
+export async function getAdminBannerById(id: string) {
+  return prisma.banner.findFirst({
+    where: { id },
+    select: bannerSelect,
+  });
+}

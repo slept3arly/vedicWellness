@@ -3,8 +3,10 @@ import {
   replaceSlidePlacementsDB,
   updateSlideDB,
   deleteSlideDB,
+  getSlideById, // 🔥 ensure this exists in DB
   SlidePlacementInput,
 } from "@/lib/db/slide";
+
 import { auditWithContext } from "@/lib/observability/auditWithContext";
 
 /* ===============================
@@ -43,8 +45,14 @@ export async function createSlideService(
     action: "ADMIN_CREATE",
     entityType: "SLIDE",
     entityId: slide.id,
+    entityLabel: `Slide: ${slide.id}`,
     metadata: {
-      placements: data.placements.length,
+      type: "CREATE",
+      snapshot: {
+        imageDesktopUrl: data.imageDesktopUrl,
+        imageMobileUrl: data.imageMobileUrl,
+        placementsCount: data.placements.length,
+      },
     },
   });
 
@@ -60,6 +68,9 @@ export async function updateSlideService(
   data: SlideInput,
   adminId: string
 ) {
+  const before = await getSlideById(id);
+  if (!before) throw new Error("Slide not found");
+
   await updateSlideDB(id, {
     imageDesktopUrl: data.imageDesktopUrl,
     imageMobileUrl: data.imageMobileUrl,
@@ -67,13 +78,41 @@ export async function updateSlideService(
 
   await replaceSlidePlacementsDB(id, data.placements);
 
+  const changes = [];
+
+  if (before.imageDesktopUrl !== data.imageDesktopUrl) {
+    changes.push({
+      field: "imageDesktopUrl",
+      from: before.imageDesktopUrl,
+      to: data.imageDesktopUrl,
+    });
+  }
+
+  if (before.imageMobileUrl !== data.imageMobileUrl) {
+    changes.push({
+      field: "imageMobileUrl",
+      from: before.imageMobileUrl,
+      to: data.imageMobileUrl,
+    });
+  }
+
+  if (before.placements?.length !== data.placements.length) {
+    changes.push({
+      field: "placementsCount",
+      from: before.placements?.length ?? 0,
+      to: data.placements.length,
+    });
+  }
+
   await auditWithContext({
     actorId: adminId,
     action: "ADMIN_UPDATE",
     entityType: "SLIDE",
     entityId: id,
+    entityLabel: `Slide: ${id}`,
     metadata: {
-      placements: data.placements.length,
+      type: "UPDATE",
+      changes,
     },
   });
 }
@@ -86,6 +125,8 @@ export async function deleteSlideService(
   id: string,
   adminId: string
 ) {
+  const before = await getSlideById(id);
+
   await deleteSlideDB(id);
 
   await auditWithContext({
@@ -93,5 +134,14 @@ export async function deleteSlideService(
     action: "ADMIN_DELETE",
     entityType: "SLIDE",
     entityId: id,
+    entityLabel: `Slide: ${id}`,
+    metadata: {
+      type: "DELETE",
+      snapshot: {
+        imageDesktopUrl: before?.imageDesktopUrl ?? null,
+        imageMobileUrl: before?.imageMobileUrl ?? null,
+        placementsCount: before?.placements?.length ?? 0,
+      },
+    },
   });
 }

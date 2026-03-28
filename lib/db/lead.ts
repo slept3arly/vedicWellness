@@ -112,3 +112,19 @@ export async function getSalesUsers() {
     orderBy: { createdAt: "asc" },
   });
 }
+
+/* ===============================
+   ADMIN SALES USERS
+================================ */
+
+export async function getAdminSalesUsers() {
+  return prisma.user.findMany({
+    where: { role: "SALES" },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+    },
+    orderBy: { createdAt: "asc" },
+  });
+}

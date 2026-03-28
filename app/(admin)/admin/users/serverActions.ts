@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { secureAdminAction } from "@/lib/security/secureAdminAction";
@@ -10,36 +10,62 @@ import {
   updateUserRoleService,
   updateUserService,
   deleteUserService,
-  getAdminUsersService
-} from "@/lib/services/userService";
+} from "@/lib/services/admin/userService";
 
-import { parseDeleteUser } from "@/lib/validators/user";
+import {
+  parseCreateUser,
+  parseUpdateUser,
+  parseUpdateUserRole,
+  parseDeleteUser,
+} from "@/lib/validators/user";
+
+/* =========================================================
+   CREATE
+========================================================= */
 
 export const createUser = secureAdminAction(
   async (admin, formData: FormData) => {
-    await createUserService(formData, admin.id);
+    const data = parseCreateUser(formData);
 
-    revalidatePath("/admin/users");
+    await createUserService(data, admin.id);
+
+    revalidateTag("users", "max");
     redirect("/admin/users");
   }
 );
+
+/* =========================================================
+   ROLE UPDATE
+========================================================= */
 
 export const updateUserRole = secureAdminAction(
   async (admin, formData: FormData) => {
-    await updateUserRoleService(formData, admin.id);
+    const { id, role } = parseUpdateUserRole(formData);
 
-    revalidatePath("/admin/users");
+    await updateUserRoleService(id, role, admin.id);
+
+    revalidateTag("users", "max");
   }
 );
+
+/* =========================================================
+   UPDATE
+========================================================= */
 
 export const updateUser = secureAdminAction(
   async (admin, formData: FormData) => {
-    await updateUserService(formData, admin.id);
+    const data = parseUpdateUser(formData);
 
-    revalidatePath("/admin/users");
+    await updateUserService(data, admin.id);
+
+    revalidateTag("users", "max");
     redirect("/admin/users");
   }
 );
+
+/* =========================================================
+   DELETE
+========================================================= */
 
 export const deleteUser = secureAdminAction(
   async (admin, formData: FormData) => {
@@ -47,14 +73,6 @@ export const deleteUser = secureAdminAction(
 
     await deleteUserService(id, admin.id);
 
-    revalidatePath("/admin/users");
+    revalidateTag("users", "max");
   }
 );
-
-export async function getAdminUsersAction(
-  page = 1,
-  limit = 20,
-  q = ""
-) {
-  return getAdminUsersService(page, limit, q);
-}
