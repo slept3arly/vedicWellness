@@ -34,6 +34,16 @@ export default function UserEditForm({ user }: { user: any }) {
             <option value="VIEWER">VIEWER</option>
           </select>
 
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+  <input
+    type="checkbox"
+    name="verified"
+    defaultChecked={user.verified}
+    className="accent-black dark:accent-white"
+  />
+  Mark as verified
+</label>
+
           <div className="space-y-1">
             <p className="text-sm font-semibold text-slate-600 dark:text-slate-300 opacity-70">
               Reset Password (optional)

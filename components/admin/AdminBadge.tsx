@@ -10,6 +10,8 @@ type BadgeStatus =
   | "VIEWER"
   | "ACTIVE"
   | "INACTIVE"
+  | "VERIFIED"     // ✅ add
+  | "UNVERIFIED"   // ✅ add
 
   // ORDERS
   | "CREATED"
@@ -30,6 +32,21 @@ const BADGE_STYLE: Record<
     dot: string;
   }
 > = {
+  VERIFIED: {
+    bg: "bg-emerald-500/10",
+    text: "text-emerald-400",
+    ring: "ring-emerald-400/30",
+    dot: "bg-emerald-400",
+  },
+
+  UNVERIFIED: {
+    bg: "bg-neutral-500/10",
+    text: "text-neutral-400",
+    ring: "ring-neutral-400/25",
+    dot: "bg-neutral-400",
+  },
+
+
   NEW: {
     bg: "bg-blue-500/10",
     text: "text-blue-400",

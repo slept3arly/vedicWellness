@@ -205,6 +205,12 @@ export default function AdminUsersClient({
                   <div className="flex flex-wrap items-center gap-2">
                     <h3 className="font-semibold text-base leading-snug">{u.name || u.email}</h3>
                     <AdminBadge status={u.role} />
+
+                    {u.verified ? (
+    <AdminBadge status="VERIFIED" />
+  ) : (
+    <AdminBadge status="UNVERIFIED" />
+  )}
                     {/* Date: full-width on mobile, pushed right on desktop */}
                     <span className="w-full sm:w-auto sm:ml-auto flex items-center gap-1 text-xs text-neutral-400">
                       <Calendar className="h-3 w-3 shrink-0" />

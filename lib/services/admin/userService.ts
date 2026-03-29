@@ -17,6 +17,7 @@ type CreateUserInput = {
   email: string;
   password: string;
   role: Role;
+  verified?: boolean; // ✅ add this
 };
 
 type UpdateUserInput = {
@@ -24,6 +25,7 @@ type UpdateUserInput = {
   email: string;
   role: Role;
   password?: string;
+  verified?: boolean; // ✅ add
 };
 
 /* =========================================================
@@ -36,10 +38,16 @@ export async function createUserService(
 ) {
   const hashed = await bcrypt.hash(data.password, 10);
 
+  const isVerified = data.verified === true;
+
   const user = await createUserDB({
     email: data.email,
     password: hashed,
     role: data.role,
+
+    // ✅ enforce invariant
+    verified: isVerified,
+    verifiedAt: isVerified ? new Date() : null,
   });
 
   await auditWithContext({
@@ -53,6 +61,7 @@ export async function createUserService(
       snapshot: {
         email: user.email,
         role: user.role,
+        verified: isVerified, // ✅ include this
       },
     },
   });
@@ -104,14 +113,20 @@ export async function updateUserService(
   const old = await getUserById(data.id);
   if (!old) return;
 
-  const updateData: Prisma.UserUpdateInput = {
-    email: data.email,
-    role: data.role,
-  };
+const updateData: Prisma.UserUpdateInput = {
+  email: data.email,
+  role: data.role,
+};
 
-  if (data.password) {
-    updateData.password = await bcrypt.hash(data.password, 10);
-  }
+const isVerified = data.verified === true;
+
+// ✅ enforce invariant
+updateData.verified = isVerified;
+updateData.verifiedAt = isVerified ? new Date() : null;
+
+if (data.password) {
+  updateData.password = await bcrypt.hash(data.password, 10);
+}
 
   await updateUserDB(data.id, updateData);
 
@@ -140,6 +155,14 @@ export async function updateUserService(
       to: "updated",
     });
   }
+
+  if (old.verified !== isVerified) {
+  changes.push({
+    field: "verified",
+    from: old.verified,
+    to: isVerified,
+  });
+}
 
   // ✅ avoid empty logs
   if (changes.length === 0) return;

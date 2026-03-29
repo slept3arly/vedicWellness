@@ -39,6 +39,15 @@ export default function UserNewForm() {
             <option value="VIEWER">VIEWER</option>
           </select>
 
+          <label className="flex items-center gap-2 text-sm cursor-pointer">
+            <input
+              type="checkbox"
+              name="verified"
+              className="accent-black dark:accent-white"
+            />
+            Mark as verified (skip email verification)
+          </label>
+
           <div className="flex gap-3 pt-2">
             <AdminActionButton>Create User</AdminActionButton>
 
