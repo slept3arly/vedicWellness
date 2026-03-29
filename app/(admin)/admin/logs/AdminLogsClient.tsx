@@ -3,233 +3,165 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import AdminCard from "../../../../components/admin/AdminCard";
+/* COMPONENTS */
+import AdminCard from "@/components/admin/AdminCard";
+import AdminPagination from "@/components/admin/AdminPagination";
+import AdminBadge from "@/components/admin/AdminBadge";
+import AdminButton from "@/components/admin/AdminButton";
 import PageHeader from "@/components/public/ui/PageHeader";
+
+/* CONSTANTS & UTILS */
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
-
-import {
-  Trash2,
-  Pencil,
-  Eye,
-  PlusCircle,
-  User,
-  Clock,
-  Globe,
-  FileText,
-  Hash,
-  Layers,
-  ChevronLeft,
-  ChevronRight,
+import { 
+  User, Clock, Globe, Hash, RefreshCw, 
+  FileText, Trash2, Pencil, PlusCircle, Download 
 } from "lucide-react";
-
-/* ------------------------------------------------------------------ */
+import { cn } from "@/lib/cn";
 
 function formatDate(d: string | Date) {
   return new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
+    day: "2-digit", month: "short", year: "numeric", 
+    hour: "2-digit", minute: "2-digit",
   }).format(new Date(d));
 }
 
-function humanAction(action: string) {
-  return action.replace("ADMIN_", "").replaceAll("_", " ").toLowerCase();
+// Map database actions to the NEW specialized Audit Log tags
+function getActionTheme(action: string): { icon: any; status: any } {
+  if (action.includes("DELETE")) return { icon: Trash2, status: "DELETED" };
+  if (action.includes("UPDATE")) return { icon: Pencil, status: "UPDATED" };
+  if (action.includes("CREATE")) return { icon: PlusCircle, status: "CREATED" };
+  return { icon: FileText, status: "VIEWER" };
 }
 
-function actionIcon(action: string) {
-  if (action.includes("DELETE")) return Trash2;
-  if (action.includes("UPDATE")) return Pencil;
-  if (action.includes("PUBLISH")) return Eye;
-  if (action.includes("CREATE")) return PlusCircle;
-  return FileText;
-}
-
-/* =========================================================
-   METADATA RENDERING
-========================================================= */
-
-function renderMetadata(meta: any) {
-  if (!meta) return null;
-
-  /* UPDATE → show diff */
-  if (meta.type === "UPDATE" && Array.isArray(meta.changes)) {
-    return (
-      <div className="space-y-1 text-xs">
-        {meta.changes.map((c: any, i: number) => (
-          <div key={i} className="flex gap-2">
-            <span className="font-medium text-neutral-500">{c.field}:</span>
-            <span className="text-red-500 line-through">
-              {String(c.from ?? "—")}
-            </span>
-            <span>→</span>
-            <span className="text-green-600">
-              {String(c.to ?? "—")}
-            </span>
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  /* CREATE / DELETE → snapshot */
-  if (meta.snapshot) {
-    return (
-      <div className="text-xs text-neutral-600 dark:text-neutral-300">
-        {Object.entries(meta.snapshot).map(([k, v]) => (
-          <div key={k}>
-            <span className="font-medium">{k}:</span>{" "}
-            {String(v ?? "—")}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  /* fallback */
-  return (
-    <pre className="text-xs bg-neutral-100 dark:bg-neutral-800 p-2 rounded">
-      {JSON.stringify(meta, null, 2)}
-    </pre>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-export default function AdminLogsClient({
-  logs = [],
-  total,
-  page,
-}: {
-  logs: any[];
-  total: number;
-  page: number;
+export default function AdminLogsClient({ 
+  logs = [], total, page 
+}: { 
+  logs: any[]; total: number; page: number; 
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
-  const LIMIT = ADMIN_PAGE_SIZE;
-  const totalPages = Math.ceil(total / LIMIT);
-
-  const handlePageChange = (newPage: number) => {
-    if (newPage < 1 || newPage > totalPages) return;
-    startTransition(() => {
-      router.push(`?page=${newPage}`);
-    });
-  };
+  const handleSync = () => startTransition(() => router.refresh());
+  const handlePageChange = (p: number) => startTransition(() => router.push(`?page=${p}`));
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-4">
+    <div className="max-w-7xl mx-auto px-4 space-y-6 pb-12">
+      
+      {/* 1. HEADER + ACTION BAR SYSTEM */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 py-4">
+        
+        {/* LEFT ALIGNED HEADER (Strict Requirement) */}
+        <PageHeader 
+          title="Activity Log" 
+          subtitle="System-wide audit trail" 
+          align="left" 
+          className="max-w-none m-0 p-0"
+        />
 
-      <PageHeader
-        title="Activity Log"
-        subtitle="Recent admin actions"
-      />
+        {/* RIGHT ALIGNED ACTIONS */}
+        <div className="flex flex-col items-end gap-3 w-full lg:w-auto">
+          
+          {/* TOP ROW: Pagination + Sync */}
+          <div className="flex items-center gap-2">
+            <AdminPagination 
+              page={page} totalPages={totalPages} 
+              isPending={isPending} onPageChange={handlePageChange} 
+            />
+            
+            <AdminButton 
+              onClick={handleSync} 
+              disabled={isPending}
+              icon={() => (
+                <RefreshCw className={cn("h-4 w-4", isPending && "animate-spin")} />
+              )}
+            >
+              Sync
+            </AdminButton>
+          </div>
 
-      <div className="flex justify-between items-center text-xs text-neutral-400 px-1">
-        <span>
-          Showing {logs.length} of {total} events
-        </span>
-        <span>Page {page} of {totalPages || 1}</span>
+          {/* SECOND ROW: Primary Action Button */}
+          <AdminButton 
+            variant="primary" 
+            icon={Download} 
+            className="w-full sm:min-w-[215px]" 
+          >
+            Export Logs
+          </AdminButton>
+        </div>
       </div>
 
-      <div className={`space-y-3 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
-        {logs.length === 0 ? (
-          <AdminCard className="py-16 flex flex-col items-center gap-2">
-            <FileText className="h-8 w-8 text-neutral-300" />
-            <p className="font-semibold text-neutral-500">No activity yet</p>
-          </AdminCard>
-        ) : (
-          logs.map((l, index) => {
-            const Icon = actionIcon(l.action);
-            const actorEmail = l.actor?.email || "System";
+      <hr className="border-neutral-200 dark:border-neutral-800" />
 
-            return (
-              <AdminCard key={l.id} className="flex flex-col gap-4">
+      {/* 2. GLOBAL GRID SYSTEM (3-2-1) */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${isPending ? "opacity-50" : ""}`}>
+        {logs.map((l, idx) => {
+          const theme = getActionTheme(l.action);
+          const displayIndex = (page - 1) * ADMIN_PAGE_SIZE + (idx + 1);
 
-                {/* Header */}
-                <div className="flex items-center gap-3">
-                  <Icon className="h-5 w-5 text-neutral-500" />
-                  <h3 className="font-semibold capitalize">
-                    {humanAction(l.action)}{" "}
-                    <span className="text-neutral-500">
-                      {l.entityLabel || l.entityType}
-                    </span>
-                  </h3>
+          return (
+            <AdminCard 
+              key={l.id} 
+              compact 
+              index={displayIndex}
+              className="group border-t-4 border-t-neutral-200 dark:border-t-neutral-700 hover:border-t-primary/50 transition-colors"
+            >
+              {/* Card Header: Action Type + Specialized Badge */}
+              <div className="flex justify-between items-start pr-8">
+                <div className="flex items-center gap-2">
+                  <div className="p-1 rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-500">
+                    <theme.icon className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-xs font-black uppercase tracking-tight">
+                    {l.action.replace("ADMIN_", "").replace("_", " ")}
+                  </span>
                 </div>
+                <AdminBadge status={theme.status} />
+              </div>
 
-                {/* Meta */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-sm">
+              {/* Target Entity Box */}
+              <div className="bg-neutral-50 dark:bg-neutral-800/50 p-3 rounded-xl border border-neutral-100 dark:border-neutral-800">
+                <span className="text-[10px] text-neutral-400 font-bold uppercase block mb-1">Target</span>
+                <p className="text-sm font-bold truncate text-neutral-700 dark:text-neutral-200">
+                  {l.entityLabel || l.entityId}
+                </p>
+              </div>
 
-                  <Meta label="Actor">
-                    <User className="h-3.5 w-3.5" />
-                    {actorEmail}
-                  </Meta>
-
-                  <Meta label="Time">
-                    <Clock className="h-3.5 w-3.5" />
+              {/* Actor & Timestamp Details */}
+              <div className="grid grid-cols-2 gap-4 py-1">
+                <div className="space-y-1">
+                  <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Actor</span>
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold truncate">
+                    <User className="h-3 w-3 text-neutral-400" /> 
+                    {l.actor?.email?.split('@')[0] || "System"}
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Time</span>
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold truncate">
+                    <Clock className="h-3 w-3 text-neutral-400" /> 
                     {formatDate(l.createdAt)}
-                  </Meta>
-
-                  {l.entityId && (
-                    <Meta label="ID">
-                      <Hash className="h-3.5 w-3.5" />
-                      {l.entityId}
-                    </Meta>
-                  )}
-
-                  {l.ip && (
-                    <Meta label="IP">
-                      <Globe className="h-3.5 w-3.5" />
-                      {l.ip}
-                    </Meta>
-                  )}
+                  </div>
                 </div>
+              </div>
 
-                {/* Metadata */}
-                {l.metadata && (
-                  <div className="pt-2 border-t border-neutral-200 dark:border-neutral-700">
-                    {renderMetadata(l.metadata)}
+              {/* Card Footer: System IDs & IP */}
+              <div className="flex justify-between items-center text-[9px] text-neutral-400 font-mono pt-3 border-t border-neutral-100 dark:border-neutral-800">
+                <div className="flex items-center gap-1.5">
+                  <Hash className="h-2.5 w-2.5" /> 
+                  <span className="select-all opacity-70 hover:opacity-100">{l.id.slice(-8)}</span>
+                </div>
+                {l.ip && (
+                  <div className="flex items-center gap-1.5">
+                    <Globe className="h-2.5 w-2.5" /> 
+                    <span>{l.ip}</span>
                   </div>
                 )}
-
-              </AdminCard>
-            );
-          })
-        )}
+              </div>
+            </AdminCard>
+          );
+        })}
       </div>
-
-      {totalPages > 1 && (
-        <div className="flex justify-center gap-4 pt-4 pb-10">
-          <button
-            onClick={() => handlePageChange(page - 1)}
-            disabled={page <= 1 || isPending}
-          >
-            <ChevronLeft />
-          </button>
-
-          <span>{page} / {totalPages}</span>
-
-          <button
-            onClick={() => handlePageChange(page + 1)}
-            disabled={page >= totalPages || isPending}
-          >
-            <ChevronRight />
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function Meta({ label, children }: any) {
-  return (
-    <div>
-      <div className="text-xs text-neutral-400">{label}</div>
-      <div className="flex items-center gap-1">{children}</div>
     </div>
   );
 }

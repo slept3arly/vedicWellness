@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+/* ICONS */
 import {
   Search,
   X,
@@ -15,34 +16,28 @@ import {
   User,
   Plus,
   ShieldCheck,
+  RefreshCw,
+  Hash,
   ArrowUpDown,
-  ChevronLeft,
-  ChevronRight,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 
-import AdminCard from "../../../../components/admin/AdminCard";
-import AdminButton from "../../../../components/admin/AdminButton";
-import AdminBadge from "../../../../components/admin/AdminBadge";
-import AdminActionButton from "../../../../components/admin/AdminActionButton";
+/* COMPONENTS */
+import AdminCard from "@/components/admin/AdminCard";
+import AdminButton from "@/components/admin/AdminButton";
+import AdminBadge from "@/components/admin/AdminBadge";
+import AdminActionButton from "@/components/admin/AdminActionButton";
+import AdminPagination from "@/components/admin/AdminPagination";
 import PageHeader from "@/components/public/ui/PageHeader";
+
+/* UTILS */
+import { cn } from "@/lib/cn";
 import { updateUserRole, deleteUser } from "./serverActions";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
-/* ------------------------------------------------------------------ */
-
-function formatDate(d?: string | Date | null) {
-  if (!d) return "—";
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(d));
-}
-
-/* ------------------------------------------------------------------ */
-
 export default function AdminUsersClient({
-  users,
+  users = [],
   total,
   q,
   page,
@@ -58,31 +53,16 @@ export default function AdminUsersClient({
   const [roleFilter, setRoleFilter] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
-  const [locked, setLocked] = useState(false);
 
-  const LIMIT = ADMIN_PAGE_SIZE;
-  const totalPages = Math.ceil(total / LIMIT);
+  const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
-  function handleFilter(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const query = (fd.get("query") as string).trim();
-    const p = new URLSearchParams();
-    p.set("page", "1");
-    if (query) p.set("q", query);
-    startTransition(() => router.push(`?${p.toString()}`));
-  }
-
-  const handlePageChange = (newPage: number) => {
-    const p = new URLSearchParams();
-    if (q) p.set("q", q);
-    p.set("page", newPage.toString());
-    startTransition(() => router.push(`?${p.toString()}`));
-  };
-
-  const handleClear = () => {
-    setInputValue("");
-    startTransition(() => router.push("?page=1"));
+  const handleSync = () => startTransition(() => router.refresh());
+  
+  const handlePageChange = (p: number) => {
+    startTransition(() => {
+      const query = q ? `&q=${encodeURIComponent(q)}` : "";
+      router.push(`?page=${p}${query}`);
+    });
   };
 
   const filtered = roleFilter
@@ -90,270 +70,230 @@ export default function AdminUsersClient({
     : users;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-4 px-4">
+    <div className="max-w-7xl mx-auto space-y-6 px-4 pb-12">
+      
+      {/* 1. GLOBAL HEADER SYSTEM */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 py-4">
+        <PageHeader
+          title="User Management"
+          subtitle={`Manage access and permissions (${total})`}
+          align="left"
+          className="max-w-none m-0 p-0"
+        />
 
-      {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-        <PageHeader title="Users" subtitle="Manage all registered users" />
-        <Link href="/admin/users/new">
-          <AdminButton>
-            <Plus className="h-4 w-4" />
-            Add User
-          </AdminButton>
-        </Link>
+        <div className="flex flex-col items-end gap-3 w-full lg:w-auto">
+          <div className="flex items-center gap-2">
+            <AdminPagination
+              page={page}
+              totalPages={totalPages}
+              isPending={isPending}
+              onPageChange={handlePageChange}
+            />
+            <AdminButton
+              onClick={handleSync}
+              disabled={isPending}
+              icon={({ className }) => (
+                <RefreshCw className={cn(className, isPending && "animate-spin")} />
+              )}
+            >
+              Sync
+            </AdminButton>
+          </div>
+          <Link href="/admin/users/new" className="w-full lg:w-auto">
+            <AdminButton variant="primary" icon={Plus} className="w-full sm:min-w-[215px]">
+              New User
+            </AdminButton>
+          </Link>
+        </div>
       </div>
 
-      {/* ── Search + Filters bar ── */}
-      <AdminCard className="p-3">
-        <form onSubmit={handleFilter} className="flex flex-col gap-2">
+      <hr className="border-neutral-200 dark:border-neutral-800" />
 
-          {/* Row 1: search */}
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-            <input
-              name="query"
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Search by name or email..."
-              className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm focus:ring-2 focus:ring-black outline-none transition-all"
-            />
-            {(inputValue || q) && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-400 hover:text-neutral-700 transition-colors"
-              >
-                <X className="h-3 w-3" strokeWidth={2.5} />
-              </button>
-            )}
-          </div>
-
-          {/* Row 2: role filters + search button */}
-          <div className="flex gap-2 flex-wrap items-center">
-            <div className="flex gap-1.5 flex-1 flex-wrap">
-              {["ADMIN", "SALES", "VIEWER"].map((r) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setRoleFilter(roleFilter === r ? null : r)}
-                  className={`px-3 h-8 rounded-lg text-xs font-medium border transition-colors ${
-                    roleFilter === r
-                      ? "bg-black dark:bg-white text-white dark:text-black border-black dark:border-white"
-                      : "bg-white dark:bg-neutral-900 border-neutral-300 dark:border-neutral-700 hover:border-neutral-400"
-                  }`}
-                >
-                  {r}
-                </button>
-              ))}
-              {roleFilter && (
-                <button
-                  type="button"
-                  onClick={() => setRoleFilter(null)}
-                  className="px-2 h-8 rounded-lg text-xs border border-neutral-300 dark:border-neutral-700 text-neutral-400 hover:text-neutral-700 transition flex items-center gap-1"
-                >
-                  <X className="h-3 w-3" /> Clear
-                </button>
+      {/* 2. SEARCH & FILTER SYSTEM */}
+      <AdminCard compact className="!p-3 border-dashed bg-neutral-50/50 dark:bg-neutral-900/50">
+        <div className="space-y-3">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              router.push(`?q=${inputValue}&page=1`);
+            }}
+            className="flex gap-2"
+          >
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+              <input
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                placeholder="Search by name or email..."
+                className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+              />
+              {inputValue && (
+                <X
+                  className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 cursor-pointer hover:text-red-500"
+                  onClick={() => {
+                    setInputValue("");
+                    router.push("?page=1");
+                  }}
+                />
               )}
             </div>
-
-            <button
-              type="submit"
-              disabled={isPending}
-              className="h-8 px-4 shrink-0 rounded-lg bg-black dark:bg-white text-white dark:text-black text-xs font-medium hover:opacity-80 disabled:opacity-50 transition-opacity flex items-center gap-1.5"
-            >
-              <Search className="h-3.5 w-3.5" />
+            <AdminButton type="submit" icon={Search}>
               Search
-            </button>
+            </AdminButton>
+          </form>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-[10px] font-bold uppercase text-neutral-400 mr-1">Filter Role:</span>
+            {["ADMIN", "SALES", "VIEWER"].map((r) => (
+              <button
+                key={r}
+                onClick={() => setRoleFilter(roleFilter === r ? null : r)}
+                className={cn(
+                  "px-3 py-1 rounded-full text-[11px] font-bold transition-all border",
+                  roleFilter === r
+                    ? "bg-black text-white border-black dark:bg-white dark:text-black"
+                    : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-500 hover:border-neutral-400"
+                )}
+              >
+                {r}
+              </button>
+            ))}
           </div>
-
-        </form>
-
-        <div className="mt-2 text-xs text-neutral-400 flex justify-between px-0.5">
-          <span>
-            {total} total result{total !== 1 ? "s" : ""}
-            {q && <> for "<span className="text-slate-600 dark:text-slate-300 font-medium">{q}</span>"</>}
-            {roleFilter && <> · filtered by <span className="text-slate-600 dark:text-slate-300 font-medium">{roleFilter}</span></>}
-          </span>
-          <span>Page {page} of {totalPages || 1}</span>
         </div>
       </AdminCard>
 
-      {/* ── Users List ── */}
-      <div className={`space-y-2 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
+      {/* 3. GLOBAL GRID SYSTEM */}
+      <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6", isPending && "opacity-50 pointer-events-none")}>
         {filtered.length === 0 ? (
-          <AdminCard className="py-12 flex flex-col items-center gap-2">
-            <User className="h-8 w-8 text-neutral-300" />
-            <p className="font-medium text-slate-600 dark:text-slate-300">No users found</p>
-            <button onClick={handleClear} className="text-sm text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white">
-              Clear search
-            </button>
-          </AdminCard>
+          <div className="col-span-full">
+            <AdminCard className="py-24 flex flex-col items-center justify-center text-center">
+              <User className="h-10 w-10 text-neutral-300 mb-4" />
+              <h3 className="text-lg font-bold">No users found</h3>
+              <p className="text-neutral-400 text-sm">Try adjusting your search or filters.</p>
+            </AdminCard>
+          </div>
         ) : (
-          filtered.map((u: any, index: number) => (
-            <AdminCard key={u.id} className="hover:shadow-md transition-shadow">
-              <div className="flex gap-3">
+          filtered.map((u, idx) => {
+            const displayIndex = (page - 1) * ADMIN_PAGE_SIZE + (idx + 1);
 
-                {/* Index */}
-                <span className="text-xs text-neutral-400 tabular-nums w-5 pt-1 text-center shrink-0">
-                  {(page - 1) * LIMIT + index + 1}
-                </span>
-
-                {/* Main content */}
-                <div className="flex-1 min-w-0 space-y-2">
-
-                  {/* Name + badge + date */}
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="font-semibold text-base leading-snug">{u.name || u.email}</h3>
+            return (
+              <AdminCard
+                key={u.id}
+                compact
+                index={displayIndex}
+                className="group flex flex-col h-full border-t-4 border-t-neutral-200 dark:border-t-neutral-700 hover:border-t-primary/50 transition-colors"
+              >
+                {/* Status Badges */}
+                <div className="flex justify-between items-start">
+                  <div className="flex gap-1.5">
                     <AdminBadge status={u.role} />
-
-                    {u.verified ? (
-    <AdminBadge status="VERIFIED" />
-  ) : (
-    <AdminBadge status="UNVERIFIED" />
-  )}
-                    {/* Date: full-width on mobile, pushed right on desktop */}
-                    <span className="w-full sm:w-auto sm:ml-auto flex items-center gap-1 text-xs text-neutral-400">
-                      <Calendar className="h-3 w-3 shrink-0" />
-                      {formatDate(u.createdAt)}
-                    </span>
+                    <AdminBadge status={u.verified ? "VERIFIED" : "UNVERIFIED"} />
                   </div>
+                </div>
 
-                  {/* Contact + role grid — 1 col mobile, 3 col desktop */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-1.5 gap-x-6">
-                    <Meta label="Email">
-                      <Mail className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{u.email}</span>
-                    </Meta>
-                    <Meta label="Role">
-                      <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-                      <span>{u.role}</span>
-                    </Meta>
+                {/* User Content */}
+                <div className="flex-1 py-4">
+                  <h3 className="text-base font-bold leading-tight text-neutral-800 dark:text-neutral-100 line-clamp-1">
+                    {u.name || "Anonymous User"}
+                  </h3>
+                  <div className="flex items-center gap-1.5 mt-1 text-[11px] text-neutral-500">
+                    <Mail className="h-3 w-3 shrink-0" />
+                    <span className="truncate">{u.email}</span>
                   </div>
+                </div>
 
-                  {/* Inline role editor */}
-                  {editingId === u.id && (
+                {/* Meta Information Grid (2 cols) */}
+                <div className="grid grid-cols-2 gap-4 py-3 border-y border-neutral-100 dark:border-neutral-800/50">
+                  <div className="space-y-1">
+                    <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Joined</span>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-neutral-600 dark:text-neutral-300">
+                      <Calendar className="h-3 w-3 text-neutral-400" />
+                      {new Date(u.createdAt).toLocaleDateString("en-IN", { day: '2-digit', month: 'short' })}
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Security</span>
+                    <div className="flex items-center gap-1.5 text-[11px] font-bold text-neutral-600 dark:text-neutral-300">
+                      {u.verified ? (
+                        <CheckCircle2 className="h-3 w-3 text-emerald-500" />
+                      ) : (
+                        <XCircle className="h-3 w-3 text-amber-500" />
+                      )}
+                      {u.verified ? "Verified" : "Pending"}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Inline role editor toggle (if active) */}
+                {editingId === u.id && (
+                  <div className="py-3 bg-neutral-50 dark:bg-neutral-800/30 -mx-4 px-4 border-b border-neutral-100 dark:border-neutral-800 animate-in fade-in slide-in-from-top-1">
                     <form
                       action={async (fd) => {
-                        if (loadingId === u.id || locked) return;
                         setLoadingId(u.id);
                         await updateUserRole(fd);
-                        setLocked(true);
                         setLoadingId(null);
                         setEditingId(null);
                       }}
-                      className="flex flex-wrap gap-2 items-center bg-neutral-50 dark:bg-neutral-800/50 px-3 py-2 rounded-lg border border-neutral-200 dark:border-neutral-700"
+                      className="flex flex-col gap-2"
                     >
                       <input type="hidden" name="id" value={u.id} />
                       <select
                         name="role"
                         defaultValue={u.role}
-                        className="h-8 flex-1 sm:flex-none rounded-lg px-2 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 outline-none min-w-0"
+                        className="h-9 w-full rounded-lg px-2 text-xs bg-white dark:bg-neutral-900 border border-neutral-300 dark:border-neutral-700 outline-none"
                       >
                         <option value="ADMIN">ADMIN</option>
                         <option value="SALES">SALES</option>
                         <option value="VIEWER">VIEWER</option>
                       </select>
-                      <AdminActionButton className="h-8 text-xs px-2 gap-1 shrink-0">
-                        <Save className="h-3 w-3" /> Save
-                      </AdminActionButton>
-                      <button
-                        type="button"
-                        onClick={() => setEditingId(null)}
-                        className="text-xs text-neutral-400 underline underline-offset-2 hover:text-black dark:hover:text-white px-1"
-                      >
-                        Cancel
-                      </button>
+                      <div className="flex gap-2">
+                        <AdminButton variant="primary" type="submit" icon={Save} className="flex-1 h-8 text-[11px]">
+                          {loadingId === u.id ? "Updating..." : "Save Role"}
+                        </AdminButton>
+                        <AdminButton variant="ghost" onClick={() => setEditingId(null)} className="h-8 text-[11px]">
+                          Cancel
+                        </AdminButton>
+                      </div>
                     </form>
-                  )}
+                  </div>
+                )}
 
-                  {/* ── Actions ──
-                      Mobile: stacked vertically, full-width buttons
-                      Desktop: single inline row with dividers
-                  */}
-                  <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 pt-0.5">
-
+                {/* Actions Section */}
+                <div className="space-y-2 pt-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link href={`/admin/users/edit/${u.id}`}>
+                      <AdminButton icon={Pencil} className="w-full h-9 text-[11px]">Edit</AdminButton>
+                    </Link>
                     <AdminButton
-                      className="h-8 text-xs px-2 gap-1 w-full sm:w-auto justify-center"
-                      onClick={() => startTransition(() => router.push(`/admin/users/edit/${u.id}`))}
-                    >
-                      <Pencil className="h-3.5 w-3.5" /> Edit
-                    </AdminButton>
-
-                    {/* Divider — hidden on mobile */}
-                    <div className="hidden sm:block w-px h-5 bg-neutral-200 dark:bg-neutral-700 shrink-0" />
-
-                    <AdminButton
-                      className="h-8 text-xs px-2 gap-1 w-full sm:w-auto justify-center"
+                      icon={ArrowUpDown}
+                      className="w-full h-9 text-[11px]"
                       onClick={() => setEditingId(editingId === u.id ? null : u.id)}
                     >
-                      <ArrowUpDown className="h-3.5 w-3.5" /> Role
+                      Role
                     </AdminButton>
-
-                    {/* Divider — hidden on mobile */}
-                    <div className="hidden sm:block w-px h-5 bg-neutral-200 dark:bg-neutral-700 shrink-0" />
-
-                    <form
-                      action={async (fd) => {
-                        if (loadingId === u.id || locked) return;
-                        if (!confirm("Delete this user permanently?")) return;
-                        setLoadingId(u.id);
-                        await deleteUser(fd);
-                        setLocked(true);
-                        setLoadingId(null);
-                      }}
-                      className="w-full sm:w-auto"
-                    >
-                      <input type="hidden" name="id" value={u.id} />
-                      <AdminActionButton
-                        variant="danger"
-                        className="h-8 text-xs px-2 gap-1 w-full sm:w-auto justify-center"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" /> Delete
-                      </AdminActionButton>
-                    </form>
-
                   </div>
+                  <form
+                    action={deleteUser}
+                    onSubmit={(e) => !confirm("Permanently delete this user?") && e.preventDefault()}
+                    className="w-full"
+                  >
+                    <input type="hidden" name="id" value={u.id} />
+                    <AdminActionButton variant="danger" icon={Trash2} className="w-full h-9 text-[11px]">
+                      Delete User
+                    </AdminActionButton>
+                  </form>
                 </div>
-              </div>
-            </AdminCard>
-          ))
+
+                {/* ID Footer */}
+                <div className="flex items-center text-[9px] text-neutral-400 font-mono pt-3 mt-auto border-t border-neutral-50 dark:border-neutral-800/50">
+                  <Hash className="h-2.5 w-2.5 mr-1" />
+                  <span className="select-all opacity-70 uppercase">{u.id.slice(-12)}</span>
+                </div>
+              </AdminCard>
+            );
+          })
         )}
       </div>
-
-      {/* ── Pagination ── */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 pt-2 pb-10">
-          <button
-            onClick={() => handlePageChange(page - 1)}
-            disabled={page <= 1 || isPending}
-            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <div className="text-sm font-medium">
-            Page <span className="text-black dark:text-white">{page}</span> of {totalPages}
-          </div>
-          <button
-            onClick={() => handlePageChange(page + 1)}
-            disabled={page >= totalPages || isPending}
-            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-      )}
-
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function Meta({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="min-w-0">
-      <div className="text-[10px] uppercase tracking-wide text-neutral-400 font-medium mb-0.5">{label}</div>
-      <div className="flex items-center gap-1 text-xs text-neutral-800 dark:text-neutral-100 min-w-0">{children}</div>
     </div>
   );
 }

@@ -4,270 +4,151 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
-import {
-  Trash2,
-  Pencil,
-  Calendar,
-  ArrowUpDown,
-  Eye,
-  EyeOff,
-  Type,
-  Plus,
-  Search,
-  X,
-  ChevronLeft,
-  ChevronRight,
+/* ICONS */
+import { 
+  Trash2, Pencil, Calendar, Eye, EyeOff, 
+  Plus, Search, X, RefreshCw, Hash, ListOrdered 
 } from "lucide-react";
 
-import AdminCard from "../../../../components/admin/AdminCard";
+/* COMPONENTS */
+import AdminCard from "@/components/admin/AdminCard";
 import AdminActionButton from "@/components/admin/AdminActionButton";
-import AdminButton from "../../../../components/admin/AdminButton";
-import AdminBadge from "../../../../components/admin/AdminBadge";
+import AdminButton from "@/components/admin/AdminButton";
+import AdminBadge from "@/components/admin/AdminBadge";
+import AdminPagination from "@/components/admin/AdminPagination";
 import PageHeader from "@/components/public/ui/PageHeader";
 
-import { deleteMarqueeItem, toggleMarqueeItem } from "./serverActions";
+/* UTILS */
+import { cn } from "@/lib/cn";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+import { deleteMarqueeItem, toggleMarqueeItem } from "./serverActions";
 
-export default function AdminMarqueeClient({
-  marqueeItems = [],
-  total,
-  q,
-  page,
-}: {
-  marqueeItems: any[];
-  total: number;
-  q: string;
-  page: number;
-}) {
+export default function AdminMarqueeClient({ marqueeItems = [], total, q, page }: { marqueeItems: any[]; total: number; q: string; page: number; }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState(q);
-
   const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
-  function handleSearch(e: React.FormEvent) {
-    e.preventDefault();
-    const p = new URLSearchParams();
-    if (inputValue) p.set("q", inputValue);
-    p.set("page", "1");
-    startTransition(() => router.push(`?${p.toString()}`));
-  }
-
-  const handleClear = () => {
-    setInputValue("");
-    startTransition(() => router.push("?page=1"));
-  };
-
-  const handlePageChange = (newPage: number) => {
-    const p = new URLSearchParams();
-    if (q) p.set("q", q);
-    p.set("page", newPage.toString());
-    startTransition(() => router.push(`?${p.toString()}`));
-  };
+  const handleSync = () => startTransition(() => router.refresh());
+  const handlePageChange = (p: number) => startTransition(() => router.push(`?q=${q}&page=${p}`));
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-4">
-      {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-        <PageHeader
-          title="Marquee Text"
-          subtitle="Homepage scrolling announcements"
+    <div className="max-w-7xl mx-auto space-y-6 px-4 pb-12">
+      
+      {/* 1. GLOBAL HEADER SYSTEM */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 py-4">
+        <PageHeader 
+          title="Marquee Text" 
+          subtitle="Scrolling announcements" 
+          align="left" 
+          className="max-w-none m-0 p-0" 
         />
-        <Link href="/admin/marquee/new">
-          <AdminButton>
-            <Plus className="h-4 w-4" />
-            Add Text
-          </AdminButton>
-        </Link>
+        
+        <div className="flex flex-col items-end gap-3 w-full lg:w-auto">
+          <div className="flex items-center gap-2">
+            <AdminPagination page={page} totalPages={totalPages} isPending={isPending} onPageChange={handlePageChange} />
+            <AdminButton 
+              onClick={handleSync} 
+              disabled={isPending}
+              icon={({ className }) => (
+                <RefreshCw className={cn(className, isPending && "animate-spin")} />
+              )}
+            >
+              Sync
+            </AdminButton>
+          </div>
+          <Link href="/admin/marquee/new" className="w-full lg:w-auto">
+            <AdminButton variant="primary" icon={Plus} className="w-full sm:min-w-[215px]">New Marquee</AdminButton>
+          </Link>
+        </div>
       </div>
 
-      {/* ── Search Bar ── */}
-      <AdminCard className="p-3">
-        <form onSubmit={handleSearch} className="flex gap-2">
+      <hr className="border-neutral-200 dark:border-neutral-800" />
+
+      {/* 2. SEARCH SYSTEM */}
+      <AdminCard compact className="!p-3 border-dashed bg-neutral-50/50 dark:bg-neutral-900/50">
+        <form onSubmit={(e) => { e.preventDefault(); router.push(`?q=${inputValue}&page=1`); }} className="flex gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Search marquee text..."
-              className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-black"
+              placeholder="Search marquee items..."
+              className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
-            {inputValue && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            )}
+            {inputValue && <X className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 cursor-pointer hover:text-red-500" onClick={() => setInputValue("")} />}
           </div>
-          <AdminButton type="submit" disabled={isPending}>
-            Search
-          </AdminButton>
+          <AdminButton type="submit" icon={Search}>Search</AdminButton>
         </form>
-
-        <div className="mt-2 text-[10px] text-neutral-400 flex justify-between px-1">
-          <span>Found {total} items</span>
-          <span>
-            Page {page} of {totalPages || 1}
-          </span>
-        </div>
       </AdminCard>
 
-      {/* ── Items List ── */}
-      <div
-        className={`space-y-3 transition-opacity duration-200 ${
-          isPending ? "opacity-50 pointer-events-none" : ""
-        }`}
-      >
-        {marqueeItems.length === 0 ? (
-          <AdminCard className="py-16 flex flex-col items-center gap-2">
-            <Type className="h-8 w-8 text-neutral-300" />
-            <p className="font-semibold text-neutral-500">
-              No marquee items found
-            </p>
-          </AdminCard>
-        ) : (
-          marqueeItems.map((m, index) => (
-            <AdminCard
-              key={m.id}
-              className="flex flex-col sm:flex-row gap-4 hover:shadow-md transition-shadow"
+      {/* 3. GLOBAL GRID SYSTEM */}
+      <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 ${isPending ? "opacity-50" : ""}`}>
+        {marqueeItems.map((m, idx) => {
+          const displayIndex = (page - 1) * ADMIN_PAGE_SIZE + (idx + 1);
+
+          return (
+            <AdminCard 
+              key={m.id} 
+              compact 
+              index={displayIndex}
+              className="group flex flex-col h-full border-t-4 border-t-neutral-200 dark:border-t-neutral-700 hover:border-t-primary/50 transition-colors"
             >
-              {/* ── Left: index ── */}
-              <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
-                <span className="text-xs text-neutral-400 tabular-nums w-5 text-center">
-                  {(page - 1) * ADMIN_PAGE_SIZE + index + 1}
-                </span>
-
-                <div className="w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center border border-neutral-200 dark:border-neutral-700 shrink-0">
-                  <Type className="h-5 w-5 text-neutral-400" />
+              <div className="flex justify-between items-start pr-8">
+                <AdminBadge status={m.isActive ? "VISIBLE" : "HIDDEN"} />
+                <div className="flex items-center gap-1.5 text-[10px] font-mono text-neutral-400">
+                  <ListOrdered className="h-2.5 w-2.5" /> ORDER: {m.order}
                 </div>
               </div>
 
-              {/* ── Middle: content ── */}
-              <div className="flex-1 min-w-0 space-y-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-heading text-xl font-semibold leading-snug line-clamp-2 break-words">
-                    {m.text}
-                  </h3>
-                  <AdminBadge
-                    status={m.isActive ? "ACTIVE" : "INACTIVE"}
-                  />
+              <div className="flex-1 py-3">
+                <h3 className="text-sm font-bold leading-tight text-neutral-800 dark:text-neutral-100 line-clamp-3">
+                  {m.text}
+                </h3>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4 py-3 border-y border-neutral-100 dark:border-neutral-800/50">
+                <div className="space-y-1">
+                  <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Created</span>
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-neutral-600 dark:text-neutral-300">
+                    <Calendar className="h-3 w-3 text-neutral-400" /> 
+                    {new Date(m.createdAt).toLocaleDateString("en-IN", { day: '2-digit', month: 'short' })}
+                  </div>
                 </div>
-
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3">
-                  <Meta label="Order">
-                    <ArrowUpDown className="h-3.5 w-3.5 shrink-0" />
-                    <span>{m.order}</span>
-                  </Meta>
-
-                  <Meta label="Visibility">
-                    {m.isActive ? (
-                      <Eye className="h-3.5 w-3.5" />
-                    ) : (
-                      <EyeOff className="h-3.5 w-3.5" />
-                    )}
-                    <span>
-                      {m.isActive ? "Visible" : "Hidden"}
-                    </span>
-                  </Meta>
-
-                  <Meta label="Created">
-                    <Calendar className="h-3.5 w-3.5 shrink-0" />
-                    <span>
-                      {new Date(m.createdAt).toLocaleDateString("en-IN")}
-                    </span>
-                  </Meta>
+                <div className="space-y-1">
+                  <span className="text-[9px] text-neutral-400 font-bold uppercase tracking-wider">Visibility</span>
+                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-neutral-600 dark:text-neutral-300">
+                    {m.isActive ? <Eye className="h-3 w-3 text-emerald-500" /> : <EyeOff className="h-3 w-3 text-amber-500" />} 
+                    {m.isActive ? "Live" : "Hidden"}
+                  </div>
                 </div>
               </div>
 
-              {/* ── Right: actions ── */}
-              <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 shrink-0 sm:w-36">
-                <Link
-                  href={`/admin/marquee/edit/${m.id}`}
-                  className="w-full"
-                >
-                  <AdminButton className="w-full justify-center">
-                    <Pencil className="h-3.5 w-3.5" /> Edit
-                  </AdminButton>
-                </Link>
-
-                <form action={toggleMarqueeItem} className="w-full">
+              <div className="space-y-2 pt-3">
+                <div className="grid grid-cols-2 gap-2">
+                  <Link href={`/admin/marquee/edit/${m.id}`}>
+                    <AdminButton icon={Pencil} className="w-full">Edit</AdminButton>
+                  </Link>
+                  <form action={toggleMarqueeItem} className="w-full">
+                    <input type="hidden" name="id" value={m.id} />
+                    <AdminActionButton variant="ghost" className="w-full">
+                      {m.isActive ? <><EyeOff className="h-4 w-4" /> Hide</> : <><Eye className="h-4 w-4" /> Show</>}
+                    </AdminActionButton>
+                  </form>
+                </div>
+                <form action={deleteMarqueeItem} className="w-full" onSubmit={(e) => !confirm("Delete this marquee text?") && e.preventDefault()}>
                   <input type="hidden" name="id" value={m.id} />
-                  <AdminActionButton className="w-full justify-center">
-                    {m.isActive ? (
-                      <EyeOff className="h-3.5 w-3.5" />
-                    ) : (
-                      <Eye className="h-3.5 w-3.5" />
-                    )}
-                    {m.isActive ? "Unpublish" : "Publish"}
-                  </AdminActionButton>
+                  <AdminActionButton variant="danger" icon={Trash2} className="w-full">Delete</AdminActionButton>
                 </form>
+              </div>
 
-                <form
-                  action={deleteMarqueeItem}
-                  className="w-full col-span-2 sm:col-span-1"
-                  onSubmit={(e) =>
-                    !confirm("Delete permanently?") && e.preventDefault()
-                  }
-                >
-                  <input type="hidden" name="id" value={m.id} />
-                  <AdminActionButton
-                    variant="danger"
-                    className="w-full justify-center"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" /> Delete
-                  </AdminActionButton>
-                </form>
+              <div className="flex items-center text-[9px] text-neutral-400 font-mono pt-3 mt-auto border-t border-neutral-50 dark:border-neutral-800/50">
+                <Hash className="h-2.5 w-2.5 mr-1" />
+                <span className="select-all opacity-70">{m.id.slice(-8)}</span>
               </div>
             </AdminCard>
-          ))
-        )}
-      </div>
-
-      {/* ── Pagination ── */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 pt-4 pb-10">
-          <button
-            onClick={() => handlePageChange(page - 1)}
-            disabled={page <= 1 || isPending}
-            className="p-2 rounded-full border border-neutral-300 disabled:opacity-30 hover:bg-neutral-100 transition"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-
-          <span className="text-sm font-medium">
-            {page} / {totalPages}
-          </span>
-
-          <button
-            onClick={() => handlePageChange(page + 1)}
-            disabled={page >= totalPages || isPending}
-            className="p-2 rounded-full border border-neutral-300 disabled:opacity-30 hover:bg-neutral-100 transition"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function Meta({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="min-w-0">
-      <div className="text-[10px] uppercase tracking-wide text-neutral-400 font-medium mb-0.5">
-        {label}
-      </div>
-      <div className="flex items-center gap-1 text-sm text-neutral-800 dark:text-neutral-100">
-        {children}
+          );
+        })}
       </div>
     </div>
   );

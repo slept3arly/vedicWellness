@@ -34,12 +34,6 @@ const sections = [
     desc: "Manage homepage & campaign banners",
   },
   {
-    label: "Orders",
-    href: "/admin/orders",
-    icon: Package, // you can change later
-    desc: "Manage customer orders",
-  },
-  {
     label: "Banners",
     href: "/admin/banners",
     icon: LayoutPanelTop,
@@ -52,16 +46,22 @@ const sections = [
     desc: "Homepage banner text",
   },
   {
-    label: "Leads",
-    href: "/admin/leads",
-    icon: ClipboardList,
-    desc: "Customer inquiries",
-  },
-  {
     label: "Users",
     href: "/admin/users",
     icon: Users,
     desc: "Admins, sales & viewers",
+  },
+  {
+    label: "Orders",
+    href: "/admin/orders",
+    icon: Package,
+    desc: "Manage customer orders",
+  },
+  {
+    label: "Leads",
+    href: "/admin/leads",
+    icon: ClipboardList,
+    desc: "Customer inquiries",
   },
   {
     label: "Logs",

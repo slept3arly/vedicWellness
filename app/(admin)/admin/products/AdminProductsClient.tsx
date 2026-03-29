@@ -6,32 +6,38 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Product } from "@prisma/client";
 
+/* ICONS */
 import {
   Search,
   Trash2,
   Pencil,
   Calendar,
   Tag,
-  Image as ImageIcon,
-  IndianRupee,
   Eye,
   EyeOff,
-  Boxes,
-  Package,
+  Image as ImageIcon,
   X,
   Plus,
-  ArrowUpDown,
+  RefreshCw,
+  Hash,
+  IndianRupee,
+  Package,
+  Boxes,
   Barcode,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 
-import AdminCard from "../../../../components/admin/AdminCard";
+/* COMPONENTS */
+import AdminCard from "@/components/admin/AdminCard";
 import AdminActionButton from "@/components/admin/AdminActionButton";
-import AdminButton from "../../../../components/admin/AdminButton";
-import AdminBadge from "../../../../components/admin/AdminBadge";
+import AdminButton from "@/components/admin/AdminButton";
+import AdminBadge from "@/components/admin/AdminBadge";
+import AdminPagination from "@/components/admin/AdminPagination";
 import PageHeader from "@/components/public/ui/PageHeader";
+
+/* UTILS */
+import { cn } from "@/lib/cn";
 import { deleteProduct, toggleProductPublished } from "./serverActions";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 /* ------------------------------------------------------------------ */
 
@@ -55,281 +61,220 @@ function formatCurrency(amount: number, currency = "INR") {
 /* ------------------------------------------------------------------ */
 
 export default function AdminProductsClient({
-  products,
+  products = [],
   total,
-  q,
   page,
+  q,
 }: {
   products: Product[];
   total: number;
-  q: string;
   page: number;
+  q: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState(q);
+  const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
-  const LIMIT = 12;
-  const totalPages = Math.ceil(total / LIMIT);
-
-  function handleFilter(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const query = (fd.get("query") as string).trim();
-    const p = new URLSearchParams();
-    p.set("page", "1");
-    if (query) p.set("q", query);
-    startTransition(() => router.push(`?${p.toString()}`));
-  }
-
-  const handleClear = () => {
-    setInputValue("");
-    startTransition(() => router.push("?page=1"));
-  };
+  const handleSync = () => startTransition(() => router.refresh());
 
   const handlePageChange = (newPage: number) => {
-    const p = new URLSearchParams();
-    if (q) p.set("q", q);
-    p.set("page", newPage.toString());
-    startTransition(() => router.push(`?${p.toString()}`));
+    startTransition(() => {
+      const query = inputValue ? `&q=${encodeURIComponent(inputValue)}` : "";
+      router.push(`/admin/products?page=${newPage}${query}`);
+    });
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-4">
-      {/* ── Header ── */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
-        <PageHeader 
-          title="Products" 
-          subtitle="Manage your product catalog" 
+    <div className="max-w-7xl mx-auto space-y-6 px-4 pb-12">
+      {/* 1. GLOBAL HEADER SYSTEM */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 py-4">
+        <PageHeader
+          title="Products"
+          subtitle={`Manage your product catalog (${total})`}
+          align="left"
+          className="max-w-none m-0 p-0"
         />
-        <Link href="/admin/products/new">
-          <AdminButton>
-            <Plus className="h-4 w-4" />
-            Add Product
-          </AdminButton>
-        </Link>
+
+        <div className="flex flex-col items-end gap-3 w-full lg:w-auto">
+          <div className="flex items-center gap-2">
+            <AdminPagination
+              page={page}
+              totalPages={totalPages}
+              isPending={isPending}
+              onPageChange={handlePageChange}
+            />
+            <AdminButton
+              onClick={handleSync}
+              disabled={isPending}
+              icon={({ className }) => (
+                <RefreshCw className={cn(className, isPending && "animate-spin")} />
+              )}
+            >
+              Sync
+            </AdminButton>
+          </div>
+          <Link href="/admin/products/new" className="w-full lg:w-auto">
+            <AdminButton variant="primary" icon={Plus} className="w-full sm:min-w-[215px]">
+              New Product
+            </AdminButton>
+          </Link>
+        </div>
       </div>
 
-      {/* ── Search bar ── */}
-      <AdminCard className="p-3">
-        <form onSubmit={handleFilter} className="flex flex-col gap-2">
-          <div className="relative w-full">
+      <hr className="border-neutral-200 dark:border-neutral-800" />
+
+      {/* 2. SEARCH SYSTEM */}
+      <AdminCard compact className="!p-3 border-dashed bg-neutral-50/50 dark:bg-neutral-900/50">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handlePageChange(1);
+          }}
+          className="flex gap-2"
+        >
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <input
-              name="query"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Search by name, tag, form..."
-              className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm focus:ring-2 focus:ring-black outline-none transition-all"
+              placeholder="Search by name, tag, or medicine form..."
+              className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
-            {(inputValue || q) && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-400 hover:text-neutral-700 transition-colors"
-              >
-                <X className="h-3 w-3" strokeWidth={2.5} />
-              </button>
+            {inputValue && (
+              <X
+                className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 cursor-pointer hover:text-red-500"
+                onClick={() => {
+                  setInputValue("");
+                  router.push("/admin/products?page=1");
+                }}
+              />
             )}
           </div>
-
-          <div className="flex gap-2">
-            <div className="flex-1 flex items-center gap-2 rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 px-3 h-10">
-              <ArrowUpDown className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
-              <select
-                name="sort"
-                defaultValue="newest"
-                onChange={(e) => e.currentTarget.form?.requestSubmit()}
-                className="bg-transparent w-full text-sm outline-none cursor-pointer"
-              >
-                <option value="newest">Newest First</option>
-                <option value="name_asc">Name A→Z</option>
-                <option value="name_desc">Name Z→A</option>
-                <option value="price_asc">Price: Low to High</option>
-                <option value="price_desc">Price: High to Low</option>
-              </select>
-            </div>
-
-            <button
-              type="submit"
-              disabled={isPending}
-              className="h-10 px-5 shrink-0 rounded-lg bg-black dark:bg-white text-white dark:text-black text-sm font-medium hover:opacity-80 disabled:opacity-50 transition-opacity flex items-center gap-2"
-            >
-              <Search className="h-3.5 w-3.5" />
-              Filter
-            </button>
-          </div>
+          <AdminButton type="submit" icon={Search}>
+            Filter
+          </AdminButton>
         </form>
-
-        <div className="mt-2 text-[10px] uppercase tracking-wider text-neutral-400 flex justify-between px-0.5 font-bold">
-          <span>
-            {total} {total === 1 ? "Product" : "Products"} Found
-            {q && <> for "{q}"</>}
-          </span>
-          <span>Page {page} of {totalPages || 1}</span>
-        </div>
       </AdminCard>
 
-      {/* ── Product List ── */}
-      <div className={`space-y-3 transition-opacity duration-200 ${isPending ? "opacity-50 pointer-events-none" : ""}`}>
-        {products.length === 0 ? (
-          <AdminCard className="py-16 flex flex-col items-center gap-2">
-            <Search className="h-8 w-8 text-neutral-300" />
-            <p className="font-semibold text-neutral-500">No products found</p>
-            <button onClick={handleClear} className="text-sm text-blue-500 underline underline-offset-2">
-              Clear all filters
-            </button>
-          </AdminCard>
-        ) : (
-          products.map((p, index) => {
-            const galleryCount = Array.isArray(p.gallery) ? p.gallery.length : 0;
+      {/* 3. GLOBAL GRID SYSTEM (3-COLUMN LAYOUT) */}
+      <div
+        className={cn(
+          "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6",
+          isPending && "opacity-50 pointer-events-none"
+        )}
+      >
+        {products.map((p, idx) => {
+          const displayIndex = (page - 1) * ADMIN_PAGE_SIZE + (idx + 1);
 
-            return (
-              <AdminCard
-                key={p.id}
-                className="flex flex-col sm:flex-row gap-4 hover:shadow-md transition-shadow"
-              >
-                {/* ── Left: index + image ── */}
-                <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
-                  <span className="text-xs text-neutral-400 tabular-nums w-5 text-center font-medium">
-                    {(page - 1) * LIMIT + index + 1}
-                  </span>
-                  <div className="relative w-16 h-16 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center overflow-hidden border border-neutral-200 dark:border-neutral-700 shrink-0">
-                    {p.imageUrl ? (
-                      <Image src={p.imageUrl} alt={p.name} fill sizes="64px" className="object-cover" />
-                    ) : (
-                      <ImageIcon className="h-5 w-5 text-neutral-400" />
-                    )}
+          return (
+            <AdminCard
+              key={p.id}
+              compact
+              index={displayIndex}
+              className="group flex flex-col h-full border-t-4 border-t-neutral-200 dark:border-t-neutral-700 hover:border-t-primary/50 transition-all"
+            >
+              {/* Status & Category/Tag */}
+              <div className="flex justify-between items-start mb-3">
+                <AdminBadge status={p.published ? "ACTIVE" : "INACTIVE"} />
+                <div className="flex items-center gap-1 text-[10px] font-bold uppercase text-neutral-400">
+                  <Tag className="h-2.5 w-2.5" /> {p.tag || "General"}
+                </div>
+              </div>
+
+              {/* Product Image */}
+              <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 mb-4 shrink-0">
+                {p.imageUrl ? (
+                  <Image
+                    src={p.imageUrl}
+                    alt={p.name}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-full">
+                    <ImageIcon className="h-8 w-8 text-neutral-300" />
+                  </div>
+                )}
+              </div>
+
+              {/* Content */}
+              <div className="flex-1 space-y-3">
+                <h3 className="font-bold text-base leading-tight line-clamp-2 min-h-[2.5rem]">
+                  {p.name}
+                </h3>
+
+                <div className="space-y-1.5 border-l-2 border-neutral-100 dark:border-neutral-800 pl-3">
+                  <div className="flex items-center gap-2 text-xs text-neutral-900 dark:text-neutral-100 font-bold">
+                    <IndianRupee className="h-3 w-3" /> {formatCurrency(p.price, p.currency)}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-neutral-500">
+                    <Package className="h-3 w-3" /> {p.stock} in stock
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-neutral-500">
+                    <Boxes className="h-3 w-3" /> {p.medicineForm || "—"}
+                  </div>
+                  <div className="flex items-center gap-2 text-[11px] text-neutral-400 font-mono italic">
+                    <Barcode className="h-3 w-3" /> {(p as any).sku || "No SKU"}
                   </div>
                 </div>
+              </div>
 
-                {/* ── Middle: info ── */}
-                <div className="flex-1 min-w-0 space-y-3">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-heading text-xl font-semibold leading-snug">{p.name}</h3>
-                      <AdminBadge status={p.published ? "ACTIVE" : "INACTIVE"} />
-                    </div>
-                    {p.subtitle && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-1 italic">{p.subtitle}</p>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-6 gap-y-3">
-                    <Meta label="Price">
-                      <IndianRupee className="h-3.5 w-3.5 shrink-0" />
-                      <span className="font-bold">{formatCurrency(p.price, p.currency)}</span>
-                      {p.compareAtPrice && (
-                        <span className="text-neutral-400 line-through text-[10px] ml-0.5">
-                          {formatCurrency(p.compareAtPrice, p.currency)}
-                        </span>
-                      )}
-                    </Meta>
-                    <Meta label="In Stock">
-                      <Package className="h-3.5 w-3.5 shrink-0" />
-                      <span className={p.stock === 0 ? "text-red-500 font-bold" : "font-medium"}>{p.stock} units</span>
-                    </Meta>
-                    <Meta label="Tag">
-                      <Tag className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{p.tag || "—"}</span>
-                    </Meta>
-                    <Meta label="Medicine Form">
-                      <Boxes className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate">{p.medicineForm || "—"}</span>
-                    </Meta>
-                    <Meta label="SKU Reference">
-                      <Barcode className="h-3.5 w-3.5 shrink-0" />
-                      <span className="truncate font-mono text-xs">{(p as any).sku || "—"}</span>
-                    </Meta>
-                    <Meta label="Media">
-                      <ImageIcon className="h-3.5 w-3.5 shrink-0" />
-                      <span>{galleryCount + (p.imageUrl ? 1 : 0)} Total</span>
-                    </Meta>
-                    <Meta label="Registered">
-                      <Calendar className="h-3.5 w-3.5 shrink-0" />
-                      <span>{formatDate(p.createdAt)}</span>
-                    </Meta>
-                  </div>
-                </div>
-
-                {/* ── Right: actions ── */}
-                <div className="grid grid-cols-2 sm:flex sm:flex-col gap-2 shrink-0 sm:min-w-[140px]">
-                  <AdminButton
-                    className="w-full justify-center"
-                    onClick={() => startTransition(() => router.push(`/admin/products/edit/${p.id}`))}
-                  >
-                    <Pencil className="h-3.5 w-3.5" />
-                    Edit Details
-                  </AdminButton>
-
+              {/* Actions Grid */}
+              <div className="pt-4 mt-auto border-t border-neutral-100 dark:border-neutral-800/50 space-y-2">
+                <div className="grid grid-cols-2 gap-2">
+                  <Link href={`/admin/products/edit/${p.id}`}>
+                    <AdminButton icon={Pencil} className="w-full text-[11px]">
+                      Edit
+                    </AdminButton>
+                  </Link>
                   <form action={toggleProductPublished} className="w-full">
                     <input type="hidden" name="id" value={p.id} />
                     <input type="hidden" name="published" value={String(p.published)} />
-                    <AdminActionButton className="w-full justify-center">
-                      {p.published
-                        ? <><EyeOff className="h-3.5 w-3.5" /> Unpublish</>
-                        : <><Eye className="h-3.5 w-3.5" /> Publish Now</>
-                      }
-                    </AdminActionButton>
-                  </form>
-
-                  <form
-                    action={deleteProduct}
-                    className="col-span-2 sm:col-span-1"
-                    onSubmit={(e) => { if (!confirm("Are you sure? This will permanently delete the product and its media.")) e.preventDefault(); }}
-                  >
-                    <input type="hidden" name="id" value={p.id} />
-                    <AdminActionButton variant="danger" className="w-full justify-center">
-                      <Trash2 className="h-3.5 w-3.5" />
-                      Delete
+                    <AdminActionButton variant="ghost" className="w-full text-[11px]">
+                      {p.published ? (
+                        <>
+                          <EyeOff className="h-3.5 w-3.5 mr-1" /> Hide
+                        </>
+                      ) : (
+                        <>
+                          <Eye className="h-3.5 w-3.5 mr-1" /> Show
+                        </>
+                      )}
                     </AdminActionButton>
                   </form>
                 </div>
-              </AdminCard>
-            );
-          })
-        )}
+                <form
+                  action={deleteProduct}
+                  className="w-full"
+                  onSubmit={(e) => !confirm("Delete this product?") && e.preventDefault()}
+                >
+                  <input type="hidden" name="id" value={p.id} />
+                  <AdminActionButton variant="danger" icon={Trash2} className="w-full text-[11px]">
+                    Delete Product
+                  </AdminActionButton>
+                </form>
+              </div>
+
+              {/* Footer ID */}
+              <div className="flex items-center text-[9px] text-neutral-400 font-mono pt-3 opacity-60">
+                <Hash className="h-2.5 w-2.5 mr-1" />
+                <span className="select-all">{p.id.slice(-12)}</span>
+              </div>
+            </AdminCard>
+          );
+        })}
       </div>
 
-      {/* ── Pagination ── */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 pt-6 pb-12">
-          <button
-            onClick={() => handlePageChange(page - 1)}
-            disabled={page <= 1 || isPending}
-            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-bold">{page}</span>
-            <span className="text-sm text-neutral-400">/</span>
-            <span className="text-sm text-neutral-400">{totalPages}</span>
-          </div>
-          <button
-            onClick={() => handlePageChange(page + 1)}
-            disabled={page >= totalPages || isPending}
-            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
+      {products.length === 0 && (
+        <AdminCard className="py-24 flex flex-col items-center justify-center text-center">
+          <Package className="h-10 w-10 text-neutral-300 mb-4" />
+          <h3 className="text-lg font-bold">No products found</h3>
+          <p className="text-neutral-500 text-sm max-w-xs mx-auto">
+            {q ? `No results for "${q}"` : "Get started by adding your first product."}
+          </p>
+        </AdminCard>
       )}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-
-function Meta({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="min-w-0">
-      <div className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-0.5">
-        {label}
-      </div>
-      <div className="flex items-center gap-1 text-sm text-neutral-800 dark:text-neutral-100 min-w-0">
-        {children}
-      </div>
     </div>
   );
 }

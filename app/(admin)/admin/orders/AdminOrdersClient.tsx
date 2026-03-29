@@ -2,33 +2,43 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ADMIN_PAGE_SIZE } from "@/lib/constants";
-
-import {
-  Search,
-  X,
-  ChevronLeft,
+import { 
+  Search, 
+  X, 
+  Package, 
+  Calendar, 
+  IndianRupee, 
+  User, 
+  RefreshCw, 
+  Hash, 
   ChevronRight,
-  Package,
-  Calendar,
-  IndianRupee,
-  User,
+  ShoppingCart
 } from "lucide-react";
 
+/* COMPONENTS */
 import AdminCard from "@/components/admin/AdminCard";
 import AdminBadge from "@/components/admin/AdminBadge";
 import AdminButton from "@/components/admin/AdminButton";
+import AdminPagination from "@/components/admin/AdminPagination";
 import PageHeader from "@/components/public/ui/PageHeader";
+
+/* UTILS */
+import { cn } from "@/lib/cn";
+import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 
 /* ------------------------------------------------------------------ */
 
 function formatDate(d?: Date | string | null) {
   if (!d) return "—";
-  return new Intl.DateTimeFormat("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(d));
+  try {
+    return new Intl.DateTimeFormat("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    }).format(new Date(d));
+  } catch {
+    return "—";
+  }
 }
 
 function formatCurrency(amount: number, currency = "INR") {
@@ -42,7 +52,7 @@ function formatCurrency(amount: number, currency = "INR") {
 /* ------------------------------------------------------------------ */
 
 export default function AdminOrdersClient({
-  orders,
+  orders = [],
   total,
   q,
   page,
@@ -58,206 +68,135 @@ export default function AdminOrdersClient({
 
   const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
-  /* --------------------------------------------------------------- */
-  /* Search                                                          */
-  /* --------------------------------------------------------------- */
+  const handleSync = () => startTransition(() => router.refresh());
 
-  function handleFilter(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const fd = new FormData(e.currentTarget);
-    const query = (fd.get("query") as string).trim();
-
-    const p = new URLSearchParams();
-    p.set("page", "1");
-    if (query) p.set("q", query);
-
-    startTransition(() => router.push(`?${p.toString()}`));
-  }
+  const handlePageChange = (newPage: number) => {
+    startTransition(() => {
+      const params = new URLSearchParams();
+      params.set("page", String(newPage));
+      if (inputValue) params.set("q", inputValue);
+      router.push(`/admin/orders?${params.toString()}`);
+    });
+  };
 
   const handleClear = () => {
     setInputValue("");
-    startTransition(() => router.push("?page=1"));
+    startTransition(() => router.push("/admin/orders?page=1"));
   };
-
-  const handlePageChange = (newPage: number) => {
-    const p = new URLSearchParams();
-    if (q) p.set("q", q);
-    p.set("page", newPage.toString());
-
-    startTransition(() => router.push(`?${p.toString()}`));
-  };
-
-  /* --------------------------------------------------------------- */
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 px-4">
-      {/* ── Header ── */}
-      <PageHeader
-        title="Orders"
-        subtitle="Manage customer orders"
-      />
+    <div className="max-w-7xl mx-auto space-y-6 px-4 pb-12">
+      
+      {/* 1. HEADER */}
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 py-4">
+        <PageHeader
+          title="Orders"
+          subtitle={`Manage transactions (${total})`}
+          align="left"
+          className="max-w-none m-0 p-0"
+        />
 
-      {/* ── Search ── */}
-      <AdminCard className="p-3">
-        <form onSubmit={handleFilter} className="flex flex-col gap-2">
-          <div className="relative w-full">
+        <div className="flex flex-col items-end gap-3 w-full lg:w-auto">
+          <div className="flex items-center gap-2">
+            <AdminPagination
+              page={page}
+              totalPages={totalPages}
+              isPending={isPending}
+              onPageChange={handlePageChange}
+            />
+            <AdminButton
+              onClick={handleSync}
+              disabled={isPending}
+              icon={({ className }) => (
+                <RefreshCw className={cn(className, isPending && "animate-spin")} />
+              )}
+            >
+              Sync
+            </AdminButton>
+          </div>
+        </div>
+      </div>
+
+      <hr className="border-neutral-200 dark:border-neutral-800" />
+
+      {/* 2. SEARCH */}
+      <AdminCard compact className="!p-3 border-dashed bg-neutral-50/50 dark:bg-neutral-900/50">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handlePageChange(1);
+          }}
+          className="flex gap-2"
+        >
+          <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-
             <input
-              name="query"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Search by order ID, email, phone..."
-              className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm focus:ring-2 focus:ring-black outline-none transition-all"
+              placeholder="Search by Order ID or Email..."
+              className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
-
             {(inputValue || q) && (
               <button
                 type="button"
                 onClick={handleClear}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center rounded-full bg-neutral-100 dark:bg-neutral-800 text-neutral-400 hover:text-neutral-700 transition-colors"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-red-500"
               >
-                <X className="h-3 w-3" strokeWidth={2.5} />
+                <X className="h-4 w-4" />
               </button>
             )}
           </div>
-
-          <div className="flex justify-between text-[10px] uppercase tracking-wider text-neutral-400 px-0.5 font-bold">
-            <span>
-              {total} {total === 1 ? "Order" : "Orders"}
-              {q && <> for "{q}"</>}
-            </span>
-            <span>
-              Page {page} of {totalPages || 1}
-            </span>
-          </div>
+          <AdminButton type="submit" icon={Search} disabled={isPending}>
+            Search
+          </AdminButton>
         </form>
       </AdminCard>
 
-      {/* ── Orders List ── */}
-      <div
-        className={`space-y-3 transition-opacity duration-200 ${
-          isPending ? "opacity-50 pointer-events-none" : ""
-        }`}
-      >
-        {orders.length === 0 ? (
-          <AdminCard className="py-16 flex flex-col items-center gap-2">
-            <Package className="h-8 w-8 text-neutral-300" />
-            <p className="font-semibold text-neutral-500">
-              No orders found
-            </p>
-            <button
-              onClick={handleClear}
-              className="text-sm text-blue-500 underline underline-offset-2"
-            >
-              Clear filters
-            </button>
-          </AdminCard>
-        ) : (
-          orders.map((order, index) => {
-            const itemPreview = order.items || [];
-            const totalItems = order._count?.items || 0;
+      {/* 3. GRID */}
+      <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6", isPending && "opacity-50 pointer-events-none")}>
+        {orders.map((order, idx) => {
+          const displayIndex = (page - 1) * ADMIN_PAGE_SIZE + (idx + 1);
+          const itemPreview = order.items || [];
+          const totalCount = order._count?.items || itemPreview.length;
 
-            return (
-              <AdminCard
-                key={order.id}
-                className="flex flex-col sm:flex-row gap-4 hover:shadow-md transition-shadow"
-              >
-                {/* LEFT */}
-                <div className="flex sm:flex-col items-center gap-3 sm:gap-2 shrink-0">
-                  <span className="text-xs text-neutral-400 tabular-nums w-6 text-center font-medium">
-                    {(page - 1) * ADMIN_PAGE_SIZE + index + 1}
-                  </span>
-                </div>
+          return (
+            <AdminCard key={order.id} compact className="group flex flex-col border-t-4 border-t-neutral-200 dark:border-t-neutral-700 hover:border-t-primary/50 transition-all">
+              <div className="flex justify-between items-center mb-4">
+                <AdminBadge status={order.status} />
+                <span className="text-[10px] font-mono text-neutral-400">{formatDate(order.createdAt)}</span>
+              </div>
 
-                {/* MIDDLE */}
-                <div className="flex-1 min-w-0 space-y-3">
-                  {/* Order Info */}
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h3 className="font-mono text-sm font-semibold">
-                        {order.id}
-                      </h3>
-                      <AdminBadge status={order.status} />
-                    </div>
+              <div className="mb-4">
+                <h3 className="font-bold text-sm flex items-center gap-1.5 truncate">
+                  <Hash className="h-3 w-3 text-neutral-400" />
+                  <span className="uppercase">{order.id.slice(-12)}</span>
+                </h3>
+                <p className="text-xs text-neutral-500 truncate">{order.user?.email || "Guest Checkout"}</p>
+              </div>
 
-                    <div className="text-xs text-neutral-500 mt-1 flex items-center gap-2">
-                      <User className="h-3 w-3" />
-                      {order.user?.email || "Guest"}
-                    </div>
+              <div className="flex-1 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-3 border border-neutral-100 dark:border-neutral-800">
+                {itemPreview.slice(0, 2).map((item: any, i: number) => (
+                  <div key={i} className="flex justify-between text-xs py-1 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
+                    <span className="truncate flex-1">{item.productName}</span>
+                    <span className="font-bold ml-2">×{item.quantity}</span>
                   </div>
+                ))}
+                {totalCount > 2 && <p className="text-[10px] text-neutral-400 text-center mt-2">+{totalCount - 2} more</p>}
+              </div>
 
-                  {/* Items Preview */}
-                  <div className="text-sm text-neutral-700 dark:text-neutral-300">
-                    {itemPreview.map((item: any, i: number) => (
-                      <div key={i}>
-                        {item.productName} × {item.quantity}
-                      </div>
-                    ))}
-
-                    {totalItems > itemPreview.length && (
-                      <div className="text-xs text-neutral-400">
-                        +{totalItems - itemPreview.length} more
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Meta */}
-                  <div className="flex flex-wrap gap-6 text-xs text-neutral-500">
-                    <div className="flex items-center gap-1">
-                      <IndianRupee className="h-3.5 w-3.5" />
-                      {formatCurrency(order.totalAmount, order.currency)}
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {formatDate(order.createdAt)}
-                    </div>
-                  </div>
+              <div className="pt-4 mt-4 border-t border-neutral-100 dark:border-neutral-800/50 flex justify-between items-center">
+                <div className="flex flex-col">
+                  <span className="text-[9px] uppercase font-bold text-neutral-400">Total</span>
+                  <span className="text-sm font-black text-primary">{formatCurrency(order.totalAmount, order.currency)}</span>
                 </div>
-
-                {/* RIGHT (Actions later) */}
-                <div className="flex flex-col gap-2 min-w-[120px]">
-                  <AdminButton className="w-full justify-center" onClick={() => router.push(`/admin/orders/${order.id}`)}>
-                    View
-                  </AdminButton>
-
-                  {/* Placeholder for next step */}
-                </div>
-              </AdminCard>
-            );
-          })
-        )}
+                <AdminButton onClick={() => router.push(`/admin/orders/${order.id}`)} variant="secondary" className="h-8 px-3 text-xs" icon={ChevronRight}>
+                  Details
+                </AdminButton>
+              </div>
+            </AdminCard>
+          );
+        })}
       </div>
-
-      {/* ── Pagination ── */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 pt-6 pb-12">
-          <button
-            onClick={() => handlePageChange(page - 1)}
-            disabled={page <= 1 || isPending}
-            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-bold">{page}</span>
-            <span className="text-sm text-neutral-400">/</span>
-            <span className="text-sm text-neutral-400">
-              {totalPages}
-            </span>
-          </div>
-
-          <button
-            onClick={() => handlePageChange(page + 1)}
-            disabled={page >= totalPages || isPending}
-            className="p-2 rounded-full border border-neutral-300 dark:border-neutral-700 disabled:opacity-30 hover:bg-neutral-100 dark:hover:bg-neutral-800 transition-colors"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
-        </div>
-      )}
     </div>
   );
 }
