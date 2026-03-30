@@ -36,7 +36,7 @@ export default function Button({
       className={cn(
         // ── Base layout
         "relative inline-flex items-center justify-center",
-        "h-10 min-w-[140px] px-5",
+        "h-10 min-w-[100px] sm:min-w-[140px] px-5",
         "rounded-md",
         "text-[13px] font-semibold tracking-wide uppercase",
         "whitespace-nowrap select-none",

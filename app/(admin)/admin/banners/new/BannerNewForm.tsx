@@ -1,49 +1,168 @@
 "use client";
 
-import { useState } from "react";
+import Link from "next/link";
+import { useState, useTransition } from "react";
 import { createBanner } from "../serverActions";
 import R2Upload from "@/components/R2Upload";
+import AdminCard from "@/components/admin/AdminCard";
+import AdminButton from "@/components/admin/AdminButton";
 import PageHeader from "@/components/public/ui/PageHeader";
+import SectionHeading from "@/components/public/ui/SectionHeading";
+import { toast } from "@/lib/toast";
+
+/* ── shared class strings (matching ProductNewForm) ── */
+
+const inputCls =
+  "w-full h-10 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow";
+
+const textareaCls =
+  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring transition-shadow";
+
+const selectCls =
+  "w-full h-10 rounded-lg border border-border bg-background px-3 pr-8 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow appearance-none cursor-pointer";
+
+const labelCls =
+  "block mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground";
+
+/* ── primitives ── */
+
+function F({ id, lbl, tip, req, children }: {
+  id?: string; lbl: string; tip?: string; req?: boolean; children: React.ReactNode;
+}) {
+  return (
+    <div className="w-full text-left">
+      <label htmlFor={id} className={labelCls}>
+        {lbl}{req && <span className="ml-0.5 text-destructive" aria-hidden>*</span>}
+      </label>
+      {children}
+      {tip && <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 opacity-80">{tip}</p>}
+    </div>
+  );
+}
+
+function Sec({ title, sub, children }: {
+  title: string; sub?: string; children: React.ReactNode;
+}) {
+  return (
+    <AdminCard>
+      <div className="mb-5 pb-4 border-b border-border text-left">
+        <SectionHeading title={title} subtitle={sub} />
+      </div>
+      <div className="space-y-5">{children}</div>
+    </AdminCard>
+  );
+}
+
+/* ── main ── */
 
 export default function BannerNewForm() {
+  const [isPending, start] = useTransition();
   const [imageUrl, setImageUrl] = useState("");
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    
+    start(async () => {
+      try {
+        await createBanner(data);
+        toast.success("Banner created successfully.");
+      } catch (e: any) {
+        if (e?.message === "NEXT_REDIRECT" || e?.digest?.startsWith("NEXT_REDIRECT")) return;
+        toast.error("Failed to create banner", e?.message);
+      }
+    });
+  }
+
   return (
-    <div className="p-6 max-w-[760px]">
-      <PageHeader
-        title="Create Banner"
-        subtitle="Create a new popup banner."
-      />
+    <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-16 py-8 space-y-6">
+      <form onSubmit={handleSubmit} noValidate aria-label="Create banner" className="space-y-6">
+        
+        {/* Header: Strictly left-aligned with responsive buttons */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+          <div className="flex flex-col items-start text-left">
+            <div className="[&_h1]:text-left [&_h1]:m-0">
+               <PageHeader title="Create Banner" />
+            </div>
+            <p className="text-sm text-muted-foreground/80 mt-1 text-left">
+              Create a new promotional popup banner.
+            </p>
+          </div>
 
-      <form action={createBanner} className="mt-[18px] grid gap-3">
-
-        <select name="type">
-          <option value="TEXT">Text Banner</option>
-          <option value="IMAGE_ONLY">Image Only</option>
-        </select>
-
-        <input name="title" placeholder="Banner title" />
-        <textarea name="message" placeholder="Banner message" rows={3} />
-
-        <input type="hidden" name="imageUrl" value={imageUrl} />
-
-        <div>
-          <p className="font-semibold mb-2">Banner Image</p>
-          <R2Upload folder="banners" onUploaded={setImageUrl} />
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <AdminButton 
+              type="submit" 
+              variant="success" 
+              className="w-full sm:min-w-[140px]"
+              disabled={isPending}
+            >
+              {isPending ? "Creating..." : "Create Banner"}
+            </AdminButton>
+            
+            <Link href="/admin/banners" className="w-full sm:w-auto">
+              <AdminButton type="button" variant="secondary" className="w-full">
+                Discard
+              </AdminButton>
+            </Link>
+          </div>
         </div>
 
-        <input name="buttonText" placeholder="Button text" />
-        <input name="buttonLink" placeholder="Button link" />
+        {/* Hidden states */}
+        <input type="hidden" name="imageUrl" value={imageUrl} />
+        <input type="hidden" name="isActive" value="on" />
 
-        <label className="flex gap-2 items-center">
-          <input type="checkbox" name="isActive" />
-          Active
-        </label>
+        {/* Configuration */}
+        <Sec title="Banner Configuration" sub="Set the type and visual content.">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <F id="type" lbl="Banner Type">
+              <div className="relative">
+                <select name="type" id="type" className={selectCls}>
+                  <option value="TEXT">Text Banner</option>
+                  <option value="IMAGE_ONLY">Image Only</option>
+                </select>
+                <span aria-hidden className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">▾</span>
+              </div>
+            </F>
+            <F id="title" lbl="Banner Title">
+              <input id="title" name="title" placeholder="Summer Sale!" className={inputCls} />
+            </F>
+          </div>
+          <F id="message" lbl="Banner Message">
+            <textarea id="message" name="message" rows={3} placeholder="Get 20% off all products..." className={textareaCls} />
+          </F>
+        </Sec>
 
-        <input type="datetime-local" name="startAt" />
-        <input type="datetime-local" name="endAt" />
+        {/* Media */}
+        <AdminCard>
+          <div className="mb-4 text-left border-b border-border pb-4">
+            <SectionHeading title="Banner Image" subtitle="Upload the visual for your popup." />
+          </div>
+          <div className="py-2">
+            <R2Upload folder="banners" onUploaded={setImageUrl} />
+            {imageUrl && (
+              <p className="mt-2 text-xs text-primary font-medium">Image uploaded successfully</p>
+            )}
+          </div>
+        </AdminCard>
 
-        <button type="submit">Create Banner</button>
+        {/* Action & Scheduling */}
+        <Sec title="Call to Action & Schedule" sub="Where the banner links and when it shows.">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <F id="buttonText" lbl="Button Text">
+              <input id="buttonText" name="buttonText" placeholder="Shop Now" className={inputCls} />
+            </F>
+            <F id="buttonLink" lbl="Button Link">
+              <input id="buttonLink" name="buttonLink" placeholder="/collections/all" className={inputCls} />
+            </F>
+            <F id="startAt" lbl="Start Date & Time">
+              <input id="startAt" name="startAt" type="datetime-local" className={inputCls} />
+            </F>
+            <F id="endAt" lbl="End Date & Time">
+              <input id="endAt" name="endAt" type="datetime-local" className={inputCls} />
+            </F>
+          </div>
+        </Sec>
+
       </form>
     </div>
   );

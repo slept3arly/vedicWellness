@@ -21,7 +21,7 @@ export default async function AdminLayout({
       <AdminTabs />
 
       {/* Main content */}
-      <main className="flex-1 p-6 lg:p-10">
+      <main className="flex-1 px-4 py-6 sm:p-6 lg:p-10">
         {children}
       </main>
     </div>

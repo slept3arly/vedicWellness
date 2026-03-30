@@ -1,124 +1,186 @@
 "use client";
 
-import { useState } from "react";
-import R2Upload from "@/components/R2Upload";
-import PageHeader from "@/components/public/ui/PageHeader";
-
+import Link from "next/link";
+import { useState, useTransition } from "react";
 import { updateBanner } from "../../serverActions";
+import R2Upload from "@/components/R2Upload";
+import AdminCard from "@/components/admin/AdminCard";
+import AdminButton from "@/components/admin/AdminButton";
+import PageHeader from "@/components/public/ui/PageHeader";
+import SectionHeading from "@/components/public/ui/SectionHeading";
+import { toast } from "@/lib/toast";
 
-export default function BannerEditForm({
-  banner,
-}: {
-  banner: any;
+/* ── shared class strings (matching ProductNewForm) ── */
+
+const inputCls =
+  "w-full h-10 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow";
+
+const textareaCls =
+  "w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:ring-2 focus:ring-ring transition-shadow";
+
+const selectCls =
+  "w-full h-10 rounded-lg border border-border bg-background px-3 pr-8 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow appearance-none cursor-pointer";
+
+const labelCls =
+  "block mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground";
+
+/* ── primitives ── */
+
+function F({ id, lbl, tip, req, children }: {
+  id?: string; lbl: string; tip?: string; req?: boolean; children: React.ReactNode;
 }) {
+  return (
+    <div className="w-full text-left">
+      <label htmlFor={id} className={labelCls}>
+        {lbl}{req && <span className="ml-0.5 text-destructive" aria-hidden>*</span>}
+      </label>
+      {children}
+      {tip && <p className="mt-1 text-xs text-slate-500 dark:text-slate-400 opacity-80">{tip}</p>}
+    </div>
+  );
+}
+
+function Sec({ title, sub, children }: {
+  title: string; sub?: string; children: React.ReactNode;
+}) {
+  return (
+    <AdminCard>
+      <div className="mb-5 pb-4 border-b border-border text-left">
+        <SectionHeading title={title} subtitle={sub} />
+      </div>
+      <div className="space-y-5">{children}</div>
+    </AdminCard>
+  );
+}
+
+/* ── main ── */
+
+export default function BannerEditForm({ banner }: { banner: any }) {
+  const [isPending, start] = useTransition();
   const [imageUrl, setImageUrl] = useState(banner.imageUrl ?? "");
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const data = new FormData(e.currentTarget);
+    
+    start(async () => {
+      try {
+        await updateBanner(data);
+        toast.success("Banner updated successfully.");
+      } catch (e: any) {
+        if (e?.message === "NEXT_REDIRECT" || e?.digest?.startsWith("NEXT_REDIRECT")) return;
+        toast.error("Failed to update banner", e?.message);
+      }
+    });
+  }
+
   return (
-    <div className="max-w-[760px]">
-
-      <PageHeader title="Edit Banner" />
-
-      <form
-        action={updateBanner}
-        className="mt-[18px] grid gap-3"
-      >
-        <input type="hidden" name="id" value={banner.id} />
-
-        {/* Banner Type */}
-        <select name="type" defaultValue={banner.type}>
-          <option value="TEXT">Text Banner</option>
-          <option value="IMAGE_ONLY">Image Only</option>
-        </select>
-
-        {/* Text Content */}
-        <input
-          name="title"
-          defaultValue={banner.title ?? ""}
-          placeholder="Banner title"
-        />
-
-        <textarea
-          name="message"
-          defaultValue={banner.message ?? ""}
-          rows={3}
-          placeholder="Banner message"
-        />
-
-        {/* Image Upload */}
-        <input type="hidden" name="imageUrl" value={imageUrl} />
-
-        <div>
-          <p className="font-semibold mb-2">Banner Image</p>
-
-          <R2Upload folder="banners" onUploaded={setImageUrl} />
-
-          {imageUrl ? (
-            <a
-              href={imageUrl}
-              target="_blank"
-              className="text-xs"
-            >
-              View current image
-            </a>
-          ) : (
-            <p className="text-xs opacity-70">
-              No image uploaded
+    <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-16 py-8 space-y-6">
+      <form onSubmit={handleSubmit} noValidate aria-label="Edit banner" className="space-y-6">
+        
+        {/* Header: Strictly left-aligned with responsive buttons */}
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
+          <div className="flex flex-col items-start text-left">
+            <div className="[&_h1]:text-left [&_h1]:m-0">
+               <PageHeader title="Edit Banner" />
+            </div>
+            <p className="text-sm text-muted-foreground/80 mt-1 text-left">
+              Modify your promotional banner details.
             </p>
-          )}
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+            <AdminButton 
+              type="submit" 
+              variant="success" 
+              className="w-full sm:min-w-[140px]"
+              disabled={isPending}
+            >
+              {isPending ? "Saving..." : "Save Changes"}
+            </AdminButton>
+            
+            <Link href="/admin/banners" className="w-full sm:w-auto">
+              <AdminButton type="button" variant="secondary" className="w-full">
+                Cancel
+              </AdminButton>
+            </Link>
+          </div>
         </div>
 
-        {/* CTA */}
-        <input
-          name="buttonText"
-          defaultValue={banner.buttonText ?? ""}
-          placeholder="Button text"
-        />
+        {/* Hidden data for Server Action */}
+        <input type="hidden" name="id" value={banner.id} />
+        <input type="hidden" name="imageUrl" value={imageUrl} />
+        <input type="hidden" name="isActive" value="on" />
 
-        <input
-          name="buttonLink"
-          defaultValue={banner.buttonLink ?? ""}
-          placeholder="Button link"
-        />
+        {/* Configuration Section */}
+        <Sec title="Banner Configuration" sub="Set the type and visual content.">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <F id="type" lbl="Banner Type">
+              <div className="relative">
+                <select name="type" id="type" defaultValue={banner.type} className={selectCls}>
+                  <option value="TEXT">Text Banner</option>
+                  <option value="IMAGE_ONLY">Image Only</option>
+                </select>
+                <span aria-hidden className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">▾</span>
+              </div>
+            </F>
+            <F id="title" lbl="Banner Title">
+              <input id="title" name="title" defaultValue={banner.title ?? ""} placeholder="Banner title" className={inputCls} />
+            </F>
+          </div>
+          <F id="message" lbl="Banner Message">
+            <textarea id="message" name="message" defaultValue={banner.message ?? ""} rows={3} placeholder="Banner message" className={textareaCls} />
+          </F>
+        </Sec>
 
-        {/* Scheduling */}
-        <input
-          type="datetime-local"
-          name="startAt"
-          defaultValue={
-            banner.startAt
-              ? new Date(banner.startAt)
-                  .toISOString()
-                  .slice(0, 16)
-              : ""
-          }
-        />
+        {/* Media Section */}
+        <AdminCard>
+          <div className="mb-4 text-left border-b border-border pb-4">
+            <SectionHeading title="Banner Image" subtitle="Upload or update the banner visual." />
+          </div>
+          <div className="py-2">
+            <R2Upload folder="banners" onUploaded={setImageUrl} />
+            {imageUrl ? (
+              <a href={imageUrl} target="_blank" className="mt-2 inline-block text-xs text-primary font-medium hover:underline">
+                View current image
+              </a>
+            ) : (
+              <p className="mt-2 text-xs opacity-70">No image uploaded</p>
+            )}
+          </div>
+        </AdminCard>
 
-        <input
-          type="datetime-local"
-          name="endAt"
-          defaultValue={
-            banner.endAt
-              ? new Date(banner.endAt)
-                  .toISOString()
-                  .slice(0, 16)
-              : ""
-          }
-        />
-
-        {/* Active toggle */}
-        <label className="flex gap-2 items-center">
-          <input
-            type="checkbox"
-            name="isActive"
-            defaultChecked={banner.isActive}
-          />
-          Active
-        </label>
-
-        <button type="submit">Save Changes</button>
+        {/* Action & Scheduling Section */}
+        <Sec title="Call to Action & Schedule" sub="Configure button link and active duration.">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <F id="buttonText" lbl="Button Text">
+              <input id="buttonText" name="buttonText" defaultValue={banner.buttonText ?? ""} placeholder="Shop Now" className={inputCls} />
+            </F>
+            <F id="buttonLink" lbl="Button Link">
+              <input id="buttonLink" name="buttonLink" defaultValue={banner.buttonLink ?? ""} placeholder="/collections/all" className={inputCls} />
+            </F>
+            <F id="startAt" lbl="Start Date & Time">
+              <input 
+                id="startAt" 
+                name="startAt" 
+                type="datetime-local" 
+                className={inputCls} 
+                defaultValue={banner.startAt ? new Date(banner.startAt).toISOString().slice(0, 16) : ""}
+              />
+            </F>
+            <F id="endAt" lbl="End Date & Time">
+              <input 
+                id="endAt" 
+                name="endAt" 
+                type="datetime-local" 
+                className={inputCls} 
+                defaultValue={banner.endAt ? new Date(banner.endAt).toISOString().slice(0, 16) : ""}
+              />
+            </F>
+          </div>
+        </Sec>
 
       </form>
-
     </div>
   );
 }

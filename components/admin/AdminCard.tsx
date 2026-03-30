@@ -29,7 +29,7 @@ export default function AdminCard({
         dark:bg-neutral-900
         dark:text-white
         `,
-        compact ? "p-4 space-y-3" : "p-6 space-y-4",
+        compact ? "p-4 space-y-3" : "p-4 sm:p-6 space-y-4",
         className
       )}
     >
