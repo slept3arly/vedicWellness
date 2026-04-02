@@ -64,6 +64,7 @@ export default function ProductCarousel({
               alt={i === 0 ? name : `${name} — view ${i + 1}`}
               fill
               priority={i === 0}
+              placeholder="empty"
               sizes="(max-width: 1024px) 100vw, 50vw"
               className="object-cover"
             />

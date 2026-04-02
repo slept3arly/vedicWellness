@@ -80,12 +80,13 @@ export default function SlugClient({
         <Card className="mt-4 md:mt-8 overflow-hidden p-0">
           <div className="flex flex-col lg:flex-row items-stretch">
             {blog.thumbnailUrl && (
-              <div className="relative w-full lg:w-1/2 aspect-video lg:aspect-auto min-h-[250px] md:min-h-[350px]">
+              <div className="relative w-full lg:w-1/2 aspect-[4/3] lg:aspect-[16/9] min-h-[250px] md:min-h-[350px]">
                 <Image
                   src={blog.thumbnailUrl}
                   alt={blog.title}
                   fill
                   priority
+                  placeholder="empty"
                   className="object-cover"
                   sizes="(max-width: 1024px) 100vw, 50vw"
                 />
@@ -211,7 +212,7 @@ export default function SlugClient({
                 <Link key={r.id} href={`/blogs/${r.slug}`} className="block">
                   <Card className="overflow-hidden p-0">
                     {r.thumbnailUrl && (
-                      <div className="relative aspect-video w-full max-h-[160px]">
+                      <div className="relative aspect-[4/3] lg:aspect-[16/9] w-full max-h-[160px]">
                         <Image
                           src={r.thumbnailUrl}
                           alt={r.title}

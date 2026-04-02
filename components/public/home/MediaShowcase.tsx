@@ -16,7 +16,7 @@ export default async function MediaShowcase({
   if (!slides.length) return null;
 
   return (
-    <Section>
+    <Section className="w-full py-8 md:py-12">
       <MediaSlider slides={slides} />
     </Section>
   );

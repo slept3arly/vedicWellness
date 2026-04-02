@@ -25,25 +25,25 @@ const RULES: Record<
     allowedTypes: new Set(["image/webp", "image/avif"]),
     allowedExt: new Set(["webp", "avif"]),
     maxBytes: 2 * 1024 * 1024,
-    cacheControl: "public, max-age=3600",
+    cacheControl: "public, max-age=31536000, immutable",
   },
   blogs: {
     allowedTypes: new Set(["image/webp", "image/avif", "image/jpeg", "image/png"]),
     allowedExt: new Set(["webp", "avif", "jpg", "jpeg", "png"]),
     maxBytes: 4 * 1024 * 1024,
-    cacheControl: "public, max-age=3600",
+    cacheControl: "public, max-age=31536000, immutable",
   },
   banners: {
     allowedTypes: new Set(["image/webp", "image/avif", "image/jpeg", "image/png"]),
     allowedExt: new Set(["webp", "avif", "jpg", "jpeg", "png"]),
     maxBytes: 6 * 1024 * 1024,
-    cacheControl: "public, max-age=3600",
+    cacheControl: "public, max-age=31536000, immutable",
   },
   categories: {
     allowedTypes: new Set(["image/webp", "image/avif", "image/jpeg", "image/png"]),
     allowedExt: new Set(["webp", "avif", "jpg", "jpeg", "png"]),
     maxBytes: 2 * 1024 * 1024,
-    cacheControl: "public, max-age=3600",
+    cacheControl: "public, max-age=31536000, immutable",
   },
 };
 

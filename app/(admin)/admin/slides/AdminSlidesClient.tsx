@@ -139,12 +139,14 @@ export default function AdminSlidesClient({
               className="group flex flex-col h-full border-t-4 border-t-neutral-200 dark:border-t-neutral-700 hover:border-t-primary/50 transition-all"
             >
               {/* Image Preview Container */}
-              <div className="relative w-full aspect-video rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shrink-0 mb-3">
+              <div className="relative w-full aspect-[4/3] md:aspect-[16/9] rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 shrink-0 mb-3">
                 {s.imageDesktopUrl ? (
                   <Image
                     src={s.imageDesktopUrl}
                     alt=""
                     fill
+                    sizes="(max-width: 768px) 50vw, 200px"
+                    quality={60}
                     className="object-cover transition-transform group-hover:scale-105"
                   />
                 ) : (

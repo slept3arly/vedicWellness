@@ -183,12 +183,14 @@ export default function AdminProductsClient({
               </div>
 
               {/* Product Image */}
-              <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 mb-4 shrink-0">
+              <div className="relative w-full aspect-[4/3] md:aspect-[16/9] rounded-xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 mb-4 shrink-0">
                 {p.imageUrl ? (
                   <Image
                     src={p.imageUrl}
                     alt={p.name}
                     fill
+                    sizes="(max-width: 768px) 50vw, 200px"
+                    quality={60}
                     className="object-cover transition-transform group-hover:scale-105"
                   />
                 ) : (

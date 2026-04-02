@@ -99,7 +99,7 @@ export default function MediaSlider({
                 alt={`Slide ${i + 1} of ${total}`}
                 fill
                 priority={i === 0}
-                sizes="(min-width: 768px) 100vw"
+                sizes="(max-width: 768px) 100vw, 1200px"
                 className="hidden md:block object-cover"
               />
 
@@ -108,8 +108,7 @@ export default function MediaSlider({
                 src={slide.imageMobileUrl}
                 alt={`Slide ${i + 1} of ${total}`}
                 fill
-                priority={i === 0}
-                sizes="100vw"
+                sizes="(max-width: 768px) 100vw, 1200px"
                 className="block md:hidden object-cover"
               />
             </div>

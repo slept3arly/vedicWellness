@@ -162,18 +162,20 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
           >
             {/* IMAGE ONLY */}
             {banner.type === "IMAGE_ONLY" && banner.imageUrl && (
+              <div className="relative w-full h-full">
               <Image
                 src={banner.imageUrl}
-                alt="Promotion"
-                priority
+                alt="Promotion banner"
+                fill
                 sizes="(max-width: 640px) 100vw, 780px"
-                className="block w-full h-full object-cover"
+                className="object-cover"
               />
+              </div>
             )}
 
             {/* TEXT MODE */}
             {banner.type === "TEXT" && (
-              <div className="relative w-full h-full min-h-[460px] sm:min-h-0 sm:aspect-video">
+              <div className="relative w-full h-full min-h-[460px] sm:min-h-0 sm:aspect-[16/9]">
                 {/* Background */}
                 {banner.imageUrl && (
                   <Image
@@ -181,7 +183,6 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
                     alt=""
                     aria-hidden
                     fill
-                    priority
                     sizes="(max-width: 640px) 100vw, 780px"
                     className="object-cover object-center"
                   />
