@@ -2,25 +2,23 @@
 
 import { motion } from "framer-motion";
 import {
-  Users,
   Heart,
   UserCheck,
   ShieldCheck,
   Stethoscope,
   Zap,
-  Target,
   Truck,
 } from "lucide-react";
+
 import Card from "@/components/public/ui/Card";
 import SectionHeading from "@/components/public/ui/SectionHeading";
+
 import ProductHero from "@/components/public/product/ProductHero";
 import ProductDetailsAccordion from "@/components/public/product/ProductDetailsAccordion";
 import ProductSpecification from "@/components/public/product/ProductSpecification";
 import ProductFAQ from "@/components/public/product/ProductFAQ";
 import ProductReviews from "@/components/public/product/ProductReviews";
 import ProductRelated from "@/components/public/product/ProductRelated";
-
-// Using the logic-aware purchase card
 import ProductPurchaseCard from "@/components/customer/product/ProductPurchaseCard";
 
 import { staggerFast, fadeUpSoft } from "@/app/animations";
@@ -32,7 +30,7 @@ interface SlugClientProps {
   product: Product;
   relatedProducts: RelatedProduct[];
   existingQty: number;
-  cartItemId?: string; // Prop added to track the specific cart item ID
+  cartItemId?: string;
 }
 
 export default function SlugClient({
@@ -48,177 +46,177 @@ export default function SlugClient({
           variants={staggerFast}
           initial="hidden"
           animate="show"
-          className="space-y-6"
+          className="space-y-8"
         >
-          {/* ═══════════════════════════════════════
-              1. HERO — Image and Product Info
-          ═══════════════════════════════════════ */}
-          <motion.div variants={fadeUpSoft}>
+
+          {/* ================= HERO ================= */}
+          <motion.div variants={fadeUpSoft} className="pt-6 md:pt-8">
             <ProductHero product={product} />
           </motion.div>
 
-          {/* ═══════════════════════════════════════
-              2. PURCHASE CARD — Direct Logic
-              Handles Add (new) vs Update (existing)
-          ═══════════════════════════════════════ */}
-          <motion.div variants={fadeUpSoft}>
-            <ProductPurchaseCard 
-              productId={product.id} 
-              existingQty={existingQty} 
+          {/* ================= MOBILE PURCHASE ================= */}
+          <div className="lg:hidden">
+            <ProductPurchaseCard
+              productId={product.id}
+              existingQty={existingQty}
               cartItemId={cartItemId}
               tag={product.tag}
               medicineForm={product.medicineForm}
+              price={product.price}
+              compareAtPrice={product.compareAtPrice}
+              stock={product.stock}
             />
-          </motion.div>
+          </div>
 
-          {/* ═══════════════════════════════════════
-              3. BENEFITS + HIGHLIGHTS
-          ═══════════════════════════════════════ */}
-          {(product.benefits?.length > 0 || product.highlights?.length > 0) && (
-            <motion.div
-              variants={fadeUpSoft}
-              className="grid grid-cols-1 md:grid-cols-2 gap-4"
-            >
-              {product.benefits?.length > 0 && (
-                <Card className="p-0">
-                  <div className="px-5 pt-5 pb-4 border-b border-[color:var(--border-soft)] flex items-center gap-2">
-                    <Zap size={15} className="text-[color:var(--brand-primary)]" aria-hidden="true" />
-                    <h2 className="font-heading font-semibold text-sm uppercase tracking-widest text-[color:var(--text-muted)]">
-                      Key Benefits
-                    </h2>
-                  </div>
-                  <ul className="px-5 py-4 space-y-3">
-                    {product.benefits.map((b, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm font-body text-[color:var(--text-main)]">
-                        <Zap size={12} className="shrink-0 mt-0.5 text-[color:var(--brand-primary)]" aria-hidden="true" />
-                        {b}
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
+          {/* ================= MAIN GRID ================= */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+            {/* ================= LEFT ================= */}
+            <div className="lg:col-span-2 space-y-6">
+
+              {/* BENEFITS */}
+              {(product.benefits?.length > 0 || product.highlights?.length > 0) && (
+                <motion.div variants={fadeUpSoft}>
+                  <Card className="p-0">
+                    <div className="px-5 pt-5 pb-4 border-b border-[color:var(--border-soft)] flex items-center gap-2">
+                      <Zap size={15} className="text-[color:var(--brand-primary)]" />
+                      <h2 className="font-heading text-sm uppercase tracking-widest text-[color:var(--text-muted)]">
+                        Key Benefits
+                      </h2>
+                    </div>
+
+                    <ul className="px-5 py-4 grid sm:grid-cols-2 gap-3">
+                      {[...(product.benefits ?? []), ...(product.highlights ?? [])].map((item, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm">
+                          <Zap size={12} className="mt-1 text-[color:var(--brand-primary)]" />
+                          {item}
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                </motion.div>
               )}
 
-              {product.highlights?.length > 0 && (
-                <Card className="p-0">
-                  <div className="px-5 pt-5 pb-4 border-b border-[color:var(--border-soft)] flex items-center gap-2">
-                    <Target size={15} className="text-[color:var(--brand-primary)]" aria-hidden="true" />
-                    <h2 className="font-heading font-semibold text-sm uppercase tracking-widest text-[color:var(--text-muted)]">
-                      Highlights
-                    </h2>
+              {/* 👈 MOVED HERE */}
+              {product.whoShouldUse?.length > 0 && (
+                <motion.div variants={fadeUpSoft} className="space-y-4">
+                  <SectionHeading title="Who Should Use This?" align="left" />
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {product.whoShouldUse.map((w, i) => {
+                      const Icon = audienceIcons[i % audienceIcons.length];
+                      return (
+                        <Card key={i} className="p-4">
+                          <div className="flex items-start gap-3">
+                            <Icon size={16} className="mt-1 text-[color:var(--brand-primary)]" />
+                            <p className="text-sm">{w}</p>
+                          </div>
+                        </Card>
+                      );
+                    })}
                   </div>
-                  <ul className="px-5 py-4 space-y-3">
-                    {product.highlights.map((h, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm font-body text-[color:var(--text-main)]">
-                        <Target size={12} className="shrink-0 mt-0.5 text-[color:var(--brand-primary)]" aria-hidden="true" />
-                        {h}
-                      </li>
-                    ))}
-                  </ul>
-                </Card>
+                </motion.div>
               )}
-            </motion.div>
-          )}
 
-          {/* ═══════════════════════════════════════
-              4. TRUST BAR
-          ═══════════════════════════════════════ */}
-          {product.trustBadges?.length > 0 && (
-            <motion.div variants={fadeUpSoft}>
-              <Card className="p-0">
-                <div className="px-5 pt-5 pb-4 border-b border-[color:var(--border-soft)] flex items-center gap-2">
-                  <ShieldCheck size={15} className="text-[color:var(--brand-primary)]" aria-hidden="true" />
-                  <h2 className="font-heading font-semibold text-sm uppercase tracking-widest text-[color:var(--text-muted)]">
-                    Quality Assurance
-                  </h2>
-                </div>
-                <ul className="px-5 py-4 flex flex-wrap gap-x-6 gap-y-3">
-                  {[
-                    { icon: Truck, label: "Free Delivery" },
-                    { icon: ShieldCheck, label: "100% Genuine" },
-                    ...product.trustBadges.map((b) => ({ icon: ShieldCheck, label: b })),
-                  ].map(({ icon: Icon, label }, i) => (
-                    <li key={i} className="flex items-center gap-2 text-sm font-body text-[color:var(--text-main)]">
-                      <Icon size={13} className="shrink-0 text-emerald-500" aria-hidden="true" />
-                      {label}
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            </motion.div>
-          )}
+              {/* DETAILS */}
+              <motion.div variants={fadeUpSoft}>
+                <ProductDetailsAccordion product={product} />
+              </motion.div>
 
-          {/* ═══════════════════════════════════════
-              5. ACCORDION — Details
-          ═══════════════════════════════════════ */}
-          <motion.div variants={fadeUpSoft}>
-            <ProductDetailsAccordion product={product} />
-          </motion.div>
+              {/* SPECIFICATIONS */}
+              <motion.div variants={fadeUpSoft}>
+                <ProductSpecification product={product} />
+              </motion.div>
 
-          {/* ═══════════════════════════════════════
-              6. SPECIFICATIONS
-          ═══════════════════════════════════════ */}
-          <motion.div variants={fadeUpSoft}>
-            <ProductSpecification product={product} />
-          </motion.div>
+              {/* FAQ */}
+              <motion.div variants={fadeUpSoft}>
+                <ProductFAQ faqs={product.faqs ?? []} />
+              </motion.div>
 
-          {/* ═══════════════════════════════════════
-              7. WHO SHOULD USE
-          ═══════════════════════════════════════ */}
-          {product.whoShouldUse?.length > 0 && (
-            <motion.div variants={fadeUpSoft} className="space-y-4">
-              <div className="flex items-center gap-2">
-                <Users size={18} className="text-[color:var(--brand-primary)]" aria-hidden="true" />
-                <SectionHeading title="Who Should Use This?" align="left" />
+              {/* REVIEWS */}
+              <motion.div variants={fadeUpSoft}>
+                <ProductReviews reviews={product.reviews ?? []} />
+              </motion.div>
+            </div>
+
+            {/* ================= RIGHT ================= */}
+            <div className="hidden lg:block">
+
+              {/* ONLY THIS IS STICKY */}
+              <div className="sticky top-44 space-y-4">
+
+                <ProductPurchaseCard
+                  productId={product.id}
+                  existingQty={existingQty}
+                  cartItemId={cartItemId}
+                  tag={product.tag}
+                  medicineForm={product.medicineForm}
+                  price={product.price}
+                  compareAtPrice={product.compareAtPrice}
+                  stock={product.stock}
+                />
+
+                {/* TRUST */}
+                {product.trustBadges?.length > 0 && (
+                  <Card className="p-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <ShieldCheck size={14} className="text-emerald-500" />
+                      <span className="text-xs uppercase tracking-widest text-muted">
+                        Quality Assurance
+                      </span>
+                    </div>
+
+                    <ul className="space-y-2 text-sm">
+                      {[
+                        { icon: Truck, label: "Free Delivery" },
+                        { icon: ShieldCheck, label: "100% Genuine" },
+                        ...product.trustBadges.map((b) => ({
+                          icon: ShieldCheck,
+                          label: b,
+                        })),
+                      ].map(({ icon: Icon, label }, i) => (
+                        <li key={i} className="flex items-center gap-2">
+                          <Icon size={13} className="text-emerald-500" />
+                          {label}
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+                )}
+
+                {/* QUICK INFO */}
+                <Card className="p-4">
+                  <span className="text-xs uppercase tracking-widest text-muted">
+                    Quick Info
+                  </span>
+
+                  <div className="mt-3 space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Form</span>
+                      <span className="font-semibold">{product.medicineForm}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Brand</span>
+                      <span className="font-semibold">Vedic Wellness</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Category</span>
+                      <span className="font-semibold">{product.tag}</span>
+                    </div>
+                  </div>
+                </Card>
+
               </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {product.whoShouldUse.map((w, i) => {
-                  const Icon = audienceIcons[i % audienceIcons.length];
-                  return (
-                    <Card key={i} className="p-4">
-                      <div className="flex items-start gap-3">
-                        <Icon
-                          size={16}
-                          strokeWidth={2}
-                          className="shrink-0 mt-0.5 text-[color:var(--brand-primary)]"
-                          aria-hidden="true"
-                        />
-                        <p className="font-body text-sm text-[color:var(--text-main)] leading-snug">{w}</p>
-                      </div>
-                    </Card>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
+            </div>
 
-          {/* ═══════════════════════════════════════
-              8. FAQs
-          ═══════════════════════════════════════ */}
-          <motion.div variants={fadeUpSoft}>
-            <ProductFAQ faqs={product.faqs ?? []} />
-          </motion.div>
+          </div>
 
-          {/* ═══════════════════════════════════════
-              9. REVIEWS
-          ═══════════════════════════════════════ */}
-          <motion.div variants={fadeUpSoft}>
-            <ProductReviews reviews={product.reviews ?? []} />
-          </motion.div>
-
-          {/* ═══════════════════════════════════════
-              10. RELATED PRODUCTS
-          ═══════════════════════════════════════ */}
+          {/* RELATED */}
           {relatedProducts.length > 0 && (
-            <motion.div
-              variants={fadeUpSoft}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true }}
-            >
+            <motion.div variants={fadeUpSoft}>
               <ProductRelated relatedProducts={relatedProducts} />
             </motion.div>
           )}
-
         </motion.div>
       </div>
     </section>

@@ -16,18 +16,13 @@ type Blog = {
   id: string;
   title: string;
   slug: string;
-
   description?: string | null;
   content?: string | null;
-
   thumbnailUrl?: string | null;
   author?: string | null;
   category?: string | null;
-
   tags?: string[];
-
   createdAt: string | Date;
-  updatedAt?: string | Date;
   publishedAt?: string | Date | null;
 };
 
@@ -47,12 +42,12 @@ export default function SlugClient({
   blog: Blog;
   relatedBlogs: RelatedBlog[];
   headings: string[];
-}){
+}) {
   const slugify = (str: string) =>
     str.toLowerCase().replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
 
   const contentRef = useRef<HTMLDivElement>(null);
-  const tags = blog.tags ?? [];
+
   const formattedDate = new Date(
     blog.publishedAt ?? blog.createdAt
   ).toLocaleDateString("en-IN", {
@@ -67,20 +62,21 @@ export default function SlugClient({
     if (!container || !el) return;
 
     container.scrollTo({
-      top: el.offsetTop - 24,
+      top: el.offsetTop - 32,
       behavior: "smooth",
     });
   };
 
   return (
     <section className="w-full pb-16">
-      <div className="mx-auto max-w-7xl px-6 space-y-6">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 space-y-8">
 
-        {/* ⭐ HERO */}
-        <Card className="mt-4 md:mt-8 overflow-hidden p-0">
-          <div className="flex flex-col lg:flex-row items-stretch">
+        {/* ================= HERO (MATCH PRODUCT STYLE) ================= */}
+        <Card className="mt-6 md:mt-10 overflow-hidden p-0">
+          <div className="flex flex-col lg:flex-row">
+
             {blog.thumbnailUrl && (
-              <div className="relative w-full lg:w-1/2 aspect-[4/3] lg:aspect-[16/9] min-h-[250px] md:min-h-[350px]">
+              <div className="relative w-full lg:w-1/2 aspect-[16/10] min-h-[260px]">
                 <Image
                   src={blog.thumbnailUrl}
                   alt={blog.title}
@@ -94,8 +90,10 @@ export default function SlugClient({
             )}
 
             <div className="w-full lg:w-1/2 p-6 md:p-10 flex flex-col justify-center">
-              <div className="flex flex-wrap gap-2 text-[10px] text-muted uppercase tracking-widest mb-4 font-heading">
-                <span className="text-primary">
+
+              {/* META */}
+              <div className="flex gap-2 text-[10px] uppercase tracking-widest text-muted mb-3">
+                <span className="text-[color:var(--brand-primary)]">
                   {blog.category || "Wellness"}
                 </span>
                 <span>•</span>
@@ -104,62 +102,76 @@ export default function SlugClient({
                 </span>
               </div>
 
-              <PageHeader 
-                title={blog.title} 
-                className="mb-6 !p-0 !text-left" 
+              {/* TITLE */}
+              <PageHeader
+                title={blog.title}
+                className="!p-0 !text-left mb-4"
               />
 
-              <div className="flex items-center gap-4 pt-5 border-t border-border-soft mt-auto">
-                <div className="space-y-1">
-                  <p className="text-xs font-accent text-slate-600 dark:text-slate-300">
-                    By {blog.author ?? "Vedic Wellness Team"}
-                  </p>
-                  <p className="text-[10px] text-muted tracking-wider uppercase text-slate-600 dark:text-slate-300 font-heading">
-                    {formattedDate}
-                  </p>
-                </div>
+              {/* AUTHOR */}
+              <div className="pt-4 border-t border-border-soft mt-4">
+                <p className="text-xs text-muted">
+                  By {blog.author ?? "Vedic Wellness Team"}
+                </p>
+                <p className="text-[10px] uppercase tracking-wider text-muted">
+                  {formattedDate}
+                </p>
               </div>
             </div>
           </div>
         </Card>
 
-        {/* ⭐ MAIN */}
-        <div className="grid lg:grid-cols-[240px_minmax(0,1fr)] gap-8 items-start">
+        {/* ================= MAIN ================= */}
+        <div className="grid lg:grid-cols-[260px_minmax(0,1fr)] gap-8 items-start">
 
-          {/* ⭐ TOC SIDEBAR */}
-          <aside className="hidden lg:block sticky top-40 self-start">
-            <Card className="px-6 py-5 !rounded-2xl">
-              <h3 className="font-heading text-xs uppercase tracking-widest border-b border-border-soft pb-3 mb-4">
-                On this page
-              </h3>
+          {/* ================= TOC ================= */}
+<aside className="hidden lg:block sticky top-48 self-start">
+  <div className="surface rounded-xl p-5 space-y-4 text-xs">
 
-              <nav className="flex flex-col gap-3">
-                {headings.map((h) => (
-                  <button
-                    key={h}
-                    onClick={() => handleScrollTo(h)}
-                    className="text-left text-[11px] leading-relaxed text-muted transition-colors hover:text-primary font-heading"
-                  >
-                    {h}
-                  </button>
-                ))}
-              </nav>
-            </Card>
-          </aside>
+    <p className="text-xs uppercase tracking-widest text-muted border-b border-border-soft pb-3">
+      On this page
+    </p>
 
-          {/* ⭐ ARTICLE */}
+    {headings.map((h) => (
+      <button
+        key={h}
+        onClick={() => handleScrollTo(h)}
+        className="
+          group relative block w-fit text-left
+          text-neutral-500 dark:text-neutral-400
+          hover:text-neutral-900 dark:hover:text-white
+          transition-colors duration-300
+          font-medium pb-1
+        "
+      >
+        {h}
+
+        {/* EXACT UNDERLINE (WORKING) */}
+        <span className="
+          absolute left-0 bottom-0 h-[1.5px] w-0
+          bg-neutral-900 dark:bg-white
+          transition-all duration-300
+          group-hover:w-full
+        " />
+      </button>
+    ))}
+
+  </div>
+</aside>
+
+          {/* ================= CONTENT ================= */}
           <motion.div variants={fadeUp} initial="hidden" animate="show">
             <Card
               ref={contentRef}
-              className="p-6 md:p-12 overflow-y-auto h-[60vh] scroll-smooth custom-scrollbar"
+              className="p-6 md:p-10 overflow-y-auto h-[78vh] md:h-[96vh] scroll-smooth custom-scrollbar"
             >
               <article
                 className="
                   prose max-w-none
-                  prose-headings:border-none prose-headings:my-0
-                  prose-p:text-slate-600 dark:prose-p:text-slate-300 prose-p:leading-8 prose-p:text-[16px]
-                  prose-ul:list-disc prose-ul:pl-5 prose-ul:my-6
-                  prose-li:text-slate-600 dark:prose-li:text-slate-300 prose-li:marker:text-primary
+                  prose-headings:my-0
+                  prose-p:text-muted prose-p:leading-7 prose-p:text-[15px]
+                  prose-ul:pl-5 prose-ul:my-5
+                  prose-li:leading-6 prose-li:marker:text-[color:var(--brand-primary)]
                 "
               >
                 <ReactMarkdown
@@ -167,21 +179,34 @@ export default function SlugClient({
                     h2({ children }) {
                       const text = String(children);
                       return (
-                        <div 
-                          id={slugify(text)} 
-                          className="mt-12 first:mt-0 mb-8 flex items-center gap-4 scroll-mt-6"
+                        <div
+                          id={slugify(text)}
+                          className="mt-12 first:mt-0 mb-6 flex items-center gap-3 scroll-mt-8"
                         >
-                          <span className="h-8 w-1.5 bg-primary rounded-full" />
-                          <SectionHeading 
-                            title={text} 
-                            className="!mb-0" 
-                          />
+                          <span className="h-6 w-1 bg-[color:var(--brand-primary)] rounded-full" />
+                          <h2 className="font-heading text-xl">
+                            {text}
+                          </h2>
                         </div>
                       );
                     },
+
                     h3({ children }) {
-                      return <h3 className="font-heading text-xl mt-8 mb-4">{children}</h3>;
+                      return (
+                        <h3 className="font-heading text-lg mt-6 mb-2">
+                          {children}
+                        </h3>
+                      );
                     },
+
+                    ul({ children }) {
+                      return (
+                        <ul className="space-y-2 list-disc pl-5">
+                          {children}
+                        </ul>
+                      );
+                    },
+
                     hr: () => null,
                   }}
                 >
@@ -189,41 +214,48 @@ export default function SlugClient({
                 </ReactMarkdown>
               </article>
 
-              {tags.length > 0 && (
-                <div className="mt-16 pt-8 border-t border-border-soft flex flex-wrap gap-2">
-                  {tags.map((tag) => (
-                    <Chip key={tag} className="opacity-60 text-[10px] hover:opacity-100 font-accent">
-                      #{tag}
-                    </Chip>
-                  ))}
-                </div>
-              )}
+              {/* TAGS */}
+              {blog.tags?.length ? (
+  <div className="mt-12 pt-6 border-t border-border-soft flex flex-wrap gap-2">
+    {blog.tags.map((tag) => (
+      <Chip key={tag} className="text-[10px] opacity-70 hover:opacity-100">
+        #{tag}
+      </Chip>
+    ))}
+  </div>
+) : null}
             </Card>
           </motion.div>
         </div>
 
-        {/* ⭐ RELATED */}
+        {/* ================= RELATED ================= */}
         {relatedBlogs.length > 0 && (
-          <div className="pt-8 space-y-6">
+          <div className="pt-6 space-y-6">
             <SectionHeading title="Related Reading" />
 
-            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2">
+            <div className="grid gap-6 sm:grid-cols-2">
               {relatedBlogs.slice(0, 4).map((r) => (
-                <Link key={r.id} href={`/blogs/${r.slug}`} className="block">
+                <Link key={r.id} href={`/blogs/${r.slug}`}>
                   <Card className="overflow-hidden p-0">
                     {r.thumbnailUrl && (
                       <div className="relative aspect-[4/3] lg:aspect-[16/9] w-full max-h-[160px]">
                         <Image
                           src={r.thumbnailUrl}
                           alt={r.title}
-                          fill className="object-cover"
+                          fill
+                          className="object-cover"
                           sizes="(max-width: 640px) 100vw, 50vw"
-                          />
+                        />
                       </div>
                     )}
-                    <div className="p-5 space-y-2">
-                      <h3 className="font-heading text-xl line-clamp-1">{r.title}</h3>
-                      <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-2">{r.description}</p>
+
+                    <div className="p-4 space-y-1">
+                      <h3 className="font-heading text-lg line-clamp-1">
+                        {r.title}
+                      </h3>
+                      <p className="text-xs text-muted line-clamp-2">
+                        {r.description}
+                      </p>
                     </div>
                   </Card>
                 </Link>

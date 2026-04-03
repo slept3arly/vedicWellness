@@ -19,13 +19,6 @@ export default function ProductHero({ product }: { product: Product }) {
     Boolean
   ) as string[];
 
-  const discountPct =
-    product.compareAtPrice && product.compareAtPrice > product.price
-      ? Math.round(
-          ((product.compareAtPrice - product.price) / product.compareAtPrice) * 100
-        )
-      : null;
-
   const reviewCount = product.reviews?.length ?? 0;
   const avgRating =
     reviewCount > 0
@@ -35,36 +28,22 @@ export default function ProductHero({ product }: { product: Product }) {
   const inStock = product.stock > 0;
 
   return (
-    <Card className="mt-4 md:mt-8 overflow-hidden p-0">
+    <Card className="mt-4 md:mt-6 overflow-hidden p-0">
       <div className="flex flex-col lg:flex-row">
 
-        {/* ── LEFT: Carousel — fixed landscape height ── */}
-        <div className="relative w-full lg:w-1/2 h-[280px] sm:h-[360px] lg:h-[440px] bg-zinc-50 dark:bg-zinc-900/50">
+        {/* IMAGE */}
+        <div className="relative w-full lg:w-1/2 h-[260px] sm:h-[320px] lg:h-[400px] bg-zinc-50 dark:bg-zinc-900/50">
           <ProductCarousel images={allImages} name={product.name} />
-
-          {discountPct && (
-            <span
-              aria-label={`${discountPct}% discount`}
-              className="
-                absolute top-4 left-4 z-30
-                bg-emerald-500 text-white
-                text-[10px] font-heading font-bold uppercase tracking-widest
-                px-2.5 py-1 rounded-full pointer-events-none
-              "
-            >
-              {discountPct}% OFF
-            </span>
-          )}
         </div>
 
-        {/* ── RIGHT: Product info only — no price card ── */}
+        {/* CONTENT */}
         <motion.div
           variants={staggerFast}
           initial="hidden"
           animate="show"
-          className="w-full lg:w-1/2 p-6 md:p-10 flex flex-col gap-5 justify-center"
+          className="w-full lg:w-1/2 p-5 md:p-7 flex flex-col gap-4 justify-center"
         >
-          {/* Eyebrow: category · form · rating · stock */}
+          {/* META STRIP */}
           <motion.div
             variants={reveal}
             className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-heading uppercase tracking-widest text-[color:var(--text-muted)]"
@@ -74,37 +53,40 @@ export default function ProductHero({ product }: { product: Product }) {
                 {product.tag}
               </span>
             )}
+
             {product.medicineForm && (
               <>
-                <span aria-hidden="true" className="opacity-40">·</span>
+                <span className="opacity-40">·</span>
                 <span>{product.medicineForm}</span>
               </>
             )}
+
             {avgRating && (
               <>
-                <span aria-hidden="true" className="opacity-40">·</span>
+                <span className="opacity-40">·</span>
                 <span className="flex items-center gap-0.5">
-                  <Star size={9} className="fill-amber-400 text-amber-400" aria-hidden="true" />
+                  <Star size={9} className="fill-amber-400 text-amber-400" />
                   {avgRating}
-                  <span className="opacity-60 ml-0.5">({reviewCount})</span>
                 </span>
               </>
             )}
-            <span aria-hidden="true" className="opacity-40">·</span>
+
+            <span className="opacity-40">·</span>
+
             {inStock ? (
-              <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-0.5">
-                <CheckCircle2 size={9} aria-hidden="true" />
+              <span className="text-emerald-500 flex items-center gap-0.5">
+                <CheckCircle2 size={9} />
                 In Stock
               </span>
             ) : (
               <span className="text-red-500 flex items-center gap-0.5">
-                <XCircle size={9} aria-hidden="true" />
+                <XCircle size={9} />
                 Out of Stock
               </span>
             )}
           </motion.div>
 
-          {/* Title + subtitle */}
+          {/* TITLE */}
           <motion.div variants={reveal}>
             <PageHeader
               title={product.name}
@@ -114,31 +96,38 @@ export default function ProductHero({ product }: { product: Product }) {
             />
           </motion.div>
 
-          {/* Short description */}
+          {/* SHORT DESC */}
           {product.shortDescription && (
             <motion.p
               variants={reveal}
-              className="font-body text-sm md:text-base text-[color:var(--text-muted)] leading-relaxed"
+              className="text-sm text-[color:var(--text-muted)] leading-relaxed line-clamp-3"
             >
               {product.shortDescription}
             </motion.p>
           )}
 
-          {/* Top highlights — max 3, compact */}
-          {product.highlights?.slice(0, 3).map((h, i) => (
+          {/* QUICK HIGHLIGHTS (MAX 2) */}
+          {product.highlights?.slice(0, 2).map((h, i) => (
             <motion.div
               key={i}
               variants={reveal}
-              className="flex items-start gap-2 text-sm font-body text-[color:var(--text-main)]"
+              className="flex items-start gap-2 text-sm"
             >
-              <Target
-                size={13}
-                className="shrink-0 mt-0.5 text-[color:var(--brand-primary)]"
-                aria-hidden="true"
-              />
+              <Target size={13} className="mt-0.5 text-[color:var(--brand-primary)]" />
               {h}
             </motion.div>
           ))}
+
+          {/* TRUST STRIP */}
+          <motion.div
+            variants={reveal}
+            className="flex flex-wrap gap-2 pt-2 text-[11px] text-[color:var(--text-muted)]"
+          >
+            <span>✔ Ayurvedic</span>
+            <span>✔ GMP Certified</span>
+            <span>✔ Made in India</span>
+          </motion.div>
+
         </motion.div>
       </div>
     </Card>

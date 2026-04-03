@@ -19,7 +19,7 @@ export default function FranchiseCTA() {
     (window.location.href = "tel:+919306025799");
 
   return (
-    <section className="max-w-7xl mx-auto px-4 py-16 md:px-6 md:py-20">
+    <section className="max-w-7xl mx-auto px-4 md:px-6 md:pb-20">
       <motion.div
         variants={staggerFast}
         initial="hidden"

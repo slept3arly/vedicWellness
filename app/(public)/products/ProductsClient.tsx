@@ -99,7 +99,7 @@ export default function ProductsClient({
           }
           title={
             <>
-              Explore our <span className="text-accent">product range</span>
+              Explore our product range at{" "}<span className="text-brand-accent">Vedic Wellness</span>
             </>
           }
           subtitle="Premium Ayurvedic formulations designed for demand, trust, and repeat customers."

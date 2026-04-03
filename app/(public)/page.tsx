@@ -31,6 +31,8 @@ export default function Home() {
       {/* 6. PROOF OF SCALE: 500+ Partners & 200+ Products */}
       <StatsSection />
 
+      <MediaShowcase placementKey="HOME_SECONDARY" />
+
       {/* 7. THE RANGE: In India, 'Product Variety' is the biggest draw. Move this up. */}
       <Categories />
 
@@ -38,7 +40,7 @@ export default function Home() {
       <Testimonials />
 
       {/* 9. VISUAL PROOF: Show real warehouse, packaging, or office shots */}
-      <MediaShowcase placementKey="HOME_SECONDARY" />
+      <MediaShowcase placementKey="FESTIVAL_BANNER" />
 
       {/* 10. IMMEDIATE TRUST: Certificates (GMP/ISO) and TrustStrip */}
       <TrustStrip /> 

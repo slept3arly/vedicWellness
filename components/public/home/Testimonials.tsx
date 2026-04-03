@@ -12,42 +12,48 @@ const reviews = [
     city: "Maharashtra",
     role: "Wholesale Distributor",
     impact: "+42% Revenue Growth",
-    text: "Excellent margins, reliable supply and strong repeat demand helped us scale quickly.",
+    text: "Strong margins, reliable supply, and repeat demand helped us scale consistently.",
+    textShort: "Strong margins and reliable supply helped us scale fast.",
   },
   {
     name: "Medical Representative",
     city: "Uttar Pradesh",
     role: "Field Sales",
     impact: "3x Doctor Engagement",
-    text: "Marketing support and product quality made doctor conversions easier.",
+    text: "Quality products and marketing support made doctor conversions faster and easier.",
+    textShort: "Quality products made doctor conversions easier.",
   },
   {
     name: "Franchise Owner",
     city: "Gujarat",
     role: "Regional Partner",
     impact: "+65% Monthly Orders",
-    text: "Support team is responsive and schemes are attractive.",
+    text: "Responsive support team and strong schemes helped us grow business quickly.",
+    textShort: "Strong support and schemes helped us grow quickly.",
   },
   {
     name: "Retail Pharmacy Partner",
     city: "Tamil Nadu",
     role: "Pharmacy Chain Owner",
     impact: "+38% Sell-through Rate",
-    text: "The product range fills a clear gap in our market. Customers keep coming back for repeat purchases.",
+    text: "Product range fits market demand well and drives consistent repeat purchases.",
+    textShort: "Products match demand and drive repeat purchases.",
   },
   {
     name: "Area Sales Manager",
     city: "Rajasthan",
     role: "Territory Manager",
     impact: "2x Territory Coverage",
-    text: "Training materials and field support gave my team the confidence to expand into new districts.",
+    text: "Training and field support enabled faster expansion into new territories.",
+    textShort: "Training enabled faster territory expansion.",
   },
   {
     name: "Hospital Supply Partner",
     city: "Karnataka",
     role: "Institutional Distributor",
     impact: "+55% Institutional Orders",
-    text: "On-time delivery and consistent quality have made us the preferred supplier across three hospitals.",
+    text: "Timely delivery and consistent quality made us a preferred hospital supplier.",
+    textShort: "Timely delivery and quality made us a preferred supplier.",
   },
 ];
 
@@ -61,41 +67,72 @@ export default function Testimonials() {
         viewport={{ once: true }}
         className="space-y-12"
       >
-        <motion.header variants={fadeUp} className="text-center max-w-2xl mx-auto">
+        {/* Header */}
+        <motion.header
+          variants={fadeUp}
+          className="text-center max-w-2xl mx-auto"
+        >
           <PageHeader
             title="Trusted by Growing Partners"
             subtitle="Real results from franchise owners across India."
           />
         </motion.header>
 
+        {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {reviews.map((r) => (
-            <motion.div key={r.city} variants={fadeUp} className="group">
+            <motion.div key={r.city} variants={fadeUp} className="group h-full">
               <Card className="bg-white/75 dark:bg-black/45 h-full flex flex-col justify-between p-3 md:p-5">
+
+                {/* TOP */}
                 <div>
-                  <p className="italic text-xs md:text-lg leading-relaxed text-slate-600 dark:text-slate-300">
-                    "{r.text}"
+                  <p className="italic text-xs md:text-lg leading-relaxed text-slate-600 dark:text-slate-300 line-clamp-3 md:line-clamp-none min-h-[3.8rem] md:min-h-0">
+                    
+                    {/* Mobile short text */}
+                    <span className="md:hidden">"{r.textShort}"</span>
+
+                    {/* Desktop full text */}
+                    <span className="hidden md:inline">"{r.text}"</span>
+
                   </p>
+
                   <div className="mt-2 md:mt-4 flex justify-between items-center">
+                    
+                    {/* Impact */}
                     <span className="font-accent text-[10px] md:text-xs font-semibold text-[color:var(--brand-accent)] uppercase tracking-wider">
                       {r.impact}
                     </span>
+
+                    {/* Stars */}
                     <div className="flex text-[color:var(--brand-accent)] transition-transform duration-300 group-hover:scale-105">
                       {[...Array(5)].map((_, i) => (
-                        <Star key={i} size={10} className="md:w-[14px] md:h-[14px]" fill="currentColor" />
+                        <Star
+                          key={i}
+                          size={10}
+                          className="md:w-[14px] md:h-[14px]"
+                          fill="currentColor"
+                        />
                       ))}
                     </div>
+
                   </div>
                 </div>
 
+                {/* BOTTOM */}
                 <div className="mt-3 md:mt-6 border-t border-foreground/10 pt-2 md:pt-4">
+                  
+                  {/* Name */}
                   <p className="font-heading font-semibold text-xs md:text-base text-foreground">
                     {r.name}
                   </p>
+
+                  {/* Role + City */}
                   <p className="text-[10px] md:text-xs text-muted-foreground uppercase tracking-widest mt-0.5 md:mt-1">
                     {r.role} • {r.city}
                   </p>
+
                 </div>
+
               </Card>
             </motion.div>
           ))}
