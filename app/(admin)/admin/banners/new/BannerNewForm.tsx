@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { createBanner } from "../serverActions";
 import R2Upload from "@/components/R2Upload";
 import AdminCard from "@/components/admin/AdminCard";
@@ -9,8 +10,6 @@ import AdminButton from "@/components/admin/AdminButton";
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 import { toast } from "@/lib/toast";
-
-/* ── shared class strings (matching ProductNewForm) ── */
 
 const inputCls =
   "w-full h-10 rounded-lg border border-border bg-background px-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring transition-shadow";
@@ -23,8 +22,6 @@ const selectCls =
 
 const labelCls =
   "block mb-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground";
-
-/* ── primitives ── */
 
 function F({ id, lbl, tip, req, children }: {
   id?: string; lbl: string; tip?: string; req?: boolean; children: React.ReactNode;
@@ -53,20 +50,24 @@ function Sec({ title, sub, children }: {
   );
 }
 
-/* ── main ── */
-
 export default function BannerNewForm() {
   const [isPending, start] = useTransition();
   const [imageUrl, setImageUrl] = useState("");
+  const router = useRouter();
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
-    
+
     start(async () => {
       try {
         await createBanner(data);
-        toast.success("Banner created successfully.");
+
+        toast.success("Banner created successfully");
+
+        setTimeout(() => {
+          router.push("/admin/banners");
+        }, 300);
       } catch (e: any) {
         if (e?.message === "NEXT_REDIRECT" || e?.digest?.startsWith("NEXT_REDIRECT")) return;
         toast.error("Failed to create banner", e?.message);
@@ -78,7 +79,6 @@ export default function BannerNewForm() {
     <div className="w-full px-4 sm:px-6 lg:px-10 xl:px-16 py-8 space-y-6">
       <form onSubmit={handleSubmit} noValidate aria-label="Create banner" className="space-y-6">
         
-        {/* Header: Strictly left-aligned with responsive buttons */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-6">
           <div className="flex flex-col items-start text-left">
             <div className="[&_h1]:text-left [&_h1]:m-0">
@@ -107,11 +107,9 @@ export default function BannerNewForm() {
           </div>
         </div>
 
-        {/* Hidden states */}
         <input type="hidden" name="imageUrl" value={imageUrl} />
         <input type="hidden" name="isActive" value="on" />
 
-        {/* Configuration */}
         <Sec title="Banner Configuration" sub="Set the type and visual content.">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <F id="type" lbl="Banner Type">
@@ -132,7 +130,6 @@ export default function BannerNewForm() {
           </F>
         </Sec>
 
-        {/* Media */}
         <AdminCard>
           <div className="mb-4 text-left border-b border-border pb-4">
             <SectionHeading title="Banner Image" subtitle="Upload the visual for your popup." />
@@ -145,7 +142,6 @@ export default function BannerNewForm() {
           </div>
         </AdminCard>
 
-        {/* Action & Scheduling */}
         <Sec title="Call to Action & Schedule" sub="Where the banner links and when it shows.">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
             <F id="buttonText" lbl="Button Text">

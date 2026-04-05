@@ -5,7 +5,7 @@ import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { useRef } from "react";
 import { motion } from "framer-motion";
-import { fadeUp } from "app/animations";
+import { fadeUp } from "@/app/animations";
 
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";

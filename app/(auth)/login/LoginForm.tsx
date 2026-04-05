@@ -2,7 +2,7 @@
 
 import { useState, useRef } from "react";
 import { signIn } from "next-auth/react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { toast } from "@/lib/toast";
 import Button from "@/components/public/ui/Button";
 
@@ -14,6 +14,8 @@ export default function LoginForm() {
   const passwordRef = useRef<HTMLInputElement>(null);
 
   const searchParams = useSearchParams();
+  const router = useRouter();
+
   const callbackUrl =
     searchParams.get("callbackUrl") ||
     searchParams.get("next") ||
@@ -30,19 +32,14 @@ export default function LoginForm() {
     const password = String(formData.get("password"));
 
     if (!email) {
-      toast.warning(
-        "Email is required.",
-        "Please enter your email address.",
-      );
+      toast.warning("Email is required.", "Please enter your email address.");
       emailRef.current?.focus();
       setIsLoading(false);
       return;
     }
 
     if (!password) {
-      toast.warning("Password is required.",
-        "Please enter your password.",
-      );
+      toast.warning("Password is required.", "Please enter your password.");
       passwordRef.current?.focus();
       setIsLoading(false);
       return;
@@ -56,21 +53,21 @@ export default function LoginForm() {
       });
 
       if (!res) {
-        toast.error("Login failed",
-          "Unexpected authentication error.",
-        );
+        toast.error("Login failed", "Unexpected authentication error.");
         setIsLoading(false);
         return;
       }
 
       if (res.error) {
         if (res.error === "EMAIL_NOT_VERIFIED") {
-          toast.error("Email not verified",
-              "Please verify your email before logging in.",
+          toast.error(
+            "Email not verified",
+            "Please verify your email before logging in."
           );
         } else {
-          toast.error("Wrong email or password",
-              "Please check your credentials and try again.",
+          toast.error(
+            "Wrong email or password",
+            "Please check your credentials and try again."
           );
         }
 
@@ -79,15 +76,13 @@ export default function LoginForm() {
         return;
       }
 
-      toast.success("Login successful",
-        "Redirecting you now...",
-      );
+      toast.success("Login successful", "Redirecting you now...");
 
-      window.location.href = callbackUrl;
+      setTimeout(() => {
+        router.push(callbackUrl);
+      }, 300);
     } catch {
-      toast.error("Something went wrong",
-        "Please try again later.",
-      );
+      toast.error("Something went wrong", "Please try again later.");
       setIsLoading(false);
     }
   }
@@ -98,7 +93,6 @@ export default function LoginForm() {
       noValidate
       className="mx-auto mt-10 flex w-full max-w-md flex-col gap-5"
     >
-      {/* EMAIL */}
       <div className="space-y-1">
         <label
           htmlFor="login-email"
@@ -118,7 +112,6 @@ export default function LoginForm() {
         />
       </div>
 
-      {/* PASSWORD */}
       <div className="space-y-1">
         <label
           htmlFor="login-password"
@@ -151,11 +144,7 @@ export default function LoginForm() {
         </div>
       </div>
 
-      <Button
-        type="submit"
-        isLoading={isLoading}
-        className="w-full"
-      >
+      <Button type="submit" isLoading={isLoading} className="w-full">
         Log in
       </Button>
     </form>

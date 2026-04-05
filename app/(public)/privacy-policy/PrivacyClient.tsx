@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { fadeUp } from "app/animations";
+import { fadeUp } from "@/app/animations";
 import { useRef } from "react";
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";

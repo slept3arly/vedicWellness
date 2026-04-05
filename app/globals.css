@@ -6,8 +6,6 @@
    DESIGN TOKENS
 ====================================================== */
 
-
-
 :root {
   --brand-primary: #026536;
   --brand-accent: #589d32;
@@ -18,10 +16,10 @@
   --text-main: #121212;
   --text-muted: #5f6b63;
 
-  --border-soft: rgba(0,0,0,0.08);
+  --border-soft: rgba(0, 0, 0, 0.08);
 
-  --shadow-soft: 0 6px 20px rgba(0,0,0,0.08);
-  --shadow-hover: 0 10px 32px rgba(0,0,0,0.12);
+  --shadow-soft: 0 6px 20px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 10px 32px rgba(0, 0, 0, 0.12);
 
   --radius: 14px;
 }
@@ -37,10 +35,10 @@
   --text-main: #eef2ef;
   --text-muted: #9aa5a0;
 
-  --border-soft: rgba(255,255,255,0.08);
+  --border-soft: rgba(255, 255, 255, 0.08);
 
-  --shadow-soft: 0 8px 26px rgba(0,0,0,0.6);
-  --shadow-hover: 0 12px 40px rgba(0,0,0,0.8);
+  --shadow-soft: 0 8px 26px rgba(0, 0, 0, 0.6);
+  --shadow-hover: 0 12px 40px rgba(0, 0, 0, 0.8);
 }
 
 /* ======================================================
@@ -51,15 +49,18 @@ body {
   background: var(--bg-main);
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 @layer base {
   p {
     @apply font-body leading-relaxed;
   }
-}
-h3 {
-  @apply font-heading text-xl font-semibold;
+
+  h3 {
+    @apply font-heading text-xl font-semibold;
+  }
 }
 
 /* ======================================================
@@ -82,14 +83,40 @@ h3 {
 }
 
 /* ======================================================
-   FEATURE UTILITIES (KEEP THESE)
+   TOAST
+   Sonner owns ALL animation, positioning, and transition logic.
+   Never override transform or transition on [data-sonner-toast] —
+   it will fight Sonner's internal JS-driven motion.
+
+   What we do here:
+   - Icon colors per type (safe, data-attribute only, no layout/motion)
+   - Text colors (safe, no layout/motion)
+   Everything else is passed via className in layout.tsx.
 ====================================================== */
 
-/* marquee */
+/* Icon colors — light */
+[data-sonner-toast][data-type="success"] [data-icon] { color: #16a34a; }
+[data-sonner-toast][data-type="error"]   [data-icon] { color: #dc2626; }
+[data-sonner-toast][data-type="warning"] [data-icon] { color: #d97706; }
+[data-sonner-toast][data-type="info"]    [data-icon] { color: #2563eb; }
+
+/* Icon colors — dark */
+.dark [data-sonner-toast][data-type="success"] [data-icon] { color: #22c55e; }
+.dark [data-sonner-toast][data-type="error"]   [data-icon] { color: #ef4444; }
+.dark [data-sonner-toast][data-type="warning"] [data-icon] { color: #f59e0b; }
+.dark [data-sonner-toast][data-type="info"]    [data-icon] { color: #3b82f6; }
+
+/* Text */
+[data-sonner-toast] [data-title]       { color: var(--text-main) !important; }
+[data-sonner-toast] [data-description] { color: var(--text-muted) !important; }
+
+/* ======================================================
+   MARQUEE
+====================================================== */
 
 @keyframes marquee {
   from { transform: translateX(0); }
-  to { transform: translateX(-50%); }
+  to   { transform: translateX(-50%); }
 }
 
 .marquee-track {
@@ -113,7 +140,9 @@ h3 {
   );
 }
 
-/* loader */
+/* ======================================================
+   RIBBON LOADER
+====================================================== */
 
 .ribbon-loader {
   width: 48px;
@@ -122,7 +151,7 @@ h3 {
   align-items: center;
   justify-content: center;
   border-radius: 999px;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(8px);
   box-shadow: var(--shadow-soft);
 }
@@ -132,8 +161,8 @@ h3 {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  border: 5px solid rgba(255,255,255,0.25);
-  border-top-color: rgba(255,255,255,0.9);
+  border: 5px solid rgba(255, 255, 255, 0.25);
+  border-top-color: rgba(255, 255, 255, 0.9);
   animation: spin 0.8s linear infinite, pulse 2s ease-in-out infinite;
 }
 
@@ -142,39 +171,45 @@ h3 {
 }
 
 @keyframes pulse {
-  0%,100% { opacity:.6 }
-  50% { opacity:1 }
+  0%, 100% { opacity: 0.6; }
+  50%       { opacity: 1; }
 }
 
-/* reduced motion */
+/* ======================================================
+   ROUTE LOADER
+====================================================== */
 
-@media (prefers-reduced-motion: reduce) {
-  .marquee-track,
-  .ribbon-loader::after {
-    animation: none !important;
-  }
-}
-
-@keyframes float {
-  0%{transform:translateY(0)}
-  50%{transform:translateY(-10px)}
-  100%{transform:translateY(0)}
-}
-.animate-float{
-  animation:float 6s ease-in-out infinite;
-}
-
-/* route loader (LCP safe) */
 @keyframes route-loader {
-  0% {
-    transform: translateX(-100%);
-  }
-  100% {
-    transform: translateX(100%);
-  }
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 .animate-route-loader {
   animation: route-loader 1s ease-in-out infinite;
 }
 
+/* ======================================================
+   FLOAT UTILITY
+====================================================== */
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ======================================================
+   REDUCED MOTION
+====================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track,
+  .ribbon-loader::after,
+  .animate-route-loader,
+  .animate-float {
+    animation: none !important;
+  }
+}

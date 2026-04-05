@@ -57,7 +57,7 @@ function CartRow({ item, isLast }: RowProps) {
     startRemoveTransition(async () => {
       try {
         await removeCartItemAction({ itemId: item.id });
-        toast.delete("Item removed", `${item.product.name} removed from your cart.`);
+        toast.success("Item removed", `${item.product.name} removed from your cart.`);
         router.refresh();
       } catch (err: unknown) {
         toast.error(
