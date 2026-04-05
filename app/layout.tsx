@@ -14,6 +14,9 @@ import PromotionModal from "@/components/public/layout/PromotionModal";
 import { getActiveBannerCached } from "@/lib/services/public/bannerService";
 import Script from "next/script";
 
+// ✅ ADD THIS
+import { auth } from "@/auth";
+
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
   "https://vedic-wellness.vercel.app";
@@ -69,7 +72,11 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const banner = await getActiveBannerCached();
+  // ✅ FETCH SESSION + BANNER IN PARALLEL
+  const [banner, session] = await Promise.all([
+    getActiveBannerCached(),
+    auth(),
+  ]);
 
   return (
     <html
@@ -112,7 +119,8 @@ export default async function RootLayout({
           }}
         />
 
-        <Providers>
+        {/* ✅ PASS SESSION HERE */}
+        <Providers session={session}>
           <PromotionModal banner={banner} />
           <RouteLoader />
 
@@ -129,15 +137,6 @@ export default async function RootLayout({
           <BottomNavbar />
         </Providers>
 
-        {/*
-          Toaster lives outside <Providers> intentionally — it does not need
-          React context and being outside avoids any re-render from context
-          updates causing animation interruptions.
-
-          richColors={false} + unstyled={true}: we own the visual skin via
-          className only. Sonner owns 100% of the animation/motion — no CSS
-          overrides on [data-sonner-toast] transforms or transitions.
-        */}
         <Toaster
           position="top-center"
           visibleToasts={1}

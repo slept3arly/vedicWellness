@@ -1,7 +1,7 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
-import { getSession } from "./getSession";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 
 type AdminUser = {
@@ -11,7 +11,7 @@ type AdminUser = {
 };
 
 export async function requireAdmin(): Promise<AdminUser> {
-  const session = await getSession();
+  const session = await auth();
 
   if (!session?.user?.email) {
     redirect("/login?next=/admin");

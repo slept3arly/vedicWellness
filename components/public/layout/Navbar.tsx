@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import { ShoppingCart, User } from "lucide-react"
 import { useMenu } from "@/components/MenuContext"
+import React from "react";
 
 const NAV_LINKS = [
   { label: "Home", path: "/" },
@@ -16,7 +17,7 @@ const NAV_LINKS = [
   { label: "About", path: "/about" },
 ]
 
-export default function Navbar() {
+function Navbar() {
   const pathname = usePathname()
   const activePath = pathname
   const { menuOpen, setMenuOpen } = useMenu()
@@ -250,3 +251,5 @@ export default function Navbar() {
     </>
   )
 }
+
+export default React.memo(Navbar);

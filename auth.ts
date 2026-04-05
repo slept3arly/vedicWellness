@@ -39,7 +39,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
     maxAge: 60 * 60 * 24, // 24h
-    updateAge: 60,
+    updateAge: 60 * 60 * 24,   // 24h
   },
 
   pages: {
@@ -59,16 +59,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
 
     async jwt({ token, user }) {
-      // Initial login
+      const now = Math.floor(Date.now() / 1000); // seconds
+
+      // ✅ Initial login
       if (user) {
         token.uid = user.id;
         token.role = user.role;
         token.verified = (user as any).verified;
+        token.lastCheck = now; // ✅ initialize timestamp
         return token;
       }
 
-      // Re-check DB on refresh
-      if (token?.uid) {
+      // ✅ Skip if no user id
+      if (!token?.uid) return token;
+
+      // ✅ Only refresh from DB if stale (15 min threshold)
+      const SHOULD_REFRESH_AFTER = 60 * 15; // 15 minutes
+
+      if (
+        !token.lastCheck ||
+        now - (token.lastCheck as number) > SHOULD_REFRESH_AFTER
+      ) {
         const dbUser = await prisma.user.findFirst({
           where: {
             id: token.uid as string,
@@ -87,6 +98,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         token.role = dbUser.role;
         token.verified = dbUser.verified;
+        token.lastCheck = now; // ✅ update timestamp
       }
 
       return token;
@@ -140,7 +152,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          // Skip password check for verification login
           if (!verificationLogin) {
             if (!password) return null;
 
@@ -151,7 +162,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
               return null;
             }
 
-            // 🚫 Block unverified users
             if (!user.verified) {
               throw new Error("EMAIL_NOT_VERIFIED");
             }
@@ -165,12 +175,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           };
 
           return authUser;
-        }catch (err: any) {
-        // Preserve explicit auth errors like EMAIL_NOT_VERIFIED
+        } catch (err: any) {
           if (err instanceof Error) {
             throw err;
           }
-
           return null;
         }
       },

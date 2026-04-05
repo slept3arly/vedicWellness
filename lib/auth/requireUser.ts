@@ -1,7 +1,7 @@
 import "server-only";
 
 import { redirect } from "next/navigation";
-import { getSession } from "./getSession";
+import { auth } from "@/auth";
 import { prisma } from "@/lib/db/prisma";
 import type { Role } from "@prisma/client";
 
@@ -12,7 +12,7 @@ export type AuthUser = {
 };
 
 export async function requireUser(): Promise<AuthUser> {
-  const session = await getSession();
+  const session = await auth();
 
   // Not logged in → go to login
   if (!session?.user?.email) {

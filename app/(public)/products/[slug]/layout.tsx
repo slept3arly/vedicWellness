@@ -1,5 +1,5 @@
 // layout.tsx
-import { getSession } from "@/lib/auth/getSession";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 export default async function ProductDetailLayout({
@@ -12,7 +12,7 @@ export default async function ProductDetailLayout({
   // Await the params before using them
   const { slug } = await params; 
   
-  const session = await getSession();
+  const session = await auth();
 
   if (!session?.user) {
     // Use the awaited slug here

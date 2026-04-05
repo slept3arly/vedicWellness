@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
-import { getSession } from "@/lib/auth/getSession";
+import { auth } from "@/auth";
 import { getOrCreateCart } from "@/lib/services/cartService";
 
 import {
@@ -62,7 +62,7 @@ export default async function ProductDetailsPage({
     product.medicineForm ?? null
   );
 
-  const session = await getSession();
+  const session = await auth();
   
   // Data to pass to Client Component
   let existingQty = 0;
