@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { PlacementKey } from "@prisma/client";
 
 /* ICONS */
 import {
@@ -23,6 +24,9 @@ import AdminCard from "@/components/admin/AdminCard";
 import AdminButton from "@/components/admin/AdminButton";
 import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminPagination from "@/components/admin/AdminPagination";
+import AdminSearchFilters, {
+  type AdminFilterValues,
+} from "@/components/admin/AdminSearchFilters";
 import PageHeader from "@/components/public/ui/PageHeader";
 
 /* UTILS */
@@ -36,24 +40,69 @@ export default function AdminSlidesClient({
   total,
   page,
   q,
+  status,
+  type,
+  typeOptions,
 }: {
   slides: SlideListItem[];
   total: number;
   page: number;
   q: string;
+  status: string;
+  type: string;
+  typeOptions: PlacementKey[];
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState(q);
+  const [filters, setFilters] = useState<AdminFilterValues>({
+    from: "",
+    to: "",
+    status,
+    secondary: type,
+    tertiary: "",
+  });
   const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
   const handleSync = () => startTransition(() => router.refresh());
-  
-  const handlePageChange = (newPage: number) => {
-    startTransition(() => {
-      const query = inputValue ? `&q=${encodeURIComponent(inputValue)}` : "";
-      router.push(`/admin/slides?page=${newPage}${query}`);
+
+  useEffect(() => {
+    setInputValue(q);
+  }, [q]);
+
+  useEffect(() => {
+    setFilters({
+      from: "",
+      to: "",
+      status,
+      secondary: type,
+      tertiary: "",
     });
+  }, [status, type]);
+
+  const navigateTo = (
+    nextPage: number,
+    nextQuery = inputValue,
+    nextFilters = filters
+  ) => {
+    const params = new URLSearchParams();
+    const query = nextQuery.trim();
+
+    params.set("page", String(nextPage));
+    if (query) params.set("q", query);
+    if (nextFilters.status) params.set("status", nextFilters.status);
+    if (nextFilters.secondary) params.set("type", nextFilters.secondary);
+
+    startTransition(() => {
+      router.push(`/admin/slides?${params.toString()}`);
+    });
+  };
+
+  const handlePageChange = (newPage: number) => navigateTo(newPage);
+
+  const handleClear = () => {
+    setInputValue("");
+    navigateTo(1, "", filters);
   };
 
   return (
@@ -101,25 +150,61 @@ export default function AdminSlidesClient({
       {/* 2. SEARCH SYSTEM */}
       <AdminCard compact className="!p-3 border-dashed bg-neutral-50/50 dark:bg-neutral-900/50">
         <form 
-          onSubmit={(e) => { e.preventDefault(); handlePageChange(1); }} 
-          className="flex gap-2"
+          onSubmit={(e) => { e.preventDefault(); navigateTo(1); }} 
+          className="flex items-center gap-2"
         >
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Search by placement key..."
+              placeholder="Search slides by placement key..."
               className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
             {inputValue && (
-              <X 
-                className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 cursor-pointer hover:text-red-500" 
-                onClick={() => { setInputValue(""); router.push("/admin/slides?page=1"); }} 
-              />
+              <button
+                type="button"
+                onClick={handleClear}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-red-500"
+              >
+                <X className="h-4 w-4" />
+              </button>
             )}
           </div>
-          <AdminButton type="submit" icon={Search}>Search</AdminButton>
+          <AdminButton
+            type="submit"
+            variant="secondary"
+            icon={Search}
+            iconOnly
+            disabled={isPending}
+            aria-label="Search slides"
+            className="h-10 w-10 min-w-[40px] rounded-lg px-0"
+          />
+          <AdminSearchFilters
+            value={filters}
+            statusOptions={["ACTIVE", "INACTIVE"]}
+            secondaryOptions={typeOptions}
+            secondaryLabel="Type"
+            allSecondaryLabel="All types"
+            showDateFields={false}
+            disabled={isPending}
+            onApply={(nextFilters) => {
+              setFilters(nextFilters);
+              navigateTo(1, inputValue, nextFilters);
+            }}
+            onClear={() => {
+              const clearedFilters = {
+                from: "",
+                to: "",
+                status: "",
+                secondary: "",
+                tertiary: "",
+              };
+
+              setFilters(clearedFilters);
+              navigateTo(1, inputValue, clearedFilters);
+            }}
+          />
         </form>
       </AdminCard>
 

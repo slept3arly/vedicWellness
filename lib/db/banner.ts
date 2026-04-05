@@ -1,6 +1,9 @@
 import "server-only";
+import { buildWhere } from "@/lib/db/search";
 import { prisma } from "@/lib/db/prisma";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+import { Prisma } from "@prisma/client";
+import type { SearchConfig } from "@/lib/db/search";
 
 /* ========================================================= */
 /* TYPES */
@@ -19,6 +22,13 @@ const bannerSelect = {
   endAt: true,
   createdAt: true,
 } as const;
+
+const bannerSearchConfig: SearchConfig = {
+  text: ["title", "message"],
+  enum: [],
+  relation: [],
+  exact: [],
+};
 
 /* ========================================================= */
 /* CREATE */
@@ -96,28 +106,29 @@ export async function getActiveBanner() {
 export async function getAdminBanners(
   page = 1,
   limit = ADMIN_PAGE_SIZE,
-  q = ""
+  q = "",
+  filters: {
+    status?: "ACTIVE" | "INACTIVE" | "";
+  } = {}
 ) {
   const skip = (page - 1) * limit;
+  const searchWhere = buildWhere(q, bannerSearchConfig) as Prisma.BannerWhereInput;
+  const filterConditions: Prisma.BannerWhereInput[] = [];
 
-  const where = q
-    ? {
-        OR: [
-          {
-            title: {
-              contains: q,
-              mode: "insensitive" as const,
-            },
-          },
-          {
-            message: {
-              contains: q,
-              mode: "insensitive" as const,
-            },
-          },
-        ],
-      }
-    : {};
+  if (filters.status === "ACTIVE") {
+    filterConditions.push({ isActive: true });
+  }
+
+  if (filters.status === "INACTIVE") {
+    filterConditions.push({ isActive: false });
+  }
+
+  const where =
+    filterConditions.length > 0
+      ? {
+          AND: [searchWhere, ...filterConditions],
+        }
+      : searchWhere;
 
   const [data, total] = await prisma.$transaction([
     prisma.banner.findMany({

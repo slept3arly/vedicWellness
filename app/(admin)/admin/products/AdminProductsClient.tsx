@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Product } from "@prisma/client";
+import { MedicineForm, Product } from "@prisma/client";
 
 /* ICONS */
 import {
@@ -32,6 +32,9 @@ import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminButton from "@/components/admin/AdminButton";
 import AdminBadge from "@/components/admin/AdminBadge";
 import AdminPagination from "@/components/admin/AdminPagination";
+import AdminSearchFilters, {
+  type AdminFilterValues,
+} from "@/components/admin/AdminSearchFilters";
 import PageHeader from "@/components/public/ui/PageHeader";
 
 /* UTILS */
@@ -65,24 +68,69 @@ export default function AdminProductsClient({
   total,
   page,
   q,
+  status,
+  form,
+  formOptions,
 }: {
   products: Product[];
   total: number;
   page: number;
   q: string;
+  status: string;
+  form: string;
+  formOptions: MedicineForm[];
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState(q);
+  const [filters, setFilters] = useState<AdminFilterValues>({
+    from: "",
+    to: "",
+    status,
+    secondary: form,
+    tertiary: "",
+  });
   const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
   const handleSync = () => startTransition(() => router.refresh());
 
-  const handlePageChange = (newPage: number) => {
-    startTransition(() => {
-      const query = inputValue ? `&q=${encodeURIComponent(inputValue)}` : "";
-      router.push(`/admin/products?page=${newPage}${query}`);
+  useEffect(() => {
+    setInputValue(q);
+  }, [q]);
+
+  useEffect(() => {
+    setFilters({
+      from: "",
+      to: "",
+      status,
+      secondary: form,
+      tertiary: "",
     });
+  }, [status, form]);
+
+  const navigateTo = (
+    nextPage: number,
+    nextQuery = inputValue,
+    nextFilters = filters
+  ) => {
+    const params = new URLSearchParams();
+    const query = nextQuery.trim();
+
+    params.set("page", String(nextPage));
+    if (query) params.set("q", query);
+    if (nextFilters.status) params.set("status", nextFilters.status);
+    if (nextFilters.secondary) params.set("form", nextFilters.secondary);
+
+    startTransition(() => {
+      router.push(`/admin/products?${params.toString()}`);
+    });
+  };
+
+  const handlePageChange = (newPage: number) => navigateTo(newPage);
+
+  const handleClear = () => {
+    setInputValue("");
+    navigateTo(1, "", filters);
   };
 
   return (
@@ -129,31 +177,64 @@ export default function AdminProductsClient({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handlePageChange(1);
+            navigateTo(1);
           }}
-          className="flex gap-2"
+          className="flex items-center gap-2"
         >
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Search by name, tag, or medicine form..."
+              placeholder="Search products by name, tag, or medicine form..."
               className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
             {inputValue && (
-              <X
-                className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 cursor-pointer hover:text-red-500"
-                onClick={() => {
-                  setInputValue("");
-                  router.push("/admin/products?page=1");
-                }}
-              />
+              <button
+                type="button"
+                onClick={handleClear}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-red-500"
+              >
+                <X className="h-4 w-4" />
+              </button>
             )}
           </div>
-          <AdminButton type="submit" icon={Search}>
-            Filter
-          </AdminButton>
+          <AdminButton
+            type="submit"
+            variant="secondary"
+            icon={Search}
+            iconOnly
+            disabled={isPending}
+            aria-label="Search products"
+            className="h-10 w-10 min-w-[40px] rounded-lg px-0"
+          />
+          <AdminSearchFilters
+            value={filters}
+            statusOptions={["ACTIVE", "INACTIVE"]}
+            secondaryOptions={formOptions}
+            secondaryLabel="Medicine Form"
+            allSecondaryLabel="All forms"
+            statusLabel="Status"
+            allStatusesLabel="All statuses"
+            showDateFields={false}
+            disabled={isPending}
+            onApply={(nextFilters) => {
+              setFilters(nextFilters);
+              navigateTo(1, inputValue, nextFilters);
+            }}
+            onClear={() => {
+              const clearedFilters = {
+                from: "",
+                to: "",
+                status: "",
+                secondary: "",
+                tertiary: "",
+              };
+
+              setFilters(clearedFilters);
+              navigateTo(1, inputValue, clearedFilters);
+            }}
+          />
         </form>
       </AdminCard>
 

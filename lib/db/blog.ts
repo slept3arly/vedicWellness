@@ -1,5 +1,15 @@
 import "server-only";
+import { buildWhere } from "@/lib/db/search";
 import { prisma } from "@/lib/db/prisma";
+import { Prisma } from "@prisma/client";
+import type { SearchConfig } from "@/lib/db/search";
+
+const blogSearchConfig: SearchConfig = {
+  text: ["title", "slug", "author", "category"],
+  enum: [],
+  relation: [],
+  exact: ["slug"],
+};
 
 /* ------------------------------------------------------------------ */
 /* Slugs (Static Params) */
@@ -22,18 +32,39 @@ export async function getAllPublishedBlogSlugs() {
 export async function getAdminBlogs(
   page = 1,
   limit = 25,
-  search?: string
+  search = "",
+  filters: {
+    status?: "PUBLISHED" | "UNPUBLISHED" | "";
+    category?: string;
+    author?: string;
+  } = {}
 ) {
   const skip = (page - 1) * limit;
+  const searchWhere = buildWhere(search, blogSearchConfig) as Prisma.BlogWhereInput;
+  const filterConditions: Prisma.BlogWhereInput[] = [];
 
-  const where = search
-    ? {
-        OR: [
-          { title: { contains: search, mode: "insensitive" as const } },
-          { slug: { contains: search, mode: "insensitive" as const } },
-        ],
-      }
-    : {};
+  if (filters.status === "PUBLISHED") {
+    filterConditions.push({ published: true });
+  }
+
+  if (filters.status === "UNPUBLISHED") {
+    filterConditions.push({ published: false });
+  }
+
+  if (filters.category) {
+    filterConditions.push({ category: filters.category });
+  }
+
+  if (filters.author) {
+    filterConditions.push({ author: filters.author });
+  }
+
+  const where =
+    filterConditions.length > 0
+      ? {
+          AND: [searchWhere, ...filterConditions],
+        }
+      : searchWhere;
 
   const [data, total] = await prisma.$transaction([
     prisma.blog.findMany({
@@ -61,6 +92,29 @@ export async function getAdminBlogs(
     total,
     page,
     limit,
+  };
+}
+
+export async function getAdminBlogFilterOptions() {
+  const authors = await prisma.blog.findMany({
+    where: {
+      author: {
+        not: null,
+      },
+    },
+    distinct: ["author"],
+    orderBy: {
+      author: "asc",
+    },
+    select: {
+      author: true,
+    },
+  });
+
+  return {
+    authors: authors
+      .map((entry) => entry.author)
+      .filter((value): value is string => Boolean(value)),
   };
 }
 

@@ -1,8 +1,22 @@
 import "server-only";
+import { buildWhere } from "@/lib/db/search";
 import { prisma } from "@/lib/db/prisma";
 import { MedicineForm } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+import type { SearchConfig } from "@/lib/db/search";
+
+const productSearchConfig: SearchConfig = {
+  text: ["name", "slug", "subtitle", "sku", "tag"],
+  enum: [
+    {
+      path: "medicineForm",
+      values: Object.values(MedicineForm),
+    },
+  ],
+  relation: [],
+  exact: ["sku", "slug"],
+};
 /* ------------------------------------------------------------------ */
 /* Write Operations (Admin)                                           */
 /* ------------------------------------------------------------------ */
@@ -61,47 +75,34 @@ export async function getProductById(id: string) {
 export async function getAdminProducts(
   page = 1,
   limit = ADMIN_PAGE_SIZE,
-  q = ""
+  q = "",
+  filters: {
+    status?: "ACTIVE" | "INACTIVE" | "";
+    form?: MedicineForm | "";
+  } = {}
 ) {
   const skip = (page - 1) * limit;
-  const query = q.trim();
+  const searchWhere = buildWhere(q, productSearchConfig) as Prisma.ProductWhereInput;
+  const filterConditions: Prisma.ProductWhereInput[] = [];
 
-  let medicineFormFilter: MedicineForm | undefined;
-
-  if (query) {
-    const upper = query.toUpperCase();
-    if (Object.values(MedicineForm).includes(upper as MedicineForm)) {
-      medicineFormFilter = upper as MedicineForm;
-    }
+  if (filters.status === "ACTIVE") {
+    filterConditions.push({ published: true });
   }
 
-  const where = query
-    ? {
-        OR: [
-          {
-            name: {
-              contains: query,
-              mode: "insensitive" as const,
-            },
-          },
-          {
-            shortDescription: {
-              contains: query,
-              mode: "insensitive" as const,
-            },
-          },
-          {
-            tag: {
-              contains: query,
-              mode: "insensitive" as const,
-            },
-          },
-          ...(medicineFormFilter
-            ? [{ medicineForm: medicineFormFilter }]
-            : []),
-        ],
-      }
-    : {};
+  if (filters.status === "INACTIVE") {
+    filterConditions.push({ published: false });
+  }
+
+  if (filters.form) {
+    filterConditions.push({ medicineForm: filters.form });
+  }
+
+  const where =
+    filterConditions.length > 0
+      ? {
+          AND: [searchWhere, ...filterConditions],
+        }
+      : searchWhere;
 
   const [data, total] = await prisma.$transaction([
     prisma.product.findMany({

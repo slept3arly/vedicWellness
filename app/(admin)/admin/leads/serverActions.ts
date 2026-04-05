@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidateTag } from "next/cache";
-
+import { redirect } from "next/navigation"
 import { secureAdminAction } from "@/lib/security/secureAdminAction";
 
 import {
@@ -86,5 +86,7 @@ export const deleteLead = secureAdminAction(
     await deleteLeadService(id, admin.id);
 
     revalidateTag("leads", "max");
+
+    redirect("/admin/leads"); // ✅ FIX
   }
 );

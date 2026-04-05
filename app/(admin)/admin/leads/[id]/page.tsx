@@ -1,5 +1,6 @@
 ﻿import { getAdminLeadById, getAdminSalesUsers } from "@/lib/db/lead";
 import AdminLeadDetailClient from "./AdminLeadDetailClient";
+import { notFound } from "next/navigation";
 
 export default async function Page({
   params,
@@ -18,7 +19,7 @@ export default async function Page({
   ]);
 
   if (!lead) {
-    throw new Error("Lead not found");
+    notFound();
   }
 
   return <AdminLeadDetailClient lead={lead} salesUsers={salesUsers} />;

@@ -1,25 +1,17 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Search, 
-  X, 
-  Package, 
-  Calendar, 
-  IndianRupee, 
-  User, 
-  RefreshCw, 
-  Hash, 
-  ChevronRight,
-  ShoppingCart
-} from "lucide-react";
+import { Search, X, RefreshCw, Hash, ChevronRight } from "lucide-react";
 
 /* COMPONENTS */
 import AdminCard from "@/components/admin/AdminCard";
 import AdminBadge from "@/components/admin/AdminBadge";
 import AdminButton from "@/components/admin/AdminButton";
 import AdminPagination from "@/components/admin/AdminPagination";
+import AdminSearchFilters, {
+  type AdminFilterValues,
+} from "@/components/admin/AdminSearchFilters";
 import PageHeader from "@/components/public/ui/PageHeader";
 
 /* UTILS */
@@ -56,32 +48,74 @@ export default function AdminOrdersClient({
   total,
   q,
   page,
+  from,
+  to,
+  status,
+  statusOptions,
 }: {
   orders: any[];
   total: number;
   q: string;
   page: number;
+  from: string;
+  to: string;
+  status: string;
+  statusOptions: string[];
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState(q);
+  const [filters, setFilters] = useState<AdminFilterValues>({
+    from,
+    to,
+    status,
+    secondary: "",
+    tertiary: "",
+  });
 
   const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
+  useEffect(() => {
+    setInputValue(q);
+  }, [q]);
+
+  useEffect(() => {
+    setFilters({
+      from,
+      to,
+      status,
+      secondary: "",
+      tertiary: "",
+    });
+  }, [from, to, status]);
+
   const handleSync = () => startTransition(() => router.refresh());
 
-  const handlePageChange = (newPage: number) => {
+  const navigateTo = (
+    nextPage: number,
+    nextQuery = inputValue,
+    nextFilters = filters
+  ) => {
+    const params = new URLSearchParams();
+    const query = nextQuery.trim();
+
+    params.set("page", String(nextPage));
+
+    if (query) params.set("q", query);
+    if (nextFilters.from) params.set("from", nextFilters.from);
+    if (nextFilters.to) params.set("to", nextFilters.to);
+    if (nextFilters.status) params.set("status", nextFilters.status);
+
     startTransition(() => {
-      const params = new URLSearchParams();
-      params.set("page", String(newPage));
-      if (inputValue) params.set("q", inputValue);
       router.push(`/admin/orders?${params.toString()}`);
     });
   };
 
+  const handlePageChange = (newPage: number) => navigateTo(newPage);
+
   const handleClear = () => {
     setInputValue("");
-    startTransition(() => router.push("/admin/orders?page=1"));
+    navigateTo(1, "", filters);
   };
 
   return (
@@ -124,9 +158,9 @@ export default function AdminOrdersClient({
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            handlePageChange(1);
+            navigateTo(1);
           }}
-          className="flex gap-2"
+          className="flex items-center gap-2"
         >
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
@@ -136,7 +170,7 @@ export default function AdminOrdersClient({
               placeholder="Search by Order ID or Email..."
               className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
-            {(inputValue || q) && (
+            {inputValue && (
               <button
                 type="button"
                 onClick={handleClear}
@@ -146,9 +180,36 @@ export default function AdminOrdersClient({
               </button>
             )}
           </div>
-          <AdminButton type="submit" icon={Search} disabled={isPending}>
-            Search
-          </AdminButton>
+          <AdminButton
+            type="submit"
+            variant="secondary"
+            icon={Search}
+            iconOnly
+            disabled={isPending}
+            aria-label="Search orders"
+            className="h-10 w-10 min-w-[40px] rounded-lg px-0"
+          />
+          <AdminSearchFilters
+            value={filters}
+            statusOptions={statusOptions}
+            disabled={isPending}
+            onApply={(nextFilters) => {
+              setFilters(nextFilters);
+              navigateTo(1, inputValue, nextFilters);
+            }}
+            onClear={() => {
+              const clearedFilters = {
+                from: "",
+                to: "",
+                status: "",
+                secondary: "",
+                tertiary: "",
+              };
+
+              setFilters(clearedFilters);
+              navigateTo(1, inputValue, clearedFilters);
+            }}
+          />
         </form>
       </AdminCard>
 

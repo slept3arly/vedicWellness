@@ -1,46 +1,52 @@
 import "server-only";
+import { buildWhere } from "@/lib/db/search";
+import { buildCreatedAtRangeFilter } from "@/lib/db/adminFilters";
 import { prisma } from "@/lib/db/prisma";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+import { OrderStatus, Prisma } from "@prisma/client";
+import type { SearchConfig } from "@/lib/db/search";
+
+const orderSearchConfig: SearchConfig = {
+  text: ["id", "shippingName", "shippingPhone"],
+  enum: [
+    {
+      path: "status",
+      values: Object.values(OrderStatus),
+    },
+  ],
+  relation: ["user.email", "items.some.productName"],
+  exact: ["id", "shippingPhone"],
+};
 
 export async function getAdminOrders(
   page = 1,
   limit = ADMIN_PAGE_SIZE,
-  q = ""
+  q = "",
+  filters: {
+    from?: string;
+    to?: string;
+    status?: OrderStatus;
+  } = {}
 ) {
   const skip = (page - 1) * limit;
-  const query = q.trim();
+  const searchWhere = buildWhere(q, orderSearchConfig) as Prisma.OrderWhereInput;
+  const filterConditions: Prisma.OrderWhereInput[] = [];
+  const createdAt = buildCreatedAtRangeFilter(filters);
 
-  const where = query
-    ? {
-        OR: [
-          {
-            id: {
-              contains: query,
-              mode: "insensitive" as const,
-            },
-          },
-          {
-            user: {
-              email: {
-                contains: query,
-                mode: "insensitive" as const,
-              },
-            },
-          },
-          {
-            shippingName: {
-              contains: query,
-              mode: "insensitive" as const,
-            },
-          },
-          {
-            shippingPhone: {
-              contains: query,
-            },
-          },
-        ],
-      }
-    : {};
+  if (createdAt) {
+    filterConditions.push({ createdAt });
+  }
+
+  if (filters.status) {
+    filterConditions.push({ status: filters.status });
+  }
+
+  const where =
+    filterConditions.length > 0
+      ? {
+          AND: [searchWhere, ...filterConditions],
+        }
+      : searchWhere;
 
   const [data, total] = await prisma.$transaction([
     prisma.order.findMany({

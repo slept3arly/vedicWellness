@@ -1,7 +1,9 @@
 import "server-only";
+import { buildWhere } from "@/lib/db/search";
 import { prisma } from "@/lib/db/prisma";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 import { PlacementKey, Prisma } from "@prisma/client";
+import type { SearchConfig, SearchWhereClause, SearchWhereInput } from "@/lib/db/search";
 
 /* ===============================
    EXPORTED TYPES
@@ -37,6 +39,62 @@ export type SlidePlacementInput = {
   startAt: Date | null;
   endAt: Date | null;
 };
+
+const slideSearchConfig: SearchConfig = {
+  text: [],
+  enum: [
+    {
+      path: "placementKey",
+      values: Object.values(PlacementKey),
+    },
+  ],
+  relation: [],
+  exact: [],
+};
+
+function hasSearchConditions(searchWhere: SearchWhereInput) {
+  return searchWhere.AND?.every((clause) => {
+    const orClauses = clause.OR;
+
+    return Array.isArray(orClauses) && orClauses.length > 0;
+  }) ?? false;
+}
+
+function nestPlacementClause(clause: SearchWhereClause): SearchWhereClause {
+  return {
+    placements: {
+      some: clause,
+    },
+  };
+}
+
+function buildSlideWhere(q: string): SearchWhereInput {
+  const searchWhere = buildWhere(q, slideSearchConfig);
+
+  if (!q.trim()) {
+    return {};
+  }
+
+  if (!hasSearchConditions(searchWhere)) {
+    return {
+      id: "__NO_MATCH__",
+    };
+  }
+
+  return {
+    AND: searchWhere.AND?.map((clause) => {
+      const orClauses = Array.isArray(clause.OR)
+        ? (clause.OR as SearchWhereClause[])
+        : [];
+
+      return {
+        OR: orClauses.map((orClause: SearchWhereClause) =>
+          nestPlacementClause(orClause)
+        ),
+      };
+    }),
+  };
+}
 
 /* ===============================
    CREATE
@@ -156,13 +214,52 @@ export async function getSlideById(id: string) {
 export async function getAdminSlides(
   page = 1,
   limit = ADMIN_PAGE_SIZE,
-  q = ""
+  q = "",
+  filters: {
+    status?: "ACTIVE" | "INACTIVE" | "";
+    type?: PlacementKey | "";
+  } = {}
 ) {
   const skip = (page - 1) * limit;
+  const searchWhere = buildSlideWhere(q);
+  const filterConditions: Prisma.SlideWhereInput[] = [];
 
-  const where = q && Object.values(PlacementKey).includes(q as PlacementKey)
-    ? { placements: { some: { placementKey: q as PlacementKey } } }
-    : {};
+  if (filters.status === "ACTIVE") {
+    filterConditions.push({
+      placements: {
+        some: {
+          isActive: true,
+        },
+      },
+    });
+  }
+
+  if (filters.status === "INACTIVE") {
+    filterConditions.push({
+      placements: {
+        some: {
+          isActive: false,
+        },
+      },
+    });
+  }
+
+  if (filters.type) {
+    filterConditions.push({
+      placements: {
+        some: {
+          placementKey: filters.type,
+        },
+      },
+    });
+  }
+
+  const where =
+    filterConditions.length > 0
+      ? {
+          AND: [searchWhere, ...filterConditions],
+        }
+      : searchWhere;
 
   const [data, total] = await Promise.all([
     prisma.slide.findMany({

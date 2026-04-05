@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 /* ICONS */
@@ -16,6 +16,9 @@ import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminButton from "@/components/admin/AdminButton";
 import AdminBadge from "@/components/admin/AdminBadge";
 import AdminPagination from "@/components/admin/AdminPagination";
+import AdminSearchFilters, {
+  type AdminFilterValues,
+} from "@/components/admin/AdminSearchFilters";
 import PageHeader from "@/components/public/ui/PageHeader";
 
 /* UTILS */
@@ -23,14 +26,70 @@ import { cn } from "@/lib/cn";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
 import { deleteMarqueeItem, toggleMarqueeItem } from "./serverActions";
 
-export default function AdminMarqueeClient({ marqueeItems = [], total, q, page }: { marqueeItems: any[]; total: number; q: string; page: number; }) {
+export default function AdminMarqueeClient({
+  marqueeItems = [],
+  total,
+  q,
+  page,
+  status,
+}: {
+  marqueeItems: any[];
+  total: number;
+  q: string;
+  page: number;
+  status: string;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState(q);
+  const [filters, setFilters] = useState<AdminFilterValues>({
+    from: "",
+    to: "",
+    status,
+    secondary: "",
+    tertiary: "",
+  });
   const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
   const handleSync = () => startTransition(() => router.refresh());
-  const handlePageChange = (p: number) => startTransition(() => router.push(`?q=${q}&page=${p}`));
+
+  useEffect(() => {
+    setInputValue(q);
+  }, [q]);
+
+  useEffect(() => {
+    setFilters({
+      from: "",
+      to: "",
+      status,
+      secondary: "",
+      tertiary: "",
+    });
+  }, [status]);
+
+  const navigateTo = (
+    nextPage: number,
+    nextQuery = inputValue,
+    nextFilters = filters
+  ) => {
+    const params = new URLSearchParams();
+    const query = nextQuery.trim();
+
+    params.set("page", String(nextPage));
+    if (query) params.set("q", query);
+    if (nextFilters.status) params.set("status", nextFilters.status);
+
+    startTransition(() => {
+      router.push(`/admin/marquee?${params.toString()}`);
+    });
+  };
+
+  const handlePageChange = (p: number) => navigateTo(p);
+
+  const handleClear = () => {
+    setInputValue("");
+    navigateTo(1, "", filters);
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 px-4 pb-12">
@@ -67,7 +126,13 @@ export default function AdminMarqueeClient({ marqueeItems = [], total, q, page }
 
       {/* 2. SEARCH SYSTEM */}
       <AdminCard compact className="!p-3 border-dashed bg-neutral-50/50 dark:bg-neutral-900/50">
-        <form onSubmit={(e) => { e.preventDefault(); router.push(`?q=${inputValue}&page=1`); }} className="flex gap-2">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            navigateTo(1);
+          }}
+          className="flex items-center gap-2"
+        >
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
             <input
@@ -76,9 +141,47 @@ export default function AdminMarqueeClient({ marqueeItems = [], total, q, page }
               placeholder="Search marquee items..."
               className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
             />
-            {inputValue && <X className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 cursor-pointer hover:text-red-500" onClick={() => setInputValue("")} />}
+            {inputValue && (
+              <button
+                type="button"
+                onClick={handleClear}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-red-500"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            )}
           </div>
-          <AdminButton type="submit" icon={Search}>Search</AdminButton>
+          <AdminButton
+            type="submit"
+            variant="secondary"
+            icon={Search}
+            iconOnly
+            disabled={isPending}
+            aria-label="Search marquee items"
+            className="h-10 w-10 min-w-[40px] rounded-lg px-0"
+          />
+          <AdminSearchFilters
+            value={filters}
+            statusOptions={["ACTIVE", "INACTIVE"]}
+            showDateFields={false}
+            disabled={isPending}
+            onApply={(nextFilters) => {
+              setFilters(nextFilters);
+              navigateTo(1, inputValue, nextFilters);
+            }}
+            onClear={() => {
+              const clearedFilters = {
+                from: "",
+                to: "",
+                status: "",
+                secondary: "",
+                tertiary: "",
+              };
+
+              setFilters(clearedFilters);
+              navigateTo(1, inputValue, clearedFilters);
+            }}
+          />
         </form>
       </AdminCard>
 

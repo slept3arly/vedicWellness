@@ -1,6 +1,9 @@
 ﻿import "server-only";
+import { buildWhere } from "@/lib/db/search";
+import { buildCreatedAtRangeFilter } from "@/lib/db/adminFilters";
 import { prisma } from "@/lib/db/prisma";
-import { Prisma } from "@prisma/client";
+import { LeadStatus, Prisma } from "@prisma/client";
+import type { SearchConfig } from "@/lib/db/search";
 
 type CreateLeadInput = {
   name: string;
@@ -10,6 +13,18 @@ type CreateLeadInput = {
   message: string;
   ip?: string | null;
   userAgent?: string | null;
+};
+
+const leadSearchConfig: SearchConfig = {
+  text: ["name", "email", "phone", "city", "message"],
+  enum: [
+    {
+      path: "status",
+      values: Object.values(LeadStatus),
+    },
+  ],
+  relation: ["owner.email"],
+  exact: ["email", "phone"],
 };
 
 export async function createLead(input: CreateLeadInput) {
@@ -52,19 +67,32 @@ export async function getLeadById(id: string) {
 export async function getAdminLeads(
   page = 1,
   limit = 25,
-  q = ""
+  q = "",
+  filters: {
+    from?: string;
+    to?: string;
+    status?: LeadStatus;
+  } = {}
 ) {
   const skip = (page - 1) * limit;
+  const searchWhere = buildWhere(q, leadSearchConfig) as Prisma.LeadWhereInput;
+  const filterConditions: Prisma.LeadWhereInput[] = [];
+  const createdAt = buildCreatedAtRangeFilter(filters);
 
-  const where = q
-    ? {
-        OR: [
-          { name: { contains: q, mode: "insensitive" as const } },
-          { email: { contains: q, mode: "insensitive" as const } },
-          { city: { contains: q, mode: "insensitive" as const } },
-        ],
-      }
-    : {};
+  if (createdAt) {
+    filterConditions.push({ createdAt });
+  }
+
+  if (filters.status) {
+    filterConditions.push({ status: filters.status });
+  }
+
+  const where =
+    filterConditions.length > 0
+      ? {
+          AND: [searchWhere, ...filterConditions],
+        }
+      : searchWhere;
 
   const [data, total] = await prisma.$transaction([
     prisma.lead.findMany({

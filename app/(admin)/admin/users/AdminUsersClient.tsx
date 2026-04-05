@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
@@ -20,7 +20,7 @@ import {
   Hash,
   ArrowUpDown,
   CheckCircle2,
-  XCircle,
+  XCircle
 } from "lucide-react";
 
 /* COMPONENTS */
@@ -29,6 +29,9 @@ import AdminButton from "@/components/admin/AdminButton";
 import AdminBadge from "@/components/admin/AdminBadge";
 import AdminActionButton from "@/components/admin/AdminActionButton";
 import AdminPagination from "@/components/admin/AdminPagination";
+import AdminSearchFilters, {
+  type AdminFilterValues,
+} from "@/components/admin/AdminSearchFilters";
 import PageHeader from "@/components/public/ui/PageHeader";
 
 /* UTILS */
@@ -41,33 +44,69 @@ export default function AdminUsersClient({
   total,
   q,
   page,
+  role,
 }: {
   users: any[];
   total: number;
   q: string;
   page: number;
+  role: string;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [inputValue, setInputValue] = useState(q);
-  const [roleFilter, setRoleFilter] = useState<string | null>(null);
+  const [filters, setFilters] = useState<AdminFilterValues>({
+    from: "",
+    to: "",
+    status: role,
+    secondary: "",
+    tertiary: "",
+  });
   const [editingId, setEditingId] = useState<string | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const totalPages = Math.ceil(total / ADMIN_PAGE_SIZE);
 
   const handleSync = () => startTransition(() => router.refresh());
-  
-  const handlePageChange = (p: number) => {
+
+  useEffect(() => {
+    setInputValue(q);
+  }, [q]);
+
+  useEffect(() => {
+    setFilters({
+      from: "",
+      to: "",
+      status: role,
+      secondary: "",
+      tertiary: "",
+    });
+  }, [role]);
+
+  const navigateTo = (
+    nextPage: number,
+    nextQuery = inputValue,
+    nextFilters = filters
+  ) => {
+    const params = new URLSearchParams();
+    const query = nextQuery.trim();
+
+    params.set("page", String(nextPage));
+
+    if (query) params.set("q", query);
+    if (nextFilters.status) params.set("role", nextFilters.status);
+
     startTransition(() => {
-      const query = q ? `&q=${encodeURIComponent(q)}` : "";
-      router.push(`?page=${p}${query}`);
+      router.push(`/admin/users?${params.toString()}`);
     });
   };
 
-  const filtered = roleFilter
-    ? users.filter((u: any) => u.role === roleFilter)
-    : users;
+  const handlePageChange = (nextPage: number) => navigateTo(nextPage);
+
+  const handleClear = () => {
+    setInputValue("");
+    navigateTo(1, "", filters);
+  };
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 px-4 pb-12">
@@ -111,60 +150,70 @@ export default function AdminUsersClient({
 
       {/* 2. SEARCH & FILTER SYSTEM */}
       <AdminCard compact className="!p-3 border-dashed bg-neutral-50/50 dark:bg-neutral-900/50">
-        <div className="space-y-3">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              router.push(`?q=${inputValue}&page=1`);
-            }}
-            className="flex gap-2"
-          >
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
-              <input
-                value={inputValue}
-                onChange={(e) => setInputValue(e.target.value)}
-                placeholder="Search by name or email..."
-                className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-              />
-              {inputValue && (
-                <X
-                  className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400 cursor-pointer hover:text-red-500"
-                  onClick={() => {
-                    setInputValue("");
-                    router.push("?page=1");
-                  }}
-                />
-              )}
-            </div>
-            <AdminButton type="submit" icon={Search}>
-              Search
-            </AdminButton>
-          </form>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="text-[10px] font-bold uppercase text-neutral-400 mr-1">Filter Role:</span>
-            {["ADMIN", "SALES", "VIEWER"].map((r) => (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            navigateTo(1);
+          }}
+          className="flex items-center gap-2"
+        >
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+            <input
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder="Search users by name, email, phone, role..."
+              className="h-10 w-full rounded-lg border border-neutral-300 dark:border-neutral-700 bg-white dark:bg-neutral-900 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+            />
+            {inputValue && (
               <button
-                key={r}
-                onClick={() => setRoleFilter(roleFilter === r ? null : r)}
-                className={cn(
-                  "px-3 py-1 rounded-full text-[11px] font-bold transition-all border",
-                  roleFilter === r
-                    ? "bg-black text-white border-black dark:bg-white dark:text-black"
-                    : "bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 text-neutral-500 hover:border-neutral-400"
-                )}
+                type="button"
+                onClick={handleClear}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-red-500"
               >
-                {r}
+                <X className="h-4 w-4" />
               </button>
-            ))}
+            )}
           </div>
-        </div>
+          <AdminButton
+            type="submit"
+            variant="secondary"
+            icon={Search}
+            iconOnly
+            disabled={isPending}
+            aria-label="Search users"
+            className="h-10 w-10 min-w-[40px] rounded-lg px-0"
+          />
+          <AdminSearchFilters
+            value={filters}
+            statusOptions={["VIEWER", "SALES", "ADMIN"]}
+            statusLabel="Role"
+            allStatusesLabel="All roles"
+            showDateFields={false}
+            disabled={isPending}
+            onApply={(nextFilters) => {
+              setFilters(nextFilters);
+              navigateTo(1, inputValue, nextFilters);
+            }}
+            onClear={() => {
+              const clearedFilters = {
+                from: "",
+                to: "",
+                status: "",
+                secondary: "",
+                tertiary: "",
+              };
+
+              setFilters(clearedFilters);
+              navigateTo(1, inputValue, clearedFilters);
+            }}
+          />
+        </form>
       </AdminCard>
 
       {/* 3. GLOBAL GRID SYSTEM */}
       <div className={cn("grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6", isPending && "opacity-50 pointer-events-none")}>
-        {filtered.length === 0 ? (
+        {users.length === 0 ? (
           <div className="col-span-full">
             <AdminCard className="py-24 flex flex-col items-center justify-center text-center">
               <User className="h-10 w-10 text-neutral-300 mb-4" />
@@ -173,7 +222,7 @@ export default function AdminUsersClient({
             </AdminCard>
           </div>
         ) : (
-          filtered.map((u, idx) => {
+          users.map((u, idx) => {
             const displayIndex = (page - 1) * ADMIN_PAGE_SIZE + (idx + 1);
 
             return (

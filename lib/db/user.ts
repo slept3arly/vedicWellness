@@ -1,7 +1,9 @@
 import "server-only";
+import { buildWhere } from "@/lib/db/search";
 import { prisma } from "@/lib/db/prisma";
 import { randomUUID } from "crypto";
-import { Prisma } from "@prisma/client";
+import { Prisma, Role } from "@prisma/client";
+import type { SearchConfig } from "@/lib/db/search";
 
 /* =========================================================
    TYPES
@@ -9,6 +11,18 @@ import { Prisma } from "@prisma/client";
 
 export type CreateUserInput = Prisma.UserCreateInput;
 export type UpdateUserInput = Prisma.UserUpdateInput;
+
+const userSearchConfig: SearchConfig = {
+  text: ["name", "email", "phone"],
+  enum: [
+    {
+      path: "role",
+      values: Object.values(Role),
+    },
+  ],
+  relation: [],
+  exact: ["email", "phone"],
+};
 
 /* =========================================================
    CREATE
@@ -93,26 +107,17 @@ export async function getAdminUsers(
   q = ""
 ) {
   const skip = (page - 1) * limit;
-
-  const where = {
-    deletedAt: null,
-    ...(q && {
-      OR: [
-        {
-          email: {
-            contains: q,
-            mode: "insensitive" as const,
-          },
-        },
-        {
-          name: {
-            contains: q,
-            mode: "insensitive" as const,
-          },
-        },
-      ],
-    }),
-  };
+  const searchWhere = buildWhere(q, userSearchConfig);
+  const where = q
+    ? {
+        AND: [
+          { deletedAt: null },
+          searchWhere,
+        ],
+      }
+    : {
+        deletedAt: null,
+      };
 
   const [data, total] = await prisma.$transaction([
     prisma.user.findMany({
