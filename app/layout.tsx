@@ -147,7 +147,7 @@ export default async function RootLayout({
           gap={8}
           swipeDirections={["right", "top"]}
           toastOptions={{
-            duration: 4000,
+            duration: 2000,
             unstyled: true,
             classNames: {
               toast:

@@ -1,7 +1,7 @@
 import { toast as sonnerToast } from "sonner";
 
 const baseOptions = {
-  duration: 4000,
+  duration: 2000,
 };
 
 export const toast = {

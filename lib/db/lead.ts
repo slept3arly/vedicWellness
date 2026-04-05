@@ -1,4 +1,4 @@
-import "server-only";
+﻿import "server-only";
 import { prisma } from "@/lib/db/prisma";
 import { Prisma } from "@prisma/client";
 
@@ -48,7 +48,7 @@ export async function getLeadById(id: string) {
   });
 }
 
-/* ✅ Admin paginated read */
+/* Admin paginated read */
 export async function getAdminLeads(
   page = 1,
   limit = 25,
@@ -78,6 +78,7 @@ export async function getAdminLeads(
         email: true,
         phone: true,
         city: true,
+        message: true,
         status: true,
         createdAt: true,
         ownerId: true,
@@ -99,6 +100,35 @@ export async function getAdminLeads(
     page,
     limit,
   };
+}
+
+export async function getAdminLeadById(id: string) {
+  if (!id) {
+    throw new Error("Lead ID is required");
+  }
+
+  return prisma.lead.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      phone: true,
+      city: true,
+      message: true,
+      status: true,
+      createdAt: true,
+      claimedAt: true,
+      ownerId: true,
+      owner: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+    },
+  });
 }
 
 export async function getSalesUsers() {
