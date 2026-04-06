@@ -226,7 +226,7 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
                         variant="secondary"
                         className="flex-1 !bg-white/10 !border-white/20 !text-white hover:!bg-white/20 hover:!border-white/30"
                       >
-                        Maybe later
+                        Dismiss
                       </Button>
                     </div>
                   )}
