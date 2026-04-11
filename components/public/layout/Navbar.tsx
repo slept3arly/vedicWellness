@@ -111,7 +111,7 @@ function Navbar() {
 
                 <Link
                   href="/signup"
-                  className="hidden lg:inline-flex px-4 py-2 rounded-full text-sm font-semibold bg-[#039751] text-black hover:bg-white transition"
+                  className="hidden lg:inline-flex rounded-full bg-[#039751] px-4 py-2 text-sm font-medium text-gray-900 hover:bg-white transition"
                 >
                   Sign Up
                 </Link>
