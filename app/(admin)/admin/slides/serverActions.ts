@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { secureAdminAction } from "@/lib/security/secureAdminAction";
 
@@ -82,6 +82,10 @@ export const createSlide = secureAdminAction(
 
     await createSlideService(data, admin.id);
 
+    // 🔥 CRITICAL: clear data cache
+    revalidateTag("slides", "max");
+
+    // re-render affected pages
     revalidatePath("/");
     revalidatePath("/admin/slides");
 
@@ -103,6 +107,9 @@ export const updateSlide = secureAdminAction(
 
     await updateSlideService(id, data, admin.id);
 
+    // 🔥 CRITICAL: clear data cache
+    revalidateTag("slides", "max");
+
     revalidatePath("/");
     revalidatePath("/admin/slides");
 
@@ -123,6 +130,9 @@ export const deleteSlide = secureAdminAction(
     }
 
     await deleteSlideService(id, admin.id);
+
+    // 🔥 CRITICAL: clear data cache
+    revalidateTag("slides", "max");
 
     revalidatePath("/");
     revalidatePath("/admin/slides");
