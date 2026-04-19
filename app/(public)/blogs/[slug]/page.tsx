@@ -9,7 +9,8 @@ import {
 
 import SlugClient from "./SlugClient";
 
-export const dynamicParams = true;
+export const dynamicParams = false;
+export const dynamic = "force-static";
 
 type Props = {
   params: Promise<{ slug: string }>;
