@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "create-admin": "tsx scripts/create-admin.ts",
     "dev": "next dev",
     "postinstall": "prisma generate --no-engine --schema=prisma/schema.prisma",
     "build": "prisma generate --no-engine --schema=prisma/schema.prisma && next build",
