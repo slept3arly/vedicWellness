@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { getActiveBanner } from "@/lib/db/banner";
-import { BANNER_TAG } from "@/lib/constants";
+import { CACHE_TAGS } from "@/lib/constants";
 
 /* ========================================================= */
 /* PUBLIC: ACTIVE BANNER (CACHED) */
@@ -12,7 +12,7 @@ export const getActiveBannerCached = unstable_cache(
   },
   ["active-banner"],
   {
-    tags: [BANNER_TAG],
+    tags: [CACHE_TAGS.BANNERS, CACHE_TAGS.GLOBAL],
 
     // 🔥 CRITICAL: no time-based revalidation
     // cache only updates when manually invalidated

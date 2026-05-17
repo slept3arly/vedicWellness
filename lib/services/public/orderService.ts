@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { Prisma } from "@prisma/client";
 import { revalidateTag } from "next/cache";
-import { ORDER_TAG } from "@/lib/constants";
+import { CACHE_TAGS } from "@/lib/constants";
 
 import type {
   OrderForClient,

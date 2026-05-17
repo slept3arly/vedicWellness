@@ -12,6 +12,7 @@ import {
 } from "@/lib/services/admin/slideService";
 
 import { PlacementKey } from "@prisma/client";
+import { CACHE_TAGS } from "@/lib/constants";
 
 /* ===============================
    PARSER
@@ -83,7 +84,7 @@ export const createSlide = secureAdminAction(
     await createSlideService(data, admin.id);
 
     // 🔥 CRITICAL: clear data cache
-    revalidateTag("slides", "max");
+    revalidateTag(CACHE_TAGS.SLIDES, "max");
 
     // re-render affected pages
     revalidatePath("/");
@@ -108,7 +109,7 @@ export const updateSlide = secureAdminAction(
     await updateSlideService(id, data, admin.id);
 
     // 🔥 CRITICAL: clear data cache
-    revalidateTag("slides", "max");
+    revalidateTag(CACHE_TAGS.SLIDES, "max");
 
     revalidatePath("/");
     revalidatePath("/admin/slides");
@@ -132,7 +133,7 @@ export const deleteSlide = secureAdminAction(
     await deleteSlideService(id, admin.id);
 
     // 🔥 CRITICAL: clear data cache
-    revalidateTag("slides", "max");
+    revalidateTag(CACHE_TAGS.SLIDES, "max");
 
     revalidatePath("/");
     revalidatePath("/admin/slides");

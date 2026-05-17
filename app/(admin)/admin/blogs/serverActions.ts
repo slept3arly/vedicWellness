@@ -14,11 +14,7 @@ import {
 
 import { parseBlogForm } from "@/lib/validators/blog";
 
-/* ========================================================= */
-/* CONSTANTS */
-/* ========================================================= */
-
-const BLOG_LIST_TAG = "blogs";
+import { CACHE_TAGS } from "@/lib/constants";
 
 /* ========================================================= */
 /* CREATE */
@@ -30,7 +26,7 @@ export const createBlog = secureAdminAction(
 
     await createBlogService(data, admin.id);
 
-    revalidateTag(BLOG_LIST_TAG, "max");
+    revalidateTag(CACHE_TAGS.BLOGS, "max");
 
     redirect("/admin/blogs");
   }
@@ -46,7 +42,7 @@ export const updateBlog = secureAdminAction(
 
     await updateBlogService(data, admin.id);
 
-    revalidateTag(BLOG_LIST_TAG, "max");
+    revalidateTag(CACHE_TAGS.BLOGS, "max");
     revalidateTag(`blog:${data.slug}`, "max");
 
     redirect("/admin/blogs");
@@ -63,7 +59,7 @@ export const deleteBlog = secureAdminAction(
 
     await deleteBlogService(id, admin.id);
 
-    revalidateTag(BLOG_LIST_TAG, "max");
+    revalidateTag(CACHE_TAGS.BLOGS, "max");
 
     redirect("/admin/blogs");
   }
@@ -80,7 +76,7 @@ export const toggleBlogPublished = secureAdminAction(
 
     await toggleBlogPublishedService(id, published, admin.id);
 
-    revalidateTag(BLOG_LIST_TAG, "max");
+    revalidateTag(CACHE_TAGS.BLOGS, "max");
 
     redirect("/admin/blogs");
   }

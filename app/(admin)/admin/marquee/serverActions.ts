@@ -17,7 +17,7 @@ import {
   parseMarqueeId,
 } from "@/lib/validators/marquee";
 
-import { MARQUEE_TAG } from "@/lib/constants";
+import { CACHE_TAGS } from "@/lib/constants";
 
 /* ──────────────────────────────── */
 /* Create */
@@ -29,7 +29,7 @@ export const createMarqueeItem = secureAdminAction(
 
     await createMarqueeService(data, admin.id);
 
-    revalidateTag(MARQUEE_TAG, "max");
+    revalidateTag(CACHE_TAGS.MARQUEES, "max");
     redirect("/admin/marquee");
   }
 );
@@ -44,7 +44,7 @@ export const updateMarqueeItem = secureAdminAction(
 
     await updateMarqueeService(data, admin.id);
 
-    revalidateTag(MARQUEE_TAG, "max");
+    revalidateTag(CACHE_TAGS.MARQUEES, "max");
     redirect("/admin/marquee");
   }
 );
@@ -59,7 +59,7 @@ export const toggleMarqueeItem = secureAdminAction(
 
     await toggleMarqueeService(id, admin.id);
 
-    revalidateTag(MARQUEE_TAG, "max");
+    revalidateTag(CACHE_TAGS.MARQUEES, "max");
   }
 );
 
@@ -73,6 +73,6 @@ export const deleteMarqueeItem = secureAdminAction(
 
     await deleteMarqueeService(id, admin.id);
 
-    revalidateTag(MARQUEE_TAG, "max");
+    revalidateTag(CACHE_TAGS.MARQUEES, "max");
   }
 );

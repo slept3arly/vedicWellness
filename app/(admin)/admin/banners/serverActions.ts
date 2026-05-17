@@ -17,7 +17,7 @@ import {
   parseBannerId,
 } from "@/lib/validators/banner";
 
-import { BANNER_TAG } from "@/lib/constants";
+import { CACHE_TAGS } from "@/lib/constants";
 
 /* ========================================================= */
 /* CREATE */
@@ -29,7 +29,7 @@ export const createBanner = secureAdminAction(
 
     await createBannerService(data, admin.id);
 
-    revalidateTag(BANNER_TAG, "max");
+    revalidateTag(CACHE_TAGS.BANNERS, "max");
 
     redirect("/admin/banners");
   }
@@ -45,7 +45,7 @@ export const updateBanner = secureAdminAction(
 
     await updateBannerService(data, admin.id);
 
-    revalidateTag(BANNER_TAG, "max");
+    revalidateTag(CACHE_TAGS.BANNERS, "max");
 
     redirect("/admin/banners");
   }
@@ -61,7 +61,7 @@ export const deleteBanner = secureAdminAction(
 
     await deleteBannerService(id, admin.id);
 
-    revalidateTag(BANNER_TAG, "max");
+    revalidateTag(CACHE_TAGS.BANNERS, "max");
 
     redirect("/admin/banners");
   }
@@ -77,7 +77,7 @@ export const toggleBanner = secureAdminAction(
 
     await toggleBannerService(id, admin.id);
 
-    revalidateTag(BANNER_TAG, "max");
+    revalidateTag(CACHE_TAGS.BANNERS, "max");
 
     redirect("/admin/banners");
   }

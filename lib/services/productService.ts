@@ -16,8 +16,8 @@ import { unstable_cache } from "next/cache"; // ✅ FIXED
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
 import { prisma } from "@/lib/db/prisma";
+import { CACHE_TAGS } from "@/lib/constants";
 
-const PRODUCT_TAG = "products";
 const PUBLIC_PAGE_SIZE = 10;
 
 /* ------------------------------------------------------------------ */
@@ -231,8 +231,8 @@ const getCachedPublicProducts = (page: number, query: string, sort: string) =>
     },
     ["public-products-list", String(page), query, sort],
     {
-      tags: [PRODUCT_TAG],
-      revalidate: 21600,
+      tags: [CACHE_TAGS.PRODUCTS, CACHE_TAGS.GLOBAL],
+      revalidate: false,
     }
   )();
 
@@ -253,8 +253,8 @@ export const getPublicProductBySlugService = (slug: string) =>
     async () => getPublicProductBySlugDB(slug),
     [`product-${slug}`],
     {
-      tags: [`product:${slug}`, PRODUCT_TAG],
-      revalidate: 86400,
+      tags: [`product:${slug}`, CACHE_TAGS.PRODUCTS, CACHE_TAGS.GLOBAL],
+      revalidate: false,
     }
   )();
 
@@ -262,7 +262,7 @@ export const getPublicProductMetadataService = (slug: string) =>
   unstable_cache(
     async () => getPublicProductMetadataDB(slug),
     [`product-meta-${slug}`],
-    { tags: [`product:${slug}`] }
+    { tags: [`product:${slug}`, CACHE_TAGS.PRODUCTS, CACHE_TAGS.GLOBAL] }
   )();
 
 export async function getAllPublishedProductSlugsService() {
@@ -285,7 +285,7 @@ export const getRelatedProductsService = (
       }`,
     ],
     {
-      tags: [`product:${slug}`, PRODUCT_TAG],
-      revalidate: 86400,
+      tags: [`product:${slug}`, CACHE_TAGS.PRODUCTS, CACHE_TAGS.GLOBAL],
+      revalidate: false,
     }
   )();

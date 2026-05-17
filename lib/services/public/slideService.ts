@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db/prisma";
 import { unstable_cache } from "next/cache";
 import { PlacementKey, Prisma } from "@prisma/client";
+import { CACHE_TAGS } from "@/lib/constants";
 
 /* ===============================
    TYPES
@@ -59,7 +60,7 @@ function getCachedSlidesInternal(placementKey: PlacementKey) {
     },
     [`slides-${placementKey}`],
     {
-      tags: ["slides"],
+      tags: [CACHE_TAGS.SLIDES, CACHE_TAGS.GLOBAL],
       revalidate: false,
     }
   )();

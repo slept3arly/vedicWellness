@@ -9,7 +9,7 @@ import {
   cancelOrderService,
 } from "@/lib/services/admin/orderService";
 
-import { ORDER_TAG } from "@/lib/constants";
+import { CACHE_TAGS } from "@/lib/constants";
 
 /* ------------------------------------------------------------------ */
 /* Update Order Status                                                */
@@ -33,7 +33,7 @@ export const updateOrderStatus = secureAdminAction(
 
     await updateOrderStatusService(id, status, admin.id);
 
-    revalidateTag(ORDER_TAG, "max");
+    revalidateTag(CACHE_TAGS.ORDERS, "max");
   }
 );
 
@@ -51,6 +51,6 @@ export const cancelOrder = secureAdminAction(
 
     await cancelOrderService(id, admin.id);
 
-    revalidateTag(ORDER_TAG, "max");
+    revalidateTag(CACHE_TAGS.ORDERS, "max");
   }
 );

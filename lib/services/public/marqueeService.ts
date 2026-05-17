@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { getActiveMarqueeItems } from "@/lib/db/marquee";
-import { MARQUEE_TAG } from "@/lib/constants";
+import { CACHE_TAGS } from "@/lib/constants";
 
 /* ──────────────────────────────── */
 /* Cached Public Read */
@@ -12,7 +12,7 @@ export const getActiveMarqueeCached = unstable_cache(
   },
   ["marquee-active"],
   {
-    tags: [MARQUEE_TAG],
+    tags: [CACHE_TAGS.MARQUEES, CACHE_TAGS.GLOBAL],
     revalidate: false,
   }
 );

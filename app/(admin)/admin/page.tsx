@@ -2,6 +2,7 @@ import Link from "next/link";
 import AdminCard from "../../../components/admin/AdminCard";
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
+import PurgeCacheButton from "@/components/admin/PurgeCacheButton";
 
 import {
   Package,
@@ -95,6 +96,18 @@ export default function AdminHomePage() {
             </Link>
           );
         })}
+
+        {/* System Actions */}
+        <AdminCard className="border-red-200 dark:border-red-900/50 hover:border-red-500 transition">
+          <div className="flex items-center gap-3">
+            <ScrollText className="text-red-500" size={26} />
+            <SectionHeading title="System Tools" />
+          </div>
+          <p className="mt-2 text-slate-600 dark:text-slate-300">
+            Advanced actions for maintaining site performance and cache states.
+          </p>
+          <PurgeCacheButton />
+        </AdminCard>
       </div>
     </div>
   );

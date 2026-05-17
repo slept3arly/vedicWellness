@@ -6,7 +6,7 @@ import {
 } from "@/lib/db/blog";
 
 import { unstable_cache } from "next/cache";
-import { BLOG_LIST_TAG } from "@/lib/constants";
+import { CACHE_TAGS } from "@/lib/constants";
 
 /* ========================================================= */
 /* STATIC PARAMS */
@@ -26,7 +26,7 @@ export const getPublicBlogsService = unstable_cache(
   },
   ["public-blogs"],
   {
-    tags: [BLOG_LIST_TAG],
+    tags: [CACHE_TAGS.BLOGS, CACHE_TAGS.GLOBAL],
     revalidate: false,
   }
 );
@@ -42,7 +42,7 @@ export const getPublicBlogBySlugService = (slug: string) =>
     },
     [`blog-${slug}`],
     {
-      tags: [`blog:${slug}`, BLOG_LIST_TAG],
+      tags: [`blog:${slug}`, CACHE_TAGS.BLOGS, CACHE_TAGS.GLOBAL],
       revalidate: false,
     }
   )();
@@ -61,7 +61,7 @@ export const getRelatedBlogsService = (
     },
     [`related-${slug}-${[...tags].sort().join("-")}`],
     {
-      tags: [`blog:${slug}`, BLOG_LIST_TAG],
+      tags: [`blog:${slug}`, CACHE_TAGS.BLOGS, CACHE_TAGS.GLOBAL],
       revalidate: false,
     }
   )();

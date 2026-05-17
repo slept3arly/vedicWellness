@@ -17,7 +17,7 @@ import {
   ProductVariantsSchema,
 } from "@/lib/validators/product";
 
-const PRODUCT_TAG = "products";
+import { CACHE_TAGS } from "@/lib/constants";
 
 /* =========================================================
    CREATE
@@ -29,7 +29,7 @@ export const createProduct = secureAdminAction(
 
     const id = await createProductService(data, admin.id);
 
-    revalidateTag(PRODUCT_TAG, "max");
+    revalidateTag(CACHE_TAGS.PRODUCTS, "max");
 
     redirect("/admin/products");
   }
@@ -73,7 +73,7 @@ export const updateProduct = secureAdminAction(
 
     const id = await updateProductService(data, variants, admin.id);
 
-    revalidateTag(PRODUCT_TAG, "max");
+    revalidateTag(CACHE_TAGS.PRODUCTS, "max");
 
     if (data.slug) {
       revalidateTag(`product:${data.slug}`, "max");
@@ -94,7 +94,7 @@ export const toggleProductPublished = secureAdminAction(
 
     await toggleProductPublishedService(id, published, admin.id);
 
-    revalidateTag(PRODUCT_TAG, "max");
+    revalidateTag(CACHE_TAGS.PRODUCTS, "max");
   }
 );
 
@@ -108,7 +108,7 @@ export const deleteProduct = secureAdminAction(
 
     await deleteProductService(id, admin.id);
 
-    revalidateTag(PRODUCT_TAG, "max");
+    revalidateTag(CACHE_TAGS.PRODUCTS, "max");
   }
 );
 

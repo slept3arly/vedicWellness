@@ -5,7 +5,7 @@ import { z } from "zod";
 import { createOrderFromCart, createOrderFromSingleProduct } from "@/lib/services/public/orderService";
 import { revalidateTag } from "next/cache";
 
-import { ORDER_TAG } from "@/lib/constants";
+import { CACHE_TAGS } from "@/lib/constants";
 
 const createOrderSchema = z.object({
   addressId: z.string().min(1),
@@ -40,7 +40,7 @@ export const createOrderAction = secureUserAction(
     }
 
     // ✅ REQUIRED
-    revalidateTag(ORDER_TAG, "max");
+    revalidateTag(CACHE_TAGS.ORDERS, "max");
 
     return order;
   }
