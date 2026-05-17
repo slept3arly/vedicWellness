@@ -111,17 +111,31 @@ export async function POST(req: Request) {
  * Must NEVER break auth flow
  */
 try {
-  await addSubscriberToBrevo(user.email);
+  console.log(`📨 [verify-otp] Starting marketing integration for successfully verified user: ${user.email}`);
 
-  await sendMarketingEmail({
+  // 1. Add contact to Brevo
+  const contactRes = await addSubscriberToBrevo(user.email);
+  if (contactRes.success) {
+    console.log(`✅ [verify-otp] Subscriber successfully added to Brevo for user: ${user.email}`);
+  } else {
+    console.warn(`⚠️ [verify-otp] addSubscriberToBrevo returned failure status:`, contactRes.error);
+  }
+
+  // 2. Send welcome email to user
+  console.log(`📨 [verify-otp] Triggering sendMarketingEmail for user: ${user.email}`);
+  const emailRes = await sendMarketingEmail({
     to: user.email,
     subject: "Welcome to Vedic Wellness",
     html: WelcomeEmail(user.email),
   });
 
-  console.log("📨 Marketing email sent to:", user.email);
-} catch (err) {
-  console.error("Brevo marketing error:", err);
+  console.log(`📨 [verify-otp] sendMarketingEmail completed successfully for user: ${user.email}. Response:`, JSON.stringify(emailRes, null, 2));
+} catch (err: any) {
+  console.error("❌ [verify-otp] Exception caught during post-verification Brevo marketing flow:");
+  console.error(`- Error: ${err.message || err}`);
+  if (err.stack) {
+    console.error(`- Stack trace: ${err.stack}`);
+  }
 }
 
     // 🧹 Cleanup Redis session

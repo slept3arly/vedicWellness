@@ -30,54 +30,114 @@ export async function processSignup(
   input: unknown,
   req: Request
 ): Promise<SignupResult> {
-  const ip = getClientIpFromRequest(req);
+  try {
+    console.log("PROCESS SIGNUP START");
 
-  const parsed = SignupSchema.safeParse(input);
+    const ip = getClientIpFromRequest(req);
 
-  if (!parsed.success) {
-    return { ok: false, error: "Invalid input", status: 400 };
-  }
+    const parsed = SignupSchema.safeParse(input);
 
-  const { email, password, turnstileToken } = parsed.data;
+    console.log("ZOD RESULT:", parsed.success);
 
-  const ts = await verifyTurnstile(turnstileToken, ip);
-  if (!ts.success) {
-    return { ok: false, error: "Invalid request", status: 400 };
-  }
+    if (!parsed.success) {
+      console.log(parsed.error);
 
-  await rateLimitOrThrow(`otp-email:${email}`, limits.otpEmail);
+      return {
+        ok: false,
+        error: "Invalid input",
+        status: 400,
+      };
+    }
 
-  const existing = await prisma.user.findUnique({
-    where: { email },
-    select: { verified: true },
-  });
+    const { email, password, turnstileToken } = parsed.data;
 
-  if (existing?.verified) {
+    console.log("VERIFYING TURNSTILE");
+
+    const ts = await verifyTurnstile(turnstileToken, ip);
+
+    console.log("TURNSTILE VERIFIED:", ts);
+
+    if (!ts.success) {
+      return {
+        ok: false,
+        error: "Invalid request",
+        status: 400,
+      };
+    }
+
+    console.log("CHECKING RATE LIMIT");
+
+    await rateLimitOrThrow(
+      `otp-email:${email}`,
+      limits.otpEmail
+    );
+
+    console.log("RATE LIMIT PASSED");
+
+    console.log("CHECKING DATABASE");
+
+    const existing = await prisma.user.findUnique({
+      where: { email },
+      select: { verified: true },
+    });
+
+    console.log("DATABASE RESULT:", existing);
+
+    if (existing?.verified) {
+      return {
+        ok: false,
+        error: "Unable to create account",
+        status: 400,
+      };
+    }
+
+    console.log("HASHING PASSWORD");
+
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    console.log("PASSWORD HASHED");
+
+    const otp = generateOtp();
+
+    console.log("OTP GENERATED");
+
+    const hashedOtp = await bcrypt.hash(otp, 10);
+
+    console.log("OTP HASHED");
+
+    console.log("SAVING SESSION");
+
+    await saveSignupSession(email, {
+      email,
+      password: hashedPassword,
+      role: "VIEWER",
+      otpHash: hashedOtp,
+      attempts: 0,
+    });
+
+    console.log("SESSION SAVED");
+
+    console.log("SENDING EMAIL");
+
+    await sendTransactionalEmail({
+      to: email,
+      subject: "Your verification code",
+      react: VerifyEmail({ otp }),
+    });
+
+    console.log("EMAIL SENT");
+
+    return { ok: true };
+  } catch (error) {
+    console.error("PROCESS SIGNUP ERROR:", error);
+
     return {
       ok: false,
-      error: "Unable to create account",
+      error:
+        error instanceof Error
+          ? error.message
+          : "Unknown error",
       status: 400,
     };
   }
-
-  const hashedPassword = await bcrypt.hash(password, 12);
-
-  const otp = generateOtp();
-  const hashedOtp = await bcrypt.hash(otp, 10);
-
-  await saveSignupSession(email, {
-    email,
-    password: hashedPassword,
-    role: "VIEWER",
-    otpHash: hashedOtp,
-    attempts: 0,
-  });
-
-  await sendTransactionalEmail({
-    to: email,
-    subject: "Your verification code",
-    react: VerifyEmail({ otp }),
-  });
-
-  return { ok: true };
 }

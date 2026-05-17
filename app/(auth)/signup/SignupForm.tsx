@@ -37,18 +37,15 @@ export default function SignupForm() {
       return;
     }
 
-    setIsLoading(true);
-
     const formData = new FormData(e.currentTarget);
-    const email = String(formData.get("email"));
-    const password = String(formData.get("password"));
+    const email = String(formData.get("email") || "");
+    const password = String(formData.get("password") || "");
 
     if (!email) {
       toast.warning("Email is required",
         "Please enter your email address.",
       );
       emailRef.current?.focus();
-      setIsLoading(false);
       return;
     }
 
@@ -57,11 +54,13 @@ export default function SignupForm() {
         "Password must be at least 8 characters long.",
       );
       passwordRef.current?.focus();
-      setIsLoading(false);
       return;
     }
 
+    setIsLoading(true);
+
     try {
+
       const res = await fetch("/api/signup", {
         method: "POST",
         headers: { "content-type": "application/json" },

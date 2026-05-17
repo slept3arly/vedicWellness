@@ -4,21 +4,22 @@ import "@/lib/env";
 import { PrismaClient } from "@prisma/client";
 import { withAccelerate } from "@prisma/extension-accelerate";
 
-const prismaClientSingleton = () => {
+const createPrismaClient = () => {
   return new PrismaClient({
     log: ["error"],
   }).$extends(withAccelerate());
 };
 
-type PrismaAccelerated = ReturnType<typeof prismaClientSingleton>;
+type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
 
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaAccelerated | undefined;
-};
+declare global {
+  // eslint-disable-next-line no-var
+  var prisma: ExtendedPrismaClient | undefined;
+}
 
 export const prisma =
-  globalForPrisma.prisma ?? prismaClientSingleton();
+  global.prisma || createPrismaClient();
 
 if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+  global.prisma = prisma;
 }
