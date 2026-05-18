@@ -120,7 +120,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       credentials: {
         email: { label: "Email", type: "email" },
         password: { label: "Password", type: "password" },
-        verificationLogin: { label: "Verification", type: "text" },
       },
 
       async authorize(credentials) {
@@ -132,10 +131,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const password =
             credentials?.password?.toString() ?? "";
 
-          const verificationLogin =
-            credentials?.verificationLogin === "true";
-
-          if (!email) return null;
+          if (!email || !password) return null;
 
           await rateLimitOrThrow(`login-ip:${ip}`, limits.loginIp);
           await rateLimitOrThrow(`login:${email}:${ip}`, limits.loginEmail);
@@ -152,19 +148,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          if (!verificationLogin) {
-            if (!password) return null;
+          const ok = await bcrypt.compare(password, user.password);
 
-            const ok = await bcrypt.compare(password, user.password);
+          if (!ok) {
+            await sleep(350);
+            return null;
+          }
 
-            if (!ok) {
-              await sleep(350);
-              return null;
-            }
-
-            if (!user.verified) {
-              throw new Error("EMAIL_NOT_VERIFIED");
-            }
+          if (!user.verified) {
+            throw new Error("EMAIL_NOT_VERIFIED");
           }
 
           const authUser: User = {

@@ -1,8 +1,10 @@
 import { prisma } from "@/lib/db/prisma";
 import { addSubscriberToBrevo } from "@/lib/email/marketing/contacts";
+import { secureMutation } from "@/lib/security/secureMutation";
 
 export async function POST(req: Request) {
   try {
+    await secureMutation(req, { limit: "newsletter" });
     const { email, source } = await req.json();
 
     if (!email) {

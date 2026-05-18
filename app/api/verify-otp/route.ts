@@ -21,6 +21,7 @@ import { Role } from "@prisma/client";
 import { addSubscriberToBrevo } from "@/lib/email/marketing/contacts";
 import { sendMarketingEmail } from "@/lib/email/marketing/send";
 import { WelcomeEmail } from "@/lib/email/marketing/templates/WelcomeEmail";
+import { secureMutation } from "@/lib/security/secureMutation";
 
 const VerifySchema = z.object({
   email: z.string().email().transform(v => v.toLowerCase().trim()),
@@ -29,6 +30,7 @@ const VerifySchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    await secureMutation(req, { limit: "signup" });
     const body = await req.json();
     const parsed = VerifySchema.safeParse(body);
 

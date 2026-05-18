@@ -7,4 +7,5 @@ export const limits = {
 
   // ✅ OTP email sending limit
   otpEmail: { windowSeconds: 300, max: 3 }, // 3 OTP emails per 5 min
+  newsletter: { windowSeconds: 60, max: 5 },
 } as const;

@@ -15,6 +15,7 @@ import { errorResponse } from "@/lib/security/guard";
 
 import { sendTransactionalEmail } from "@/lib/email";
 import { VerifyEmail } from "@/lib/email/transactional/templates/VerifyEmail";
+import { secureMutation } from "@/lib/security/secureMutation";
 
 const ResendSchema = z.object({
   email: z.string().email().transform(v => v.toLowerCase().trim()),
@@ -22,6 +23,7 @@ const ResendSchema = z.object({
 
 export async function POST(req: Request) {
   try {
+    await secureMutation(req, { limit: "otpEmail" });
     const body = await req.json();
     const parsed = ResendSchema.safeParse(body);
 
