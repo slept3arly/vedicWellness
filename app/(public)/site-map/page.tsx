@@ -1,32 +1,30 @@
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
-import Card from "@/components/public/ui/Card";
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 
 export const revalidate = 21600; // 6 hours
 
 export default async function SiteMapPage() {
-  const products = await prisma.product.findMany({
-    select: { slug: true, name: true },
-    orderBy: { createdAt: "desc" },
-    take: 5,
-  });
-
   const blogs = await prisma.blog.findMany({
-    select: { slug: true, title: true },
-    orderBy: { createdAt: "desc" },
-    take: 5,
+    where: {
+      published: true,
+    },
+    select: {
+      slug: true,
+      title: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
   });
 
   return (
     <section className="w-full">
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div className="max-w-[1100px] mx-auto mt-24 mb-24">
-          {/* Title — same spacing rhythm as policy pages */}
           <PageHeader title="Vedic Wellness Site Map" />
 
-          {/* IMPORTANT: surface applied exactly like policy card */}
           <div
             className="
               surface
@@ -47,16 +45,23 @@ export default async function SiteMapPage() {
                   <SitemapLink href="/contact">Contact Us</SitemapLink>
                 </ul>
 
-                <h3 className="font-heading text-xl font-semibold mb-4 text-neutral-900 dark:text-white">Legal</h3>
+                <h3 className="font-heading text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                  Legal
+                </h3>
 
                 <ul className="space-y-2 mb-8">
-                  <SitemapLink href="/privacy-policy">Privacy Policy</SitemapLink>
+                  <SitemapLink href="/privacy-policy">
+                    Privacy Policy
+                  </SitemapLink>
+
                   <SitemapLink href="/terms-conditions">
                     Terms & Conditions
                   </SitemapLink>
                 </ul>
 
-                <h3 className="font-heading text-xl font-semibold mb-4 text-neutral-900 dark:text-white">Account</h3>
+                <h3 className="font-heading text-xl font-semibold mb-4 text-neutral-900 dark:text-white">
+                  Account
+                </h3>
 
                 <ul className="space-y-2">
                   <SitemapLink href="/login">Login</SitemapLink>
@@ -66,33 +71,35 @@ export default async function SiteMapPage() {
 
               {/* COLUMN 2 */}
               <div>
-                <SectionHeading title="Ayurvedic Catalogue" className="mb-4" />
+                <SectionHeading
+                  title="Ayurvedic Catalogue"
+                  className="mb-4"
+                />
 
                 <ul className="space-y-2">
                   <SitemapLink href="/products">
                     All Products & Listings
                   </SitemapLink>
-
-                  {products.map((product) => (
-                    <SitemapLink
-                      key={product.slug}
-                      href={`/products/${product.slug}`}
-                    >
-                      {product.name}
-                    </SitemapLink>
-                  ))}
                 </ul>
               </div>
 
               {/* COLUMN 3 */}
               <div>
-                <SectionHeading title="Knowledge Center" className="mb-4" />
+                <SectionHeading
+                  title="Knowledge Center"
+                  className="mb-4"
+                />
 
                 <ul className="space-y-2">
-                  <SitemapLink href="/blogs">All Blogs & Updates</SitemapLink>
+                  <SitemapLink href="/blogs">
+                    All Blogs & Updates
+                  </SitemapLink>
 
                   {blogs.map((blog) => (
-                    <SitemapLink key={blog.slug} href={`/blogs/${blog.slug}`}>
+                    <SitemapLink
+                      key={blog.slug}
+                      href={`/blogs/${blog.slug}`}
+                    >
                       {blog.title}
                     </SitemapLink>
                   ))}
@@ -104,8 +111,6 @@ export default async function SiteMapPage() {
       </div>
     </section>
   );
-
-  /* ---------- Privacy-page style link with Sliding Underline ---------- */
 
   function SitemapLink({
     href,
@@ -120,7 +125,7 @@ export default async function SiteMapPage() {
           href={href}
           className="
             group relative w-fit inline-block
-            text-slate-600 
+            text-slate-600
             dark:text-slate-300
             hover:text-neutral-900
             dark:hover:text-white
@@ -130,7 +135,7 @@ export default async function SiteMapPage() {
           "
         >
           {children}
-          {/* Sliding Underline Element */}
+
           <span
             className="
               absolute left-0 bottom-0 h-[1.5px] w-0

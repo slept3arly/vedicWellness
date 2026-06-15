@@ -9,8 +9,7 @@ import {
 
 import SlugClient from "./SlugClient";
 
-export const dynamicParams = false;
-export const dynamic = "force-static";
+export const revalidate = 21600;
 
 type Props = {
   params: Promise<{ slug: string }>;

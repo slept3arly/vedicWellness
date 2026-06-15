@@ -34,12 +34,20 @@ export async function generateMetadata({
   if (!product) return {};
 
   return {
-    title: `${product.name} | Vedic Wellness Products`,
-    description:
-      product.shortDescription ??
-      "Explore this Ayurvedic product from Vedic Wellness.",
-    alternates: { canonical: `/products/${slug}` },
-  };
+  title: `${product.name} | Vedic Wellness Products`,
+  description:
+    product.shortDescription ??
+    "Explore this Ayurvedic product from Vedic Wellness.",
+
+  robots: {
+    index: false,
+    follow: false,
+  },
+
+  alternates: {
+    canonical: "/products",
+  },
+};
 }
 
 /* ------------------------------------------------------------------ */

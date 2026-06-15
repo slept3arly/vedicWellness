@@ -1,13 +1,11 @@
 import { MetadataRoute } from "next";
 import { unstable_cache } from "next/cache";
 
-import { getAllPublishedProductSlugsService } from "@/lib/services/productService";
 import { getAllPublishedBlogSlugsService } from "@/lib/services/public/blogService";
 
-export const dynamic = "force-static";
+export const revalidate = 86400; // 24 hours
 
 const BLOG_TAG = "blogs";
-const PRODUCT_TAG = "products";
 
 const getCachedSitemapData = unstable_cache(
   async (): Promise<MetadataRoute.Sitemap> => {
@@ -18,7 +16,6 @@ const getCachedSitemapData = unstable_cache(
     const now = new Date();
 
     const blogs = await getAllPublishedBlogSlugsService();
-    const products = await getAllPublishedProductSlugsService();
 
     const staticRoutes: MetadataRoute.Sitemap = [
       {
@@ -47,16 +44,6 @@ const getCachedSitemapData = unstable_cache(
         priority: 0.5,
       },
       {
-        url: `${baseUrl}/login`,
-        changeFrequency: "monthly",
-        priority: 0.5,
-      },
-      {
-        url: `${baseUrl}/signup`,
-        changeFrequency: "monthly",
-        priority: 0.5,
-      },
-      {
         url: `${baseUrl}/products`,
         changeFrequency: "weekly",
         priority: 0.9,
@@ -75,18 +62,11 @@ const getCachedSitemapData = unstable_cache(
       priority: 0.7,
     }));
 
-    const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
-      url: `${baseUrl}/products/${p.slug}`,
-      lastModified: p.updatedAt ?? now,
-      changeFrequency: "monthly",
-      priority: 0.8,
-    }));
-
-    return [...staticRoutes, ...blogRoutes, ...productRoutes];
+    return [...staticRoutes, ...blogRoutes];
   },
   ["sitemap"],
   {
-    tags: [BLOG_TAG, PRODUCT_TAG],
+    tags: [BLOG_TAG],
   }
 );
 

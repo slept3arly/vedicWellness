@@ -2,48 +2,19 @@ import type { Metadata } from "next";
 import ProductsClient from "./ProductsClient";
 import { getPublicProductsService } from "@/lib/services/productService";
 
-export async function generateMetadata({
-  searchParams,
-}: {
-  searchParams: Promise<{
-    page?: string;
-    query?: string;
-    sort?: string;
-  }>;
-}): Promise<Metadata> {
-  const sp = await searchParams;
-
-  const getParam = (v?: string | string[]) =>
-    Array.isArray(v) ? v[v.length - 1] : v;
-
-  const page = Math.max(1, Number(getParam(sp.page)) || 1);
-  const query = (getParam(sp.query) ?? "").trim();
-  const sort = getParam(sp.sort) ?? "";
-
-  const params = new URLSearchParams();
-
-  if (page > 1) params.set("page", String(page));
-  if (query) params.set("query", query);
-  if (sort && sort !== "name_asc") params.set("sort", sort);
-
-  const canonical =
-    params.toString().length > 0
-      ? `/products?${params.toString()}`
-      : "/products";
-
+export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Products | Vedic Wellness - Ayurvedic Franchise Product Range",
     description:
       "Browse Ayurvedic products from Vedic Wellness.",
     alternates: {
-      canonical,
+      canonical: "/products",
     },
   };
 }
 
-// CRITICAL: Search depends on URL params; it cannot be force-static.
-// Enable ISR caching for product listings
-export const revalidate = 21600;
+// Product listings update periodically
+export const revalidate = 21600; // 6 hours
 
 type SearchParams = {
   page?: string;
@@ -65,39 +36,21 @@ export default async function ProductsPage({
   const query = (getParam(sp.query) ?? "").trim();
   const sort = getParam(sp.sort) ?? "name_asc";
 
-  const { products, total, totalPages, pageSize } =
+  const { products, total, totalPages } =
     await getPublicProductsService({
       page,
       query,
       sort,
     });
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "Vedic Wellness Products",
-    itemListElement: products.map((p, index) => ({
-      "@type": "ListItem",
-      position: (page - 1) * pageSize + index + 1,
-      name: p.name,
-      url: `https://vedic-wellness.vercel.app/products/${p.slug}`,
-    })),
-  };
-
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <ProductsClient
-        products={products}
-        page={page}
-        totalPages={totalPages}
-        totalCount={total}
-        query={query}
-        sort={sort}
-      />
-    </>
+    <ProductsClient
+      products={products}
+      page={page}
+      totalPages={totalPages}
+      totalCount={total}
+      query={query}
+      sort={sort}
+    />
   );
 }
