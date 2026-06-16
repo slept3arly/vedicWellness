@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import BlogsClient from "./BlogsClient";
 import { getPublicBlogsService } from "@/lib/services/public/blogService";
 import { PUBLIC_BLOG_PAGE_SIZE } from "@/lib/constants";
+import { notFound } from "next/navigation";
 
 /* ========================================================= */
 /* CONSTANTS */
@@ -21,7 +22,11 @@ export async function generateMetadata({
   searchParams: Promise<{ page?: string }>;
 }): Promise<Metadata> {
   const sp = await searchParams;
-  const page = Math.max(1, Number(sp?.page) || 1);
+  const rawPage = Number(sp?.page ?? "1");
+  const page =
+    Number.isInteger(rawPage) && rawPage > 0
+      ? rawPage
+      : 1;
 
   const canonical =
     page > 1 ? `/blogs?page=${page}` : "/blogs";
@@ -57,7 +62,13 @@ export default async function BlogsPage({
   const getParam = (v?: string | string[]) =>
     Array.isArray(v) ? v[v.length - 1] : v;
 
-  const page = Math.max(1, Number(getParam(sp.page)) || 1);
+  const rawPage = Number(getParam(sp.page) ?? "1");
+
+  if (!Number.isInteger(rawPage) || rawPage < 1) {
+    notFound();
+  }
+
+  const page = rawPage;
 
   const FEATURED_COUNT = 3;
   const PAGE_SIZE = PUBLIC_BLOG_PAGE_SIZE;
@@ -77,6 +88,10 @@ export default async function BlogsPage({
   const remainingBlogs = blogs.slice(FEATURED_COUNT);
 
   const totalPages = Math.ceil(remainingBlogs.length / PAGE_SIZE);
+
+  if (totalPages > 0 && page > totalPages) {
+    notFound();
+  }
 
   const start = (page - 1) * PAGE_SIZE;
   const end = start + PAGE_SIZE;

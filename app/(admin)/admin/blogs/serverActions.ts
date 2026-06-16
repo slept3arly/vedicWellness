@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { revalidateTag } from "next/cache";
+import { revalidateTag, revalidatePath } from "next/cache";
 
 import { secureAdminAction } from "@/lib/security/secureAdminAction";
 
@@ -27,6 +27,7 @@ export const createBlog = secureAdminAction(
     await createBlogService(data, admin.id);
 
     revalidateTag(CACHE_TAGS.BLOGS, "max");
+    revalidatePath("/site-map");
 
     redirect("/admin/blogs");
   }
@@ -44,6 +45,7 @@ export const updateBlog = secureAdminAction(
 
     revalidateTag(CACHE_TAGS.BLOGS, "max");
     revalidateTag(`blog:${data.slug}`, "max");
+    revalidatePath("/site-map");
 
     redirect("/admin/blogs");
   }
@@ -60,6 +62,7 @@ export const deleteBlog = secureAdminAction(
     await deleteBlogService(id, admin.id);
 
     revalidateTag(CACHE_TAGS.BLOGS, "max");
+    revalidatePath("/site-map");
 
     redirect("/admin/blogs");
   }
@@ -77,6 +80,7 @@ export const toggleBlogPublished = secureAdminAction(
     await toggleBlogPublishedService(id, published, admin.id);
 
     revalidateTag(CACHE_TAGS.BLOGS, "max");
+    revalidatePath("/site-map");
 
     redirect("/admin/blogs");
   }

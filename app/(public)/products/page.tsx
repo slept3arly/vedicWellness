@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import ProductsClient from "./ProductsClient";
 import { getPublicProductsService } from "@/lib/services/productService";
+import { notFound } from "next/navigation";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -32,7 +33,12 @@ export default async function ProductsPage({
   const getParam = (v?: string | string[]) =>
     Array.isArray(v) ? v[v.length - 1] : v;
 
-  const page = Math.max(1, Number(getParam(sp.page)) || 1);
+  const rawPage = Number(getParam(sp.page) ?? "1");
+  if (!Number.isInteger(rawPage) || rawPage < 1) {
+    notFound();
+  }
+
+  const page = rawPage;
   const query = (getParam(sp.query) ?? "").trim();
   const sort = getParam(sp.sort) ?? "name_asc";
 
@@ -42,6 +48,10 @@ export default async function ProductsPage({
       query,
       sort,
     });
+
+  if (totalPages > 0 && page > totalPages) {
+    notFound();
+  }
 
   return (
     <ProductsClient

@@ -43,10 +43,6 @@ export async function generateMetadata({
     index: false,
     follow: false,
   },
-
-  alternates: {
-    canonical: "/products",
-  },
 };
 }
 
