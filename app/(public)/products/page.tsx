@@ -3,6 +3,10 @@ import ProductsClient from "./ProductsClient";
 import { getPublicProductsService } from "@/lib/services/productService";
 import { notFound } from "next/navigation";
 
+const SITE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
+  "https://vedic-wellness.vercel.app";
+
 export async function generateMetadata(): Promise<Metadata> {
   return {
     title: "Products | Vedic Wellness - Ayurvedic Franchise Product Range",
@@ -34,6 +38,7 @@ export default async function ProductsPage({
     Array.isArray(v) ? v[v.length - 1] : v;
 
   const rawPage = Number(getParam(sp.page) ?? "1");
+
   if (!Number.isInteger(rawPage) || rawPage < 1) {
     notFound();
   }
@@ -53,14 +58,39 @@ export default async function ProductsPage({
     notFound();
   }
 
+  const itemListSchema = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name: "Vedic Wellness Product Catalog",
+    description:
+      "Catalog of Ayurvedic products offered by Vedic Wellness.",
+    url: `${SITE_URL}/products`,
+    numberOfItems: total,
+
+    itemListElement: products.map((product, index) => ({
+      "@type": "ListItem",
+      position: (page - 1) * 10 + index + 1,
+      name: product.name,
+    })),
+  };
+
   return (
-    <ProductsClient
-      products={products}
-      page={page}
-      totalPages={totalPages}
-      totalCount={total}
-      query={query}
-      sort={sort}
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(itemListSchema),
+        }}
+      />
+
+      <ProductsClient
+        products={products}
+        page={page}
+        totalPages={totalPages}
+        totalCount={total}
+        query={query}
+        sort={sort}
+      />
+    </>
   );
 }

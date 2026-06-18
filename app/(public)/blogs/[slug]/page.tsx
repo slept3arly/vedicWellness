@@ -45,20 +45,47 @@ export async function generateMetadata({
 
   if (!blog) return {};
 
-  return {
-    title:
-      blog.metaTitle ??
-      `${blog.title} | Vedic Wellness Blogs`,
+  const imageUrl =
+    blog.thumbnailUrl ??
+    `${SITE_URL}/og.jpg`;
 
-    description:
-      blog.metaDescription ??
-      blog.description ??
-      "Read the latest Ayurveda insights from Vedic Wellness.",
+  const title =
+    blog.metaTitle ??
+    `${blog.title} | Vedic Wellness Blogs`;
+
+  const description =
+    blog.metaDescription ??
+    blog.description ??
+    "Read the latest Ayurveda insights from Vedic Wellness.";
+
+  const canonical =
+    blog.canonicalUrl ??
+    `${SITE_URL}/blogs/${decodedSlug}`;
+
+  return {
+    title,
+    description,
+    keywords: blog.tags ?? [],
+    
 
     alternates: {
-      canonical:
-        blog.canonicalUrl ??
-        `${SITE_URL}/blogs/${decodedSlug}`, // ✅ absolute
+      canonical,
+    },
+
+    openGraph: {
+      type: "article",
+      url: canonical,
+      title,
+      description,
+      images: [imageUrl],
+      siteName: "Vedic Wellness",
+    },
+
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [imageUrl],
     },
   };
 }
@@ -107,7 +134,11 @@ export default async function BlogDetailsPage({ params }: Props) {
       "@id": blogUrl,
     },
     headline: blog.metaTitle ?? blog.title,
+    url: blogUrl,
     description: blog.metaDescription ?? blog.description ?? "",
+    keywords: blog.tags?.join(", "),
+    articleSection:
+      blog.tags?.[0] ?? "Ayurveda",
     image: [imageUrl],
     datePublished: publishedDate,
     dateModified: new Date(
