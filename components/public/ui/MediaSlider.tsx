@@ -4,20 +4,23 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-type Slide = {
+export type Slide = {
   id: string;
   imageDesktopUrl: string;
   imageMobileUrl: string;
+  mediaType?: "image" | "gif";
 };
 
 type Props = {
   slides: Slide[];
   interval?: number;
+  aspectClass?: string;
 };
 
 export default function MediaSlider({
   slides,
   interval = 5000,
+  aspectClass = "aspect-[4/5] md:aspect-[16/9]",
 }: Props) {
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -81,7 +84,7 @@ export default function MediaSlider({
       onTouchEnd={handleTouchEnd}
     >
       {/* Responsive aspect ratio wrapper */}
-      <div className="relative w-full aspect-[4/5] md:aspect-[16/9]">
+      <div className={`relative w-full ${aspectClass}`}>
 
         <div
           className="flex h-full transition-transform duration-700 ease-out will-change-transform"
@@ -94,23 +97,39 @@ export default function MediaSlider({
               aria-hidden={i !== index}
             >
               {/* Desktop */}
-              <Image
-                src={slide.imageDesktopUrl}
-                alt={`Slide ${i + 1} of ${total}`}
-                fill
-                priority={i === 0}
-                sizes="(max-width: 768px) 100vw, 1200px"
-                className="hidden md:block object-cover"
-              />
+              {slide.mediaType === "gif" ? (
+                <img
+                  src={slide.imageDesktopUrl}
+                  alt={`Slide ${i + 1} of ${total}`}
+                  className="hidden md:block absolute inset-0 h-full w-full object-cover"
+                />
+              ) : (
+                <Image
+                  src={slide.imageDesktopUrl}
+                  alt={`Slide ${i + 1} of ${total}`}
+                  fill
+                  priority={i === 0}
+                  sizes="(max-width: 768px) 100vw, 1200px"
+                  className="hidden md:block object-cover"
+                />
+              )}
 
               {/* Mobile */}
-              <Image
-                src={slide.imageMobileUrl}
-                alt={`Slide ${i + 1} of ${total}`}
-                fill
-                sizes="(max-width: 768px) 100vw, 1200px"
-                className="block md:hidden object-cover"
-              />
+              {slide.mediaType === "gif" ? (
+                <img
+                  src={slide.imageMobileUrl}
+                  alt={`Slide ${i + 1} of ${total}`}
+                  className="block md:hidden absolute inset-0 h-full w-full object-cover"
+                />
+              ) : (
+                <Image
+                  src={slide.imageMobileUrl}
+                  alt={`Slide ${i + 1} of ${total}`}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 1200px"
+                  className="block md:hidden object-cover"
+                />
+              )}
             </div>
           ))}
         </div>

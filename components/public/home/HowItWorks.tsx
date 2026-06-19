@@ -63,7 +63,7 @@ export default function HowItWorks() {
         viewport={{ once: true }}
         className="space-y-12"
       >
-        <motion.header variants={fadeUp} className="text-center max-w-2xl mx-auto">
+        <motion.header variants={fadeUp} className="text-center max-w-5xl mx-auto">
           <PageHeader
             title="How It Works"
             subtitle="A simple, transparent onboarding process designed for fast franchise activation."

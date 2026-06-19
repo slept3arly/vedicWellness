@@ -78,7 +78,7 @@ export default function FranchiseBenefits() {
         {/* Header */}
         <motion.header
           variants={fadeUp}
-          className="text-center max-w-2xl mx-auto"
+          className="text-center max-w-5xl mx-auto"
         >
           <PageHeader
             title="Why Our Franchise Works"

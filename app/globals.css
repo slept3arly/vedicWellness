@@ -213,3 +213,32 @@ body {
     animation: none !important;
   }
 }
+
+/* ======================================================
+   CUSTOM SCROLLBAR
+====================================================== */
+
+/* Desktop carousel scrollbar */
+
+.carousel-scrollbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.carousel-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.carousel-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(120, 120, 120, .45);
+  border-radius: 999px;
+}
+
+.dark .carousel-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(180, 180, 180, .35);
+}
+
+/* Firefox */
+.carousel-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(2, 101, 54, 0.35) transparent;
+}

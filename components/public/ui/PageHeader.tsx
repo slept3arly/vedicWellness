@@ -28,7 +28,7 @@ export default function PageHeader({
       initial="hidden"
       whileInView="show"
       viewport={{ once: true }}
-      className={cn("max-w-3xl space-y-4", alignment, className)}
+      className={cn("max-w-5xl space-y-4", alignment, className)}
     >
       {badge && (
         <motion.div variants={reveal} className="flex justify-center">

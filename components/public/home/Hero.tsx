@@ -1,20 +1,28 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Shield, Leaf, Zap, MapPin } from "lucide-react";
-
+import { ArrowRight, Shield, Leaf, MapPin } from "lucide-react";
+import MediaSlider, { type Slide } from "@/components/public/ui/MediaSlider";
 import Button from "@/components/public/ui/Button";
+import Image from "next/image";
 
 const pillars = [
   { icon: Shield, label: "Monopoly PCD Model" },
   { icon: Leaf, label: "GMP Certified Manufacturing" },
-  { icon: Zap, label: "Fast Dispatch & Support" },
 ];
 
 const stats = [
-  { value: "200+", label: "PCD Products", sub: "GMP certified portfolio" },
-  { value: "15+", label: "Therapy Segments", sub: "High-demand wellness ranges" },
-  { value: "500+", label: "Active Partners", sub: "Distributors nationwide" },
+  {
+    value: "200+",
+    label: "PCD Products",
+    image: "/hero/card-products.jpg",
+  },
+  {
+    value: "500+",
+    label: "Active Partners",
+    image: "/hero/card-partners.jpg",
+  },
 ];
 
 const features = [
@@ -23,39 +31,41 @@ const features = [
     desc: "Own your territory — no other distributor in your district or city.",
   },
   {
-    title: "200+ Ayurvedic SKUs",
-    desc: "GMP certified formulations across immunity, digestive, liver, skin & more.",
-  },
-  {
     title: "Marketing & Dispatch Support",
     desc: "Promotional materials, visual aids, and fast logistics from day one.",
-  },
-  {
-    title: "Transparent Pricing",
-    desc: "No hidden charges. Clear MRP, PTR, and PTS structure upfront.",
   },
 ];
 
 const certBadges = ["ISO 9001:2018", "GMP Certified", "Ayush Approved"];
 
+const heroSlides: Slide[] = [
+  {
+    id: "1",
+    imageDesktopUrl: "/hero/1.gif",
+    imageMobileUrl: "/hero/1.gif",
+    mediaType: "gif",
+  },
+];
+
 export default function Hero() {
   const router = useRouter();
+  const [expanded, setExpanded] = useState(false);
 
   return (
     <section className="min-h-screen flex flex-col font-body bg-transparent">
-      <div className="flex-1 flex items-center">
-        <div className="w-full max-w-7xl mx-auto px-6 md:px-10 pb-10 md:pb-14">
-          <div className="grid md:grid-cols-[1fr_480px] lg:grid-cols-[1fr_520px] gap-8 lg:gap-12 items-center">
+      <div className="flex-1 flex items-start pt-8 md:pt-12">
+        <div className="w-full max-w-[1400px] mx-auto px-6 md:px-10 pb-10 md:pb-14">
+          <div className="grid md:grid-cols-[1fr_480px] lg:grid-cols-[1fr_520px] gap-8 lg:gap-12 items-start">
 
             {/* LEFT */}
-            <div className="space-y-4 flex flex-col items-center md:items-start text-center md:text-left">
+            <div className="space-y-5 flex flex-col items-center md:items-start text-center md:text-left">
 
-              {/* Pulse badge */}
-              <div className="opacity-0 md:opacity-100 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[rgba(3,151,81,0.07)] border border-[rgba(3,151,81,0.18)] dark:bg-[rgba(132,235,75,0.05)] dark:border-[rgba(132,235,75,0.15)]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#039751] dark:bg-[#84eb4b] shrink-0" />
-                <span className="text-[0.7rem] text-[#024a29] dark:text-[#84eb4b]">
-                  500+ Active Franchise Partners Nationwide
-                </span>
+              <div className="block md:hidden w-full">
+                <MediaSlider
+                  slides={heroSlides}
+                  aspectClass="aspect-[4/3]"
+                  interval={4000}
+                />
               </div>
 
               {/* Heading — Cormorant Garamond serif with italic accent */}
@@ -66,21 +76,61 @@ export default function Hero() {
                   fontSize: "clamp(2.6rem, 5vw, 4.6rem)",
                 }}
               >
-                Build Your<br />
-                Monopoly With<br />
+                Leading PCD Pharma Franchise<br />
                 <em
                   className="text-[#039751] dark:text-[#84eb4b]"
                   style={{ fontStyle: "italic", fontWeight: 600 }}
                 >
-                  Vedic Wellness
+                  Vedic Wellness in India
                 </em>
+                <br />
+                
+                
               </h1>
 
-              <p className="text-sm leading-relaxed text-[#3d5a47] dark:text-[#8db89e] max-w-[420px]">
-                A Division of Innovia Drugs — enabling serious PCD partners to build
-                scalable, long-term businesses backed by GMP certified Ayurvedic
-                formulations and exclusive monopoly rights.
-              </p>
+              <div className="max-w-4xl">
+                <p
+                  className={`text-sm leading-relaxed text-justify text-[#3d5a47] dark:text-[#8db89e]
+                    ${expanded ? "" : "line-clamp-4 md:line-clamp-7"}`}
+                >
+                  Vedic Wellness, a trusted Ayurvedic division of Innovia Drugs, is a leading
+                  PCD Pharma Franchise Company in India offering high-quality Ayurvedic,
+                  herbal, and wellness products backed by GMP-certified manufacturing
+                  standards. We provide entrepreneurs, distributors, and pharma professionals
+                  with profitable monopoly-based franchise opportunities supported by an
+                  extensive portfolio of Ayurvedic medicines, immunity boosters, digestive
+                  care products, liver tonics, skincare solutions, personal care products,
+                  women's wellness formulations, and daily health supplements. Our business
+                  model is designed to help franchise partners grow faster through exclusive
+                  territorial rights, attractive promotional support, visual aids, product
+                  training, timely dispatch services, and dedicated business assistance.
+                  With a strong commitment to quality, innovation, and customer satisfaction,
+                  Vedic Wellness continues to expand its presence across India while helping
+                  partners build sustainable pharmaceutical businesses in the rapidly growing
+                  Ayurvedic healthcare sector. Whether you are looking to start a new pharma
+                  venture or expand your existing distribution network, Vedic Wellness offers
+                  one of the most reliable and growth-focused Ayurvedic PCD Pharma Franchise
+                  opportunities in India.
+                </p>
+
+                {!expanded && (
+                  <button
+                    onClick={() => setExpanded(true)}
+                    className="inline ml-1 text-sm font-medium text-[#039751] dark:text-[#84eb4b]"
+                  >
+                    Read More
+                  </button>
+                )}
+
+                {expanded && (
+                  <button
+                    onClick={() => setExpanded(false)}
+                    className="inline ml-1 text-sm font-medium text-[#039751] dark:text-[#84eb4b]"
+                  >
+                    Read Less
+                  </button>
+                )}
+              </div>
 
               {/* Pillar chips */}
               <div className="flex flex-wrap gap-1.5 justify-center md:justify-start">
@@ -96,34 +146,54 @@ export default function Hero() {
               </div>
 
               {/* CTAs */}
-              <div className="flex flex-wrap gap-3 pt-1 justify-center md:justify-start">
-                <Button onClick={() => router.push("/contact")}>
-                  Apply for Franchise
-                  <ArrowRight size={13} className="ml-1.5 inline-block" />
-                </Button>
-                <Button variant="secondary" onClick={() => router.push("/products")}>
-                  View Products
-                </Button>
+              <div className="flex flex-nowrap gap-2 pt-1 justify-center md:justify-start w-full md:w-auto">
+                <div className="flex-1 md:flex:none">
+                  <Button onClick={() => router.push("/contact")}>
+                    Apply for Franchise
+                    <ArrowRight size={13} className="ml-1.5 inline-block" />
+                  </Button>
+                </div>
+                <div className="flex-1 md:flex:none">
+                  <Button variant="secondary" onClick={() => router.push("/products")}>
+                    View Products
+                  </Button>
+                </div>
               </div>
             </div>
 
             {/* RIGHT CARD — uses surface (white in light, dark in dark mode) */}
-            <div className="surface overflow-hidden">
+            <div className="surface overflow-hidden hidden md:block">
 
               {/* Stats row */}
-              <div className="grid grid-cols-3 divide-x divide-[var(--border-soft)]">
-                {stats.map(({ value, label, sub }) => (
-                  <div key={label} className="px-2 py-4 text-center">
-                    <div
-                      className="font-bold leading-none text-[var(--brand-primary)] dark:text-[#84eb4b]"
-                      style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: "2rem" }}
-                    >
-                      {value}
+              <div className="grid grid-cols-2 divide-x divide-[var(--border-soft)]">
+                {stats.map(({ value, label, image }) => (
+                  <div key={label} className="text-center">
+
+                    <div className="relative h-64 w-full overflow-hidden">
+                      <Image
+                        src={image}
+                        alt={label}
+                        fill
+                        className="object-cover"
+                      />
                     </div>
-                    <div className="text-[0.6rem] font-bold tracking-widest uppercase text-[var(--text-main)] mt-1">
-                      {label}
+
+                    <div className="px-2 py-4">
+                      <div
+                        className="font-bold leading-none text-[var(--brand-primary)] dark:text-[#84eb4b]"
+                        style={{
+                          fontFamily: "'Cormorant Garamond', serif",
+                          fontSize: "2rem",
+                        }}
+                      >
+                        {value} 
+                      </div>
+
+                      <div className="text-[0.6rem] font-bold tracking-widest uppercase text-muted mt-0.5">
+                        {label}
+                      </div>
                     </div>
-                    <div className="text-[0.6rem] text-muted mt-0.5">{sub}</div>
+
                   </div>
                 ))}
               </div>

@@ -33,7 +33,7 @@ export default function Categories() {
         viewport={{ once: true }}
         className="space-y-12"
       >
-        <motion.header variants={fadeUp} className="text-center max-w-2xl mx-auto">
+        <motion.header variants={fadeUp} className="text-center max-w-5xl mx-auto">
           <PageHeader
             title="Product Categories"
             subtitle="High-demand Ayurvedic ranges designed to drive repeat sales and long-term franchise growth."

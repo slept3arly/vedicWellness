@@ -134,7 +134,6 @@ export default async function RootLayout({
           </main>
 
           <DeferredFooter />
-          <BottomNavbar />
         </Providers>
 
         <Toaster
