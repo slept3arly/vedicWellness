@@ -146,15 +146,23 @@ export default function Hero() {
               </div>
 
               {/* CTAs */}
-              <div className="flex flex-nowrap gap-2 pt-1 justify-center md:justify-start w-full md:w-auto">
-                <div className="flex-1 md:flex:none">
-                  <Button onClick={() => router.push("/contact")}>
+              <div className="flex flex-col sm:flex-row gap-3 pt-1 w-full sm:w-auto items-center">
+                <div className="w-full sm:w-auto">
+                  <Button
+                    className="w-full sm:w-auto"
+                    onClick={() => router.push("/contact")}
+                  >
                     Apply for Franchise
                     <ArrowRight size={13} className="ml-1.5 inline-block" />
                   </Button>
                 </div>
-                <div className="flex-1 md:flex:none">
-                  <Button variant="secondary" onClick={() => router.push("/products")}>
+
+                <div className="w-full sm:w-auto">
+                  <Button
+                    className="w-full sm:w-auto"
+                    variant="secondary"
+                    onClick={() => router.push("/products")}
+                  >
                     View Products
                   </Button>
                 </div>
