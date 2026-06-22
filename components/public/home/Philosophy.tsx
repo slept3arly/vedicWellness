@@ -22,13 +22,13 @@ const featureCards = [
   {
     id: "who-we-are",
     title: "Who We Are",
-    body: "Vedic Wellness bridges the gap between traditional Ayurvedic wisdom and modern clinical validation. Operating with rigorous pharmaceutical manufacturing standards, we deliver scalable, premium wellness portfolios designed for high consumer retention and reliable commercial growth.",
+    body: "Vedic Wellness combines Ayurvedic expertise with modern manufacturing standards to build scalable, high-quality wellness portfolios.",
     icon: Leaf,
   },
   {
     id: "ayurveda-growth",
     title: "Why Ayurveda is Growing",
-    body: "Global markets are shifting decisively toward natural preventative care. Rising consumer awareness and the high organic search volumes surrounding standard Ayurvedic treatments make this sector an optimal launchpad for stable, high-margin healthcare enterprises.",
+    body: "Demand for natural preventive healthcare continues to rise, creating strong opportunities for sustainable growth in Ayurvedic markets.",
     icon: Sparkles,
   },
 ];
@@ -80,58 +80,25 @@ const interactiveCards = [
 
 // --- COMPONENT 1: ROW 1 CARDS (WITH INLINE EXPANSION) ---
 function EditorialAuthorityCard({ title, body, icon: Icon }: typeof featureCards[0]) {
-  const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <Card className="bg-white/75 dark:bg-black/45 p-6 flex flex-col md:h-full group border border-[var(--border-soft)] hover:border-[color:var(--brand-accent)]/30 transition-all duration-300">
+    <Card className="bg-white/75 dark:bg-black/45 p-4 md:p-6 flex flex-col md:h-full group border border-[var(--border-soft)] hover:border-[color:var(--brand-accent)]/30 transition-all duration-300">
       <div className="space-y-4">
-        <div className="flex items-center justify-center gap-4">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-accent)]">
-            <Icon size={20} />
+        <div className="flex items-center gap-3">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-accent)]">
+            <Icon size={16} />
           </div>
 
-          <h3 className="font-heading font-bold text-base sm:text-lg tracking-tight text-center text-slate-900 dark:text-slate-100">
+          <h3 className="font-heading font-semibold text-base md:text-lg tracking-tight text-slate-900 dark:text-slate-100">
             {title}
           </h3>
-
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[color:var(--brand-primary)]/10 text-[color:var(--brand-accent)]">
-            <Icon size={20} />
-          </div>
         </div>
 
         {/* Content Box */}
-        <div className="relative overflow-hidden">
-          <motion.div
-            animate={{
-              height: isExpanded ? "auto" : undefined
-            }}
-            className={`
-              overflow-hidden
-              ${!isExpanded ? "max-h-[52px] md:max-h-[96px]" : ""}
-            `}
-            transition={{
-              type: "spring",
-              stiffness: 220,
-              damping: 24
-            }}
-          >
-            <p
-              className={`text-sm text-slate-600 dark:text-slate-300 leading-relaxed ${!isExpanded ? "line-clamp-2 md:line-clamp-4" : ""}`}
-            >
-              {body}
-            </p>
-          </motion.div>
-        </div>
+        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
+          {body}
+        </p>
       </div>
-
-      {/* Mobile-only toggle */}
-      <button
-        onClick={() => setIsExpanded(!isExpanded)}
-        className="mt-3 flex items-center gap-1 text-xs font-semibold text-[color:var(--brand-accent)] md:hidden focus:outline-none"
-      >
-        <span>{isExpanded ? "Collapse Content" : "Read More"}</span>
-        <ChevronDown size={14} className={`transform transition-transform duration-200 ${isExpanded ? "rotate-180" : ""}`} />
-      </button>
     </Card>
   );
 }
@@ -158,7 +125,11 @@ export default function Philosophy() {
     if (index === nextIndex) {
       return { rotate: 8, zIndex: 20, scale: 0.92, y: 10, x: 35 };
     }
-    return { rotate: 0, zIndex: 10, scale: 0.8, y: 40, x: 0, opacity: 0 };
+    return {
+      rotate: 0,
+      scale: 0.8,
+      opacity: 0,
+      pointerEvents: "none" };
   };
 
   const handleMobileFanClick = (index: number) => {
@@ -216,7 +187,9 @@ export default function Philosophy() {
               <motion.div
                 key={item.title}
                 whileHover={{ scale: 1.015 }}
-                transition={{ type: "spring", stiffness: 240, damping: 22 }}
+                transition={{
+                  duration: 0.28,
+                  ease: "easeOut" }}
                 onClick={() => handleDesktopCardClick(item)}
                 className="snap-start shrink-0 cursor-pointer w-[290px] lg:w-[320px]"
               >
@@ -258,20 +231,44 @@ export default function Philosophy() {
           </div>
 
           {/* MOBILE FAN / UNO STYLE CAROUSEL (Below md) */}
-          <div className="md:hidden relative flex justify-center items-center h-[430px] w-full select-none">
+          <motion.div
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            onDragEnd={(e, info) => {
+              if (info.offset.x > 80) {
+                setCenterIndex(
+                  (prev) =>
+                    (prev - 1 + interactiveCards.length) %
+                    interactiveCards.length
+                );
+              }
+
+              if (info.offset.x < -80) {
+                setCenterIndex(
+                  (prev) =>
+                    (prev + 1) %
+                    interactiveCards.length
+                );
+              }
+            }}
+            className="md:hidden relative flex justify-center items-center h-[430px] w-full select-none"
+          >
             {interactiveCards.map((item, index) => {
               const styles = getMobileFanStyles(index);
               const isCenter = index === centerIndex;
 
               return (
                 <motion.div
+                  style={{ willChange: "transform" }}
                   key={item.title}
                   animate={styles}
-                  transition={{ type: "spring", stiffness: 260, damping: 25 }}
+                  transition={{
+                    duration: 0.28,
+                    ease: "easeOut" }}
                   onClick={() => handleMobileFanClick(index)}
                   className="absolute cursor-pointer origin-bottom w-[265px] sm:w-[290px]"
                 >
-                  <Card className={`!p-0 overflow-hidden bg-white dark:bg-[#0c0f0e] border-0 dark:border-0 transition-shadow duration-300 ${isCenter ? "shadow-[0_25px_60px_rgba(2,101,54,0.35)]" : "shadow-md filter brightness-[0.88] dark:brightness-[0.7]"}`}>
+                  <Card className={`!p-0 overflow-hidden bg-white dark:bg-[#0c0f0e] border-0 dark:border-0 transition-shadow duration-300 ${isCenter ? "shadow-[0_12px_30px_rgba(2,101,54,0.20)]" : "shadow-md filter brightness-[0.88] dark:brightness-[0.7]"}`}>
                     <div className="relative aspect-[3/4] w-full overflow-hidden p-3 bg-slate-50 dark:bg-zinc-900">
 
                       {/* Image Frame */}
@@ -306,7 +303,7 @@ export default function Philosophy() {
                 </motion.div>
               );
             })}
-          </div>
+          </motion.div>
         </motion.div>
 
         {/* ── ROW 3: SEO / AUTHORITY CONTENT CARD ── */}
@@ -319,8 +316,10 @@ export default function Philosophy() {
 
               <div className="relative overflow-hidden">
                 <motion.div
-                  animate={{ height: row3Expanded ? "auto" : "72px" }}
-                  transition={{ type: "spring", stiffness: 220, damping: 24 }}
+                  animate={{ maxHeight: row3Expanded ? 500 : 72 }}
+                  transition={{
+                    duration: 0.75,
+                    ease: [0.22, 1, 0.36, 1] }}
                   className="overflow-hidden"
                 >
                   <p className="text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
