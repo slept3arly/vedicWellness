@@ -109,6 +109,7 @@ export default function Philosophy() {
   const [selectedCard, setSelectedCard] = useState<typeof interactiveCards[0] | null>(null);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [row3Expanded, setRow3Expanded] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   // Dynamic style calculation for Mobile Fan Carousel ONLY
   const getMobileFanStyles = (index: number) => {
@@ -133,6 +134,8 @@ export default function Philosophy() {
   };
 
   const handleMobileFanClick = (index: number) => {
+    if (isDragging) return;
+
     if (index === centerIndex) {
       setSelectedCard(interactiveCards[index]);
       setIsOverlayOpen(true);
@@ -234,8 +237,11 @@ export default function Philosophy() {
           <motion.div
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.08}
+            onDragStart={() => setIsDragging(true)}
             onDragEnd={(e, info) => {
-              if (info.offset.x > 80) {
+              setTimeout(() => setIsDragging(false), 50);
+              if (info.offset.x < -80) {
                 setCenterIndex(
                   (prev) =>
                     (prev - 1 + interactiveCards.length) %
@@ -251,7 +257,7 @@ export default function Philosophy() {
                 );
               }
             }}
-            className="md:hidden relative flex justify-center items-center h-[430px] w-full select-none"
+            className="md:hidden relative flex justify-center items-center h-[430px] w-full select-none touch-pan-y"
           >
             {interactiveCards.map((item, index) => {
               const styles = getMobileFanStyles(index);
