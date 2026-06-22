@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import Image from "next/image";
 import {
@@ -78,9 +78,11 @@ const interactiveCards = [
   },
 ];
 
+// Custom Premium Easing Curve
+const premiumEase = [0.22, 1, 0.36, 1] as const;
+
 // --- COMPONENT 1: ROW 1 CARDS (WITH INLINE EXPANSION) ---
 function EditorialAuthorityCard({ title, body, icon: Icon }: typeof featureCards[0]) {
-
   return (
     <Card className="bg-white/75 dark:bg-black/45 p-4 md:p-6 flex flex-col md:h-full group border border-[var(--border-soft)] hover:border-[color:var(--brand-accent)]/30 transition-all duration-300">
       <div className="space-y-4">
@@ -111,26 +113,32 @@ export default function Philosophy() {
   const [row3Expanded, setRow3Expanded] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Dynamic style calculation for Mobile Fan Carousel ONLY
-  const getMobileFanStyles = (index: number) => {
-    if (index === centerIndex) {
+  const totalCards = interactiveCards.length;
+
+  // Compute active contextual cards for the mobile DOM window (Prev, Center, Next)
+  const mobileVisibleCards = useMemo(() => {
+    const prevIndex = (centerIndex - 1 + totalCards) % totalCards;
+    const nextIndex = (centerIndex + 1) % totalCards;
+    
+    return [
+      { item: interactiveCards[prevIndex], index: prevIndex, position: "prev" },
+      { item: interactiveCards[centerIndex], index: centerIndex, position: "center" },
+      { item: interactiveCards[nextIndex], index: nextIndex, position: "next" },
+    ];
+  }, [centerIndex, totalCards]);
+
+  // Optimized style map calculation for the 3 active Mobile Fan items
+  const getMobileFanStyles = (position: string) => {
+    if (position === "center") {
       return { rotate: 0, zIndex: 30, scale: 1.05, y: -10, x: 0 };
     }
-    const total = interactiveCards.length;
-    const prevIndex = (centerIndex - 1 + total) % total;
-    const nextIndex = (centerIndex + 1) % total;
-
-    if (index === prevIndex) {
+    if (position === "prev") {
       return { rotate: -8, zIndex: 20, scale: 0.92, y: 10, x: -35 };
     }
-    if (index === nextIndex) {
+    if (position === "next") {
       return { rotate: 8, zIndex: 20, scale: 0.92, y: 10, x: 35 };
     }
-    return {
-      rotate: 0,
-      scale: 0.8,
-      opacity: 0,
-      pointerEvents: "none" };
+    return { rotate: 0, scale: 0.8, opacity: 0, pointerEvents: "none" };
   };
 
   const handleMobileFanClick = (index: number) => {
@@ -192,7 +200,8 @@ export default function Philosophy() {
                 whileHover={{ scale: 1.015 }}
                 transition={{
                   duration: 0.28,
-                  ease: "easeOut" }}
+                  ease: premiumEase 
+                }}
                 onClick={() => handleDesktopCardClick(item)}
                 className="snap-start shrink-0 cursor-pointer w-[290px] lg:w-[320px]"
               >
@@ -235,44 +244,43 @@ export default function Philosophy() {
 
           {/* MOBILE FAN / UNO STYLE CAROUSEL (Below md) */}
           <motion.div
+            layout="position"
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
             dragElastic={0.08}
             onDragStart={() => setIsDragging(true)}
             onDragEnd={(e, info) => {
               setTimeout(() => setIsDragging(false), 50);
-              if (info.offset.x < -80) {
-                setCenterIndex(
-                  (prev) =>
-                    (prev - 1 + interactiveCards.length) %
-                    interactiveCards.length
-                );
+              
+              // Swipe Right (positive offset) -> Previous item
+              if (info.offset.x > 80) {
+                setCenterIndex((prev) => (prev - 1 + totalCards) % totalCards);
               }
-
+              // Swipe Left (negative offset) -> Next item
               if (info.offset.x < -80) {
-                setCenterIndex(
-                  (prev) =>
-                    (prev + 1) %
-                    interactiveCards.length
-                );
+                setCenterIndex((prev) => (prev + 1) % totalCards);
               }
             }}
             className="md:hidden relative flex justify-center items-center h-[430px] w-full select-none touch-pan-y"
           >
-            {interactiveCards.map((item, index) => {
-              const styles = getMobileFanStyles(index);
-              const isCenter = index === centerIndex;
+            {mobileVisibleCards.map(({ item, index, position }) => {
+              const styles = getMobileFanStyles(position);
+              const isCenter = position === "center";
 
               return (
                 <motion.div
-                  style={{ willChange: "transform" }}
                   key={item.title}
                   animate={styles}
                   transition={{
-                    duration: 0.28,
-                    ease: "easeOut" }}
+                    duration: 0.24,
+                    ease: premiumEase 
+                  }}
                   onClick={() => handleMobileFanClick(index)}
-                  className="absolute cursor-pointer origin-bottom w-[265px] sm:w-[290px]"
+                  className="absolute cursor-pointer origin-bottom w-[265px] sm:w-[290px] transform-gpu"
+                  style={{ 
+                    willChange: "transform",
+                    contain: "layout paint"
+                  }}
                 >
                   <Card className={`!p-0 overflow-hidden bg-white dark:bg-[#0c0f0e] border-0 dark:border-0 transition-shadow duration-300 ${isCenter ? "shadow-[0_12px_30px_rgba(2,101,54,0.20)]" : "shadow-md filter brightness-[0.88] dark:brightness-[0.7]"}`}>
                     <div className="relative aspect-[3/4] w-full overflow-hidden p-3 bg-slate-50 dark:bg-zinc-900">
@@ -324,8 +332,9 @@ export default function Philosophy() {
                 <motion.div
                   animate={{ maxHeight: row3Expanded ? 500 : 72 }}
                   transition={{
-                    duration: 0.75,
-                    ease: [0.22, 1, 0.36, 1] }}
+                    duration: 0.35,
+                    ease: premiumEase 
+                  }}
                   className="overflow-hidden"
                 >
                   <p className="text-sm md:text-base text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
@@ -362,7 +371,7 @@ export default function Philosophy() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300, ease: premiumEase }}
               onClick={(e) => e.stopPropagation()}
               className="relative w-full max-w-2xl bg-white dark:bg-[#0a0f0d] border border-[var(--border-soft)] rounded-2xl shadow-2xl p-6 mb-2 overflow-hidden"
             >
