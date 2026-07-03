@@ -3,7 +3,7 @@
 import { useState, memo, useCallback } from "react";
 import Image from "next/image";
 import { LucideIcon, ChevronDown } from "lucide-react";
-import Card from "@/components/ui/Card";
+import Card from "@/components/public/ui/Card";
 
 interface PhilosophyCard {
   title: string;

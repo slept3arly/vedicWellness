@@ -93,24 +93,24 @@ export default function Hero() {
                   className={`text-sm leading-relaxed text-justify text-[#3d5a47] dark:text-[#8db89e]
                     ${expanded ? "" : "line-clamp-4 md:line-clamp-7"}`}
                 >
-                  Vedic Wellness, a trusted Ayurvedic division of Innovia Drugs, is a leading
+                  Vedic Wellnessis the trusted Ayurvedic division of Innovia Drugs. It is a leading
                   PCD Pharma Franchise Company in India offering high-quality Ayurvedic,
-                  herbal, and wellness products backed by GMP-certified manufacturing
-                  standards. We provide entrepreneurs, distributors, and pharma professionals
-                  with profitable monopoly-based franchise opportunities supported by an
+                  herbal, and wellness products supported by it's GMP-certified manufacturing
+                  standards. We provide entrepreneurs, distributors, and professionals in pharma
+                  with many profitable monopoly-based franchise opportunities supported by an
                   extensive portfolio of Ayurvedic medicines, immunity boosters, digestive
-                  care products, liver tonics, skincare solutions, personal care products,
-                  women's wellness formulations, and daily health supplements. Our business
-                  model is designed to help franchise partners grow faster through exclusive
+                  care products, liver tonics, personal care products, women's wellness formulations,
+                  and daily health supplements. The buisness model we follow is
+                  designed to help franchise partners grow exponentially faster through exclusive
                   territorial rights, attractive promotional support, visual aids, product
                   training, timely dispatch services, and dedicated business assistance.
                   With a strong commitment to quality, innovation, and customer satisfaction,
-                  Vedic Wellness continues to expand its presence across India while helping
-                  partners build sustainable pharmaceutical businesses in the rapidly growing
+                  Vedic Wellness continues to expand its presence pan India while prviding help to
+                  partners while they build sustainable pharmaceutical businesses in the rapidly growing
                   Ayurvedic healthcare sector. Whether you are looking to start a new pharma
                   venture or expand your existing distribution network, Vedic Wellness offers
                   one of the most reliable and growth-focused Ayurvedic PCD Pharma Franchise
-                  opportunities in India.
+                  opportunities in India with it's superior customer support and products.
                 </p>
 
                 {!expanded && (

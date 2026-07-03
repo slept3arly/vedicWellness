@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Card from "@/components/ui/Card";
+import Card from "@/components/public/ui/Card";
 import { LucideIcon } from "lucide-react";
 
 export interface FanCarouselItem {
