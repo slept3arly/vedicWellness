@@ -8,13 +8,33 @@ import AdminActionButton from "@/components/admin/AdminActionButton";
 import { updateOrderStatus, cancelOrder } from "../serverActions";
 
 import { IndianRupee, User, Phone, MapPin } from "lucide-react";
+import type { BadgeStatus } from "@/components/admin/AdminBadge";
+
+type ShippingAddress = {
+  line1?: string;
+  line2?: string | null;
+  city?: string;
+  state?: string;
+  postalCode?: string;
+  country?: string;
+};
+
+type AdminOrderDetail = {
+  id: string;
+  status: string;
+  totalAmount: number;
+  currency: string;
+  shippingAddr: unknown;
+  shippingPhone: string;
+  shippingName: string;
+  user: { email: string; name: string | null } | null;
+  items: { id: string; productName: string; price: number; quantity: number }[];
+};
 
 /* -------------------------------------------------- */
 
 const ORDER_STATUSES = [
   "CREATED",
-  "PAYMENT_FAILED",
-  "PAID",
   "CONFIRMED",
   "SHIPPED",
   "DELIVERED",
@@ -37,9 +57,11 @@ function formatCurrency(amount: number, currency = "INR") {
 export default function AdminOrderDetailClient({
   order,
 }: {
-  order: any;
+  order: AdminOrderDetail;
 }) {
-  const addr = order.shippingAddr || {};
+  const addr = order.shippingAddr && typeof order.shippingAddr === "object"
+    ? order.shippingAddr as ShippingAddress
+    : {};
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 px-4">
@@ -61,7 +83,7 @@ export default function AdminOrderDetailClient({
         {/* LEFT */}
         <div className="space-y-2">
           <div className="text-sm text-neutral-500">Status</div>
-          <AdminBadge status={order.status} />
+          <AdminBadge status={order.status as BadgeStatus} />
 
           {/* STATUS UPDATE */}
           <form action={updateOrderStatus} className="mt-2 flex gap-2 items-center">
@@ -156,7 +178,7 @@ export default function AdminOrderDetailClient({
         <h3 className="font-semibold mb-4">Items</h3>
 
         <div className="space-y-3">
-          {order.items.map((item: any) => (
+          {order.items.map((item) => (
             <div
               key={item.id}
               className="flex justify-between text-sm"
@@ -178,25 +200,6 @@ export default function AdminOrderDetailClient({
         </div>
       </AdminCard>
 
-      {/* Payment */}
-      <AdminCard>
-        <h3 className="font-semibold mb-3">Payment</h3>
-
-        <div className="text-sm space-y-1">
-          <div>
-            Status:{" "}
-            <span className="font-medium">
-              {order.paidAt ? "Paid" : "Unpaid"}
-            </span>
-          </div>
-
-          {order.paymentId && (
-            <div className="text-xs text-neutral-500">
-              Payment ID: {order.paymentId}
-            </div>
-          )}
-        </div>
-      </AdminCard>
     </div>
   );
 }

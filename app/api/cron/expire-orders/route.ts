@@ -8,18 +8,16 @@ export async function GET(request: Request) {
   // Check for Authorization header matching the CRON_SECRET
   // In Vercel, cron jobs automatically send the `Authorization: Bearer <CRON_SECRET>` header.
   const authHeader = request.headers.get("authorization");
-  if (
-    process.env.CRON_SECRET &&
-    authHeader !== `Bearer ${process.env.CRON_SECRET}`
-  ) {
+  const cronSecret = process.env.CRON_SECRET;
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
   try {
     await expireOldOrders();
     return NextResponse.json({ success: true, message: "Order expiry executed successfully." });
-  } catch (error) {
-    console.error("[CRON EXPIRE ORDERS ERROR]", error);
+  } catch {
+    console.error("[CRON EXPIRE ORDERS ERROR]");
     return new NextResponse("Internal Server Error", { status: 500 });
   }
 }

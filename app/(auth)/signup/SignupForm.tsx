@@ -4,7 +4,6 @@ import { useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { toast } from "@/lib/toast";
-import OtpVerificationModal from "@/components/public/feedback/OtpVerificationModal";
 import Button from "@/components/public/ui/Button";
 
 export default function SignupForm() {
@@ -20,9 +19,7 @@ export default function SignupForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [turnstileToken, setTurnstileToken] = useState("");
 
-  const [showOtpModal, setShowOtpModal] = useState(false);
-  const [signupEmail, setSignupEmail] = useState("");
-
+  const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
@@ -31,15 +28,22 @@ export default function SignupForm() {
     if (isLoading) return;
 
     if (!turnstileToken) {
-      toast.warning("Verification required",
-        "Please complete the captcha verification.",
+      toast.warning("Security check required",
+        "Please complete the security check.",
       );
       return;
     }
 
     const formData = new FormData(e.currentTarget);
+    const name = String(formData.get("name") || "").trim();
     const email = String(formData.get("email") || "");
     const password = String(formData.get("password") || "");
+
+    if (!name) {
+      toast.warning("Name is required", "Please enter your name.");
+      nameRef.current?.focus();
+      return;
+    }
 
     if (!email) {
       toast.warning("Email is required",
@@ -65,6 +69,7 @@ export default function SignupForm() {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
+          name,
           email,
           password,
           turnstileToken,
@@ -81,14 +86,10 @@ export default function SignupForm() {
         return;
       }
 
-      toast.success("OTP sent Successfully",
-        "Please enter the code sent to your email.",
+      toast.success("Account created", "Redirecting you to login.",
       );
 
-      setSignupEmail(email);
-      setShowOtpModal(true);
-      setTurnstileToken("");
-      setIsLoading(false);
+      router.push(`/login?next=${encodeURIComponent(next)}`);
 
     } catch {
       toast.error("Something went wrong",
@@ -105,6 +106,26 @@ export default function SignupForm() {
         noValidate
         className="mx-auto mt-10 flex w-full max-w-md flex-col gap-5"
       >
+        {/* NAME */}
+        <div className="space-y-1">
+          <label
+            htmlFor="signup-name"
+            className="text-sm font-semibold text-slate-700 dark:text-slate-300"
+          >
+            Name
+          </label>
+
+          <input
+            ref={nameRef}
+            id="signup-name"
+            name="name"
+            type="text"
+            autoComplete="name"
+            disabled={isLoading}
+            className="w-full rounded-xl border border-slate-200 bg-white/70 px-4 py-3 text-base text-slate-900 shadow-sm focus:ring-2 focus:ring-green-500/40 dark:border-slate-800 dark:bg-slate-950/40 dark:text-white"
+          />
+        </div>
+
         {/* EMAIL */}
         <div className="space-y-1">
           <label
@@ -184,16 +205,6 @@ export default function SignupForm() {
           </a>
         </div>
       </form>
-
-      {/* OTP MODAL */}
-      <OtpVerificationModal
-        open={showOtpModal}
-        email={signupEmail}
-        onClose={() => setShowOtpModal(false)}
-        onVerified={() => {
-          router.push("/login?verified=1");
-        }}
-      />
     </>
   );
 }

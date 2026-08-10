@@ -74,7 +74,7 @@ export default function ProductReviews({ reviews }: { reviews: ProductReview[] }
 
               {r.comment && (
                 <p className="text-sm font-body text-[color:var(--text-muted)] leading-relaxed italic flex-1">
-                  "{r.comment}"
+                  &quot;{r.comment}&quot;
                 </p>
               )}
 

@@ -11,7 +11,7 @@ export default function PendingOrdersCard({ count }: Props) {
 
   return (
     <Link
-      href={isEmpty ? "#" : "/orders?status=CREATED"}
+      href={isEmpty ? "#" : "/orders"}
       className={`block group transition-all duration-300 ${
         isEmpty ? "pointer-events-none opacity-70" : "active:scale-[0.99]"
       }`}
@@ -38,15 +38,15 @@ export default function PendingOrdersCard({ count }: Props) {
                 <span className={`text-[10px] font-black uppercase tracking-widest ${
                   isEmpty ? "text-zinc-400" : "text-amber-600"
                 }`}>
-                  {isEmpty ? "Payments" : "Action Required"}
+                  {isEmpty ? "Orders" : "Action Required"}
                 </span>
                 {!isEmpty && <AlertCircle className="w-3 h-3 text-amber-500" />}
               </div>
               <h3 className="font-bold text-zinc-900 dark:text-zinc-100 text-base truncate">
-                {isEmpty ? "All caught up" : `${count} Pending Payments`}
+                {isEmpty ? "All caught up" : `${count} Orders Received`}
               </h3>
               <p className="text-xs text-zinc-500 font-medium">
-                {isEmpty ? "No orders awaiting checkout" : "Complete checkout to avoid expiry"}
+                {isEmpty ? "No orders awaiting processing" : "Our team will process your order"}
               </p>
             </div>
           </div>
@@ -57,7 +57,7 @@ export default function PendingOrdersCard({ count }: Props) {
               <div className="sm:text-right">
                 <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">Status</p>
                 <p className="text-sm font-bold text-amber-600 dark:text-amber-500 uppercase">
-                  Pay Now
+                  View Orders
                 </p>
               </div>
               <div className="w-10 h-10 rounded-full bg-zinc-50 dark:bg-zinc-800 flex items-center justify-center group-hover:bg-amber-600 group-hover:text-white transition-all shadow-sm">

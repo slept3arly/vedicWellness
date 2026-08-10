@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/public/ui/Button";
 import { toast } from "@/lib/toast";
-import { mockMarkPaidAction } from "./mockPaymentAcion";
 import { cancelOrderAction } from "../serverActions";
 
 import OrderStatusBanner from "@/components/customer/orders/OrderStatusBanner";
@@ -21,12 +20,8 @@ export default function OrderDetailsClient({
 }) {
   const router = useRouter();
 
-  const [payLoading, setPayLoading] = useState(false);
   const [cancelLoading, setCancelLoading] = useState(false);
   const [locked, setLocked] = useState(false);
-
-  const isPayable =
-    order.status === "CREATED" || order.status === "PAYMENT_FAILED";
 
   async function handleCancel() {
     if (cancelLoading || locked) return;
@@ -51,30 +46,6 @@ export default function OrderDetailsClient({
     }
   }
 
-  async function handlePay() {
-    if (payLoading || locked) return;
-
-    setPayLoading(true);
-    setLocked(true);
-
-    try {
-      await mockMarkPaidAction(order.id);
-      toast.success(
-        "Payment successful",
-        "Your order has been marked as paid."
-      );
-      router.refresh();
-    } catch (err: unknown) {
-      setLocked(false);
-      toast.error(
-        "Payment failed",
-        err instanceof Error ? err.message : "Please try again."
-      );
-    } finally {
-      setPayLoading(false);
-    }
-  }
-
   return (
     <div className="space-y-4">
       {/* Status banner */}
@@ -84,36 +55,20 @@ export default function OrderDetailsClient({
         currency={order.currency}
       />
 
-      {/* Action buttons */}
-      {isPayable && (
+      {/* Customer action */}
+      {order.status === "CREATED" && (
         <div className="flex flex-col sm:flex-row gap-3 w-full">
           <Button
-            isLoading={payLoading}
-            disabled={locked || payLoading || cancelLoading}
-            onClick={handlePay}
-            className={`w-full sm:flex-1 ${
+            variant="secondary"
+            isLoading={cancelLoading}
+            onClick={handleCancel}
+            disabled={locked || cancelLoading}
+            className={`w-full sm:flex-1 !border-red-400/40 !text-red-500 hover:!bg-red-50 dark:hover:!bg-red-950/30 ${
               locked ? "opacity-50 pointer-events-none" : ""
             }`}
           >
-            Simulate Payment
-            <span className="ml-1.5 text-[10px] opacity-50 font-normal">
-              (Dev Only)
-            </span>
+            Cancel Order
           </Button>
-
-          {order.status === "CREATED" && (
-            <Button
-              variant="secondary"
-              isLoading={cancelLoading}
-              onClick={handleCancel}
-              disabled={locked || payLoading || cancelLoading}
-              className={`w-full sm:flex-1 !border-red-400/40 !text-red-500 hover:!bg-red-50 dark:hover:!bg-red-950/30 ${
-                locked ? "opacity-50 pointer-events-none" : ""
-              }`}
-            >
-              Cancel Order
-            </Button>
-          )}
         </div>
       )}
 
@@ -139,16 +94,13 @@ export default function OrderDetailsClient({
           <OrderTimelineCard
             status={order.status}
             createdAt={order.createdAt}
-            paidAt={order.paidAt}
             expiresAt={order.expiresAt}
           />
 
           <OrderMetaCard
             orderId={order.id}
-            paymentId={order.paymentId}
             currency={order.currency}
             createdAt={order.createdAt}
-            paidAt={order.paidAt}
           />
         </div>
       </div>

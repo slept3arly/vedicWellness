@@ -17,6 +17,18 @@ import PageHeader from "@/components/public/ui/PageHeader";
 /* UTILS */
 import { cn } from "@/lib/cn";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+import type { BadgeStatus } from "@/components/admin/AdminBadge";
+
+type AdminOrderListItem = {
+  id: string;
+  status: string;
+  totalAmount: number;
+  currency: string;
+  createdAt: Date;
+  user?: { email: string; name: string | null } | null;
+  items?: { productName: string; quantity: number }[];
+  _count?: { items: number };
+};
 
 /* ------------------------------------------------------------------ */
 
@@ -53,7 +65,7 @@ export default function AdminOrdersClient({
   status,
   statusOptions,
 }: {
-  orders: any[];
+  orders: AdminOrderListItem[];
   total: number;
   q: string;
   page: number;
@@ -223,7 +235,7 @@ export default function AdminOrdersClient({
           return (
             <AdminCard key={order.id} compact className="group flex flex-col border-t-4 border-t-neutral-200 dark:border-t-neutral-700 hover:border-t-primary/50 transition-all">
               <div className="flex justify-between items-center mb-4">
-                <AdminBadge status={order.status} />
+                <AdminBadge status={order.status as BadgeStatus} />
                 <span className="text-[10px] font-mono text-neutral-400">{formatDate(order.createdAt)}</span>
               </div>
 
@@ -236,7 +248,7 @@ export default function AdminOrdersClient({
               </div>
 
               <div className="flex-1 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl p-3 border border-neutral-100 dark:border-neutral-800">
-                {itemPreview.slice(0, 2).map((item: any, i: number) => (
+                {itemPreview.slice(0, 2).map((item, i) => (
                   <div key={i} className="flex justify-between text-xs py-1 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
                     <span className="truncate flex-1">{item.productName}</span>
                     <span className="font-bold ml-2">×{item.quantity}</span>

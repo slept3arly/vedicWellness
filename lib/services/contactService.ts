@@ -3,6 +3,7 @@ import { verifyTurnstile } from "@/lib/security/turnstile";
 import { createLead } from "@/lib/db/lead";
 import { sanitizeText } from "@/lib/security/sanitize";
 import { hasMxRecord } from "@/lib/security/email";
+import { sendAdminNotification } from "@/lib/email/transactional/adminNotification";
 
 type ContactInput = unknown;
 
@@ -78,7 +79,21 @@ export async function processContactForm(
     userAgent,
   };
 
-  await createLead(safeLead);
+  const lead = await createLead(safeLead);
+
+  try {
+    await sendAdminNotification({
+      type: "lead",
+      leadId: lead.id,
+      name: lead.name,
+      email: lead.email,
+      phone: lead.phone,
+      city: lead.city,
+      message: lead.message,
+    });
+  } catch {
+    console.error("[ADMIN_NOTIFICATION_FAILED]", { type: "lead", leadId: lead.id });
+  }
 
   return { ok: true };
 }

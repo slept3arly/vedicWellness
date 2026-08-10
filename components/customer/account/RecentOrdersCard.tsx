@@ -14,8 +14,8 @@ type Props = {
 };
 
 const STATUS_CONFIG: Record<string, { label: string; icon: React.ReactNode; className: string }> = {
-  PAID: {
-    label: "Paid",
+  CONFIRMED: {
+    label: "Received",
     icon: <CheckCircle2 className="w-3.5 h-3.5" />,
     className: "text-emerald-600 dark:text-emerald-400 bg-emerald-500/10",
   },
@@ -23,11 +23,6 @@ const STATUS_CONFIG: Record<string, { label: string; icon: React.ReactNode; clas
     label: "Pending",
     icon: <Clock className="w-3.5 h-3.5" />,
     className: "text-amber-600 dark:text-amber-500 bg-amber-500/10",
-  },
-  PAYMENT_FAILED: {
-    label: "Failed",
-    icon: <XCircle className="w-3.5 h-3.5" />,
-    className: "text-red-500 bg-red-500/10",
   },
   EXPIRED: {
     label: "Expired",

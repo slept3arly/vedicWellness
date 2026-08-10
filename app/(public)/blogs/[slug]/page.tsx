@@ -19,6 +19,23 @@ const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
   "https://vedic-wellness.vercel.app";
 
+const PERMANENT_ORIGIN = "https://vedic-wellness.vercel.app";
+
+function getBlogCanonicalUrl(
+  canonicalUrl: string | null | undefined,
+  slug: string
+): string {
+  const override = canonicalUrl?.trim();
+  if (
+    override &&
+    (override === PERMANENT_ORIGIN ||
+      override.startsWith(`${PERMANENT_ORIGIN}/`))
+  ) {
+    return override;
+  }
+  return `${SITE_URL}/blogs/${slug}`;
+}
+
 /* ------------------------------------------------------------------ */
 /* Static Generation */
 /* ------------------------------------------------------------------ */
@@ -59,8 +76,7 @@ export async function generateMetadata({
     "Read the latest Ayurveda insights from Vedic Wellness.";
 
   const canonical =
-    blog.canonicalUrl ??
-    `${SITE_URL}/blogs/${decodedSlug}`;
+    getBlogCanonicalUrl(blog.canonicalUrl, decodedSlug);
 
   return {
     title,
@@ -106,7 +122,7 @@ export default async function BlogDetailsPage({ params }: Props) {
     ? await getRelatedBlogsService(blog.slug, blog.tags)
     : [];
 
-  const blogUrl = `${SITE_URL}/blogs/${blog.slug}`;
+  const blogUrl = getBlogCanonicalUrl(blog.canonicalUrl, blog.slug);
   const imageUrl = blog.thumbnailUrl ?? `${SITE_URL}/og.jpg`;
 
   const publishedDate = new Date(

@@ -59,17 +59,10 @@ export default function LoginForm() {
       }
 
       if (res.error) {
-        if (res.error === "EMAIL_NOT_VERIFIED") {
-          toast.error(
-            "Email not verified",
-            "Please verify your email before logging in."
-          );
-        } else {
-          toast.error(
-            "Wrong email or password",
-            "Please check your credentials and try again."
-          );
-        }
+        toast.error(
+          "Wrong email or password",
+          "Please check your credentials and try again."
+        );
 
         emailRef.current?.focus();
         setIsLoading(false);

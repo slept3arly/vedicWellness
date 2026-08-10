@@ -7,14 +7,10 @@ import { requireUser, type AuthUser } from "@/lib/auth/requireUser";
  * - Authenticated user
  * - Canonical DB user lookup
  */
-export function secureUserAction<
-  T extends (...args: any[]) => Promise<any>
->(
-  action: (user: AuthUser, ...args: Parameters<T>) => Awaited<ReturnType<T>>
+export function secureUserAction<TArgs extends unknown[], TResult>(
+  action: (user: AuthUser, ...args: TArgs) => Promise<TResult>
 ) {
-  return async (
-    ...args: Parameters<T>
-  ): Promise<Awaited<ReturnType<T>>> => {
+  return async (...args: TArgs): Promise<TResult> => {
     // 🔒 CSRF protection (same as admin)
     await assertSameOriginAction();
 

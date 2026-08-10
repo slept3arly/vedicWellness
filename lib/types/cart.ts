@@ -3,7 +3,8 @@ export type CartProductType = {
   name: string;
   slug: string;
   price: number;
-  imageUrl: string | null;
+  compareAtPrice?: number | null;
+  imageUrl?: string | null;
   tag?: string | null;
 };
 
@@ -15,6 +16,6 @@ export type CartItemType = {
 };
 
 export type CartType = {
-  id: string;
+  id?: string;
   items: CartItemType[];
 };

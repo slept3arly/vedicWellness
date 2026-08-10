@@ -65,7 +65,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.uid = user.id;
         token.role = user.role;
-        token.verified = (user as any).verified;
+        token.verified = user.verified;
         token.lastCheck = now; // ✅ initialize timestamp
         return token;
       }
@@ -107,8 +107,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async session({ session, token }) {
       if (session.user && token?.uid) {
         session.user.id = token.uid as string;
-        session.user.role = token.role as any;
-        (session.user as any).verified = token.verified as boolean;
+        session.user.role = token.role as Role;
+        session.user.verified = token.verified as boolean;
       }
       return session;
     },
@@ -155,10 +155,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             return null;
           }
 
-          if (!user.verified) {
-            throw new Error("EMAIL_NOT_VERIFIED");
-          }
-
           const authUser: User = {
             id: user.id,
             email: user.email,
@@ -167,7 +163,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           };
 
           return authUser;
-        } catch (err: any) {
+        } catch (err: unknown) {
           if (err instanceof Error) {
             throw err;
           }

@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import crypto from "crypto";
 
 import { prisma } from "@/lib/db/prisma";
 import { verifyTurnstile } from "@/lib/security/turnstile";
@@ -8,19 +7,12 @@ import { rateLimitOrThrow } from "@/lib/security/rateLimit";
 import { limits } from "@/lib/security/limits";
 import { getClientIpFromRequest } from "@/lib/security/ip";
 
-import { saveSignupSession } from "@/lib/auth/signupSession";
-import { sendTransactionalEmail } from "@/lib/email";
-import { VerifyEmail } from "@/lib/email/transactional/templates/VerifyEmail";
-
 const SignupSchema = z.object({
+  name: z.string().trim().min(1).max(100),
   email: z.string().email().transform(v => v.toLowerCase().trim()),
   password: z.string().min(8),
   turnstileToken: z.string(),
 });
-
-function generateOtp() {
-  return crypto.randomInt(100000, 999999).toString();
-}
 
 export type SignupResult =
   | { ok: true }
@@ -31,17 +23,11 @@ export async function processSignup(
   req: Request
 ): Promise<SignupResult> {
   try {
-    console.log("PROCESS SIGNUP START");
-
     const ip = getClientIpFromRequest(req);
 
     const parsed = SignupSchema.safeParse(input);
 
-    console.log("ZOD RESULT:", parsed.success);
-
     if (!parsed.success) {
-      console.log(parsed.error);
-
       return {
         ok: false,
         error: "Invalid input",
@@ -49,13 +35,9 @@ export async function processSignup(
       };
     }
 
-    const { email, password, turnstileToken } = parsed.data;
-
-    console.log("VERIFYING TURNSTILE");
+    const { name, email, password, turnstileToken } = parsed.data;
 
     const ts = await verifyTurnstile(turnstileToken, ip);
-
-    console.log("TURNSTILE VERIFIED:", ts);
 
     if (!ts.success) {
       return {
@@ -65,25 +47,14 @@ export async function processSignup(
       };
     }
 
-    console.log("CHECKING RATE LIMIT");
-
-    await rateLimitOrThrow(
-      `otp-email:${email}`,
-      limits.otpEmail
-    );
-
-    console.log("RATE LIMIT PASSED");
-
-    console.log("CHECKING DATABASE");
+    await rateLimitOrThrow(`signup-email:${email}`, limits.signup);
 
     const existing = await prisma.user.findUnique({
       where: { email },
-      select: { verified: true },
+      select: { id: true },
     });
 
-    console.log("DATABASE RESULT:", existing);
-
-    if (existing?.verified) {
+    if (existing) {
       return {
         ok: false,
         error: "Unable to create account",
@@ -91,52 +62,28 @@ export async function processSignup(
       };
     }
 
-    console.log("HASHING PASSWORD");
-
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    console.log("PASSWORD HASHED");
-
-    const otp = generateOtp();
-
-    console.log("OTP GENERATED");
-
-    const hashedOtp = await bcrypt.hash(otp, 10);
-
-    console.log("OTP HASHED");
-
-    console.log("SAVING SESSION");
-
-    await saveSignupSession(email, {
-      email,
-      password: hashedPassword,
-      role: "VIEWER",
-      otpHash: hashedOtp,
-      attempts: 0,
+    await prisma.user.create({
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+        role: "VIEWER",
+        verified: true,
+        verifiedAt: new Date(),
+      },
     });
 
-    console.log("SESSION SAVED");
-
-    console.log("SENDING EMAIL");
-
-    await sendTransactionalEmail({
-      to: email,
-      subject: "Your verification code",
-      react: VerifyEmail({ otp }),
-    });
-
-    console.log("EMAIL SENT");
+    console.info("[SIGNUP] Account created successfully");
 
     return { ok: true };
-  } catch (error) {
-    console.error("PROCESS SIGNUP ERROR:", error);
+  } catch {
+    console.error("[SIGNUP] Account creation failed");
 
     return {
       ok: false,
-      error:
-        error instanceof Error
-          ? error.message
-          : "Unknown error",
+      error: "Unable to create account",
       status: 400,
     };
   }

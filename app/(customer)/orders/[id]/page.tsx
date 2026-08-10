@@ -19,7 +19,7 @@ export default async function OrderPage({
     <div className="space-y-4 pb-10">
       <PageHeader 
         title={`#${order.id.slice(-8).toUpperCase()}`} 
-        subtitle="Order details and payment status" 
+        subtitle="Order received and processing status"
       />
 
       <OrderDetailsClient order={order} />

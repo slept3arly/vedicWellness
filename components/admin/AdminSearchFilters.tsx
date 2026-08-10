@@ -94,7 +94,7 @@ export default function AdminSearchFilters({
   );
 
   useEffect(() => {
-    setDraft(normalizeFilters(value));
+    queueMicrotask(() => setDraft(normalizeFilters(value)));
   }, [value.from, value.to, value.status, value.secondary, value.tertiary]);
 
   useEffect(() => {

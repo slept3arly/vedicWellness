@@ -81,7 +81,7 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
 
   /* Mount detection */
   useEffect(() => {
-    setMounted(true);
+    queueMicrotask(() => setMounted(true));
   }, []);
 
   /* Banner logic (after hydration only) */
@@ -89,7 +89,7 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
     if (!mounted || !banner) return;
 
     const dismissed = sessionStorage.getItem(`banner-session-${banner.id}`);
-    setOpen(!dismissed);
+    queueMicrotask(() => setOpen(!dismissed));
   }, [mounted, banner?.id]);
 
   /* ========================================================= */

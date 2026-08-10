@@ -11,12 +11,20 @@ import {
 } from "@/lib/db/product";
 
 import { MedicineForm } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import { z } from "zod";
 import { unstable_cache } from "next/cache"; // ✅ FIXED
 
 import { deleteFromR2, getR2KeyFromPublicUrl } from "@/lib/storage/r2/delete";
 import { auditWithContext } from "@/lib/observability/auditWithContext";
 import { prisma } from "@/lib/db/prisma";
 import { CACHE_TAGS } from "@/lib/constants";
+import { ProductSchema, ProductVariantsSchema } from "@/lib/validators/product";
+import { normalizePagination } from "@/lib/db/pagination";
+import { normalizeQuery } from "@/lib/db/search";
+
+type ProductFormData = z.infer<typeof ProductSchema>;
+type ProductVariantData = z.infer<typeof ProductVariantsSchema>[number];
 
 const PUBLIC_PAGE_SIZE = 10;
 
@@ -24,8 +32,8 @@ const PUBLIC_PAGE_SIZE = 10;
 /* Admin Services                                                     */
 /* ------------------------------------------------------------------ */
 
-export async function createProductService(data: any, adminId: string) {
-  const product = await createProductDB(data);
+export async function createProductService(data: ProductFormData, adminId: string) {
+  const product = await createProductDB(data as Prisma.ProductUncheckedCreateInput);
 
   await auditWithContext({
     actorId: adminId,
@@ -48,13 +56,14 @@ export async function createProductService(data: any, adminId: string) {
 }
 
 export async function updateProductService(
-  data: any,
-  variants: any[],
+  data: ProductFormData,
+  variants: ProductVariantData[],
   adminId: string
 ) {
   if (!data.id) throw new Error("Missing product id");
+  const productId = data.id;
 
-  const current = await getProductById(data.id);
+  const current = await getProductById(productId);
 
   /* -------------------------------------------------- */
   /* Transaction: Update Product + Replace Variants     */
@@ -62,18 +71,18 @@ export async function updateProductService(
 
   await prisma.$transaction(async (tx) => {
     await tx.product.update({
-      where: { id: data.id },
+      where: { id: productId },
       data,
     });
 
     await tx.productVariant.deleteMany({
-      where: { productId: data.id },
+      where: { productId },
     });
 
     if (variants.length > 0) {
       await tx.productVariant.createMany({
         data: variants.map((v) => ({
-          productId: data.id,
+          productId,
           name: v.name,
           price: v.price,
           compareAtPrice: v.compareAtPrice,
@@ -101,7 +110,7 @@ export async function updateProductService(
   /* Audit                                              */
   /* -------------------------------------------------- */
 
-  const changes: any[] = [];
+  const changes: { field: string; from: unknown; to: unknown }[] = [];
 
   if (current?.name !== data.name) {
     changes.push({ field: "name", from: current?.name, to: data.name });
@@ -127,10 +136,11 @@ export async function updateProductService(
     });
   }
 
-  if ((current as any)?.variants?.length !== variants.length) {
+  const currentVariantCount = 0;
+  if (currentVariantCount !== variants.length) {
     changes.push({
       field: "variantsCount",
-      from: (current as any)?.variants?.length ?? 0,
+      from: currentVariantCount,
       to: variants.length,
     });
   }
@@ -140,7 +150,7 @@ export async function updateProductService(
       actorId: adminId,
       action: "ADMIN_UPDATE",
       entityType: "PRODUCTS", // ✅ FIXED
-      entityId: data.id,
+      entityId: productId,
       entityLabel: `Product: ${data.name}`,
       metadata: {
         type: "UPDATE",
@@ -149,7 +159,7 @@ export async function updateProductService(
     });
   }
 
-  return data.id;
+  return productId;
 }
 
 export async function toggleProductPublishedService(
@@ -240,12 +250,23 @@ export const getPublicProductsService = async ({
   page = 1,
   query = "",
   sort = "name_asc",
+  companySlug = "",
 }: {
   page?: number;
   query?: string;
   sort?: string;
+  companySlug?: string;
 }) => {
-  return getCachedPublicProducts(page, query, sort);
+  page = normalizePagination(page, PUBLIC_PAGE_SIZE, PUBLIC_PAGE_SIZE).page;
+  query = normalizeQuery(query);
+  return unstable_cache(
+    async () => {
+      const { total, products } = await getPublicProductsDB({ page, limit: PUBLIC_PAGE_SIZE, query, sort, companySlug });
+      return { products, total, totalPages: Math.max(1, Math.ceil(total / PUBLIC_PAGE_SIZE)), pageSize: PUBLIC_PAGE_SIZE };
+    },
+    ["public-products-list", String(page), query, sort, companySlug],
+    { tags: [CACHE_TAGS.PRODUCTS, CACHE_TAGS.GLOBAL], revalidate: false }
+  )();
 };
 
 export const getPublicProductBySlugService = (slug: string) =>

@@ -2,7 +2,7 @@ import { getUserAddresses } from "@/lib/services/addressService";
 import {
   getUserOrders,
   getUserOrderCount,
-  getLastPaidOrder,
+  getLastOrder,
 } from "@/lib/services/public/orderService";
 import { expireOldOrders } from "@/lib/services/system/orderExpiryService";
 import { getOrCreateCart } from "@/lib/services/cartService";
@@ -11,12 +11,9 @@ import { prisma } from "@/lib/db/prisma";
 
 import AccountClient from "./AccountClient";
 
-async function getTotalSpent(userId: string): Promise<number> {
+async function getTotalOrderValue(userId: string): Promise<number> {
   const result = await prisma.order.aggregate({
-    where: {
-      userId,
-      status: "PAID",
-    },
+    where: { userId },
     _sum: {
       totalAmount: true,
     },
@@ -35,15 +32,15 @@ export default async function AccountPage() {
     addresses,
     orders,
     orderCount,
-    totalSpent,
-    lastPaidOrder,
+    totalOrderValue,
+    lastOrder,
     cart,
   ] = await Promise.all([
     getUserAddresses(user.id),
     getUserOrders(user.id),
     getUserOrderCount(user.id),
-    getTotalSpent(user.id),
-    getLastPaidOrder(user.id),
+    getTotalOrderValue(user.id),
+    getLastOrder(user.id),
     getOrCreateCart(user.id),
   ]);
 
@@ -58,17 +55,17 @@ export default async function AccountPage() {
       orderCount={orderCount}
       orders={orders}
       addresses={addresses}
-      totalSpent={totalSpent}
+      totalOrderValue={totalOrderValue}
       cartItemCount={cartItemCount}
-      lastPaidOrder={
-        lastPaidOrder
+      lastOrder={
+        lastOrder
           ? {
-              id: lastPaidOrder.id,
-              totalAmount: lastPaidOrder.totalAmount,
-              createdAt: lastPaidOrder.createdAt,
+              id: lastOrder.id,
+              totalAmount: lastOrder.totalAmount,
+              createdAt: lastOrder.createdAt,
               firstProductName:
-                lastPaidOrder.items[0]?.productName ?? null,
-              itemCount: lastPaidOrder._count.items,
+                lastOrder.items[0]?.productName ?? null,
+              itemCount: lastOrder._count.items,
             }
           : null
       }

@@ -10,7 +10,7 @@ const useDesktopMediaQuery = () => {
 
   useEffect(() => {
     const media = window.matchMedia("(min-width: 1024px)");
-    setIsDesktop(media.matches);
+    queueMicrotask(() => setIsDesktop(media.matches));
 
     const listener = () => setIsDesktop(media.matches);
     media.addEventListener("change", listener);

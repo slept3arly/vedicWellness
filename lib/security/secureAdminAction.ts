@@ -9,12 +9,10 @@ import { rateLimitOrThrow } from "@/lib/security/rateLimit";
  * - canonical admin DB lookup
  * - Rate limiting (per admin)
  */
-export function secureAdminAction<
-  T extends (...args: any[]) => Promise<any>
->(
-  action: (admin: { id: string }, ...args: Parameters<T>) => Awaited<ReturnType<T>>
-) {
-  return async (...args: Parameters<T>): Promise<Awaited<ReturnType<T>>> => {
+export function secureAdminAction<TArgs extends unknown[] = [FormData], TResult = void>(
+  action: (admin: { id: string }, ...args: TArgs) => Promise<TResult>
+): (...args: TArgs extends [] ? [formData?: FormData] : TArgs) => Promise<TResult> {
+  return async (...args: TArgs extends [] ? [formData?: FormData] : TArgs): Promise<TResult> => {
     await assertSameOriginAction();
 
     const admin = await requireAdmin();
@@ -28,6 +26,6 @@ export function secureAdminAction<
       }
     );
 
-    return action(admin, ...args);
+    return action(admin, ...(args as TArgs));
   };
 }

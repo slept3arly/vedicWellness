@@ -29,7 +29,7 @@ function CartRow({ item, isLast }: RowProps) {
 
   const unitPrice = item.product.price;
   const lineTotal = unitPrice * item.quantity;
-  const compareAt = (item.product as any).compareAtPrice as number | null;
+  const compareAt = item.product.compareAtPrice ?? null;
   const savings = compareAt && compareAt > unitPrice
     ? (compareAt - unitPrice) * item.quantity
     : null;

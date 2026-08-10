@@ -1,0 +1,203 @@
+# VedicWellness — Final SEO Audit
+
+## Implementation Status
+
+Added after the audit was actioned. Feature-frozen; only the SEO backend items below were implemented.
+
+### Completed
+
+- **Public-page social metadata (P1)** — `/products`, `/about`, `/contact`, and `/blogs` now emit page-specific Open Graph and Twitter metadata (title, description, URL, `og.jpg` image) instead of inheriting the homepage values. Blog listing honors its paginated canonical for the OG URL.
+- **Customer route `noindex` (P1)** — `app/(customer)/layout.tsx` now emits `robots: { index: false, follow: false }`, covering `/account`, `/orders`, `/cart`, and `/checkout`. Public marketing/catalog pages and the existing private product-detail behavior are untouched.
+- **Blog canonical safety (P1)** — Blog article canonical overrides are now restricted to the permanent origin. `app/(public)/blogs/[slug]/page.tsx` accepts a `canonicalUrl` only when it equals `https://vedic-wellness.vercel.app` or starts with `https://vedic-wellness.vercel.app/`; anything else (localhost, other Vercel deployments, external origins) falls back to the generated `https://vedic-wellness.vercel.app/blogs/<slug>` canonical. The BlogPosting JSON-LD `url`/`mainEntityOfPage` now use the same resolved canonical so metadata and structured data stay consistent.
+- **Company browsing (`/products/companies`)** — Exempted from the product-detail login gate in `proxy.ts` (`path !== "/products/companies"`). It remains publicly accessible as part of the customer-facing "Browse Other Products" flow. No Company/Product architecture changed. Note: it has no local metadata (inherits the global fallback) and remains under the `robots.txt` `Disallow: /products/*` rule, so it is not an index target. Confirmed intended as a public navigation page.
+- **SEO consistency verified** — `metadataBase`, canonicals, `robots.ts`, `sitemap.ts`, JSON-LD URLs, and the marketing-email link all resolve to `https://vedic-wellness.vercel.app` (via `NEXT_PUBLIC_SITE_URL` with the permanent origin as fallback). No localhost or old-domain references exist in SEO-sensitive code.
+
+### Intentionally Deferred
+
+- **`dev only` marquee text** — Live production content placeholder is managed via the admin panel (marquee feature and its admin controls intentionally kept). Will be removed/disabled from the admin panel by the owner; no code change made.
+- **Privacy/terms social metadata (P2)** — Not required for launch; these pages keep inheriting the global Open Graph/Twitter values.
+- **Sitemap chunking (P2)** — Deferred; blog entries remain capped at 500 and the sitemap stays valid at the current volume.
+- **HTML site-map application links (P2)** — Left as-is; non-harmful.
+- **Product/ItemList schema enrichment (P2)** — Deferred while product details remain private/login-gated.
+
+### Remaining Blockers
+
+- **Production `NEXT_PUBLIC_SITE_URL`** — Must be set to `https://vedic-wellness.vercel.app` in the Vercel production environment. The code fallback prevents an incorrect origin if it is absent.
+- **`dev only` marquee content** — Must be removed/disabled in production data via the admin panel before launch.
+
+No launch-blocking SEO backend issues remain in code.
+
+---
+
+## Executive Summary
+
+The canonical origin is consistently configured as `https://vedic-wellness.vercel.app` in the primary metadata, robots, sitemap, JSON-LD, and public-page fallbacks. No repository references to localhost, an old domain, or a different deployment URL were found in SEO-sensitive application code.
+
+The public site has a sound foundation: a canonical base URL, a valid XML sitemap, public page metadata, Organization and WebSite JSON-LD, blog article JSON-LD, and server-rendered public homepage/listing content. Product detail pages are deliberately private: they require login, are excluded by robots, use `noindex`, and are omitted from the sitemap. That is consistent with the stated product-access policy and is not an SEO finding.
+
+Before launch, fix page-specific social metadata, remove live development placeholder text, add noindex coverage to customer route segments, and constrain manual blog canonical URLs to the permanent origin. No application code was changed for this audit.
+
+## Canonical Domain
+
+**Status: Correct in the audited implementation.**
+
+- `app/layout.tsx` sets `metadataBase`, canonical metadata, Open Graph URLs, Twitter images, Organization JSON-LD, and WebSite JSON-LD from `NEXT_PUBLIC_SITE_URL`, with `https://vedic-wellness.vercel.app` as the fallback.
+- `app/robots.ts`, `app/sitemap.ts`, blog routes, public products, and the marketing-email link use the same canonical fallback.
+- No localhost, placeholder domain, or old-domain reference was found in SEO-sensitive runtime code.
+- Production configuration must still set `NEXT_PUBLIC_SITE_URL=https://vedic-wellness.vercel.app`; the fallback prevents an incorrect origin if it is absent.
+
+## Technical SEO
+
+- Homepage, product listing, public informational pages, and blog pages are public server routes.
+- The live product listing returns title, description, canonical, robots, global JSON-LD, and product-list data in its initial HTML/RSC response.
+- Product detail routes intentionally redirect unauthenticated visitors to login through `proxy.ts`. They are application-only routes, not crawl targets.
+- The global metadata object supplies Open Graph and Twitter fields. Child routes that only provide title/description/canonical retain these generic global social values.
+
+## Metadata
+
+| Page | Title/description/canonical | Open Graph/Twitter | Finding |
+|---|---|---|---|
+| Homepage | Present from root metadata | Present and canonical | Good. |
+| Products listing | Unique title, description, canonical `/products` | Inherits homepage title, description, URL, and image | P1: social metadata is not page-specific. Confirmed on live HTML. |
+| Product detail | Unique basic title/description but private | Inherits global social metadata | Intentional non-indexed/private route; do not optimize for public search. |
+| About | Unique title, description, canonical | Inherits global social metadata | P1. |
+| Contact | Unique title, description, canonical | Inherits global social metadata | P1. |
+| Blog listing | Unique title/description and canonical | Inherits global social metadata | P1. |
+| Blog detail | Unique title/description/canonical and article Open Graph/Twitter | Page-specific | Good, subject to canonical-origin validation. |
+| Privacy/terms | Unique title/description/canonical | Inherits global social metadata | P2; low commercial impact. |
+| `/products/companies` | No route metadata | Also caught by the product-login route matcher | P2; clarify whether this company selector is intended to be public. |
+
+## Indexing
+
+### Intended indexable routes
+
+- `/`
+- `/products`
+- `/about`
+- `/contact`
+- `/blogs` and published blog articles
+- `/privacy-policy`, `/terms-conditions`, and `/site-map` if these remain useful public documents
+
+### Intended non-indexable routes
+
+- `/login`, `/signup`, and `/admin/*` already emit `noindex, nofollow` metadata.
+- `/products/[slug]` is intentionally login-gated, emits `noindex, nofollow`, is disallowed in robots, and is not listed in the sitemap.
+- `/account`, `/orders`, `/cart`, and `/checkout` are protected application routes but the customer layout does not currently define noindex metadata. This should be added so redirects or accidental discovery do not create indexable private-route signals.
+- API and cron routes are not HTML content and are not sitemap targets.
+
+## Sitemap
+
+**Status: Valid XML and correct canonical origin.** Live retrieval returned a valid `urlset` containing only the intended current public static routes and blog URLs.
+
+- Includes: home, about, contact, privacy, terms, product listing, blog listing, and published blog articles.
+- Excludes: admin, customer, checkout, cart, login, signup, API routes, and intentionally private product-detail URLs.
+- Product listing is present. Individual product pages are intentionally absent because they are login-gated and non-indexable.
+- Blog entries are capped at 500 by the Phase 2 resource limit. The sitemap remains valid, but later published articles would not be discovered through it once that cap is reached.
+
+## Robots
+
+**Status: Correct for the stated product-access policy.** Live `robots.txt` contains:
+
+- `Allow: /`
+- `Disallow: /products/*` for all crawlers and Googlebot
+- Canonical host and `https://vedic-wellness.vercel.app/sitemap.xml`
+
+This protects intentionally private product detail URLs. It does not block the public `/products` listing. Do not remove the product-detail disallow unless product detail access becomes public.
+
+## Structured Data
+
+| Schema | Status | Notes |
+|---|---|---|
+| Organization | Present globally | Uses canonical URL, logo, description, and visible contact point. |
+| WebSite | Present globally | Uses canonical URL and `en-IN`. |
+| FAQPage | Present on About | Reflects visible FAQ content. |
+| Blog / BlogPosting | Present on listing and article pages | Article markup includes canonical article URL, dates, image, author/publisher. |
+| Product | Not present | Appropriate to defer while product detail pages are private/non-indexable. |
+| ItemList | Present on `/products` | Product names are included, but list entries omit product URLs. This is a P2 enhancement only if product detail pages become public. |
+
+## Product SEO
+
+- Public `/products` listing has an indexable title, description, canonical URL, and ItemList schema.
+- Catalog queries enforce active-company visibility, avoiding public presentation of inactive-company products.
+- Product detail pages are intentionally not crawlable or indexable. They should therefore not receive Product rich-result markup, public sitemap entries, or public canonical landing-page treatment while the login policy remains in force.
+- Company-filter URLs currently canonicalize to `/products`, avoiding indexation of filter/query combinations. This is appropriate for low-value duplicate filter URLs.
+
+## Query / Filter URLs
+
+- `/products?company=...`, query, sort, and page variants retain canonical `/products`; they are therefore consolidated rather than becoming a large indexed filter surface.
+- Blog pagination has self-referencing canonicals for valid `?page=` values. This is acceptable for pagination, although only the primary listing needs sitemap inclusion.
+- Query URLs are not added to the sitemap.
+
+## Internal Linking
+
+- Main navigation and footer connect Home, Products, Blogs, About, and Contact.
+- Product listing cards link to product details; the resulting login gate is intentional.
+- Blog listing and article related-content links support discovery of published articles.
+- The HTML site-map links to `/login` and `/signup` even though those pages are noindex. This is not harmful but is unnecessary from an SEO perspective.
+- The company selector may be a public navigation target, but it is currently matched by the login gate. Confirm its intended audience before changing crawl policy.
+
+## Headings / Content Structure
+
+- Repository inspection found one intended homepage H1 in the hero and normal component-level H2/H3 usage on public content pages.
+- The live crawler view reports duplicate/repeated homepage phrases and sections. This appears related to animated/mobile presentation in the rendered DOM; verify with a browser-based accessibility/heading outline before changing headings.
+- Live production output visibly includes repeated `dev only` marquee text. This is a real production-content issue and should be removed or replaced before launch.
+
+## Images
+
+- Product, blog, related-product, logo, and content image components generally supply meaningful contextual alt text.
+- Decorative modal imagery uses an empty alt where appropriate.
+- Global Open Graph image is configured as `/og.jpg`; child pages without local Open Graph metadata reuse it.
+- Product upload filenames are UUID-backed storage paths. This is acceptable because product image alt text and page context carry the primary semantic value.
+
+## Live Site Findings
+
+Repository and direct production checks were both performed.
+
+- Homepage and `/products` are reachable and crawlable.
+- `/products` live HTML has the correct canonical URL and `index, follow`, but it inherits homepage Open Graph/Twitter title, description, and URL.
+- Live `robots.txt` is served successfully and matches repository policy.
+- Live `sitemap.xml` is valid and currently contains seven static/public URLs; it contains no product detail URLs by design.
+- A live product detail URL redirects unauthenticated visitors to login, confirming the intentional private-product policy.
+- The live site exposes `dev only` content in the marquee.
+- Some third-party crawl snapshots were stale/cache-missed, so exact live verification of every blog/article metadata tag is repository-based rather than a claim about current deployment output.
+
+## P0 Findings
+
+None.
+
+## P1 Findings
+
+| Priority | Area | Finding | Impact | Effort | Recommendation |
+|---|---|---|---|---|---|
+| P1 | Social metadata | Products, About, Contact, and Blog listing inherit the homepage Open Graph/Twitter title, description, and URL. | Incorrect social previews and weak page identity in shares; confirmed on live `/products`. | Low | Add accurate route-level Open Graph/Twitter metadata for important indexable pages. |
+| P1 | Production content | The live marquee emits repeated `dev only` text. | Development placeholder text is crawlable, can appear in snippets, and reduces trust. | Low | Replace/remove the active development marquee content in production data. |
+| P1 | Indexing control | Customer route segment has no layout-level `noindex` metadata. | Protected pages can still be discovered through redirects or external links. | Low | Set `noindex, nofollow` in the customer layout for account, orders, cart, and checkout. |
+| P1 | Canonical control | Blog metadata accepts an unrestricted `canonicalUrl` field. | An editor can set an off-origin/old-domain canonical that conflicts with the permanent Vercel origin and article JSON-LD URL. | Low | Validate canonical overrides against `https://vedic-wellness.vercel.app`, or use the generated canonical when no approved same-origin override is needed. |
+
+## P2 Findings
+
+| Priority | Area | Finding | Impact | Effort | Recommendation |
+|---|---|---|---|---|---|
+| P2 | Sitemap capacity | Published blog sitemap entries are capped at 500. | Articles after the cap lose sitemap discovery. | Medium, later | Monitor publication count; introduce a sitemap index/chunking only before the cap is approached. |
+| P2 | Company navigation | `/products/companies` has no local metadata and is caught by the product login matcher. | SEO treatment is undefined if this is meant to be a public company-discovery page. | Low | Confirm intended access. If public, give it metadata and exclude it from the detail-login matcher; otherwise add explicit noindex. |
+| P2 | HTML site-map | The indexable site-map page links to login and signup. | Minor crawl noise. | Low | Remove or mark these application-only links as non-indexable navigation. |
+| P2 | Product list schema | ItemList entries omit item URLs. | Limited structured-data usefulness; no impact while details remain private. | Low | Revisit only if product details become public. |
+
+## Recommended Implementation Order
+
+1. Replace/remove the production `dev only` marquee text.
+2. Add page-specific Open Graph/Twitter metadata to Products, About, Contact, and Blog listing.
+3. Add noindex metadata to the customer route layout.
+4. Restrict blog canonical overrides to the canonical Vercel origin.
+5. Confirm intended access for `/products/companies` and document its indexing policy.
+6. Monitor sitemap article count; defer sitemap chunking until needed.
+
+## Definition of Done
+
+- All indexable public pages emit unique title, description, canonical, Open Graph URL/title/description/image, and Twitter metadata.
+- The canonical origin remains `https://vedic-wellness.vercel.app` everywhere.
+- Private customer and product-detail routes emit noindex and do not appear in the XML sitemap.
+- `robots.txt` continues to allow `/products` while excluding intentionally login-gated product detail routes.
+- Sitemap contains only indexable public routes and remains valid at the current content volume.
+- Blog canonical overrides cannot point at an unapproved origin.
+- No development placeholder text appears on the live public site.

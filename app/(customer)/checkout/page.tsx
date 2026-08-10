@@ -31,6 +31,7 @@ export default async function CheckoutPage(props: {
       items: [
         {
           id: "buy-now",
+          productId: product.id,
           product,
           quantity: Number(params.qty || 1),
         },

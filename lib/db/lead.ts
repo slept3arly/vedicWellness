@@ -4,6 +4,7 @@ import { buildCreatedAtRangeFilter } from "@/lib/db/adminFilters";
 import { prisma } from "@/lib/db/prisma";
 import { LeadStatus, Prisma } from "@prisma/client";
 import type { SearchConfig } from "@/lib/db/search";
+import { normalizePagination } from "@/lib/db/pagination";
 
 type CreateLeadInput = {
   name: string;
@@ -74,6 +75,9 @@ export async function getAdminLeads(
     status?: LeadStatus;
   } = {}
 ) {
+  const pagination = normalizePagination(page, limit, 25);
+  page = pagination.page;
+  limit = pagination.limit;
   const skip = (page - 1) * limit;
   const searchWhere = buildWhere(q, leadSearchConfig) as Prisma.LeadWhereInput;
   const filterConditions: Prisma.LeadWhereInput[] = [];

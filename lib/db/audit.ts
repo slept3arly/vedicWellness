@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/db/prisma";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+import { normalizePagination } from "@/lib/db/pagination";
 
 /* =========================================================
    ADMIN AUDIT LOGS (READ ONLY)
@@ -10,6 +11,9 @@ export async function getAdminAuditLogs(
   page = 1,
   limit = ADMIN_PAGE_SIZE
 ) {
+  const pagination = normalizePagination(page, limit, ADMIN_PAGE_SIZE);
+  page = pagination.page;
+  limit = pagination.limit;
   const skip = (page - 1) * limit;
 
   const [logs, total] = await prisma.$transaction([

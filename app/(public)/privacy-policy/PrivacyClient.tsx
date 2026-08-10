@@ -21,21 +21,9 @@ const sections = [
 export default function PrivacyClient() {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const sectionRefs = {
-    info: useRef<HTMLElement>(null),
-    purpose: useRef<HTMLElement>(null),
-    cookies: useRef<HTMLElement>(null),
-    thirdparty: useRef<HTMLElement>(null),
-    payments: useRef<HTMLElement>(null),
-    retention: useRef<HTMLElement>(null),
-    international: useRef<HTMLElement>(null),
-    updates: useRef<HTMLElement>(null),
-    contact: useRef<HTMLElement>(null),
-  };
-
-  const handleScrollTo = (id: keyof typeof sectionRefs) => {
+  const handleScrollTo = (id: string) => {
     const container = contentRef.current;
-    const target = sectionRefs[id].current;
+    const target = container?.querySelector<HTMLElement>(`#${id}`);
 
     if (!container || !target) return;
 
@@ -67,7 +55,7 @@ export default function PrivacyClient() {
               {sections.map((s) => (
                 <button
                   key={s.id}
-                  onClick={() => handleScrollTo(s.id as keyof typeof sectionRefs)}
+                  onClick={() => handleScrollTo(s.id)}
                   className="
                     group relative block w-fit text-left 
                     text-neutral-500 dark:text-neutral-400 
@@ -105,7 +93,7 @@ export default function PrivacyClient() {
             </p>
 
             {/* 1 */}
-            <section ref={sectionRefs.info} id="info" className="space-y-6">
+            <section id="info" className="space-y-6">
               <SectionHeading title="1. Information We Collect" />
               <p>
                 Vedic Wellness collects information that users voluntarily
@@ -130,7 +118,7 @@ export default function PrivacyClient() {
             </section>
 
             {/* 2 */}
-            <section ref={sectionRefs.purpose} id="purpose" className="space-y-6">
+            <section id="purpose" className="space-y-6">
               <SectionHeading title="2. Purpose of Data Processing" />
               <p>
                 All information collected by Vedic Wellness is processed for
@@ -155,7 +143,7 @@ export default function PrivacyClient() {
             </section>
 
             {/* 3 */}
-            <section ref={sectionRefs.cookies} id="cookies" className="space-y-6">
+            <section id="cookies" className="space-y-6">
               <SectionHeading title="3. Cookies and Technical Tracking" />
               <p>
                 Our website utilizes essential cookies and technical tracking
@@ -178,7 +166,7 @@ export default function PrivacyClient() {
             </section>
 
             {/* 4 */}
-            <section ref={sectionRefs.thirdparty} id="thirdparty" className="space-y-6">
+            <section id="thirdparty" className="space-y-6">
               <SectionHeading title="4. Service Providers" />
               <p>
                 Vedic Wellness collaborates with carefully selected technology
@@ -202,7 +190,7 @@ export default function PrivacyClient() {
             </section>
 
             {/* 5 */}
-            <section ref={sectionRefs.payments} id="payments" className="space-y-6">
+            <section id="payments" className="space-y-6">
               <SectionHeading title="5. Payments and Financial Information" />
               <p>
                 Vedic Wellness prioritizes financial security by minimizing the
@@ -221,7 +209,7 @@ export default function PrivacyClient() {
             </section>
 
             {/* 6 */}
-            <section ref={sectionRefs.retention} id="retention" className="space-y-6">
+            <section id="retention" className="space-y-6">
               <SectionHeading title="6. Data Retention" />
               <p>
                 Information is retained only for durations that support
@@ -244,12 +232,12 @@ export default function PrivacyClient() {
             </section>
 
             {/* 7 */}
-            <section ref={sectionRefs.international} id="international" className="space-y-6">
+            <section id="international" className="space-y-6">
               <SectionHeading title="7. International Data Processing" />
               <p>
                 Depending on operational needs, certain technical services used
                 by Vedic Wellness may operate on infrastructure located outside
-                a user's immediate geographic region. When international data
+                a user&apos;s immediate geographic region. When international data
                 processing occurs, safeguards are implemented to maintain
                 confidentiality, integrity, and protection standards consistent
                 with modern industry practices. These safeguards may include
@@ -265,7 +253,7 @@ export default function PrivacyClient() {
             </section>
 
             {/* 8 */}
-            <section ref={sectionRefs.updates} id="updates" className="space-y-6">
+            <section id="updates" className="space-y-6">
               <SectionHeading title="8. Policy Updates" />
               <p>
                 This Privacy Policy may evolve periodically to reflect updates
@@ -284,7 +272,7 @@ export default function PrivacyClient() {
             </section>
 
             {/* 9 */}
-            <section ref={sectionRefs.contact} id="contact" className="space-y-6">
+            <section id="contact" className="space-y-6">
               <SectionHeading title="9. Contact Information" />
               <p>
                 Vedic Wellness — Division of Innovia Drugs, India remains

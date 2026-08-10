@@ -1,11 +1,9 @@
-import { Hash, CreditCard, Calendar } from "lucide-react";
+import { Hash, Calendar } from "lucide-react";
 
 type Props = {
   orderId: string;
-  paymentId?: string | null;
   currency: string;
   createdAt: Date | string;
-  paidAt?: Date | string | null;
 };
 
 function formatDateTime(date: Date | string) {
@@ -32,7 +30,7 @@ function Row({ icon, label, value }: { icon: React.ReactNode; label: string; val
   );
 }
 
-export default function OrderMetaCard({ orderId, paymentId, currency, createdAt, paidAt }: Props) {
+export default function OrderMetaCard({ orderId, currency, createdAt }: Props) {
   return (
     <div className="rounded-xl border border-[var(--border-soft)] bg-[var(--bg-surface)] overflow-hidden">
       <div className="flex items-center gap-2 px-4 py-3 border-b border-[var(--border-soft)]">
@@ -51,25 +49,11 @@ export default function OrderMetaCard({ orderId, paymentId, currency, createdAt,
           label="Placed"
           value={formatDateTime(createdAt)}
         />
-        {paidAt && (
-          <Row
-            icon={<Calendar className="w-3.5 h-3.5" />}
-            label="Paid at"
-            value={formatDateTime(paidAt)}
-          />
-        )}
         <Row
-          icon={<CreditCard className="w-3.5 h-3.5" />}
+          icon={<Hash className="w-3.5 h-3.5" />}
           label="Currency"
           value={currency || "INR"}
         />
-        {paymentId && (
-          <Row
-            icon={<CreditCard className="w-3.5 h-3.5" />}
-            label="Payment ID"
-            value={paymentId}
-          />
-        )}
       </div>
     </div>
   );

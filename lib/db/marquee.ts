@@ -3,6 +3,7 @@ import { buildWhere } from "@/lib/db/search";
 import { prisma } from "@/lib/db/prisma";
 import { Prisma } from "@prisma/client";
 import type { SearchConfig } from "@/lib/db/search";
+import { normalizePagination } from "@/lib/db/pagination";
 
 const marqueeSearchConfig: SearchConfig = {
   text: ["text"],
@@ -82,6 +83,9 @@ export async function getAdminMarqueeItems(
     status?: "ACTIVE" | "INACTIVE" | "";
   } = {}
 ) {
+  const pagination = normalizePagination(page, limit, 20);
+  page = pagination.page;
+  limit = pagination.limit;
   const skip = (page - 1) * limit;
   const searchWhere = buildWhere(q, marqueeSearchConfig) as Prisma.MarqueeItemWhereInput;
   const filterConditions: Prisma.MarqueeItemWhereInput[] = [];

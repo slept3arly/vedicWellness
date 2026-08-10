@@ -83,7 +83,7 @@ function Sec({ title, sub, children }: {
 
 function VariantRow({ v, i, upd, del }: {
   v: ProductVariant; i: number;
-  upd: (i: number, k: keyof ProductVariant, val: any) => void;
+  upd: (i: number, k: keyof ProductVariant, val: ProductVariant[keyof ProductVariant]) => void;
   del: (i: number) => void;
 }) {
   return (
@@ -111,7 +111,7 @@ function VariantRow({ v, i, upd, del }: {
               value={
                 key === "compareAtPrice" ? (v[key] ?? "")
                 : key === "sku"          ? (v[key] ?? "")
-                :                          (v[key] as any)
+                :                          (v[key] as string | number | null) ?? ""
               }
               onChange={(e) => {
                 if (key === "compareAtPrice")
@@ -144,8 +144,10 @@ function VariantRow({ v, i, upd, del }: {
 
 export default function ProductEditForm({
   product,
+  companies,
 }: {
   product: Product & { variants?: ProductVariant[] };
+  companies: { id: string; name: string; slug: string }[];
 }) {
   const [isPending, start] = useTransition();
 
@@ -168,8 +170,8 @@ export default function ProductEditForm({
     [product.id]
   );
 
-  const updVariant = useCallback((i: number, k: keyof ProductVariant, val: any) =>
-    setVariants((p) => { const n = [...p]; (n[i] as any)[k] = val; return n; }), []);
+  const updVariant = useCallback((i: number, k: keyof ProductVariant, val: ProductVariant[keyof ProductVariant]) =>
+    setVariants((p) => p.map((variant, index) => index === i ? { ...variant, [k]: val } : variant)), []);
 
   const delVariant = useCallback(
     (i: number) => setVariants((p) => p.filter((_, idx) => idx !== i)), []
@@ -189,9 +191,9 @@ export default function ProductEditForm({
       try {
         await updateProduct(data);
         toast.success("Product saved successfully.");
-      } catch (e: any) {
-        if (e?.message === "NEXT_REDIRECT" || e?.digest?.startsWith("NEXT_REDIRECT")) return;
-        toast.error("Failed to save product", e?.message);
+      } catch (e: unknown) { const error = e as { message?: string; digest?: string };
+        if (error?.message === "NEXT_REDIRECT" || error?.digest?.startsWith("NEXT_REDIRECT")) return;
+        toast.error("Failed to save product", error?.message);
       }
     });
   }
@@ -244,6 +246,11 @@ export default function ProductEditForm({
               <input id="tag" name="tag" defaultValue={product.tag ?? ""} className={inputCls} />
             </F>
           </div>
+          <F id="companyId" lbl="Company / Brand" req>
+            <select id="companyId" name="companyId" defaultValue={product.companyId} required className={selectCls}>
+              {companies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
+            </select>
+          </F>
         </Sec>
 
         {/* pricing */}
@@ -313,7 +320,7 @@ export default function ProductEditForm({
             ] as const).map(([name, lbl, tip]) => (
               <F key={name} id={name} lbl={lbl} tip={tip || undefined}>
                 <textarea id={name} name={name}
-                  defaultValue={listToText((product as any)[name])}
+                  defaultValue={listToText(product[name as keyof Product])}
                   className={textareaCls} />
               </F>
             ))}

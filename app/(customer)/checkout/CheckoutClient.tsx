@@ -19,10 +19,23 @@ import CustomerButton from "@/components/customer/CustomerButton";
 import CartSummaryCard from "@/components/customer/cart/CartSummaryCard"; // Using the component
 import { createOrderAction } from "./serverActions";
 import { toast } from "@/lib/toast";
+import type { CartType } from "@/lib/types/cart";
+
+type CheckoutAddress = {
+  id: string;
+  fullName: string;
+  phone: string;
+  line1: string;
+  line2: string | null;
+  city: string;
+  state: string;
+  postalCode: string;
+  country: string;
+};
 
 type Props = {
-  cart: any;
-  defaultAddress: any | null;
+  cart: CartType;
+  defaultAddress: CheckoutAddress | null;
   isBuyNow?: boolean;
   buyNowProductId?: string;
   buyNowQty?: number;
@@ -56,7 +69,7 @@ export default function CheckoutClient({
           quantity: buyNowQty,
         });
 
-        toast.success("Order placed!", "You'll receive confirmation shortly.");
+        toast.success("Order submitted", "Your order has been received for processing.");
         router.push(`/orders/${order.id}`);
       } catch (err: unknown) {
         toast.error(
@@ -202,7 +215,7 @@ export default function CheckoutClient({
                 aria-label="Items in this order"
                 className="px-5 sm:px-6 pb-5 sm:pb-6 list-none divide-y divide-[var(--border-soft)]"
               >
-                {cart.items.map((item: any) => {
+                {cart.items.map((item) => {
                   const lineTotal = item.product.price * item.quantity;
                   const compareAt = item.product.compareAtPrice as number | null;
 

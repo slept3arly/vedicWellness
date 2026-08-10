@@ -7,6 +7,7 @@ import {
 
 import { unstable_cache } from "next/cache";
 import { CACHE_TAGS } from "@/lib/constants";
+import { normalizePagination } from "@/lib/db/pagination";
 
 /* ========================================================= */
 /* STATIC PARAMS */
@@ -20,16 +21,18 @@ export async function getAllPublishedBlogSlugsService() {
 /* BLOG LIST */
 /* ========================================================= */
 
-export const getPublicBlogsService = unstable_cache(
-  async () => {
-    return getPublicBlogsDB();
-  },
-  ["public-blogs"],
-  {
-    tags: [CACHE_TAGS.BLOGS, CACHE_TAGS.GLOBAL],
-    revalidate: false,
-  }
-);
+export const getPublicBlogsService = (page = 1) => {
+  const normalizedPage = normalizePagination(page, 15, 15).page;
+
+  return unstable_cache(
+    async () => getPublicBlogsDB(normalizedPage, 15),
+    ["public-blogs", String(normalizedPage)],
+    {
+      tags: [CACHE_TAGS.BLOGS, CACHE_TAGS.GLOBAL],
+      revalidate: false,
+    }
+  )();
+};
 
 /* ========================================================= */
 /* BLOG BY SLUG */

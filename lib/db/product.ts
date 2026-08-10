@@ -1,9 +1,10 @@
 import "server-only";
-import { buildWhere } from "@/lib/db/search";
+import { buildWhere, normalizeQuery } from "@/lib/db/search";
 import { prisma } from "@/lib/db/prisma";
 import { MedicineForm } from "@prisma/client";
 import { Prisma } from "@prisma/client";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+import { normalizePagination } from "@/lib/db/pagination";
 import type { SearchConfig } from "@/lib/db/search";
 
 const productSearchConfig: SearchConfig = {
@@ -22,7 +23,7 @@ const productSearchConfig: SearchConfig = {
 /* ------------------------------------------------------------------ */
 
 export async function createProductDB(
-  data: Prisma.ProductCreateInput
+  data: Prisma.ProductUncheckedCreateInput
 ){
   return prisma.product.create({
     data,
@@ -81,6 +82,9 @@ export async function getAdminProducts(
     form?: MedicineForm | "";
   } = {}
 ) {
+  const pagination = normalizePagination(page, limit, ADMIN_PAGE_SIZE);
+  page = pagination.page;
+  limit = pagination.limit;
   const skip = (page - 1) * limit;
   const searchWhere = buildWhere(q, productSearchConfig) as Prisma.ProductWhereInput;
   const filterConditions: Prisma.ProductWhereInput[] = [];
@@ -148,6 +152,7 @@ type PublicProductQuery = {
   limit?: number;
   query?: string;
   sort?: string;
+  companySlug?: string;
 };
 
 export async function getPublicProductsDB({
@@ -155,10 +160,14 @@ export async function getPublicProductsDB({
   limit = 10,
   query = "",
   sort = "name_asc",
+  companySlug,
 }: PublicProductQuery) {
+  const pagination = normalizePagination(page, limit, 10);
+  page = pagination.page;
+  limit = pagination.limit;
   const skip = (page - 1) * limit;
 
-  const q = query.trim();
+  const q = normalizeQuery(query);
 
   /* --------------------------------------------------------------- */
   /* MedicineForm Enum Matching (case-insensitive user input)        */
@@ -179,6 +188,10 @@ export async function getPublicProductsDB({
 
   const where = {
     published: true,
+    company: {
+      active: true,
+      ...(companySlug && { slug: companySlug }),
+    },
     ...(q && {
       OR: [
         {
@@ -253,6 +266,7 @@ export async function getPublicProductsDB({
         shortDescription: true,
         createdAt: true,
         medicineForm: true,
+        company: { select: { name: true, slug: true } },
       },
     }),
   ]);
@@ -262,8 +276,9 @@ export async function getPublicProductsDB({
 
 export async function getPublicProductBySlugDB(slug: string) {
   return prisma.product.findFirst({
-    where: { slug, published: true },
+    where: { slug, published: true, company: { active: true } },
     include: {
+      company: true,
       variants: true,
       specifications: true,
       faqs: true,
@@ -274,11 +289,12 @@ export async function getPublicProductBySlugDB(slug: string) {
 
 export async function getPublicProductMetadataDB(slug: string) {
   return prisma.product.findFirst({
-    where: { slug, published: true },
+    where: { slug, published: true, company: { active: true } },
     select: {
       name: true,
       shortDescription: true,
       imageUrl: true,
+      company: { select: { name: true } },
     },
   });
 }
@@ -289,7 +305,7 @@ export async function getPublicProductMetadataDB(slug: string) {
 
 export async function getAllPublishedProductSlugs() {
   return prisma.product.findMany({
-    where: { published: true },
+    where: { published: true, company: { active: true } },
     select: {
       slug: true,
       updatedAt: true,
@@ -316,6 +332,7 @@ export async function getRelatedProductsDB(
   return prisma.product.findMany({
     where: {
       published: true,
+      company: { active: true },
       id: { not: currentId },
       OR: orConditions,
     },
@@ -344,6 +361,7 @@ export async function getAdminProductById(id: string) {
     where: { id },
     include: {
       variants: true,
+      company: true,
     },
   });
 }

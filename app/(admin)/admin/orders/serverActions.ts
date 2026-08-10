@@ -29,6 +29,10 @@ export const updateOrderStatus = secureAdminAction(
       throw new Error("Invalid order status");
     }
 
+    if (rawStatus === "PAID" || rawStatus === "PAYMENT_FAILED") {
+      throw new Error("Payment statuses are not supported");
+    }
+
     const status = rawStatus as OrderStatus;
 
     await updateOrderStatusService(id, status, admin.id);

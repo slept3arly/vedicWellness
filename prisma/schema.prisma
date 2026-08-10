@@ -30,10 +30,23 @@ model Blog {
   @@index([category])
 }
 
+model Company {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  active    Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  products  Product[]
+
+  @@index([active])
+}
+
 model Product {
   id                String   @id @default(cuid())
   name              String
   slug              String   @unique
+  companyId         String
   subtitle          String?
 
   /* Pricing */
@@ -88,6 +101,7 @@ model Product {
   specifications    ProductSpecification[]
   faqs              ProductFAQ[]
   reviews           ProductReview[]
+  company           Company  @relation(fields: [companyId], references: [id], onDelete: Restrict)
 
   /* Indexes (Aligned With Your Existing Strategy) */
   @@index([published])
@@ -95,6 +109,7 @@ model Product {
   @@index([published, tag])
   @@index([published, medicineForm])
   @@index([published, createdAt])
+  @@index([companyId, published])
 }
 
 model ProductVariant {
@@ -169,6 +184,8 @@ model Lead {
   status    LeadStatus @default(NEW)
   city      String?
   owner     User?      @relation("UserLeads", fields: [ownerId], references: [id])
+
+  @@index([createdAt])
 }
 
 model AuditLog {
@@ -186,6 +203,7 @@ model AuditLog {
   @@index([actorId, createdAt])
   @@index([entityType, entityId])
   @@index([action, createdAt])
+  @@index([createdAt])
 }
 
 model User {
@@ -207,6 +225,8 @@ model User {
   cart      Cart?
   orders    Order[]
   leads     Lead[]    @relation("UserLeads")
+
+  @@index([deletedAt, createdAt])
 }
 
 model Address {

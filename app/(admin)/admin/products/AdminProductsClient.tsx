@@ -298,7 +298,7 @@ export default function AdminProductsClient({
                     <Boxes className="h-3 w-3" /> {p.medicineForm || "—"}
                   </div>
                   <div className="flex items-center gap-2 text-[11px] text-neutral-400 font-mono italic">
-                    <Barcode className="h-3 w-3" /> {(p as any).sku || "No SKU"}
+                    <Barcode className="h-3 w-3" /> {p.sku || "No SKU"}
                   </div>
                 </div>
               </div>

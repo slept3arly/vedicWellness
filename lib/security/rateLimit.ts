@@ -41,9 +41,9 @@ export async function rateLimitOrThrow(
   const result = await limiter.limit(identifier);
 
   if (!result.success) {
-    const err = new Error("RATE_LIMITED");
-    (err as any).status = 429;
-    (err as any).reset = result.reset;
+    const err = Object.assign(new Error("RATE_LIMITED"), {
+      reset: result.reset,
+    });
     throw err;
   }
 

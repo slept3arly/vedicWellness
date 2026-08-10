@@ -64,9 +64,9 @@ export default function BlogEditForm({ blog }: { blog: any }) {
       try {
         await updateBlog(data);
         toast.success("Blog updated successfully.");
-      } catch (e: any) {
-        if (e?.message === "NEXT_REDIRECT" || e?.digest?.startsWith("NEXT_REDIRECT")) return;
-        toast.error("Failed to update blog", e?.message);
+      } catch (e: unknown) { const error = e as { message?: string; digest?: string };
+        if (error?.message === "NEXT_REDIRECT" || error?.digest?.startsWith("NEXT_REDIRECT")) return;
+        toast.error("Failed to update blog", error?.message);
       }
     });
   }

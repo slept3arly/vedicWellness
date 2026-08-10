@@ -44,7 +44,7 @@ export default function ProductPurchaseCard({
   const [localQty, setLocalQty] = useState(existingQty > 0 ? existingQty : 1);
 
   useEffect(() => {
-    setLocalQty(existingQty > 0 ? existingQty : 1);
+    queueMicrotask(() => setLocalQty(existingQty > 0 ? existingQty : 1));
   }, [existingQty]);
 
   const inCart = Boolean(cartItemId);

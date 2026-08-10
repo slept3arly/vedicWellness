@@ -59,9 +59,9 @@ export default function MarqueeEditForm({ item }: { item: any }) {
       try {
         await updateMarqueeItem(data);
         toast.success("Marquee updated successfully.");
-      } catch (e: any) {
-        if (e?.message === "NEXT_REDIRECT" || e?.digest?.startsWith("NEXT_REDIRECT")) return;
-        toast.error("Failed to update marquee", e?.message);
+      } catch (e: unknown) { const error = e as { message?: string; digest?: string };
+        if (error?.message === "NEXT_REDIRECT" || error?.digest?.startsWith("NEXT_REDIRECT")) return;
+        toast.error("Failed to update marquee", error?.message);
       }
     });
   }

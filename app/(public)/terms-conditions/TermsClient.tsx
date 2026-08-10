@@ -18,18 +18,9 @@ const sections = [
 export default function TermsClient() {
   const contentRef = useRef<HTMLDivElement>(null);
 
-  const sectionRefs = {
-    general: useRef<HTMLElement>(null),
-    account: useRef<HTMLElement>(null),
-    medical: useRef<HTMLElement>(null),
-    orders: useRef<HTMLElement>(null),
-    liability: useRef<HTMLElement>(null),
-    law: useRef<HTMLElement>(null),
-  };
-
-  const handleScrollTo = (id: keyof typeof sectionRefs) => {
+  const handleScrollTo = (id: string) => {
     const container = contentRef.current;
-    const target = sectionRefs[id].current;
+    const target = container?.querySelector<HTMLElement>(`#${id}`);
     if (!container || !target) return;
 
     const containerRect = container.getBoundingClientRect();
@@ -60,7 +51,7 @@ export default function TermsClient() {
                 <button
                   key={s.id}
                   onClick={() =>
-                    handleScrollTo(s.id as keyof typeof sectionRefs)
+                    handleScrollTo(s.id)
                   }
                   className="
                     group relative block w-fit text-left 
@@ -106,7 +97,7 @@ export default function TermsClient() {
             </p>
 
             {/* 1 */}
-            <section ref={sectionRefs.general} id="general" className="space-y-6">
+            <section id="general" className="space-y-6">
               <SectionHeading title="1. General Use" />
               <p>
                 These Terms & Conditions govern access to and use of the Vedic
@@ -130,7 +121,7 @@ export default function TermsClient() {
             </section>
 
             {/* 2 */}
-            <section ref={sectionRefs.account} id="account" className="space-y-6">
+            <section id="account" className="space-y-6">
               <SectionHeading title="2. Account Responsibility" />
               <p>
                 Users who create accounts or engage in franchise communication
@@ -151,7 +142,7 @@ export default function TermsClient() {
             </section>
 
             {/* 3 */}
-            <section ref={sectionRefs.medical} id="medical" className="space-y-6">
+            <section id="medical" className="space-y-6">
               <SectionHeading title="3. Medical Disclaimer" />
               <p>
                 Products listed on this website are Ayurvedic wellness
@@ -170,7 +161,7 @@ export default function TermsClient() {
             </section>
 
             {/* 4 */}
-            <section ref={sectionRefs.orders} id="orders" className="space-y-6">
+            <section id="orders" className="space-y-6">
               <SectionHeading title="4. Orders & Availability" />
               <p>
                 Product listings, pricing structures, and franchise materials
@@ -188,7 +179,7 @@ export default function TermsClient() {
             </section>
 
             {/* 5 */}
-            <section ref={sectionRefs.liability} id="liability" className="space-y-6">
+            <section id="liability" className="space-y-6">
               <SectionHeading title="5. Limitation of Liability" />
               <p>
                 To the fullest extent permitted by law, Vedic Wellness shall not
@@ -205,7 +196,7 @@ export default function TermsClient() {
             </section>
 
             {/* 6 */}
-            <section ref={sectionRefs.law} id="law" className="space-y-6 pb-20">
+            <section id="law" className="space-y-6 pb-20">
               <SectionHeading title="6. Governing Law" />
               <p>
                 These Terms & Conditions shall be governed by and interpreted in

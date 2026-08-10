@@ -2,6 +2,7 @@ import "server-only";
 import { buildWhere } from "@/lib/db/search";
 import { prisma } from "@/lib/db/prisma";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+import { normalizePagination } from "@/lib/db/pagination";
 import { Prisma } from "@prisma/client";
 import type { SearchConfig } from "@/lib/db/search";
 
@@ -34,7 +35,7 @@ const bannerSearchConfig: SearchConfig = {
 /* CREATE */
 /* ========================================================= */
 
-export async function createBannerDB(data: any) {
+export async function createBannerDB(data: Prisma.BannerCreateInput) {
   return prisma.banner.create({
     data,
     select: { id: true },
@@ -45,7 +46,7 @@ export async function createBannerDB(data: any) {
 /* UPDATE */
 /* ========================================================= */
 
-export async function updateBannerDB(id: string, data: any) {
+export async function updateBannerDB(id: string, data: Prisma.BannerUpdateInput) {
   return prisma.banner.update({
     where: { id },
     data,
@@ -111,6 +112,9 @@ export async function getAdminBanners(
     status?: "ACTIVE" | "INACTIVE" | "";
   } = {}
 ) {
+  const pagination = normalizePagination(page, limit, ADMIN_PAGE_SIZE);
+  page = pagination.page;
+  limit = pagination.limit;
   const skip = (page - 1) * limit;
   const searchWhere = buildWhere(q, bannerSearchConfig) as Prisma.BannerWhereInput;
   const filterConditions: Prisma.BannerWhereInput[] = [];

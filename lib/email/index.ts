@@ -1,1 +1,0 @@
-export { sendTransactionalEmail } from "./transactional/send";

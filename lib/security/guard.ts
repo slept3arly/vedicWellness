@@ -4,7 +4,7 @@ import { ZodError } from "zod";
 export function errorResponse(err: unknown) {
   // ✅ rate limit errors thrown by rateLimitOrThrow
   if (err && typeof err === "object" && "status" in err) {
-    const status = (err as any).status ?? 500;
+    const status = typeof err.status === "number" ? err.status : 500;
     if (status === 429) {
       return NextResponse.json({ error: "Too many requests" }, { status: 429 });
     }

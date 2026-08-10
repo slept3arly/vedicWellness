@@ -1,6 +1,7 @@
 import { getAdminProductById } from "@/lib/db/product";
 import ProductEditForm from "./ProductEditForm";
 import { notFound } from "next/navigation";
+import { getActiveCompanies } from "@/lib/db/company";
 
 export default async function EditProductPage({
   params,
@@ -13,5 +14,10 @@ export default async function EditProductPage({
 
   if (!product) return notFound();
 
-  return <ProductEditForm product={product} />;
+  const activeCompanies = await getActiveCompanies();
+  const companies = product.company && !product.company.active
+    ? [product.company, ...activeCompanies]
+    : activeCompanies;
+
+  return <ProductEditForm product={product} companies={companies} />;
 }

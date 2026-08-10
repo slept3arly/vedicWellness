@@ -3,6 +3,7 @@ import { buildWhere } from "@/lib/db/search";
 import { prisma } from "@/lib/db/prisma";
 import { Prisma } from "@prisma/client";
 import type { SearchConfig } from "@/lib/db/search";
+import { normalizePagination } from "@/lib/db/pagination";
 
 const blogSearchConfig: SearchConfig = {
   text: ["title", "slug", "author", "category"],
@@ -18,6 +19,7 @@ const blogSearchConfig: SearchConfig = {
 export async function getAllPublishedBlogSlugs() {
   return prisma.blog.findMany({
     where: { published: true },
+    take: 500,
     select: {
       slug: true,
       updatedAt: true,
@@ -39,6 +41,9 @@ export async function getAdminBlogs(
     author?: string;
   } = {}
 ) {
+  const pagination = normalizePagination(page, limit, 25);
+  page = pagination.page;
+  limit = pagination.limit;
   const skip = (page - 1) * limit;
   const searchWhere = buildWhere(search, blogSearchConfig) as Prisma.BlogWhereInput;
   const filterConditions: Prisma.BlogWhereInput[] = [];
@@ -122,14 +127,14 @@ export async function getAdminBlogFilterOptions() {
 /* Admin Writes */
 /* ------------------------------------------------------------------ */
 
-export async function createBlogDB(data: any) {
+export async function createBlogDB(data: Prisma.BlogCreateInput) {
   return prisma.blog.create({
     data,
     select: { id: true },
   });
 }
 
-export async function updateBlogDB(id: string, data: any) {
+export async function updateBlogDB(id: string, data: Prisma.BlogUpdateInput) {
   return prisma.blog.update({
     where: { id },
     data,
@@ -160,22 +165,36 @@ export async function getBlogById(id: string) {
 /* Public Reads */
 /* ------------------------------------------------------------------ */
 
-export async function getPublicBlogsDB() {
-  return prisma.blog.findMany({
-    where: { published: true },
-    orderBy: { publishedAt: "desc" },
-    select: {
-      id: true,
-      title: true,
-      slug: true,
-      description: true,
-      thumbnailUrl: true,
-      author: true,
-      createdAt: true,
-      updatedAt: true,
-      publishedAt: true,
-    },
-  });
+export async function getPublicBlogsDB(page = 1, limit = 15) {
+  const pagination = normalizePagination(page, limit, 15);
+  const where = { published: true };
+  const select = {
+    id: true,
+    title: true,
+    slug: true,
+    description: true,
+    thumbnailUrl: true,
+    author: true,
+    createdAt: true,
+    updatedAt: true,
+    publishedAt: true,
+  } as const;
+  const offset = 3 + (pagination.page - 1) * pagination.limit;
+
+  const [featuredBlogs, data, total] = await prisma.$transaction([
+    prisma.blog.findMany({ where, orderBy: { publishedAt: "desc" }, take: 3, select }),
+    prisma.blog.findMany({ where, orderBy: { publishedAt: "desc" }, skip: offset, take: pagination.limit, select }),
+    prisma.blog.count({ where }),
+  ]);
+
+  return {
+    featuredBlogs,
+    data,
+    total,
+    page: pagination.page,
+    limit: pagination.limit,
+    totalPages: Math.ceil(Math.max(0, total - 3) / pagination.limit),
+  };
 }
 
 export async function getPublicBlogBySlugDB(slug: string) {

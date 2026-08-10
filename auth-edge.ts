@@ -1,4 +1,5 @@
 import NextAuth from "next-auth";
+import type { Role } from "@/types/next-auth";
 
 export const { auth } = NextAuth({
   secret: process.env.NEXTAUTH_SECRET,
@@ -13,18 +14,18 @@ export const { auth } = NextAuth({
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.uid = (user as any).id;
-        token.role = (user as any).role;
-        token.verified = (user as any).verified;
+        token.uid = user.id;
+        token.role = user.role;
+        token.verified = user.verified;
       }
       return token;
     },
 
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.uid;
-        (session.user as any).role = token.role;
-        (session.user as any).verified = token.verified;
+        session.user.id = token.uid as string;
+        session.user.role = token.role as Role;
+        session.user.verified = token.verified as boolean;
       }
       return session;
     },

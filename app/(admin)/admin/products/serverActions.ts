@@ -58,7 +58,9 @@ export const updateProduct = secureAdminAction(
 
     const variants = ProductVariantsSchema.parse(
       Array.isArray(variantsRaw)
-        ? variantsRaw.map((v: any) => ({
+        ? variantsRaw.map((value) => {
+            const v = value && typeof value === "object" ? value as Record<string, unknown> : {};
+            return {
             name: String(v.name ?? "").trim(),
             price: Number(v.price),
             compareAtPrice:
@@ -67,7 +69,7 @@ export const updateProduct = secureAdminAction(
                 : null,
             stock: Number(v.stock ?? 0),
             sku: v.sku ? String(v.sku).trim() : null,
-          }))
+          }; })
         : []
     );
 

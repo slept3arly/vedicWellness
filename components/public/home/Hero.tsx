@@ -95,11 +95,11 @@ export default function Hero() {
                 >
                   Vedic Wellnessis the trusted Ayurvedic division of Innovia Drugs. It is a leading
                   PCD Pharma Franchise Company in India offering high-quality Ayurvedic,
-                  herbal, and wellness products supported by it's GMP-certified manufacturing
+                  herbal, and wellness products supported by it&apos;s GMP-certified manufacturing
                   standards. We provide entrepreneurs, distributors, and professionals in pharma
                   with many profitable monopoly-based franchise opportunities supported by an
                   extensive portfolio of Ayurvedic medicines, immunity boosters, digestive
-                  care products, liver tonics, personal care products, women's wellness formulations,
+                  care products, liver tonics, personal care products, women&apos;s wellness formulations,
                   and daily health supplements. The buisness model we follow is
                   designed to help franchise partners grow exponentially faster through exclusive
                   territorial rights, attractive promotional support, visual aids, product
@@ -110,7 +110,7 @@ export default function Hero() {
                   Ayurvedic healthcare sector. Whether you are looking to start a new pharma
                   venture or expand your existing distribution network, Vedic Wellness offers
                   one of the most reliable and growth-focused Ayurvedic PCD Pharma Franchise
-                  opportunities in India with it's superior customer support and products.
+                  opportunities in India with it&apos;s superior customer support and products.
                 </p>
 
                 {!expanded && (

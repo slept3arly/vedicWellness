@@ -89,10 +89,10 @@ export default function Testimonials() {
                   <p className="italic text-xs md:text-lg leading-relaxed text-slate-600 dark:text-slate-300 line-clamp-3 md:line-clamp-none min-h-[3.8rem] md:min-h-0">
                     
                     {/* Mobile short text */}
-                    <span className="md:hidden">"{r.textShort}"</span>
+                    <span className="md:hidden">&quot;{r.textShort}&quot;</span>
 
                     {/* Desktop full text */}
-                    <span className="hidden md:inline">"{r.text}"</span>
+                    <span className="hidden md:inline">&quot;{r.text}&quot;</span>
 
                   </p>
 

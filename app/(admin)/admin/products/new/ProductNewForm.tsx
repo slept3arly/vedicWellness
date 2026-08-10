@@ -77,7 +77,7 @@ function Sec({ title, sub, children }: {
 
 /* ── main ── */
 
-export default function ProductNewForm() {
+export default function ProductNewForm({ companies }: { companies: { id: string; name: string; slug: string }[] }) {
   const [isPending, start] = useTransition();
   const [coverUrl, setCoverUrl] = useState("");
   const [gallery, setGallery]   = useState<string[]>([]);
@@ -95,9 +95,9 @@ export default function ProductNewForm() {
       try {
         await createProduct(data);
         toast.success("Product created successfully.");
-      } catch (e: any) {
-        if (e?.message === "NEXT_REDIRECT" || e?.digest?.startsWith("NEXT_REDIRECT")) return;
-        toast.error("Failed to create product", e?.message);
+      } catch (e: unknown) { const error = e as { message?: string; digest?: string };
+        if (error?.message === "NEXT_REDIRECT" || error?.digest?.startsWith("NEXT_REDIRECT")) return;
+        toast.error("Failed to create product", error?.message);
       }
     });
   }
@@ -142,6 +142,11 @@ export default function ProductNewForm() {
               <input id="tag" name="tag" placeholder="Women's Care" className={inputCls} />
             </F>
           </div>
+          <F id="companyId" lbl="Company / Brand" req>
+            <select id="companyId" name="companyId" defaultValue={companies.find((c) => c.slug === "vedic-wellness")?.id ?? companies[0]?.id} required className={selectCls}>
+              {companies.map((company) => <option key={company.id} value={company.id}>{company.name}</option>)}
+            </select>
+          </F>
         </Sec>
 
         {/* pricing */}

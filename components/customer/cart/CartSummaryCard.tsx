@@ -25,7 +25,7 @@ export default function CartSummaryCard({ cart, showCheckoutButton = true }: Pro
 
   // 2. Calculate MRP/CompareAt to show savings
   const totalMrp = cart.items.reduce((sum, item) => {
-    const compareAt = (item.product as any).compareAtPrice as number | null;
+    const compareAt = item.product.compareAtPrice ?? null;
     return sum + (compareAt ?? item.product.price) * item.quantity;
   }, 0);
 
@@ -96,7 +96,7 @@ export default function CartSummaryCard({ cart, showCheckoutButton = true }: Pro
             aria-live="polite"
             className="text-xs font-body text-emerald-600 dark:text-emerald-400 mt-1.5"
           >
-            🎉 You're saving ₹{totalSavings.toLocaleString()} on this order
+            🎉 You&apos;re saving ₹{totalSavings.toLocaleString()} on this order
           </p>
         )}
       </div>
@@ -122,7 +122,7 @@ export default function CartSummaryCard({ cart, showCheckoutButton = true }: Pro
             className="w-3.5 h-3.5 text-emerald-500 mt-0.5 shrink-0"
             aria-hidden="true"
           />
-          Vedic Wellness Guarantee: 100% Authentic Products & Secure Payments.
+          Vedic Wellness Guarantee: 100% Authentic Products & Reliable Order Processing.
         </p>
       </div>
     </Card>

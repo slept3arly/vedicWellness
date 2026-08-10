@@ -75,7 +75,7 @@ function SpecTable({
 
 export default function ProductSpecification({ product }: { product: Product }) {
   const composition: Row[] = [
-    { label: "Brand",               value: "Vedic Wellness",                               icon: ShieldCheck   },
+    { label: "Brand",               value: product.company?.name ?? "Vedic Wellness",       icon: ShieldCheck   },
     { label: "Dosage Form",         value: product.medicineForm,                           icon: Pill          },
     { label: "Net Quantity",        value: product.netQuantity,                            icon: Package       },
     { label: "Packaging",           value: product.packaging?.join(", ") || null,          icon: Box           },

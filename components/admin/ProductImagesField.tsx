@@ -41,8 +41,8 @@ export default function ProductImagesField({
       validate(file);
       setCoverUrl(await uploadToR2(file, "products"));
       toast.success("Cover image uploaded.");
-    } catch (e: any) {
-      toast.error("Upload failed", e?.message);
+    } catch (e: unknown) {
+      toast.error("Upload failed", e instanceof Error ? e.message : "Please try again.");
     } finally {
       setBusy(false);
       if (coverRef.current) coverRef.current.value = "";
@@ -59,8 +59,8 @@ export default function ProductImagesField({
       toast.success(
         `${urls.length} image${urls.length > 1 ? "s" : ""} added to gallery.`
       );
-    } catch (e: any) {
-      toast.error("Upload failed", e?.message);
+    } catch (e: unknown) {
+      toast.error("Upload failed", e instanceof Error ? e.message : "Please try again.");
     } finally {
       setBusy(false);
       if (galleryRef.current) galleryRef.current.value = "";

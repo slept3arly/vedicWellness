@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import ProductsClient from "./ProductsClient";
 import { getPublicProductsService } from "@/lib/services/productService";
 import { notFound } from "next/navigation";
+import { getActiveCompanies } from "@/lib/db/company";
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "") ||
@@ -15,6 +16,31 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: "/products",
     },
+    openGraph: {
+      type: "website",
+      url: `${SITE_URL}/products`,
+      title:
+        "Products | Vedic Wellness - Ayurvedic Franchise Product Range",
+      description:
+        "Browse Ayurvedic products from Vedic Wellness.",
+      siteName: "Vedic Wellness",
+      images: [
+        {
+          url: `${SITE_URL}/og.jpg`,
+          width: 1200,
+          height: 630,
+          alt: "Vedic Wellness Product Range",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title:
+        "Products | Vedic Wellness - Ayurvedic Franchise Product Range",
+      description:
+        "Browse Ayurvedic products from Vedic Wellness.",
+      images: [`${SITE_URL}/og.jpg`],
+    },
   };
 }
 
@@ -25,6 +51,7 @@ type SearchParams = {
   page?: string;
   query?: string;
   sort?: string;
+  company?: string;
 };
 
 export default async function ProductsPage({
@@ -46,13 +73,16 @@ export default async function ProductsPage({
   const page = rawPage;
   const query = (getParam(sp.query) ?? "").trim();
   const sort = getParam(sp.sort) ?? "name_asc";
+  const company = getParam(sp.company) ?? "";
+  const effectiveCompany = company || "vedic-wellness";
 
-  const { products, total, totalPages } =
-    await getPublicProductsService({
-      page,
-      query,
-      sort,
-    });
+  const [result, companies] = await Promise.all([
+    getPublicProductsService({ page, query, sort, companySlug: effectiveCompany }),
+    getActiveCompanies(),
+  ]);
+  const { products, total, totalPages } = result;
+  const selectedCompany = companies.find((item) => item.slug === effectiveCompany);
+  if (!selectedCompany) notFound();
 
   if (totalPages > 0 && page > totalPages) {
     notFound();
@@ -90,6 +120,9 @@ export default async function ProductsPage({
         totalCount={total}
         query={query}
         sort={sort}
+        company={company}
+        companyName={selectedCompany?.name ?? "Vedic Wellness"}
+        companies={companies}
       />
     </>
   );

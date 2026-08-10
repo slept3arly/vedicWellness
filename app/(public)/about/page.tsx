@@ -11,6 +11,31 @@ export const metadata: Metadata = {
   description:
     "Learn about Vedic Wellness, a division of Innovia Drugs, delivering high-quality Ayurvedic products and PCD Pharma Franchise opportunities across India with monopoly rights and strong partner support.",
   alternates: { canonical: "/about" },
+  openGraph: {
+    type: "website",
+    url: `${SITE_URL}/about`,
+    title:
+      "About Vedic Wellness | Ayurvedic PCD Pharma Franchise Company",
+    description:
+      "Learn about Vedic Wellness, a division of Innovia Drugs, delivering high-quality Ayurvedic products and PCD Pharma Franchise opportunities across India with monopoly rights and strong partner support.",
+    siteName: "Vedic Wellness",
+    images: [
+      {
+        url: `${SITE_URL}/og.jpg`,
+        width: 1200,
+        height: 630,
+        alt: "About Vedic Wellness",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title:
+      "About Vedic Wellness | Ayurvedic PCD Pharma Franchise Company",
+    description:
+      "Learn about Vedic Wellness, a division of Innovia Drugs, delivering high-quality Ayurvedic products and PCD Pharma Franchise opportunities across India with monopoly rights and strong partner support.",
+    images: [`${SITE_URL}/og.jpg`],
+  },
 };
 
 const faqSchema = {

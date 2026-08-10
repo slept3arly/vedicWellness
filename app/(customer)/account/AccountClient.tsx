@@ -15,15 +15,24 @@ import PendingOrdersCard from "@/components/customer/account/PendingOrdersCard";
 import AddressList from "@/components/customer/account/AddressList";
 import AccountActivityChart from "@/components/customer/account/AccountActivityChart";
 import CustomerButton from "@/components/customer/CustomerButton";
+import type { UserOrderListItem } from "@/lib/types/order";
+
+type LastOrder = {
+  id: string;
+  totalAmount: number;
+  createdAt: Date;
+  firstProductName: string | null;
+  itemCount: number;
+} | null;
 
 type Props = {
   user: { email: string };
   orderCount: number;
-  orders: any[];
+  orders: UserOrderListItem[];
   addresses: Address[];
-  totalSpent: number;
+  totalOrderValue: number;
   cartItemCount: number;
-  lastPaidOrder: any;
+  lastOrder: LastOrder;
 };
 
 export default function AccountClient({
@@ -31,11 +40,13 @@ export default function AccountClient({
   orderCount,
   orders,
   addresses,
-  totalSpent,
+  totalOrderValue,
   cartItemCount,
-  lastPaidOrder,
+  lastOrder,
 }: Props) {
-  const pendingCount = orders.filter((o) => o.status === "CREATED").length;
+  const pendingCount = orders.filter((o) =>
+    ["CREATED", "CONFIRMED"].includes(o.status)
+  ).length;
   const defaultAddress = addresses.find((a) => a.isDefault) ?? null;
 
   const formatSpent = (amount: number) => {
@@ -83,13 +94,13 @@ export default function AccountClient({
 
         {/* Stats cards sit side-by-side on mobile */}
         <AccountStatsCard variant="orders" label="Total Orders" value={orderCount} />
-        <AccountStatsCard variant="spent" label="Amount Spent" value={formatSpent(totalSpent)} />
+        <AccountStatsCard variant="spent" label="Order Value" value={formatSpent(totalOrderValue)} />
       </motion.div>
 
       {/* ── 2. Alerts Row ── */}
       <motion.div variants={fadeUpSoft} className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
         <PendingOrdersCard count={pendingCount} />
-        <LastOrderBanner order={lastPaidOrder} />
+        <LastOrderBanner order={lastOrder} />
       </motion.div>
 
       <motion.div variants={fadeUpSoft}>

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import BlogsClient from "./BlogsClient";
 import { getPublicBlogsService } from "@/lib/services/public/blogService";
-import { PUBLIC_BLOG_PAGE_SIZE } from "@/lib/constants";
 import { notFound } from "next/navigation";
 
 /* ========================================================= */
@@ -31,15 +30,39 @@ export async function generateMetadata({
   const canonical =
     page > 1 ? `/blogs?page=${page}` : "/blogs";
 
+  const title =
+    page > 1
+      ? `Blogs - Page ${page} | Vedic Wellness`
+      : "Blogs | Vedic Wellness - Ayurvedic PCD Pharma Franchise";
+  const description =
+    "Read Ayurvedic healthcare insights, franchise updates and business knowledge by Vedic Wellness (Innovia Drugs).";
+
   return {
-    title:
-      page > 1
-        ? `Blogs - Page ${page} | Vedic Wellness`
-        : "Blogs | Vedic Wellness - Ayurvedic PCD Pharma Franchise",
-    description:
-      "Read Ayurvedic healthcare insights, franchise updates and business knowledge by Vedic Wellness (Innovia Drugs).",
+    title,
+    description,
     alternates: {
       canonical,
+    },
+    openGraph: {
+      type: "website",
+      url: `${SITE_URL}${canonical}`,
+      title,
+      description,
+      siteName: "Vedic Wellness",
+      images: [
+        {
+          url: `${SITE_URL}/og.jpg`,
+          width: 1200,
+          height: 630,
+          alt: "Vedic Wellness Blogs",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [`${SITE_URL}/og.jpg`],
     },
   };
 }
@@ -70,33 +93,16 @@ export default async function BlogsPage({
 
   const page = rawPage;
 
-  const FEATURED_COUNT = 3;
-  const PAGE_SIZE = PUBLIC_BLOG_PAGE_SIZE;
-
-  const blogs = await getPublicBlogsService();
+  const { featuredBlogs, data: newBlogs, totalPages } =
+    await getPublicBlogsService(page);
 
   /* ========================================================= */
   /* FEATURED BLOGS */
   /* ========================================================= */
 
-  const featuredBlogs = blogs.slice(0, FEATURED_COUNT);
-
-  /* ========================================================= */
-  /* PAGINATED BLOGS */
-  /* ========================================================= */
-
-  const remainingBlogs = blogs.slice(FEATURED_COUNT);
-
-  const totalPages = Math.ceil(remainingBlogs.length / PAGE_SIZE);
-
   if (totalPages > 0 && page > totalPages) {
     notFound();
   }
-
-  const start = (page - 1) * PAGE_SIZE;
-  const end = start + PAGE_SIZE;
-
-  const newBlogs = remainingBlogs.slice(start, end);
 
   /* ========================================================= */
   /* JSON-LD */

@@ -40,29 +40,13 @@ const STATUS = {
     rowHighlight: "",
     dotClass: "bg-emerald-500",
   },
-  PAID: {
-    label: "Paid",
-    icon: <CheckCircle2 className="w-3.5 h-3.5" />,
-    badgeClass:
-      "text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200/60 dark:border-emerald-700/40",
-    rowHighlight: "",
-    dotClass: "bg-emerald-500",
-  },
   CREATED: {
-    label: "Awaiting Payment",
+    label: "Order received",
     icon: <Clock className="w-3.5 h-3.5" />,
     badgeClass:
       "text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border-amber-200/60 dark:border-amber-700/40",
     rowHighlight: "bg-amber-50/20 dark:bg-amber-950/10",
     dotClass: "bg-amber-400 animate-pulse",
-  },
-  PAYMENT_FAILED: {
-    label: "Failed",
-    icon: <XCircle className="w-3.5 h-3.5" />,
-    badgeClass:
-      "text-red-500 bg-red-50 dark:bg-red-950/40 border-red-200/60 dark:border-red-700/40",
-    rowHighlight: "",
-    dotClass: "bg-red-400",
   },
   EXPIRED: {
     label: "Expired",
@@ -119,11 +103,10 @@ export default async function OrdersPage() {
 
   const orders = await getUserOrders(user.id);
 
-  const pendingCount = orders.filter((o) => o.status === "CREATED").length;
-  const paidCount = orders.filter((o) => o.status === "PAID").length;
-  const totalSpent = orders
-    .filter((o) => o.status === "PAID")
-    .reduce((s, o) => s + o.totalAmount, 0);
+  const receivedCount = orders.filter((o) =>
+    ["CREATED", "CONFIRMED"].includes(o.status)
+  ).length;
+  const totalOrderValue = orders.reduce((s, o) => s + o.totalAmount, 0);
 
   return (
     // min-h prevents layout collapse that causes scroll jump on refresh
@@ -143,11 +126,10 @@ export default async function OrdersPage() {
 
         {/* Reserve stable height whether or not the banner shows */}
         <div className="min-h-[2rem] flex items-center justify-center mt-2">
-          {pendingCount > 0 && (
+          {receivedCount > 0 && (
             <div className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-700/40 px-3 py-1.5 rounded-full">
               <Clock className="w-3 h-3" />
-              {pendingCount} order{pendingCount !== 1 ? "s" : ""} awaiting
-              payment
+              {receivedCount} order{receivedCount !== 1 ? "s" : ""} received
             </div>
           )}
         </div>
@@ -166,20 +148,20 @@ export default async function OrdersPage() {
           </div>
           <div className="rounded-xl border border-[var(--border-soft)] bg-[var(--bg-surface)] px-3 py-2.5 flex flex-col items-center text-center gap-0.5">
             <p className="text-lg font-bold text-emerald-600 dark:text-emerald-400 tabular-nums">
-              {paidCount}
+              {receivedCount}
             </p>
             <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
-              Paid
+              Received
             </p>
           </div>
           <div className="rounded-xl border border-[var(--border-soft)] bg-[var(--bg-surface)] px-3 py-2.5 flex flex-col items-center text-center gap-0.5">
             <p className="text-lg font-bold text-[var(--text-main)] tabular-nums">
-              {totalSpent >= 1000
-                ? `₹${(totalSpent / 1000).toFixed(1)}k`
-                : `₹${totalSpent}`}
+              {totalOrderValue >= 1000
+                ? `₹${(totalOrderValue / 1000).toFixed(1)}k`
+                : `₹${totalOrderValue}`}
             </p>
             <p className="text-[10px] font-medium uppercase tracking-wide text-[var(--text-muted)]">
-              Spent
+              Order value
             </p>
           </div>
         </div>

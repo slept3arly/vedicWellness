@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, Search, ArrowUpDown, ArrowUpRight, X, ListFilter } from "lucide-react";
+import { Sparkles, Search, ArrowUpDown, ArrowUpRight, X, ArrowLeft, Building2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -20,6 +20,7 @@ type Product = {
   price: number;
   imageUrl: string | null;
 };
+type Company = { id: string; name: string; slug: string };
 
 export default function ProductsClient({
   products,
@@ -28,6 +29,9 @@ export default function ProductsClient({
   totalCount,
   query,
   sort,
+  company,
+  companyName,
+  companies,
 }: {
   products: Product[];
   page: number;
@@ -35,6 +39,9 @@ export default function ProductsClient({
   totalCount: number;
   query: string;
   sort: string;
+  company: string;
+  companyName: string;
+  companies: Company[];
 }) {
   const router = useRouter();
   const filterBarRef = useRef<HTMLDivElement>(null);
@@ -63,6 +70,7 @@ export default function ProductsClient({
     params.set("page", "1");
     if (q) params.set("query", q);
     if (s && s !== "name_asc") params.set("sort", s);
+    if (company) params.set("company", company);
 
     router.push(`/products?${params.toString()}`, { scroll: false });
     requestAnimationFrame(anchorToFilter);
@@ -85,6 +93,7 @@ export default function ProductsClient({
     params.set("page", String(targetPage));
     if (query) params.set("query", query);
     if (sort && sort !== "name_asc") params.set("sort", sort);
+    if (company) params.set("company", company);
     return `/products?${params.toString()}`;
   }
 
@@ -99,7 +108,7 @@ export default function ProductsClient({
           }
           title={
             <>
-              Explore our product range at{" "}<span className="text-brand-accent">Vedic Wellness</span>
+              Explore our product range at{" "}<span className="text-brand-accent">{companyName}</span>
             </>
           }
           subtitle="Premium Ayurvedic formulations designed for demand, trust, and repeat customers."
@@ -110,6 +119,8 @@ export default function ProductsClient({
             <Chip key={t}>{t}</Chip>
           ))}
         </div>
+
+        {!company ? <div className="mx-auto max-w-xl rounded-2xl border border-accent/20 bg-accent/5 p-5 text-center shadow-sm"><p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">More brands to explore</p><Link href={companies.filter((c) => c.slug !== "vedic-wellness").length === 1 ? `/products?company=${companies.find((c) => c.slug !== "vedic-wellness")?.slug}` : "/products/companies"} className="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl bg-accent px-6 py-3 text-sm font-bold text-white transition hover:opacity-90">Browse Our Other Products</Link></div> : <div className="flex flex-col gap-3 rounded-2xl border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><Building2 size={20} className="text-accent" /><div><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Currently viewing</p><p className="font-heading text-lg font-bold">{companyName}</p></div></div><Link href="/products" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-accent hover:underline"><ArrowLeft size={16} />Back to Vedic Wellness Products</Link></div>}
 
         {/* COMPACT STICKY FILTER BAR */}
         <div
@@ -174,7 +185,7 @@ export default function ProductsClient({
               </span>
               {query && (
                 <span className="text-[10px] text-accent font-medium truncate max-w-[150px]">
-                  "{query}"
+                  &quot;{query}&quot;
                 </span>
               )}
             </div>
@@ -244,7 +255,7 @@ export default function ProductsClient({
                 <Search size={48} className="mx-auto text-muted/20 mb-4" />
                 <h3 className="text-lg font-heading">No products found</h3>
                 <p className="text-sm text-muted mt-1">
-                  Try different keywords or clear your filters.
+                  {company ? `No products are currently available from ${companyName}.` : "Try different keywords or clear your filters."}
                 </p>
                 <button
                   onClick={handleGlobalClear}

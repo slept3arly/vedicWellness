@@ -11,6 +11,10 @@ export async function updateOrderStatusService(
   status: OrderStatus,
   adminId: string
 ) {
+  if (status === "PAID" || status === "PAYMENT_FAILED") {
+    throw new Error("Payment statuses are not supported");
+  }
+
   const existing = await prisma.order.findUnique({
     where: { id: orderId },
     select: {
@@ -27,7 +31,6 @@ export async function updateOrderStatusService(
     where: { id: orderId },
     data: {
       status,
-      ...(status === "PAID" ? { paidAt: new Date() } : {}),
     },
     select: {
       id: true,

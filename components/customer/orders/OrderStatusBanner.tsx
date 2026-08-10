@@ -16,37 +16,28 @@ type Props = {
 };
 
 const STATUS = {
-  PAID: {
-    label: "Payment confirmed",
-    sub: "Your payment was received. Order is being processed.",
+  CREATED: {
+    label: "Order received",
+    sub: "Your order has been received and is awaiting processing.",
+    icon: Package,
+    iconClass: "text-amber-400",
+    pillClass: "bg-amber-400/10 text-amber-400 border-amber-400/20",
+    pill: "Received",
+    barClass: "bg-amber-400",
+  },
+  CONFIRMED: {
+    label: "Order confirmed",
+    sub: "Your order has been received and will be processed by our team.",
     icon: CheckCircle2,
     iconClass: "text-[--brand-accent]",
     pillClass:
       "bg-[--brand-accent]/10 text-[--brand-accent] border-[--brand-accent]/20",
-    pill: "Paid",
+    pill: "Confirmed",
     barClass: "bg-[--brand-accent]",
-  },
-  CREATED: {
-    label: "Awaiting payment",
-    sub: "Complete your payment before this order expires.",
-    icon: Package,
-    iconClass: "text-amber-400",
-    pillClass: "bg-amber-400/10 text-amber-400 border-amber-400/20",
-    pill: "Pending",
-    barClass: "bg-amber-400",
-  },
-  PAYMENT_FAILED: {
-    label: "Payment failed",
-    sub: "Something went wrong. You can retry payment below.",
-    icon: XCircle,
-    iconClass: "text-red-400",
-    pillClass: "bg-red-400/10 text-red-400 border-red-400/20",
-    pill: "Failed",
-    barClass: "bg-red-400",
   },
   EXPIRED: {
     label: "Order expired",
-    sub: "Payment window closed. Please place a new order.",
+    sub: "This order is no longer active. Please place a new order if needed.",
     icon: AlertTriangle,
     iconClass: "text-[--text-muted]",
     pillClass: "bg-[--border-soft] text-[--text-muted] border-[--border-soft]",
@@ -78,8 +69,8 @@ export default function OrderStatusBanner({
   currency,
 }: Props) {
   const cfg = STATUS[status as keyof typeof STATUS] ?? {
-    label: status,
-    sub: "",
+    label: status === "PAID" || status === "PAYMENT_FAILED" ? "Order received" : status,
+    sub: "Your order is being managed by our team.",
     icon: Package,
     iconClass: "text-[--text-muted]",
     pillClass: "bg-[--border-soft] text-[--text-muted] border-[--border-soft]",

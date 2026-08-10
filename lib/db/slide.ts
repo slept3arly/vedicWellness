@@ -2,6 +2,7 @@ import "server-only";
 import { buildWhere } from "@/lib/db/search";
 import { prisma } from "@/lib/db/prisma";
 import { ADMIN_PAGE_SIZE } from "@/lib/constants";
+import { normalizePagination } from "@/lib/db/pagination";
 import { PlacementKey, Prisma } from "@prisma/client";
 import type { SearchConfig, SearchWhereClause, SearchWhereInput } from "@/lib/db/search";
 
@@ -220,6 +221,9 @@ export async function getAdminSlides(
     type?: PlacementKey | "";
   } = {}
 ) {
+  const pagination = normalizePagination(page, limit, ADMIN_PAGE_SIZE);
+  page = pagination.page;
+  limit = pagination.limit;
   const skip = (page - 1) * limit;
   const searchWhere = buildSlideWhere(q);
   const filterConditions: Prisma.SlideWhereInput[] = [];

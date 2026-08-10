@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db/prisma";
 import { randomUUID } from "crypto";
 import { Prisma, Role } from "@prisma/client";
 import type { SearchConfig } from "@/lib/db/search";
+import { normalizePagination } from "@/lib/db/pagination";
 
 /* =========================================================
    TYPES
@@ -106,6 +107,9 @@ export async function getAdminUsers(
   limit = 20,
   q = ""
 ) {
+  const pagination = normalizePagination(page, limit, 20);
+  page = pagination.page;
+  limit = pagination.limit;
   const skip = (page - 1) * limit;
   const searchWhere = buildWhere(q, userSearchConfig);
   const where = q

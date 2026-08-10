@@ -13,9 +13,16 @@ import {
   ScrollText,
   Image as ImageIcon,
   LayoutPanelTop,
+  Building2,
 } from "lucide-react";
 
 const sections = [
+  {
+    label: "Companies",
+    href: "/admin/companies",
+    icon: Building2,
+    desc: "Manage product brands",
+  },
   {
     label: "Products",
     href: "/admin/products",

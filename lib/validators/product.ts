@@ -11,6 +11,7 @@ export const ProductSchema = z.object({
   /* Core */
   name: z.string().min(1),
   slug: z.string().min(1),
+  companyId: z.string().min(1),
   subtitle: z.string().nullable(),
 
   /* Pricing */
@@ -123,6 +124,7 @@ export function parseProductForm(formData: FormData) {
     /* Core */
     name: String(formData.get("name") ?? "").trim(),
     slug,
+    companyId: String(formData.get("companyId") ?? "").trim(),
     subtitle: String(formData.get("subtitle") ?? "").trim() || null,
 
     /* Pricing */

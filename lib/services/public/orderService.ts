@@ -1,13 +1,15 @@
 import { prisma } from "@/lib/db/prisma";
 import { Prisma } from "@prisma/client";
-import { revalidateTag } from "next/cache";
-import { CACHE_TAGS } from "@/lib/constants";
+import { normalizePagination } from "@/lib/db/pagination";
 
 import type {
   OrderForClient,
   ShippingAddr,
   UserOrderListItem,
 } from "@/lib/types/order";
+
+const MAX_ORDER_QUANTITY = 20;
+const USER_ORDER_PAGE_SIZE = 20;
 
 /* ========================================================= */
 /* SELECT CONFIGS                                             */
@@ -72,7 +74,7 @@ const rawOrderForUserSelect = {
 /* TYPES                                                     */
 /* ========================================================= */
 
-export type LastPaidOrder = Prisma.OrderGetPayload<{
+export type LastOrder = Prisma.OrderGetPayload<{
   select: typeof lastPaidOrderSelect;
 }>;
 
@@ -89,15 +91,22 @@ type PrismaUserOrderResult = Prisma.OrderGetPayload<{
 /* ========================================================= */
 
 export async function getUserOrders(
-  userId: string
+  userId: string,
+  page = 1,
+  limit = USER_ORDER_PAGE_SIZE
 ): Promise<UserOrderListItem[]> {
+  const pagination = normalizePagination(page, limit, USER_ORDER_PAGE_SIZE);
   const orders = await prisma.order.findMany({
     where: { userId },
     orderBy: { createdAt: "desc" },
+    skip: (pagination.page - 1) * pagination.limit,
+    take: pagination.limit,
     select: userOrderListItemSelect,
   });
 
-  return (orders as any[]).map((order: PrismaUserOrderResult) => ({
+  // The Accelerate-extended Prisma client loses the select payload type here;
+  // the runtime query still returns exactly the selected fields above.
+  return (orders as unknown as PrismaUserOrderResult[]).map((order) => ({
     id: order.id,
     status: order.status.toString(),
     createdAt: order.createdAt,
@@ -132,6 +141,24 @@ export async function createOrderFromCart(
     throw new Error("Cart is empty");
   }
 
+  for (const item of cart.items) {
+    if (!item.product.published) {
+      throw new Error(`${item.product.name} is no longer available.`);
+    }
+
+    if (
+      !Number.isInteger(item.quantity) ||
+      item.quantity < 1 ||
+      item.quantity > MAX_ORDER_QUANTITY
+    ) {
+      throw new Error(`Invalid quantity for ${item.product.name}.`);
+    }
+
+    if (item.product.stock < item.quantity) {
+      throw new Error(`${item.product.name} does not have enough stock.`);
+    }
+  }
+
   const address = await prisma.address.findUnique({
     where: { id: addressId },
   });
@@ -145,14 +172,11 @@ export async function createOrderFromCart(
     0
   );
 
-  const expiresAt = new Date();
-  expiresAt.setHours(expiresAt.getHours() + 48);
-
   const order = await prisma.$transaction(async (tx) => {
     const newOrder = await tx.order.create({
       data: {
         userId,
-        status: "CREATED",
+        status: "CONFIRMED",
         totalAmount,
         currency: "INR",
         shippingName: address.fullName,
@@ -165,7 +189,7 @@ export async function createOrderFromCart(
           postalCode: address.postalCode,
           country: address.country,
         },
-        expiresAt,
+        expiresAt: null,
       },
     });
 
@@ -196,12 +220,28 @@ export async function createOrderFromSingleProduct(
   productId: string,
   quantity: number
 ) {
+  if (
+    !Number.isInteger(quantity) ||
+    quantity < 1 ||
+    quantity > MAX_ORDER_QUANTITY
+  ) {
+    throw new Error("Order quantity must be between 1 and 20.");
+  }
+
   const product = await prisma.product.findUnique({
     where: { id: productId },
   });
 
   if (!product) {
     throw new Error("Product not found");
+  }
+
+  if (!product.published) {
+    throw new Error("Product is no longer available.");
+  }
+
+  if (product.stock < quantity) {
+    throw new Error("Product does not have enough stock.");
   }
 
   const address = await prisma.address.findUnique({
@@ -214,13 +254,10 @@ export async function createOrderFromSingleProduct(
 
   const totalAmount = product.price * quantity;
 
-  const expiresAt = new Date();
-  expiresAt.setHours(expiresAt.getHours() + 48);
-
   const order = await prisma.order.create({
     data: {
       userId,
-      status: "CREATED",
+      status: "CONFIRMED",
       totalAmount,
       currency: "INR",
       shippingName: address.fullName,
@@ -233,7 +270,7 @@ export async function createOrderFromSingleProduct(
         postalCode: address.postalCode,
         country: address.country,
       },
-      expiresAt,
+      expiresAt: null,
       items: {
         create: [
           {
@@ -247,6 +284,25 @@ export async function createOrderFromSingleProduct(
     },
   });
   return order;
+}
+
+export async function getOrderNotificationData(orderId: string) {
+  return prisma.order.findUnique({
+    where: { id: orderId },
+    select: {
+      id: true,
+      createdAt: true,
+      totalAmount: true,
+      currency: true,
+      shippingName: true,
+      shippingPhone: true,
+      shippingAddr: true,
+      user: { select: { name: true, email: true } },
+      items: {
+        select: { productName: true, quantity: true, price: true },
+      },
+    },
+  });
 }
 
 export async function getUserOrderCount(userId: string) {
@@ -267,14 +323,14 @@ export async function getOrderForUser(
   return mapOrderToClient(order as RawOrderForUser);
 }
 
-export async function getLastPaidOrder(userId: string) {
+export async function getLastOrder(userId: string) {
   const order = await prisma.order.findFirst({
-    where: { userId, status: "PAID" },
+    where: { userId },
     orderBy: { createdAt: "desc" },
     select: lastPaidOrderSelect,
   });
 
-  return order as LastPaidOrder | null;
+  return order as LastOrder | null;
 }
 
 /* ========================================================= */

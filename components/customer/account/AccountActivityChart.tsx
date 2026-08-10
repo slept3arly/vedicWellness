@@ -11,9 +11,9 @@ type Order = {
 
 type DayBar = {
   label: string;
-  paid: number;
-  pending: number;
-  failed: number;
+  received: number;
+  processing: number;
+  closed: number;
 };
 
 type Props = {
@@ -42,9 +42,9 @@ function buildBars(orders: Order[]): DayBar[] {
     });
     return {
       label,
-      paid: day.filter((o) => o.status === "PAID").length,
-      pending: day.filter((o) => o.status === "CREATED").length,
-      failed: day.filter((o) => o.status === "PAYMENT_FAILED" || o.status === "EXPIRED").length,
+      received: day.filter((o) => ["CREATED", "CONFIRMED"].includes(o.status)).length,
+      processing: day.filter((o) => ["SHIPPED", "DELIVERED"].includes(o.status)).length,
+      closed: day.filter((o) => ["CANCELLED", "EXPIRED"].includes(o.status)).length,
     };
   });
 }
@@ -53,7 +53,7 @@ const CHART_HEIGHT = 120;
 
 export default function AccountActivityChart({ orders }: Props) {
   const bars = buildBars(orders);
-  const max = Math.max(...bars.map((b) => b.paid + b.pending + b.failed), 1);
+  const max = Math.max(...bars.map((b) => b.received + b.processing + b.closed), 1);
   const ySteps = 4;
   const stepValue = Math.ceil(max / ySteps);
 
@@ -69,15 +69,15 @@ export default function AccountActivityChart({ orders }: Props) {
         <div className="flex gap-3 text-[10px] font-heading text-[var(--text-muted)]">
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 bg-emerald-500 rounded-sm inline-block" />
-            Paid
+            Received
           </div>
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 bg-amber-400 rounded-sm inline-block" />
-            Pending
+            Processing
           </div>
           <div className="flex items-center gap-1">
             <span className="w-2 h-2 bg-red-400 rounded-sm inline-block" />
-            Failed
+            Closed
           </div>
         </div>
       </div>
@@ -105,10 +105,10 @@ export default function AccountActivityChart({ orders }: Props) {
           {/* Bars */}
           <div className="relative flex items-end gap-1.5" style={{ height: CHART_HEIGHT }}>
             {bars.map((bar, i) => {
-              const total = bar.paid + bar.pending + bar.failed;
-              const paidH = (bar.paid / max) * CHART_HEIGHT;
-              const pendH = (bar.pending / max) * CHART_HEIGHT;
-              const failH = (bar.failed / max) * CHART_HEIGHT;
+              const total = bar.received + bar.processing + bar.closed;
+              const receivedH = (bar.received / max) * CHART_HEIGHT;
+              const processingH = (bar.processing / max) * CHART_HEIGHT;
+              const closedH = (bar.closed / max) * CHART_HEIGHT;
 
               return (
                 <div key={i} className="flex-1 flex flex-col items-center">
@@ -116,9 +116,9 @@ export default function AccountActivityChart({ orders }: Props) {
                     <span className="text-[10px] text-[var(--text-muted)] mb-0.5">{total}</span>
                   )}
                   <div className="w-full flex flex-col justify-end rounded-sm overflow-hidden">
-                    {failH > 0 && <div className="bg-red-400" style={{ height: failH }} />}
-                    {pendH > 0 && <div className="bg-amber-400" style={{ height: pendH }} />}
-                    {paidH > 0 && <div className="bg-emerald-500" style={{ height: paidH }} />}
+                    {closedH > 0 && <div className="bg-red-400" style={{ height: closedH }} />}
+                    {processingH > 0 && <div className="bg-amber-400" style={{ height: processingH }} />}
+                    {receivedH > 0 && <div className="bg-emerald-500" style={{ height: receivedH }} />}
                     {total === 0 && (
                       <div className="h-[2px] w-full bg-[var(--border-soft)] opacity-40" />
                     )}

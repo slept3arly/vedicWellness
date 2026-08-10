@@ -32,7 +32,7 @@ export default function LastOrderBanner({ order }: Props) {
             <div className="min-w-0">
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[10px] font-black text-sky-600 uppercase tracking-widest">
-                  {isEmpty ? "Member Status" : "Last Successful Order"}
+                  {isEmpty ? "Member Status" : "Last Order"}
                 </span>
                 {!isEmpty && <CheckCircle2 className="w-3 h-3 text-emerald-500" />}
               </div>
@@ -51,7 +51,7 @@ export default function LastOrderBanner({ order }: Props) {
           {!isEmpty && (
             <div className="flex items-center justify-between sm:justify-end gap-6 pt-3 sm:pt-0 border-t sm:border-t-0 border-zinc-100 dark:border-zinc-800">
               <div className="sm:text-right">
-                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">Amount Paid</p>
+                <p className="text-[10px] font-bold text-zinc-400 uppercase tracking-tight">Order Value</p>
                 <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50 tabular-nums">
                   ₹{order.totalAmount}
                 </p>

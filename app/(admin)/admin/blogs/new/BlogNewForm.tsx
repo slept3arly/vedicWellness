@@ -83,13 +83,13 @@ export default function BlogNewForm() {
       try {
         await createBlog(data);
         toast.success("Blog post created successfully.");
-      } catch (e: any) {
+      } catch (e: unknown) { const error = e as { message?: string; digest?: string };
         if (
-          e?.message === "NEXT_REDIRECT" ||
-          e?.digest?.startsWith("NEXT_REDIRECT")
+          error?.message === "NEXT_REDIRECT" ||
+          error?.digest?.startsWith("NEXT_REDIRECT")
         )
           return;
-        toast.error("Failed to create blog", e?.message);
+        toast.error("Failed to create blog", error?.message);
       }
     });
   }

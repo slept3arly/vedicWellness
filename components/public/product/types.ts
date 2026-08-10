@@ -72,6 +72,7 @@ export type Product = {
   /* Categorization */
   tag?: string | null;
   medicineForm?: string | null;
+  company?: { name: string; slug: string } | null;
 
   /* System Fields (YOU WERE MISSING THESE) */
   createdAt: Date | string;

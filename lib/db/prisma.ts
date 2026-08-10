@@ -13,7 +13,7 @@ const createPrismaClient = () => {
 type ExtendedPrismaClient = ReturnType<typeof createPrismaClient>;
 
 declare global {
-  // eslint-disable-next-line no-var
+   
   var prisma: ExtendedPrismaClient | undefined;
 }
 

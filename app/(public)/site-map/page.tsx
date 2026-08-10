@@ -17,6 +17,7 @@ export default async function SiteMapPage() {
     orderBy: {
       createdAt: "desc",
     },
+    take: 500,
   });
 
   return (

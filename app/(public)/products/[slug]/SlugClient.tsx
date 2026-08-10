@@ -197,7 +197,7 @@ export default function SlugClient({
                     </div>
                     <div className="flex justify-between">
                       <span>Brand</span>
-                      <span className="font-semibold">Vedic Wellness</span>
+                      <span className="font-semibold">{product.company?.name ?? "Vedic Wellness"}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Category</span>

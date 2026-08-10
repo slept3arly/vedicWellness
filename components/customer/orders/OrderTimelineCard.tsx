@@ -3,7 +3,6 @@ import { CheckCircle2, Circle, Clock, XCircle } from "lucide-react";
 type Props = {
   status: string;
   createdAt: Date | string;
-  paidAt?: Date | string | null;
   expiresAt?: Date | string | null;
 };
 
@@ -20,14 +19,10 @@ function formatDateTime(date: Date | string) {
 export default function OrderTimelineCard({
   status,
   createdAt,
-  paidAt,
   expiresAt,
 }: Props) {
   const isCancelled = status === "CANCELLED";
   const isExpired = status === "EXPIRED";
-  const isFailed = status === "PAYMENT_FAILED";
-  const isPaid = status === "PAID";
-
   const isConfirmed = status === "CONFIRMED";
   const isShipped = status === "SHIPPED";
   const isDelivered = status === "DELIVERED";
@@ -47,28 +42,22 @@ export default function OrderTimelineCard({
     },
     {
       label:
-        status === "PAYMENT_FAILED"
-          ? "Payment failed"
-          : status === "CANCELLED"
+        status === "CANCELLED"
           ? "Order cancelled"
           : status === "EXPIRED"
           ? "Order expired"
-          : isPaid || isConfirmed || isShipped || isDelivered
-          ? "Payment confirmed"
-          : "Awaiting payment",
+          : "Order received",
 
       time:
-        isPaid && paidAt
-          ? formatDateTime(paidAt)
-          : isExpired && expiresAt
+        isExpired && expiresAt
           ? formatDateTime(expiresAt)
           : status === "CREATED" && expiresAt
           ? `Expires ${formatDateTime(expiresAt)}`
           : null,
 
-      done: isPaid || isConfirmed || isShipped || isDelivered,
-      active: status === "CREATED",
-      failed: isFailed || isCancelled || isExpired,
+      done: isConfirmed || isShipped || isDelivered,
+      active: status === "CREATED" || isConfirmed,
+      failed: isCancelled || isExpired,
     },
     {
       label: "Processing",

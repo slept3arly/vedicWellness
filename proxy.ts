@@ -4,7 +4,7 @@ import { auth } from "./auth-edge";
 export default auth((req) => {
   const path = req.nextUrl.pathname;
   const session = req.auth;
-  const role = (session?.user as any)?.role;
+  const role = session?.user?.role;
 
   // 👑 Admin only
   if (path.startsWith("/admin")) {
@@ -25,15 +25,11 @@ export default auth((req) => {
   }
 
   // 🔐 Only product DETAIL pages gated
-  if (path.startsWith("/products/")) {
+  if (path.startsWith("/products/") && path !== "/products/companies") {
     if (!session) {
       const url = new URL("/login", req.url);
       url.searchParams.set("next", path);
       return NextResponse.redirect(url);
-    }
-
-    if (!(session.user as any)?.verified) {
-      return NextResponse.redirect(new URL("/verify-required", req.url));
     }
   }
 
