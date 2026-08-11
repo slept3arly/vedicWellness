@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   MapPin,
   TrendingUp,
@@ -10,7 +9,6 @@ import {
   Clock,
 } from "lucide-react";
 
-import { fadeUp, staggerFast } from "@/app/animations";
 import Card from "@/components/public/ui/Card";
 import PageHeader from "@/components/public/ui/PageHeader";
 
@@ -68,31 +66,21 @@ const benefits = [
 export default function FranchiseBenefits() {
   return (
     <section className="max-w-7xl mx-auto px-4 py-16 md:px-6 md:py-20">
-      <motion.div
-        variants={staggerFast}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true }}
-        className="space-y-12"
-      >
+      <div className="space-y-12">
         {/* Header */}
-        <motion.header
-          variants={fadeUp}
-          className="text-center max-w-5xl mx-auto"
-        >
+        <header className="text-center max-w-5xl mx-auto">
           <PageHeader
             title="Why Our Franchise Works"
             subtitle="Built for fast growth, strong profits, and long-term partnership success."
           />
-        </motion.header>
+        </header>
 
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6">
           {benefits.map(
             ({ icon: Icon, title, descShort, descLong, num }) => (
-              <motion.div
+              <div
                 key={title}
-                variants={fadeUp}
                 className="group h-full"
               >
                 <Card className="bg-white/75 dark:bg-black/45 !p-0 overflow-hidden h-full flex">
@@ -159,11 +147,11 @@ export default function FranchiseBenefits() {
                   </div>
 
                 </Card>
-              </motion.div>
+              </div>
             )
           )}
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

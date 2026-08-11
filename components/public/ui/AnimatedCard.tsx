@@ -1,14 +1,14 @@
 "use client";
 
 import { ReactNode, forwardRef, useEffect, useState } from "react";
-import { motion, MotionProps } from "framer-motion";
+import { m, MotionProps } from "framer-motion";
 import Card from "./Card";
 
 type AnimatedCardProps = {
     children: ReactNode;
     className?: string;
     hoverLift?: boolean;
-} & Omit<React.ComponentPropsWithoutRef<typeof motion.div>, "children">;
+} & Omit<React.ComponentPropsWithoutRef<typeof m.div>, "children">;
 
 export const AnimatedCard = forwardRef<HTMLDivElement, AnimatedCardProps>(function AnimatedCard(
     { children, className, hoverLift = true, ...props },
@@ -29,7 +29,7 @@ export const AnimatedCard = forwardRef<HTMLDivElement, AnimatedCardProps>(functi
     const hoverAnimation = hoverLift && isDesktop ? { y: -4 } : undefined;
 
     return (
-        <motion.div
+        <m.div
             ref={ref}
             whileHover={hoverAnimation}
             transition={{ type: "spring", stiffness: 240, damping: 22 }}
@@ -40,7 +40,7 @@ export const AnimatedCard = forwardRef<HTMLDivElement, AnimatedCardProps>(functi
             <Card className={className}>
                 {children}
             </Card>
-        </motion.div>
+        </m.div>
     );
 });
 

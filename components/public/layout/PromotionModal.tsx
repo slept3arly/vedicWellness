@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { m, AnimatePresence, Variants } from "framer-motion";
 import Button from "@/components/public/ui/Button";
 import { softSpring, fastSpring } from "@/app/animations";
 import Image from "next/image";
@@ -142,7 +142,7 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
+        <m.div
           className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-5 p-4 bg-black/65 backdrop-blur-sm"
           variants={overlayVariants}
           initial="hidden"
@@ -151,7 +151,7 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
           onClick={close}
         >
           {/* Modal Card */}
-          <motion.div
+          <m.div
             className="promo-inner relative w-full max-w-[400px] sm:max-w-[780px] rounded-2xl overflow-hidden"
             style={{ minHeight: "clamp(460px, 65vh, 640px)" }}
             variants={modalVariants}
@@ -233,10 +233,10 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
                 </div>
               </div>
             )}
-          </motion.div>
+          </m.div>
 
           {/* Close button */}
-          <motion.button
+          <m.button
             className="flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-medium text-white/60 hover:text-white border border-white/15 hover:border-white/35 bg-black/45 hover:bg-white/10 transition-colors cursor-pointer select-none"
             variants={closeBtnVariants}
             onClick={(e) => {
@@ -249,8 +249,8 @@ export default function PromotionModal({ banner }: { banner: Banner | null }) {
           >
             <CloseIcon />
             <span>Close</span>
-          </motion.button>
-        </motion.div>
+          </m.button>
+        </m.div>
       )}
     </AnimatePresence>
   );

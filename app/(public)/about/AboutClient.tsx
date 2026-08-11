@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import {
   Sparkles,
@@ -10,9 +10,9 @@ import {
   MapPin,
   Truck,
   ShieldCheck,
+  type LucideIcon,
 } from "lucide-react";
 
-import { fadeUpSoft, staggerFast } from "@/app/animations";
 import { useRouter } from "next/navigation";
 
 import Card from "@/components/public/ui/Card";
@@ -59,7 +59,7 @@ function StatCard({
   title,
   desc,
 }: {
-  icon: any;
+  icon: LucideIcon;
   title: string;
   desc: string;
 }) {
@@ -84,7 +84,7 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
   const [open, setOpen] = useState(index === 0);
 
   return (
-    <motion.div variants={fadeUpSoft} className="group overflow-hidden rounded-3xl">
+    <div className="group overflow-hidden rounded-3xl">
       <Card className="bg-white/75 dark:bg-black/45 p-0">
         <button
           onClick={() => setOpen((v) => !v)}
@@ -103,7 +103,7 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
 
         <AnimatePresence initial={false}>
           {open && (
-            <motion.div
+            <m.div
               key="content"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
@@ -112,11 +112,11 @@ function FAQItem({ faq, index }: { faq: FAQ; index: number }) {
               className="overflow-hidden"
             >
               <div className="px-6 pb-5 text-sm text-muted">{faq.a}</div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
@@ -150,13 +150,7 @@ export default function AboutClient() {
         />
 
         {/* Trust chips */}
-        <motion.div
-          variants={staggerFast}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="flex flex-wrap justify-center gap-2"
-        >
+        <div className="flex flex-wrap justify-center gap-2">
           {[
             "ISO Certified",
             "GMP Quality",
@@ -164,11 +158,11 @@ export default function AboutClient() {
             "Fast Dispatch",
             "Promotional Support",
           ].map((t) => (
-            <motion.div key={t} variants={fadeUpSoft}>
+            <div key={t}>
               <Chip>{t}</Chip>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
 
         {/* Who / Mission / Vision */}
         <div className="grid gap-6 lg:grid-cols-3">
@@ -268,17 +262,11 @@ export default function AboutClient() {
             subtitle="Common questions about our PCD Pharma Franchise model"
           />
 
-          <motion.div
-            variants={staggerFast}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="mt-6 grid gap-4"
-          >
+          <div className="mt-6 grid gap-4">
             {faqs.map((f, i) => (
               <FAQItem key={f.q} faq={f} index={i} />
             ))}
-          </motion.div>
+          </div>
         </div>
 
         {/* CTA */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Pill, Layers, Users, Truck } from "lucide-react";
 
 const iconMap = {
@@ -16,7 +16,7 @@ export default function FloatingIcon({ type }: { type: IconType }) {
   const Icon = iconMap[type];
 
   return (
-    <motion.div
+    <m.div
       initial={{ opacity: 0, y: 8, scale: 0.6 }}
       animate={{ opacity: [0, 1, 0], y: [-6, -26], scale: [0.6, 1, 0.9] }}
       transition={{ duration: 1.1, ease: "easeOut" }}
@@ -24,6 +24,6 @@ export default function FloatingIcon({ type }: { type: IconType }) {
       className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[var(--brand-primary)]/40 pointer-events-none"
     >
       <Icon size={18} />
-    </motion.div>
+    </m.div>
   );
 }

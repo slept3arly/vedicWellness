@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   Heart,
   UserCheck,
@@ -21,7 +20,6 @@ import ProductReviews from "@/components/public/product/ProductReviews";
 import ProductRelated from "@/components/public/product/ProductRelated";
 import ProductPurchaseCard from "@/components/customer/product/ProductPurchaseCard";
 
-import { staggerFast, fadeUpSoft } from "@/app/animations";
 import { Product, RelatedProduct } from "@/components/public/product/types";
 
 const audienceIcons = [Heart, UserCheck, ShieldCheck, Stethoscope];
@@ -42,17 +40,12 @@ export default function SlugClient({
   return (
     <section className="w-full pb-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <motion.div
-          variants={staggerFast}
-          initial="hidden"
-          animate="show"
-          className="space-y-8"
-        >
+        <div className="space-y-8">
 
           {/* ================= HERO ================= */}
-          <motion.div variants={fadeUpSoft} className="pt-6 md:pt-8">
+          <div className="pt-6 md:pt-8">
             <ProductHero product={product} />
-          </motion.div>
+          </div>
 
           {/* ================= MOBILE PURCHASE ================= */}
           <div className="lg:hidden">
@@ -76,7 +69,7 @@ export default function SlugClient({
 
               {/* BENEFITS */}
               {(product.benefits?.length > 0 || product.highlights?.length > 0) && (
-                <motion.div variants={fadeUpSoft}>
+                <div>
                   <Card className="p-0">
                     <div className="px-5 pt-5 pb-4 border-b border-[color:var(--border-soft)] flex items-center gap-2">
                       <Zap size={15} className="text-[color:var(--brand-primary)]" />
@@ -94,12 +87,12 @@ export default function SlugClient({
                       ))}
                     </ul>
                   </Card>
-                </motion.div>
+                </div>
               )}
 
               {/* 👈 MOVED HERE */}
               {product.whoShouldUse?.length > 0 && (
-                <motion.div variants={fadeUpSoft} className="space-y-4">
+                <div className="space-y-4">
                   <SectionHeading title="Who Should Use This?" align="left" />
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -115,28 +108,28 @@ export default function SlugClient({
                       );
                     })}
                   </div>
-                </motion.div>
+                </div>
               )}
 
               {/* DETAILS */}
-              <motion.div variants={fadeUpSoft}>
+              <div>
                 <ProductDetailsAccordion product={product} />
-              </motion.div>
+              </div>
 
               {/* SPECIFICATIONS */}
-              <motion.div variants={fadeUpSoft}>
+              <div>
                 <ProductSpecification product={product} />
-              </motion.div>
+              </div>
 
               {/* FAQ */}
-              <motion.div variants={fadeUpSoft}>
+              <div>
                 <ProductFAQ faqs={product.faqs ?? []} />
-              </motion.div>
+              </div>
 
               {/* REVIEWS */}
-              <motion.div variants={fadeUpSoft}>
+              <div>
                 <ProductReviews reviews={product.reviews ?? []} />
-              </motion.div>
+              </div>
             </div>
 
             {/* ================= RIGHT ================= */}
@@ -213,11 +206,11 @@ export default function SlugClient({
 
           {/* RELATED */}
           {relatedProducts.length > 0 && (
-            <motion.div variants={fadeUpSoft}>
+            <div>
               <ProductRelated relatedProducts={relatedProducts} />
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

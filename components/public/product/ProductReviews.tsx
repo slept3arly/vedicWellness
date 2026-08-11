@@ -1,12 +1,10 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { MessageSquareQuote } from "lucide-react";
 
 import Card from "@/components/public/ui/Card";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 import ProductStars from "./ProductStars";
-import { fadeUpSoft, staggerFast } from "@/app/animations";
 import { calcAvg, ProductReview } from "./types";
 
 export default function ProductReviews({ reviews }: { reviews: ProductReview[] }) {
@@ -15,13 +13,7 @@ export default function ProductReviews({ reviews }: { reviews: ProductReview[] }
   const avg = calcAvg(reviews);
 
   return (
-    <motion.div
-      variants={staggerFast}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true }}
-      className="space-y-5"
-    >
+    <div className="space-y-5">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-[color:var(--border-soft)]">
         <div className="flex items-center gap-2">
@@ -50,7 +42,7 @@ export default function ProductReviews({ reviews }: { reviews: ProductReview[] }
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {reviews.slice(0, 6).map((r) => (
-          <motion.div key={r.id} variants={fadeUpSoft}>
+          <div key={r.id}>
             <Card className="h-full p-5 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <ProductStars rating={r.rating} size={13} />
@@ -89,9 +81,9 @@ export default function ProductReviews({ reviews }: { reviews: ProductReview[] }
                 </span>
               </div>
             </Card>
-          </motion.div>
+          </div>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }

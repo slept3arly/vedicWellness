@@ -29,6 +29,7 @@ export default async function MarqueeBanner() {
   return (
     <div
       className="
+        public-marquee
         absolute left-3 right-3 lg:left-9 lg:right-9
         top-[5rem] lg:top-[6.5rem]
       "

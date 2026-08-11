@@ -2,12 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion } from "framer-motion";
 import { ArrowUpRight, PackageSearch } from "lucide-react";
 
 import Card from "@/components/public/ui/Card";
 import SectionHeading from "@/components/public/ui/SectionHeading";
-import { fadeUpSoft, staggerFast } from "@/app/animations";
 import { RelatedProduct, fmt } from "./types";
 
 export default function ProductRelated({
@@ -18,13 +16,7 @@ export default function ProductRelated({
   if (!relatedProducts.length) return null;
 
   return (
-    <motion.div
-      variants={staggerFast}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true }}
-      className="space-y-5"
-    >
+    <div className="space-y-5">
       <div className="flex items-end justify-between pb-4 border-b border-[color:var(--border-soft)]">
         <div className="flex items-center gap-2">
           <PackageSearch size={18} className="text-[color:var(--brand-primary)]" aria-hidden="true" />
@@ -41,7 +33,7 @@ export default function ProductRelated({
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         {relatedProducts.map((rp) => (
-          <motion.div key={rp.id} variants={fadeUpSoft}>
+          <div key={rp.id}>
             <Link href={`/products/${rp.slug}`} prefetch={false} className="group block h-full">
               <Card className="h-full p-0 flex flex-col">
                 {rp.imageUrl && (
@@ -73,9 +65,9 @@ export default function ProductRelated({
                 </div>
               </Card>
             </Link>
-          </motion.div>
+          </div>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }

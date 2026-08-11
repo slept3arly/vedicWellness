@@ -141,6 +141,23 @@ body {
 }
 
 /* ======================================================
+   SCROLL-AWARE HEADER (navbar + marquee)
+====================================================== */
+
+.scroll-aware-header[data-hidden="true"] .public-navbar {
+  transform: translateY(calc(var(--header-offset, 0px) * -1));
+}
+
+.scroll-aware-header[data-hidden="true"] .public-marquee {
+  transform: translateY(calc(var(--header-offset, 0px) * -1 + 8px));
+}
+
+.public-navbar,
+.public-marquee {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ======================================================
    RIBBON LOADER
 ====================================================== */
 
@@ -209,8 +226,11 @@ body {
   .marquee-track,
   .ribbon-loader::after,
   .animate-route-loader,
-  .animate-float {
+  .animate-float,
+  .public-navbar,
+  .public-marquee {
     animation: none !important;
+    transition: none !important;
   }
 }
 

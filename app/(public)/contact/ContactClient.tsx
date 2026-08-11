@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { motion } from "framer-motion";
 import {
   Sparkles,
   PhoneCall,
@@ -12,8 +11,6 @@ import {
 } from "lucide-react";
 import { Turnstile } from "@marsidev/react-turnstile";
 import { toast } from "@/lib/toast";
-
-import { reveal, staggerFast } from "@/app/animations";
 
 import PageHeader from "@/components/public/ui/PageHeader";
 import Card from "@/components/public/ui/Card";
@@ -128,7 +125,7 @@ export default function ContactClient() {
       setForm({ name: "", phone: "", email: "", city: "", message: "", website: "" });
       setToken("");
       toast.success("Enquiry sent successfully", "We'll get back to you shortly.");
-    } catch (err) {
+    } catch {
       toast.error("Submission failed.", "Please try again.");
     } finally {
       setLoading(false);
@@ -156,28 +153,22 @@ export default function ContactClient() {
           subtitle="Need product list, franchise offer, or distributor support? Reach us below."
         />
 
-        <motion.div
-          variants={staggerFast}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true }}
-          className="flex flex-wrap justify-center gap-3"
-        >
+        <div className="flex flex-wrap justify-center gap-3">
           {[
             "Fast Response",
             "Monopoly Rights",
             "PAN India Supply",
             "Marketing Support",
           ].map((t) => (
-            <motion.div key={t} variants={reveal}>
+            <div key={t}>
               <Chip className="whitespace-nowrap">{t}</Chip>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
 
         <div className="grid gap-8 lg:grid-cols-2 w-full">
           {/* FORM CARD */}
-          <motion.div variants={reveal} className="group min-w-0">
+          <div className="group min-w-0">
             <Card className="h-full bg-white/80 dark:bg-black/45">
               <SectionHeading
                 align="left"
@@ -265,18 +256,12 @@ export default function ContactClient() {
                 </div>
               </form>
             </Card>
-          </motion.div>
+          </div>
 
           {/* RIGHT SIDE INFO */}
-          <motion.div
-            variants={staggerFast}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true }}
-            className="space-y-6 min-w-0"
-          >
+          <div className="space-y-6 min-w-0">
             {/* Quick Contact Card */}
-            <motion.div variants={reveal} className="group">
+            <div className="group">
               <Card className="bg-white/80 dark:bg-black/45">
                 <SectionHeading
                   align="left"
@@ -348,9 +333,9 @@ export default function ContactClient() {
                   </div>
                 </div>
               </Card>
-            </motion.div>
+            </div>
 
-            <motion.div variants={reveal} className="group">
+            <div className="group">
               <Card className="bg-white/80 dark:bg-black/45">
                 <SectionHeading align="left" title="Office & Availability" />
                 <div className="mt-6 space-y-4 text-sm sm:text-base">
@@ -372,8 +357,8 @@ export default function ContactClient() {
                   </div>
                 </div>
               </Card>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
     </section>

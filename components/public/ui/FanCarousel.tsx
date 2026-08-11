@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import Image from "next/image";
 import Card from "@/components/public/ui/Card";
 import { LucideIcon } from "lucide-react";
@@ -96,7 +96,7 @@ export default function FanCarousel({
 
             <div className="carousel-scrollbar hidden md:flex overflow-y-visible pt-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-6 gap-6 w-full">
                 {items.map((item) => (
-                    <motion.div
+                    <m.div
                         key={item.title}
                         whileHover={{ scale: 1.015 }}
                         transition={{
@@ -142,13 +142,13 @@ export default function FanCarousel({
                                 </div>
                             </div>
                         </Card>
-                    </motion.div>
+                    </m.div>
                 ))}
             </div>
 
             {/* Mobile Fan */}
 
-            <motion.div
+            <m.div
                 drag="x"
                 dragConstraints={{ left: 0, right: 0 }}
                 dragElastic={0.08}
@@ -175,7 +175,7 @@ export default function FanCarousel({
                     const isCenter = position === "center";
 
                     return (
-                        <motion.div
+                        <m.div
                             key={`${item.title}-${position}`}
                             animate={styles}
                             transition={{
@@ -230,10 +230,10 @@ export default function FanCarousel({
                                     </div>
                                 </div>
                             </Card>
-                        </motion.div>
+                        </m.div>
                     );
                 })}
-            </motion.div>
+            </m.div>
         </div>
     );
 }

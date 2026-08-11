@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   CheckCircle2,
   XCircle,
@@ -12,7 +11,6 @@ import Card from "@/components/public/ui/Card";
 import PageHeader from "@/components/public/ui/PageHeader";
 import ProductCarousel from "./ProductCarousel";
 import { Product } from "./types";
-import { staggerFast, reveal } from "@/app/animations";
 
 export default function ProductHero({ product }: { product: Product }) {
   const allImages = [product.imageUrl, ...(product.gallery ?? [])].filter(
@@ -37,17 +35,9 @@ export default function ProductHero({ product }: { product: Product }) {
         </div>
 
         {/* CONTENT */}
-        <motion.div
-          variants={staggerFast}
-          initial="hidden"
-          animate="show"
-          className="w-full lg:w-1/2 p-5 md:p-7 flex flex-col gap-4 justify-center"
-        >
+        <div className="w-full lg:w-1/2 p-5 md:p-7 flex flex-col gap-4 justify-center">
           {/* META STRIP */}
-          <motion.div
-            variants={reveal}
-            className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-heading uppercase tracking-widest text-[color:var(--text-muted)]"
-          >
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[10px] font-heading uppercase tracking-widest text-[color:var(--text-muted)]">
             {product.tag && (
               <span className="text-[color:var(--brand-primary)] font-semibold">
                 {product.tag}
@@ -84,51 +74,44 @@ export default function ProductHero({ product }: { product: Product }) {
                 Out of Stock
               </span>
             )}
-          </motion.div>
+          </div>
 
           {/* TITLE */}
-          <motion.div variants={reveal}>
+          <div>
             <PageHeader
               title={product.name}
               subtitle={product.subtitle ?? undefined}
               align="left"
               className="!p-0 !max-w-none !space-y-1"
             />
-          </motion.div>
+          </div>
 
           {/* SHORT DESC */}
           {product.shortDescription && (
-            <motion.p
-              variants={reveal}
-              className="text-sm text-[color:var(--text-muted)] leading-relaxed line-clamp-3"
-            >
+            <p className="text-sm text-[color:var(--text-muted)] leading-relaxed line-clamp-3">
               {product.shortDescription}
-            </motion.p>
+            </p>
           )}
 
           {/* QUICK HIGHLIGHTS (MAX 2) */}
           {product.highlights?.slice(0, 2).map((h, i) => (
-            <motion.div
+            <div
               key={i}
-              variants={reveal}
               className="flex items-start gap-2 text-sm"
             >
               <Target size={13} className="mt-0.5 text-[color:var(--brand-primary)]" />
               {h}
-            </motion.div>
+            </div>
           ))}
 
           {/* TRUST STRIP */}
-          <motion.div
-            variants={reveal}
-            className="flex flex-wrap gap-2 pt-2 text-[11px] text-[color:var(--text-muted)]"
-          >
+          <div className="flex flex-wrap gap-2 pt-2 text-[11px] text-[color:var(--text-muted)]">
             <span>✔ Ayurvedic</span>
             <span>✔ GMP Certified</span>
             <span>✔ Made in India</span>
-          </motion.div>
+          </div>
 
-        </motion.div>
+        </div>
       </div>
     </Card>
   );

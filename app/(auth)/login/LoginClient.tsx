@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 
@@ -47,7 +47,7 @@ export default function LoginClient() {
         />
 
         {/* Trust chips */}
-        <motion.div
+        <m.div
           variants={staggerFast}
           initial="hidden"
           animate="show"
@@ -55,15 +55,15 @@ export default function LoginClient() {
         >
           {["Secure Login", "Verified Partners", "Fast Access", "Support Available"].map(
             (t) => (
-              <motion.div key={t} variants={fadeUpSoft}>
+              <m.div key={t} variants={fadeUpSoft}>
                 <Chip>{t}</Chip>
-              </motion.div>
+              </m.div>
             )
           )}
-        </motion.div>
+        </m.div>
 
         {/* Form */}
-        <motion.div
+        <m.div
           variants={fadeUpSoft}
           initial="hidden"
           animate="show"
@@ -91,7 +91,7 @@ export default function LoginClient() {
               </Suspense>
             </div>
           </Card>
-        </motion.div>
+        </m.div>
 
       </div>
     </section>

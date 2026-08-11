@@ -1,10 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useRef } from "react";
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
-import { fadeUp } from "@/app/animations";
 
 const sections = [
   { id: "general", label: "General Use" },
@@ -75,11 +73,8 @@ export default function TermsClient() {
           </aside>
 
           {/* TERMS CONTENT - INCREASED HEIGHT */}
-          <motion.div
+          <div
             ref={contentRef}
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
             className="
               surface 
               rounded-2xl 
@@ -210,7 +205,7 @@ export default function TermsClient() {
                 policies communicated through official channels.
               </p>
             </section>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

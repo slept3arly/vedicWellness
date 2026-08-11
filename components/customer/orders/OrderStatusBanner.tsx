@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import {
   CheckCircle2,
   XCircle,
@@ -81,7 +81,7 @@ export default function OrderStatusBanner({
   const Icon = cfg.icon;
 
   return (
-    <motion.div
+    <m.div
       variants={scaleIn}
       initial="hidden"
       animate="show"
@@ -89,7 +89,7 @@ export default function OrderStatusBanner({
       className="surface overflow-hidden"
     >
       {/* accent top bar */}
-      <motion.div
+      <m.div
         className={`h-0.5 w-full ${cfg.barClass} opacity-60`}
         initial={{ scaleX: 0, originX: 0 }}
         animate={{ scaleX: 1 }}
@@ -99,7 +99,7 @@ export default function OrderStatusBanner({
       <div className="flex items-center justify-between gap-4 px-5 py-4">
         {/* left — icon + text */}
         <div className="flex items-center gap-3 min-w-0 flex-1">
-          <motion.div
+          <m.div
             variants={fadeUpSoft}
             initial="hidden"
             animate="show"
@@ -107,9 +107,9 @@ export default function OrderStatusBanner({
             className={`shrink-0 ${cfg.iconClass}`}
           >
             <Icon size={18} strokeWidth={2} />
-          </motion.div>
+          </m.div>
 
-          <motion.div
+          <m.div
             variants={fadeUpSoft}
             initial="hidden"
             animate="show"
@@ -130,11 +130,11 @@ export default function OrderStatusBanner({
             <p className="text-xs text-[--text-muted] leading-snug whitespace-normal break-words">
               {cfg.sub}
             </p>
-          </motion.div>
+          </m.div>
         </div>
 
         {/* right — amount */}
-        <motion.div
+        <m.div
           variants={fadeUpSoft}
           initial="hidden"
           animate="show"
@@ -147,8 +147,8 @@ export default function OrderStatusBanner({
           <p className="text-2xl font-bold text-[--text-main] tabular-nums leading-none">
             {formatAmount(totalAmount, currency)}
           </p>
-        </motion.div>
+        </m.div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

@@ -45,19 +45,19 @@ All route data is fetched server-side; client layers receive serializable props.
 
 | Order | Section | Client? | Animation |
 |---|---|---|---|
-| 1 | `Hero` | client (266 lines) | none Framer; hero GIF via `MediaSlider` (CSS); `Button` motion tap |
-| 2 | `Philosophy` | client (414 lines) | **heaviest**: image rail, mobile drag fan, maxHeight expand, modal |
+| 1 | `Hero` | client (266 lines) | none Framer; hero GIF via `MediaSlider` (CSS) |
+| 2 | `Philosophy` | client (414 lines) | native horizontal scroll rail (Step 6; drag fan removed) + row-3 expand + modal |
 | 3 | `MediaShowcase` (HOME_HERO) | server (fetches slides) → `MediaSlider` client | CSS translate rail |
 | 4 | `TrustStrip` | client | CSS marquee (duplicated items) |
-| 5 | `FranchiseBenefits` | client | whileInView stagger |
-| 6 | `StatsFloating` | client | whileInView stagger |
+| 5 | `FranchiseBenefits` | client | none (stagger removed) |
+| 6 | `StatsFloating` | client | none (stagger removed) |
 | 7 | `MediaShowcase` (HOME_SECONDARY) | server → client | CSS |
-| 8 | `Categories` | client | whileInView stagger of links |
-| 9 | `Testimonials` | client | whileInView stagger |
+| 8 | `Categories` | client | none (stagger removed) |
+| 9 | `Testimonials` | client | none (stagger removed) |
 | 10 | `MediaShowcase` (FESTIVAL_BANNER) | server → client | CSS |
 | 11 | `TrustStrip` (repeat) | client | CSS |
-| 12 | `HowItWorks` | client | whileInView stagger |
-| 13 | `CTABanner` | client | whileInView |
+| 12 | `HowItWorks` | client | none (stagger removed) |
+| 13 | `CTABanner` | client | none (stagger removed) |
 
 Only `MediaShowcase` fetches live data (slides). Everything else (testimonials, stats, categories, philosophy copy) is **hard-coded client JSX**, so the homepage is server-rendered but every section hydrates as a client component. Trust logos/stats/categories/testimonials are static marketing data — they could be server components.
 
@@ -65,20 +65,20 @@ Only `MediaShowcase` fetches live data (slides). Everything else (testimonials, 
 
 - Server page: validates `page/query/sort/company`, enforces `effectiveCompany`, `notFound()` on invalid company/page, renders ItemList JSON-LD.
 - `ProductsClient` (client, 300 lines) owns: company banner / "Browse Other Products" CTA, chip row, **sticky filter bar** (search + hidden sort select + submit), product grid, pagination.
-- Filtering = `router.push` to a new URL (a full server round-trip). The grid is `motion.div` keyed `grid-${query}-${sort}-${page}` inside `AnimatePresence mode="wait"` — **the whole grid is removed and re-staggered on every filter/page change**.
+- Filtering = `router.push` to a new URL (a full server round-trip). The grid is a plain `div` (grid `animate`/stagger removed) — no re-animation on filter/page change.
 - `anchorToFilter` uses `getBoundingClientRect()` + `window.scrollTo({behavior:"smooth"})` on a `requestAnimationFrame`.
 - Product links use `prefetch={false}`.
 
 ### 1.5 Product detail (private, `/products/[slug]`)
 
 - Server page: auth-gated by middleware; fetches product/related/cart; metadata + `noindex`.
-- `SlugClient` (client, 224 lines): page-level `staggerFast` mount animation wrapping all sections; each section additionally runs its own whileInView stagger (ProductHero mount-animate, Specs/FAQ/Reviews/Related whileInView).
+- `SlugClient` (client, 224 lines): page sections with no entrance animation (page-level stagger + section whileInView staggers removed).
 - Product sections — all client:
-  - `ProductHero` (client): mount stagger.
+  - `ProductHero` (client): no motion (mount stagger removed).
   - `ProductCarousel` (client): CSS only.
-  - `ProductDetailsAccordion` (client): whileInView + `AnimatePresence` height 0→auto (4 items).
-  - `ProductFAQ` (client): whileInView + height accordion.
-  - `ProductSpecification`, `ProductReviews`, `ProductRelated` (client): whileInView staggers.
+  - `ProductDetailsAccordion` (client): `AnimatePresence` height 0→auto (4 items); scroll reveal removed.
+  - `ProductFAQ` (client): height accordion; scroll reveal removed.
+  - `ProductSpecification`, `ProductReviews`, `ProductRelated` (client): no motion (whileInView staggers removed).
   - `ProductPurchaseCard` (customer): qty stepper + `useTransition` cart/buy-now actions (additional mounted on this route).
 
 ### 1.6 Product/company browsing
@@ -88,20 +88,20 @@ Only `MediaShowcase` fetches live data (slides). Everything else (testimonials, 
 ### 1.7 About
 
 - Server page emits FAQPage JSON-LD.
-- `AboutClient` (client, 322 lines): chips (whileInView) + story/sections + FAQ accordion (5 items, `AnimatePresence` height 0→auto). Static copy in a client component.
+- `AboutClient` (client, 322 lines): chips + story/sections + FAQ accordion (5 items, `AnimatePresence` height 0→auto); scroll-reveal staggers removed. Static copy in a client component.
 
 ### 1.8 Contact
 
-- `ContactClient` (client, 380 lines): chips, enquiry card (Turnstile + form), quick-contact/office info columns (whileInView). Submission posts to `/api/contact`. Static copy + interactive form in one large client.
+- `ContactClient` (client, 380 lines): chips, enquiry card (Turnstile + form), quick-contact/office info columns; whileInView staggers removed. Submission posts to `/api/contact`. Static copy + interactive form in one large client.
 
 ### 1.9 Blogs
 
-- Listing: server page fetches featured (3) + paginated list via `getPublicBlogsService(page)`, emits Blog JSON-LD. `BlogsClient` (client, 243 lines): featured + latest grids, mount stagger keyed per page (`key=page`), re-staggers grid on page change.
+- Listing: server page fetches featured (3) + paginated list via `getPublicBlogsService(page)`, emits Blog JSON-LD. `BlogsClient` (client, 243 lines): featured + latest grids, no motion (mount stagger keyed per page removed).
 - Detail: server page with `generateStaticParams`, BlogPosting JSON-LD, canonical-constrained metadata. `SlugClient` (client, 268 lines): article `Card`, `react-markdown` content with a **reading-position scroll progress treatment** (`contentRef` measurement), related blogs.
 
 ### 1.10 Other public routes
 
-- `/privacy-policy`: `PrivacyClient` (client, 298 lines) — a single `motion.div` fade wrapping a **client-side 70vh scroll container** of static legal text.
+- `/privacy-policy`: `PrivacyClient` (client, 298 lines) — a plain `div` wrapping a **client-side 70vh scroll container** of static legal text (fade wrap removed).
 - `/terms-conditions`: `TermsClient` (client, 218 lines) — same pattern, 85vh scroll container.
 - `/site-map`: pure server page (no client).
 
@@ -109,10 +109,10 @@ Only `MediaShowcase` fetches live data (slides). Everything else (testimonials, 
 
 | Component | Importers | Notes |
 |---|---|---|
-| `PageHeader` | 49 | motion whileInView header (badge/h1/p) |
-| `Card` | 39 | **motion** primitive with `layout` prop (see §5) |
+| `PageHeader` | 49 | static header (badge/h1/p) — motion removed |
+| `Card` | 39 | plain `div` primitive (motion `layout`/hover removed) |
 | `SectionHeading` | 27 | text heading |
-| `Button` | 15 | motion.button, `useFormStatus` auto-loading, spinner |
+| `Button` | 15 | plain `button`, `useFormStatus` auto-loading, spinner; tap scale via CSS `active:` |
 | `Chip` | 8 | pill |
 | `Section` | 1 | minimal wrapper |
 | `MediaSlider` | 2 | Hero + MediaShowcase |
@@ -218,7 +218,7 @@ Consistent everywhere: server `page.tsx` owns all reads (direct `@/lib/db/*` cal
 
 ### 3.6 Animations in admin
 
-No admin file imports framer-motion directly. Motion reach is transitive: `PageHeader` (whileInView) on every page and `AdminButton → Button` (spring tap). CSS: `animate-spin` (Sync/Purge spinners), `animate-pulse` (badge dots), `animate-in fade-in slide-in-from-top-1` (Users inline role editor — the only `tailwindcss-animate` use), ribbon loader.
+No admin file imports framer-motion directly. Motion reach is transitive via `AdminButton → Button` (plain `button` since Step 5; `PageHeader` no longer uses motion). CSS: `animate-spin` (Sync/Purge spinners), `animate-pulse` (badge dots), `animate-in fade-in slide-in-from-top-1` (Users inline role editor — the only `tailwindcss-animate` use), ribbon loader.
 
 ---
 
@@ -262,7 +262,7 @@ No admin file imports framer-motion directly. Motion reach is transitive: `PageH
 - `CartClient` early-returns `EmptyCart`, which renders its own `<main>` — component owns page shell.
 - `CheckoutClient` hard-codes its address card instead of reusing the `AddressList`/`AddressFormModal` machinery.
 - `ProductsClient` bakes the "Browse Other Products" link logic inline.
-- Home sections each re-declare nearly identical whileInView stagger scaffolding vs. a shared `Section`/`Reveal` wrapper (`Section` exists but has 1 importer).
+- Home sections previously re-declared nearly identical whileInView stagger scaffolding vs. a shared `Section`/`Reveal` wrapper (`Section` exists but has 1 importer). **Moot since Step 5** — all public whileInView staggers were removed.
 
 ### 4.6 Unnecessary abstractions / dead code
 
@@ -284,37 +284,108 @@ No admin file imports framer-motion directly. Motion reach is transitive: `PageH
 ### 5.2 Usage inventory
 
 | Metric | Count |
-|---|---|
-| Files importing framer-motion | 38 (36 render motion) |
-| Static `motion.*` occurrences | ~240 source lines → effective runtime DOM in the hundreds (map() grids + `Card`/`Button` everywhere) |
-| `whileInView` usages | 17 |
+|---|---|---|
+| Files importing framer-motion | 18 (was 38) — public active: 6 (accordions, modals, Philosophy carousel/modal); rest are auth/customer routes + dead code |
+| Static `motion.*` occurrences | ~240 → ~90 source lines (only kept functional motion: accordions, modals, Philosophy expand/modal) |
+| `whileInView` usages | 17 → **0** |
 | `useScroll` / `useTransform` / `useSpring` / `useMotionValue` / `useInView` / `useAnimation` | **0** |
-| `AnimatePresence` files | 7 (AboutClient, ProductDetailsAccordion, ProductsClient, Philosophy, ProductFAQ, PhilosophyFeatureModal, PromotionModal) |
-| `layout` / `layoutId` | `layout` on every `Card`; `layout="position"` on Philosophy mobile fan; `layoutId` = 0 |
+| `AnimatePresence` files | 7 → 5 (AboutClient, ProductDetailsAccordion, ProductFAQ, Philosophy, PhilosophyFeatureModal, PromotionModal) |
+| `layout` / `layoutId` | `layout` on `Card` removed; `layout="position"` on Philosophy mobile fan removed (Step 6); `layoutId` = 0 |
 | Continuous `repeat: Infinity` FM loops | 0 (infinite loops are CSS-only: marquee, spinner, `animate-float` in tailwind config; `animate-marquee` in globals) |
-| `drag` | Philosophy mobile fan + FanCarousel (dead) |
+| `drag` | **0 shipped** (Philosophy fan removed in Step 6; only dead, unimported `FanCarousel` remains) |
 
-### 5.3 Trigger classification (representative)
+### 5.3 Trigger classification (representative, post-cleanup)
 
-- **`initial`/`animate` mount staggers**: LoginClient, SignupClient, AccountClient, CartClient, CheckoutClient, OrderStatusBanner (incl. `scaleX 0→1` accent bar), ProductHero, SlugClient (PDP mounts whole tree), BlogsClient grids (re-keyed per page), Privacy/Terms/Slug fade wraps.
-- **`whileInView` (once:true)**: PageHeader (universal), ContactClient, AboutClient, Categories, CTABanner, FranchiseBenefits, StatsFloating, HowItWorks, Testimonials, Philosophy, ProductSpecification, ProductDetailsAccordion, ProductFAQ, ProductReviews, ProductRelated.
-- **State-toggled + AnimatePresence height**: AboutClient FAQ, ProductDetailsAccordion, ProductFAQ (`height 0→auto`), Philosophy row-3 `maxHeight` + fan `animate` styles + modal; PromotionModal + PhilosophyFeatureModal (AnimatePresence enter/exit).
-- **Hover/tap**: `Button` (tap scale), `Card` (hover y, `layout`), home image cards (hover scale).
-- **Gesture**: Philosophy mobile fan (`drag="x"`); FanCarousel (dead).
+- **`initial`/`animate` mount staggers** (out of public scope — auth/customer only): LoginClient, SignupClient, AccountClient, CartClient, CheckoutClient, OrderStatusBanner (incl. `scaleX 0→1` accent bar).
+- **`whileInView` (once:true)**: **0 remaining** — all public scroll-reveal staggers removed (was: PageHeader, ContactClient, AboutClient, Categories, CTABanner, FranchiseBenefits, StatsFloating, HowItWorks, Testimonials, Philosophy, ProductSpecification, ProductDetailsAccordion, ProductFAQ, ProductReviews, ProductRelated).
+- **State-toggled + AnimatePresence height**: AboutClient FAQ, ProductDetailsAccordion, ProductFAQ (`height 0→auto`), Philosophy row-3 `maxHeight` expand + modal; PromotionModal + PhilosophyFeatureModal (AnimatePresence enter/exit).
+- **Hover/tap**: home image cards (CSS `group-hover` scale), Button tap (CSS `active:scale-[0.97]`). Framer `whileHover`/`whileTap` removed from `Card`/`Button`/home cards.
+- **Gesture**: **none shipped** — Philosophy mobile fan (`drag="x"`) removed in Step 6; `FanCarousel` (dead).
 
 ### 5.4 Expense classification
 
 | Usage | Continuous | Layout-affecting | Expensive? |
 |---|---|---|---|
-| Home section whileInView staggers (8 sections, ~60–70 elements) | No (once) | No | Moderate — many observers, `will-change` layers |
-| `Card` `layout` prop (universal) | No | Yes (FLIP measuring) | **Yes — global multiplier** |
-| Products grid `AnimatePresence mode="wait"` re-key per filter/page | No | No | **Yes — full teardown + N-card re-stagger per interaction** |
-| PDP (SlugClient + 6 child sections) compound mount + whileInView | No | Yes (accordions) | Heaviest single route (~30+ motion elements) |
+| Home section whileInView staggers | — | — | Removed (Step 5) |
+| `Card` `layout` prop | — | — | Removed (Step 5) |
+| Products grid `AnimatePresence mode="wait"` re-key per filter/page | — | — | Removed (Step 5) |
+| PDP (SlugClient + 6 child sections) compound mount + whileInView | — | — | Removed (Step 5) |
 | Accordions (`height 0→auto`) | No | Yes (by design) | Moderate (reflow per open) |
-| Philosophy fan + image rail | No | No (absolute/contain) | Moderate (images, drag) |
+| Philosophy image rail | No | No | Light (native scroll-snap, no motion) |
 | Marquee / RouteLoader / spinner | **Yes (CSS)** | No | Cheap (CSS) |
 
-All scroll-sensitive code uses `whileInView`. **No `useScroll`/`useTransform` scroll-linked animations exist**, so there is no scroll-listener performance risk from Framer Motion today.
+No scroll-triggered motion remains in the public app. **All scroll-sensitive Framer code was removed (Step 5); the remaining Framer usage is state-driven only** (accordions, modals, carousel), so there is no scroll-listener / IntersectionObserver cost from Framer Motion today.
+
+### 5.5 Implementation notes — global Motion infrastructure (2026-08-11)
+
+**Step 1 — `LazyMotion` + `MotionConfig` in `app/Providers.tsx`:**
+
+- Wrapped the existing provider tree in `<LazyMotion>` and `<MotionConfig reducedMotion="user">` (Framer Motion `^12.24.10`, classic `framer-motion` package).
+- `MotionConfig` sits outermost, then `LazyMotion`, then the unchanged `SessionProvider → ThemeProvider → MenuProvider` order. No provider behavior or ordering changed.
+- Purpose: global reduced-motion policy (`prefers-reduced-motion` → transform/opacity only) with zero per-component work, plus the single split point the audit recommends (§8.1.3). Existing CSS `prefers-reduced-motion` rules in `globals.css`/`BottomNavbar` are untouched and coexist.
+- At Step 1, `motion.*` imports were intentionally left unchanged (38 files preload the full `featureBundle` at module scope).
+
+**Step 2 — migrated all runtime `motion.*` usage to the LazyMotion-compatible `m` API:**
+
+- **Files migrated: 36** (every application file importing `motion` as a runtime value; `app/animations.ts` and `components/customer/CustomerButton.tsx` import only types and were left unchanged; `app/Providers.tsx` already on `LazyMotion`).
+- **Old pattern:** `import { motion, … } from "framer-motion"` + `motion.div`/`motion.header`/`motion.p`/`motion.button`/`motion.h1`/`motion.a`/`motion.span` (240 component tokens; classic `motion` preloads the full feature bundle at module scope).
+- **New pattern:** `import { m, … } from "framer-motion"` + `m.div`/`m.header`/… (`m` components are created with no preloaded features; features now load only via `LazyMotion`). `AnimatePresence`, `Variants`/`Transition`/`MotionProps` (types), and `MotionConfig` untouched.
+- **Features required: `domMax`** (not `domAnimation`). `domAnimation` covers animation, `exit`/`AnimatePresence`, `whileInView`, hover, tap, focus — but **not** `drag` or `layout`. `Card` (`layout`) and `Philosophy` (`drag="x"` + `layout="position"`) require those, so `app/Providers.tsx` now passes `<LazyMotion features={domMax}>`. `domMax` (= `domAnimation` + `drag` + `layout`) is the minimum package-exported feature bundle preserving all behavior; there is no granular `layout`-only/`drag`-only export. A future downgrade to `domAnimation` is a one-line change once `Card`'s `layout` and any drag/layout use are removed.
+- **Full feature bundle still loaded: yes, by design.** `domMax` == the same feature set the classic `motion` proxy preloaded (animations + gestureAnimations + drag + layout), so there is **no net JS reduction yet**. What changed: no application file imports the classic `motion` proxy anymore, and feature loading is now centralized in `LazyMotion`. Evidence: built client chunks contain the drag/layout markers (`dragConstraints`, `onDragStart`, `ProjectionNode`, `layoutId`) in a single module set with no duplicate copy, and zero `import { motion }` remains in `app`/`components`. The `domAnimation` byte win is blocked by `Card`'s `layout` + Philosophy's `drag` and is deferred to the Card step.
+- **Verification:** `npm run typecheck` passes; targeted `eslint` on all migrated files reports only pre-existing findings (unrelated to this change); one `next build` succeeds with no errors/warnings.
+
+**Step 3 — removed `layout` from the universal `Card`:**
+
+- Removed the bare `layout` prop from `components/public/ui/Card.tsx` (audit P1-3; the item line and its FLIP box-measurement cost). Card retains appearance, `whileHover` lift (transform-only), spring `transition`, `willChange: "transform"`, className/appearance, children, and its `forwardRef` props/API unchanged. No replacement animation was added.
+- **Providers NOT switched to `domAnimation` — `domMax` retained.** After removal, verification shows `Philosophy.tsx:247-252` still uses `layout="position"` and `drag="x"` (with `dragConstraints`/`dragElastic`/`onDragStart`/`onDragEnd`), both features outside `domAnimation`. Downgrading would silently disable the retained Philosophy fan gesture, so the gate ("only if no remaining usage requires layout/drag") is not met. `domAnimation` becomes viable only once Philosophy's drag/layout is handled.
+- Other layout/drag: dead, unimported `FanCarousel.tsx` (`drag`) and `AnimatedCard.tsx` (no motion `layout`); `contain: "layout paint"` instances are CSS, not motion props. No Card caller depends on the removed `layout` behavior (grid re-keying in products/blogs runs entrance staggers only).
+- **Verification:** `npm run typecheck` passes; targeted `eslint` on `Card.tsx` + `app/Providers.tsx` passes clean; `next build` compiled successfully (42/42 static pages, exit 0).
+
+**Step 4 — removed the Products grid teardown/re-stagger:**
+
+- `app/(public)/products/ProductsClient.tsx`: removed `AnimatePresence mode="wait"`, the changing `key={grid-${query}-${sort}-${page}}`, and `exit="hidden"` from the grid (audit P1-4). The `AnimatePresence` import was removed.
+- **Retained:** one-time mount entrance — grid `m.div` keeps `variants={staggerSlow} initial="hidden" animate="show"`, cards keep `key={p.id}` + `variants={fadeUpSoft}`, empty-state keeps its opacity fade-in. On search/sort/company/page navigation the grid element is now stable, so React reconciles children in place: no full unmount, no exit animation, no N-card re-stagger. New/changed cards fade up individually; persisting cards stay static. No layout animation, no scroll-linked animation.
+- **Behavior unchanged:** search, sorting, company filtering, pagination, URL construction (`buildHref`/`handleFilter`/`handleGlobalClear`), `anchorToFilter` smooth-scroll, server fetching, `totalCount`/page UI, SEO metadata, and ItemList JSON-LD (server-side, untouched).
+- **Verification:** `npm run typecheck` passes; `eslint` on `ProductsClient.tsx` clean; `next build` compiled successfully (42/42 static pages, exit 0).
+
+### 5.6 Benchmark — bundle before/after Steps 1–5 (2026-08-11)
+
+Measured from `next build` output (turbopack) on identical source via `git stash` A/B, by summing `du -sb .next/static/chunks`.
+
+| Metric | Before (pre-cleanup) | After (Steps 1–5) | Δ |
+|---|---|---|---|
+| Total client JS in `.next/static/chunks` | 2,115,849 B | **1,929,594 B** | **−186,255 B (−8.8%)** |
+| Classic `motion` proxy per-route bundles (baseline: two 173,984 B chunks containing `motion.dev`/`whileInView`) | present | **absent** (single shared `domAnimation` chunk) | removed |
+| Shared framer-motion chunk (via `Providers` LazyMotion) | — | 127,544 B `domMax` → `domAnimation` (Step 6), one copy, all routes | +1 shared chunk |
+| Next/React runtime chunk | 227,520 B | 227,520 B (identical) | 0 |
+
+Interpretation:
+
+- The cleanup **reduced** total client JS by ~186 KB (−8.8%). The pre-cleanup build shipped per-route copies of the classic motion bundle (the two 173,984 B chunks); the post-cleanup build consolidates motion into a single `LazyMotion` chunk in `Providers` (now `domAnimation` after Step 6). **No bundle-size regression from Steps 1–6.**
+- The framer-motion footprint was dominated by the `domMax` feature bundle in `Providers` (shared across all routes). With the Philosophy fan removed (Step 6), the app no longer needs drag/layout, so `LazyMotion` was downgraded to `domAnimation` (drag feature module dropped from the bundle; total JS 1,878,558 → 1,875,632 B).
+- Consequence for reported performance complaints (Philosophy scroll lag, `/products` navigation, `/admin` load): none of these are attributable to the animation cleanup — the bundle is smaller and no scroll observers remain. The realistic causes are pre-existing and separate (see §6 P1-2 marketing-client hydration, P1-5 MediaSlider/GIF/images, P2-9/10 uncached reads, plus dynamic `/products` `searchParams` + uncached `getActiveCompanies()` on every render and admin `requireAdmin()` auth+DB round trip per render).
+
+
+- **Files cleaned (public):** `ProductsClient`, `ProductHero`, `ProductSpecification`, `ProductReviews`, `ProductRelated`, `ContactClient`, `AboutClient`, `PrivacyClient`, `TermsClient`, `BlogsClient`, blog `SlugClient`, product `SlugClient`, `PageHeader`, `Philosophy` (decorative wrappers only), `FranchiseBenefits`, `StatsFloating`, `Categories`, `Testimonials`, `HowItWorks`, `CTABanner`.
+- **Shared primitives de-motioned:** `Card` → plain `forwardRef` `div` (hover lift + spring transition removed; CSS `group-hover` shadow/glow kept). `Button` → plain `button` (spring tap removed; CSS `active:scale-[0.97]` kept). Both drop `MotionProps` from their prop types; no caller passed motion props (verified by grep).
+- **Retained (functional motion only):** accordions (`AboutClient` FAQ, `ProductDetailsAccordion`, `ProductFAQ` — `AnimatePresence` height 0→auto), modals (`PhilosophyFeatureModal`, `PromotionModal`), and `Philosophy`'s mobile drag-fan, row-3 `maxHeight` expand, and card `whileHover`. `Categories` `<a>` converted to `next/link` `Link` (lint fix). Minor pre-existing lint fixed en route (`icon: any` → `LucideIcon` in AboutClient; unused `err` in ContactClient).
+- **Result:** framer-motion importers 38 → 18 repo-wide (public active: 6 — AboutClient, Philosophy, PhilosophyFeatureModal, PromotionModal, ProductDetailsAccordion, ProductFAQ; the rest are auth/customer routes or dead, unimported files `AnimatedCard`/`CardIcon`/`FanCarousel`/`FloatingIcon`). No scroll observers remain in the public app; remaining Framer usage is state-driven only.
+- **Verification:** `npm run typecheck` passes; targeted `eslint` on every changed file is clean; `next build` compiled successfully (42/42 static pages, exit 0). (Builds intermittently hit a `next/font`/turbopack fetch race for `fonts.gstatic.com` in this environment — unrelated to these changes; retry succeeds.)
+
+**Step 6 — replaced Philosophy fan/carousel with a native horizontal scroll rail; downgraded `domMax` → `domAnimation` (2026-08-11):**
+
+- **Fan/carousel removed.** `Philosophy.tsx` dropped the Framer Motion mobile drag-fan (`drag="x"` + `layout="position"` + `dragConstraints`/`dragElastic`/`onDragStart`/`onDragEnd`) and the separate desktop whileHover rail. Both are replaced by a single native horizontal scroll rail for **all** breakpoints: `overflow-x-auto` + `snap-x snap-mandatory` + `snap-start` cards, `carousel-scrollbar` (existing CSS scrollbar styling, visible track + thumb), no Framer Motion, no JS scrolling. Card widths `w-[265px] sm:w-[290px] lg:w-[320px]` (narrower than the mobile container, so a sliver of the next card is visible). Card content (image, gradient, icon, title, summary) and click-to-open modal behavior are unchanged.
+- **Result:** the last shipped drag/layout usage is gone. `Philosophy.tsx` now uses framer-motion only for the row-3 `maxHeight` expand and the modal `AnimatePresence` enter/exit — both supported by `domAnimation`. Remaining repo drag/layout: only dead, unimported `FanCarousel.tsx`.
+- **Providers safely changed.** `app/Providers.tsx`: `<LazyMotion features={domMax}>` → `<LazyMotion features={domAnimation}>` (framer-motion 12.26.2: `domAnimation` = `animations` + `gestureAnimations`; `domMax` adds `drag` + `layout`). Verified no shipped component requires drag/layout (only dead `FanCarousel` references them), so `domAnimation` is sufficient. The drag feature module dropped out of the built chunks; the residual `ProjectionNode`/`layoutId` strings in one shared chunk are framer-motion's base visual-element/projection code (present under both `domMax` and `domAnimation`), not the drag/layout feature bundles.
+- **Verification:** `npm run typecheck` passes; `eslint` on `Philosophy.tsx` + `app/Providers.tsx` clean; `next build` compiled successfully (42/42 static pages, exit 0). Total client JS in `.next/static/chunks`: 1,878,558 B → 1,875,632 B after the downgrade.
+
+**Step 7 — scroll-aware navbar + marquee (2026-08-11):**
+
+- **Behavior:** on scroll-down past a threshold the fixed navbar translates up out of the viewport and the marquee translates up into the top of the viewport; both stay fixed there while scrolling continues. On scroll-up (or near the top of the page) both return to their original positions. No DOM duplication, no layout shift — the content's existing `pt-[7.5rem]` is unchanged.
+- **Implementation:** new client `ScrollAwareHeader` (`components/public/layout/ScrollAwareHeader.tsx`) replaces the plain `fixed top-0` wrapper in `app/layout.tsx`. It toggles a `data-hidden` attribute on itself and exposes `--header-offset` (the marquee's `offsetTop`, measured once on mount + on resize). A CSS rule in `globals.css` applies `translateY(calc(var(--header-offset) * -1))` to the navbar/marquee (class hooks `public-navbar`/`public-marquee`) only when `data-hidden="true"`, so only those two leaf elements move and the mobile fullscreen menu (viewport-`fixed`) is unaffected. Marquee is a server component with optional content; when no marquee exists in the DOM the scroll-hide is disabled, keeping the navbar permanently visible.
+- **Performance:** one passive `scroll` listener; no `requestAnimationFrame`, no polling, no Framer Motion (`useScroll`/`useTransform` avoided). Direction + delta are tracked in refs; React state changes at most once per direction flip (not per scroll event). Movement is GPU-friendly `transform: translateY` with a 300 ms ease-out CSS transition. One-time `offsetTop` read on mount/resize only (no per-frame measurement).
+- **Reduced motion:** the existing `prefers-reduced-motion` block in `globals.css` now also disables the header transition (`transition: none`), so reduced-motion users keep the functional hide/show behavior without the animated slide. Coexists with `MotionConfig reducedMotion="user"`.
+- **Verification:** `npm run typecheck` passes; targeted `eslint` on changed files clean; `next build` compiled successfully.
 
 ---
 
@@ -328,17 +399,17 @@ Ranked concrete findings. P0 = launch-impacting; P1 = meaningful; P2 = optimizat
 
 ### P1
 
-1. **Full framer-motion bundle on every route — no `LazyMotion`/`domAnimation`.** `app/Providers.tsx` (or each page) doesn't split motion features; 38 direct imports. Impact: wasted JS on every page incl. admin. Effort: low (wrap tree in `<LazyMotion features={domAnimation}>`).
+1. **Full framer-motion bundle on every route — no code-split win yet.** `LazyMotion features={domMax}` in `app/Providers.tsx` == the same feature set the classic `motion` proxy preloaded, so there is **no net JS reduction** (Steps 1–2). **Resolved in Step 5** to the extent possible: public motion is now state-driven only (accordions/modals/carousel), so a downgrade to `domAnimation` is now a one-line change (verify no drag/layout remains in shipped public code; dead `FanCarousel`/`AnimatedCard` still reference drag/layout but are unimported). **Done in Step 6:** `LazyMotion` is now `domAnimation` — no shipped component uses drag/layout anymore (dead `FanCarousel` is unimported).
 2. **Marketing pages shipped as large client components hydrating static content.** `AboutClient` (322), `ContactClient` (380), `PrivacyClient` (298, own 70vh client scroll container), `TermsClient` (218), all home sections, testimonials/stats/categories/trust are hard-coded client JSX. Zero server-fetched data on most. Impact: needless hydration bytes on the highest-traffic pages. Effort: medium (convert to server components; keep only form/accordion islands client).
-3. **`Card`'s `layout` prop on a universal primitive.** Every grid add/remove/reorder (products, related, reviews, blogs, cart/checkout cards) triggers Framer Motion box-measurement/FLIP. Impact: silent global overhead and odd animation on filter/list changes. Effort: low (remove `layout`; keep transform-only hover).
-4. **Products grid re-animation on every interaction.** `AnimatePresence mode="wait"` + `key=grid-${query}-${sort}-${page}` tears down and re-staggers N cards on every filter/page click, while the page does a full server round-trip (`router.push`). Impact: visible delay/flash on the primary catalog interaction. Effort: low (drop exit; key on a stable value; animate opacity once).
+3. **`Card`'s `layout` prop on a universal primitive.** Resolved (Step 3): `layout` removed from `Card`.
+4. **Products grid re-animation on every interaction.** Resolved (Steps 4–5): `AnimatePresence mode="wait"` + re-key stagger and the mount stagger removed; grid is a stable `div`.
 5. **`MediaSlider` renders every slide's desktop AND mobile image up-front.** Non-active slides are hidden with CSS after request; GIF slides use raw `<img>` (no optimization, no lazy). Homepage hero is a GIF. Impact: extra bandwidth/image decode on marketing-pages-with-many-slides. Effort: medium (lazy-decode hidden slides, choose device image, request fewer).
 
 ### P2
 
 6. **DB writes during GET renders.** `expireOldOrders()` on `/account` and `/orders` page views; `getOrCreateCart()` in the account page `Promise.all` creates a cart as a view side effect. Move to cron/action. Effort: low–medium.
 7. **4 font families via `next/font` on every page** (`playfair`, `montserrat`, `lato`, `cormorant`). Subset swap increases CSS/HTML bytes. Effort: low.
-8. **Homepage ~60–70 motion elements + `will-change: transform` on many cards.** Many composited layers; mitigated by `once:true`, but a shared `Reveal` wrapper could standardize and reduce. Effort: medium.
+8. **Homepage composited layers from motion.** Resolved (Step 5): all public `whileInView` staggers + `will-change` layers removed; home sections render statically. Remaining Framer usage on home is `Philosophy`'s row-3 expand/modal (state-driven; the fan/rail is CSS-only since Step 6).
 9. **Duplicate/uncached account reads** — 6 Prisma queries per `/account` render, order list runs another 2; none memoized with `unstable_cache` (in contrast to public services). Effort: medium.
 10. **Admin list clients**: each server render re-queries the same DB queries that also back client refresh cycles; no `unstable_cache`; combined with ~150 LOC of duplicated client logic. Effort: medium.
 11. **Marquee + TrustStrip duplicate text nodes** for CSS scroll fill (necessary for seamless loop; text is light). Keep — noted only.
@@ -361,7 +432,7 @@ Highest-value only. "Effort" = L low / M medium / H high.
 | 7 | Route loading pill | 3 byte-identical `loading.tsx` | shared `RouteLoading` | Dedup | L |
 | 8 | Qty stepper | CartItemsCard + ProductPurchaseCard (same 1–20 clamp) | `QtyStepper` | Dedup, single clamp rule | L |
 | 9 | Image upload field | 4 divergent implementations (R2Upload, ProductImagesField, BlogImagesField, SlideImagesField; 0-byte CategoryImagesField) | one `ImageField` (validation rules per folder) | One upload UX + one R2 namespace policy | M |
-| 10 | Reveal/Section animation wrapper | 17 whileInView stingers re-declared per section | `Reveal`/`FadeInSection` built on shared `animations.ts` variants + `MotionConfig` reduced-motion + once | Consistent entrance, easier global animation policy | L |
+| 10 | Reveal/Section animation wrapper | 17 whileInView stingers re-declared per section (**moot — all public staggers removed in Step 5**) | `Reveal`/`FadeInSection` built on shared `animations.ts` variants + `MotionConfig` reduced-motion + once | Consistent entrance, easier global animation policy | L |
 | 11 | Blog/article metadata + JSON-LD | per-page duplication of `getBlogCanonicalUrl`/image/JSON-LD builders | shared `blogSeo` helpers | Canonical/JSON-LD consistency | L |
 | 12 | `Button` wrapper family | CustomerButton vs AdminButton vs Button | one parameterized `Button` (variants incl. success/danger + size preset) | Collapse two thin wrappers | L |
 
@@ -370,6 +441,8 @@ Deliberately **not** recommended: merging "similar-looking" home section cards, 
 ---
 
 ## 8. Recommended Animation Architecture
+
+> **Status: mostly implemented by Steps 1–6 (2026-08-11).** Step 1 added `LazyMotion` + `MotionConfig reducedMotion="user"` (policy #3); Steps 3–5 removed `Card` `layout`, the Products grid `mode="wait"` re-key, and **all** public whileInView/entrance staggers; Step 6 replaced the Philosophy drag/layout fan with a native scroll rail and downgraded `LazyMotion` `domMax` → `domAnimation` (policy #2 now reduces to *accordion height + modal enter/exit only*, with no drag/layout anywhere in shipped code). Sections below retain the original forward-looking analysis for context.
 
 Based only on the current implementation. Not implemented — a forward policy.
 
@@ -386,7 +459,7 @@ Based only on the current implementation. Not implemented — a forward policy.
 
 | Pattern | Fit | Recommended implementation (NOT implemented) |
 |---|---|---|
-| **Horizontal swipe/scroll cards** | Existing MediaSlider (transition-transform rail) and dead FanCarousel (drag fan) cover this | Use CSS `scroll-snap` + `overflow-x auto` (zero JS, mobile-native, accessible, SEO content stays in DOM) for simple rails; reserve Framer Motion `drag` only for a custom gesture like the Philosophy fan. Keep images `next/image` with `sizes`; avoid mounting hidden slides (see P1-5). |
+| **Horizontal swipe/scroll cards** | MediaSlider (transition-transform rail); the Philosophy drag fan was replaced by a native scroll rail (Step 6) | Use CSS `scroll-snap` + `overflow-x auto` (zero JS, mobile-native, accessible, SEO content stays in DOM) for simple rails — now the pattern used by Philosophy. Keep images `next/image` with `sizes`; avoid mounting hidden slides (see P1-5). |
 | **Click-to-expand information cards** | Existing approach = `AnimatePresence` + `height 0→auto` (About FAQ, ProductFAQ, ProductDetailsAccordion) | Keep framer-motion height for polish, but put the full text in the DOM (already true) so collapsed content is still in HTML/React for SEO. Consider `grid-template-rows 0fr→1fr` CSS as a lighter alternative; keep it an accordion so no layout cost when closed. |
 | **Zig-zag image/text sections** | Fits `public/ui/Section` + grid; entrances via shared `Reveal` | Server-render copy/images; animate only with a shared `Reveal` (opacity/translate, `once:true`, reduced-motion aware). No `useScroll`/parallax needed — current code already avoids it. |
 | **Scroll-triggered section reveals** | Already the dominant pattern (17 whileInView, all `once:true`) | Keep, but standardize: one `Reveal` wrapper, `viewport={{ once:true, amount:0.1 }}`, `MotionConfig reducedMotion="user"`, and never animate layout-affecting props on reveals. |
@@ -400,12 +473,12 @@ Based only on the current implementation. Not implemented — a forward policy.
 | Area | Main Routes | Key Components | Client-heavy? | Motion-heavy? | Reuse issues |
 |---|---|---|---|---|---|
 | Public layout | all public | Navbar, MarqueeBanner, Footer, BottomNavbar, PromotionModal, Providers | Yes (fixed nav, providers, footer all client) | Low (CSS marquee; FM in modal) | Footer/nav hydration; 4 font families |
-| Homepage | `/` | Hero, Philosophy, MediaShowcase, TrustStrip, FranchiseBenefits, StatsFloating, Categories, Testimonials, HowItWorks, CTABanner | **Yes (all sections client)** | **Yes (8 whileInView sections)** | Static content in client; duplicated section scaffolding |
-| Products | `/products` | ProductsClient, PageHeader, Card | Yes | **Yes** (grid AnimatePresence re-key) | Client re-fetch via router.push; search/sort server round-trip |
-| Product detail | `/products/[slug]` | SlugClient, ProductHero/Carousel/FAQ/Specs/Reviews/Related/PurchaseCard | Yes | **Yes** (~30+ elements) | Compound mount+whileInView; accordions |
+| Homepage | `/` | Hero, Philosophy, MediaShowcase, TrustStrip, FranchiseBenefits, StatsFloating, Categories, Testimonials, HowItWorks, CTABanner | **Yes (all sections client)** | Low (Philosophy row-3 expand/modal only after Step 6) | Static content in client; duplicated section scaffolding |
+| Products | `/products` | ProductsClient, PageHeader, Card | Yes | No (grid re-key/mount stagger removed) | Client re-fetch via router.push; search/sort server round-trip |
+| Product detail | `/products/[slug]` | SlugClient, ProductHero/Carousel/FAQ/Specs/Reviews/Related/PurchaseCard | Yes | Low after Step 5 (accordions only) | Accordions; otherwise static sections |
 | Company browsing | `/products/companies` | server page + Card | No | No | — |
-| About/Contact | `/about`, `/contact` | AboutClient, ContactClient | Yes | Yes (whileInView, FAQ height) | Static copy in large clients; forms lack `useActionState` |
-| Blogs | `/blogs`, `/blogs/[slug]` | BlogsClient, SlugClient (+react-markdown) | Yes | Medium (page-keyed staggers) | Position/metrics measured inline |
+| About/Contact | `/about`, `/contact` | AboutClient, ContactClient | Yes | Low after Step 5 (FAQ accordion only) | Static copy in large clients; forms lack `useActionState` |
+| Blogs | `/blogs`, `/blogs/[slug]` | BlogsClient, SlugClient (+react-markdown) | Yes | Low after Step 5 (no page-keyed staggers) | Position/metrics measured inline |
 | Privacy/Terms | `/privacy-policy`, `/terms-conditions` | PrivacyClient, TermsClient | Yes (unnecessary) | Low | Static text wrapped in client scroll containers |
 | Site map | `/site-map` | server page | No | No | — |
 | Auth | `/login`, `/signup` | Login/SignupClient+Form | Yes | Low | Mirrored shell; form validation manual |
@@ -416,14 +489,14 @@ Based only on the current implementation. Not implemented — a forward policy.
 
 | Finding | Priority | Area | Impact | Effort |
 |---|---|---|---|---|
-| No LazyMotion — full FM bundle everywhere | P1 | global | JS bytes on all routes | L |
+| Full FM bundle via `LazyMotion domMax` — **Resolved (Step 6): now `domAnimation`, no shipped drag/layout** | P1 | global | JS bytes on all routes | L |
 | Marketing pages as large client components | P1 | public marketing | Extra hydration | M |
-| `Card` `layout` prop (universal FLIP) | P1 | public/customer | Interactions re-measure | L |
-| Products grid `mode="wait"` re-key | P1 | `/products` | Visible stall per filter | L |
+| `Card` `layout` prop (universal FLIP) | P1 | public/customer | Interactions re-measure — **Resolved (Step 3)** | L |
+| Products grid `mode="wait"` re-key | P1 | `/products` | Visible stall per filter — **Resolved (Steps 4–5)** | L |
 | MediaSlider loads all slide images (incl. raw GIF) | P1 | home/PDP media | Bandwidth/decode | M |
 | DB writes on GET (`expireOldOrders`, cart create) | P2 | account/orders | Side effects per view | L–M |
 | 4 font families | P2 | global | FOUT/bytes | L |
-| ~60–70 homepage motion elements | P2 | `/` | Composited layers | M |
+| Homepage motion composited layers | P2 | `/` | — **Resolved (Step 5)** | M |
 | Uncached account/admin reads | P2 | account/admin | Server time | M |
 | `router.refresh()` after actions | P2 | customer | Broad repaint | L |
 
@@ -440,7 +513,7 @@ Based only on the current implementation. Not implemented — a forward policy.
 | Route loading pill | 3 `loading.tsx` | shared `RouteLoading` | L |
 | Qty stepper | 2 places | `QtyStepper` | L |
 | Image upload | 4 implementations | one `ImageField` | M |
-| Reveal wrapper | 17 whileInView copies | `Reveal` + `MotionConfig` | L |
+| Reveal wrapper | 17 whileInView copies (**moot — removed in Step 5**) | `Reveal` + `MotionConfig` | L |
 | Blog SEO helpers | blog pages | shared buildMetadata/jsonLd | L |
 | Button family | `Button`/`CustomerButton`/`AdminButton` | single parameterized `Button` | L |
 
@@ -448,13 +521,13 @@ Based only on the current implementation. Not implemented — a forward policy.
 
 | Pattern | Current usage | Keep motion | Replace with CSS | Refactor |
 |---|---|---|---|---|
-| Entrance staggers | everywhere (initial/animate, whileInView once) | Keep | — | Centralize in `Reveal`; harmless with reduced-motion aware wrapper |
-| Hover/tap | Button, Card, image cards | Keep (`whileTap`/hover) | hover could be CSS | Remove `layout` from Card |
+| Entrance staggers | **removed repo-wide from public UI (Step 5)**; auth/customer still use initial/animate | Keep in auth/customer | — | — |
+| Hover/tap | Button, Card, image cards | — | Done (Steps 5): Card/Button/PageHeader plain; CSS `active:scale-[0.97]` + `group-hover` | — |
 | Accordion expand | FAQ ×3, row-3 expand | Keep | grid-rows alternative later | Ensure content in HTML; `initial={false}` |
 | Modal enter/exit | PromotionModal, Feature modal | Keep | — | — |
 | Marquee / trust strip / spinner / route loader | CSS keyframes | — | Already CSS | — |
-| Grid re-key animation | ProductsClient | Remove | — | Drop `mode="wait"` exit; key on stable value |
-| Page mount staggers | SlugClient (PDP), Account/Cart/Checkout | Keep (light) | — | One top-level stagger, not per-section whileInView too |
+| Grid re-key animation | ProductsClient — **removed (Steps 4–5)** | — | — | — |
+| Page mount staggers | SlugClient (PDP) — **removed (Step 5)**; Account/Cart/Checkout remain | Keep (light) | — | — |
 
 ---
 
@@ -482,18 +555,20 @@ Based only on the current implementation. Not implemented — a forward policy.
 5. `InfoCard` (card-with-header shell ×7).
 6. `QtyStepper` (2 copies).
 7. `ImageField` (4 upload implementations).
-8. `Reveal` wrapper (17 whileInView copies).
+8. `Reveal` wrapper (17 whileInView copies — **moot, removed in Step 5**).
 9. `formatINR`/`formatDate` utils.
 10. `RouteLoading` (3 duplicate loading.tsx).
 
 ### Top 10 animation / performance improvements
 
-1. Add `<LazyMotion features={domAnimation}>` + `<MotionConfig reducedMotion="user">` in `app/Providers.tsx`.
-2. Remove the `layout` prop from the universal `Card`.
-3. Drop `AnimatePresence mode="wait"` grid teardown in `ProductsClient`.
+> ✅ = done in Steps 1–5. Remaining items are unstarted.
+
+1. ✅ Add `<LazyMotion features={domAnimation}>` + `<MotionConfig reducedMotion="user">` in `app/Providers.tsx` (done: `domMax` → `domAnimation` in Step 6 after removing the Philosophy fan).
+2. ✅ Remove the `layout` prop from the universal `Card`.
+3. ✅ Drop `AnimatePresence mode="wait"` grid teardown in `ProductsClient`.
 4. Move static marketing pages (About, Contact, Privacy, Terms, home sections) from client to server, keeping only interactive islands.
 5. Lazy-decode/select devices in `MediaSlider`; avoid raw `<img>` GIFs where possible.
-6. Standardize all reveals on a shared `Reveal` with `once:true`.
+6. ✅ Remove all public whileInView/entrance staggers (was "standardize reveals"; superseded by removal).
 7. Convert 3 duplicate `loading.tsx` to one shared component.
 8. Remove dead motion components (AnimatedCard, FloatingIcon, CardIcon, FanCarousel) and unused animation exports.
 9. Memoize account/admin reads (`unstable_cache`) and move `expireOldOrders` out of GET.
@@ -501,7 +576,7 @@ Based only on the current implementation. Not implemented — a forward policy.
 
 ### Recommended implementation order
 
-1. **JS/animation hygiene (affects every page):** LazyMotion + MotionConfig reduced-motion; remove `Card` `layout`; drop grid `mode="wait"`; remove dead animation files/exports.
+1. **JS/animation hygiene (affects every page):** ✅ LazyMotion + MotionConfig reduced-motion; ✅ remove `Card` `layout`; ✅ drop grid `mode="wait"`; ✅ removed public whileInView/entrance staggers; ✅ Philosophy fan/carousel → native scroll rail; ✅ downgrade `LazyMotion` `domMax` → `domAnimation` (Steps 1–6). Remaining: remove dead animation files/exports.
 2. **Marketing pages server-ification** (About, Contact, Privacy, Terms, home static sections) — biggest hydration win and enables the reusable primitives below.
 3. **Consolidate customer UI:** status config, EmptyState, InfoCard, QtyStepper, RouteLoading, formatting utils, order-confirmation flow.
 4. **Admin refactor:** `AdminListView`, form scaffold + new/edit dedup, empty states, upload `ImageField`, Logs Export fix, AdminTabs/companies reconciliation.

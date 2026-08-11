@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { ChevronDown, HelpCircle } from "lucide-react";
 
 import Card from "@/components/public/ui/Card";
 import SectionHeading from "@/components/public/ui/SectionHeading";
-import { fadeUpSoft, staggerFast } from "@/app/animations";
 import { ProductFAQ as FAQType } from "./types";
 
 function FAQItem({ faq }: { faq: FAQType }) {
@@ -39,7 +38,7 @@ function FAQItem({ faq }: { faq: FAQType }) {
 
       <AnimatePresence initial={false}>
         {open && (
-          <motion.div
+          <m.div
             key="body"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
@@ -50,7 +49,7 @@ function FAQItem({ faq }: { faq: FAQType }) {
             <div className="px-5 pb-5 pt-2 border-t border-[color:var(--border-soft)] text-sm font-body text-[color:var(--text-muted)] leading-relaxed">
               {faq.answer}
             </div>
-          </motion.div>
+          </m.div>
         )}
       </AnimatePresence>
     </Card>
@@ -61,13 +60,7 @@ export default function ProductFAQ({ faqs }: { faqs: FAQType[] }) {
   if (!faqs.length) return null;
 
   return (
-    <motion.div
-      variants={staggerFast}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true }}
-      className="space-y-4"
-    >
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
         <HelpCircle size={18} className="text-[color:var(--brand-primary)]" aria-hidden="true" />
         <SectionHeading title="Frequently Asked Questions" align="left" />
@@ -75,11 +68,11 @@ export default function ProductFAQ({ faqs }: { faqs: FAQType[] }) {
 
       <div className="space-y-3">
         {faqs.map((faq) => (
-          <motion.div key={faq.id} variants={fadeUpSoft}>
+          <div key={faq.id}>
             <FAQItem faq={faq} />
-          </motion.div>
+          </div>
         ))}
       </div>
-    </motion.div>
+    </div>
   );
 }

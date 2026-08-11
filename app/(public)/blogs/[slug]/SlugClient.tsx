@@ -4,8 +4,6 @@ import Image from "next/image";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { useRef } from "react";
-import { motion } from "framer-motion";
-import { fadeUp } from "@/app/animations";
 
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
@@ -160,7 +158,7 @@ export default function SlugClient({
 </aside>
 
           {/* ================= CONTENT ================= */}
-          <motion.div variants={fadeUp} initial="hidden" animate="show">
+          <div>
             <Card
               ref={contentRef}
               className="p-6 md:p-10 overflow-y-auto h-[78vh] md:h-[96vh] scroll-smooth custom-scrollbar"
@@ -225,7 +223,7 @@ export default function SlugClient({
   </div>
 ) : null}
             </Card>
-          </motion.div>
+          </div>
         </div>
 
         {/* ================= RELATED ================= */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { ReactNode } from "react";
 import { cardIconGlow } from "@/app/animations";
 
@@ -12,7 +12,7 @@ export default function CardIcon({ children }: Props) {
   return (
     <div className="relative inline-flex">
       {/* glow */}
-      <motion.span
+      <m.span
         variants={cardIconGlow}
         className="
           pointer-events-none

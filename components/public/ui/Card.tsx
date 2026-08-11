@@ -1,45 +1,21 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { cn } from "@/lib/cn";
-import { ReactNode, forwardRef, useEffect, useState } from "react";
-
-// Extract media query hook for reusability
-const useDesktopMediaQuery = () => {
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const media = window.matchMedia("(min-width: 1024px)");
-    queueMicrotask(() => setIsDesktop(media.matches));
-
-    const listener = () => setIsDesktop(media.matches);
-    media.addEventListener("change", listener);
-
-    return () => media.removeEventListener("change", listener);
-  }, []);
-
-  return isDesktop;
-};
+import { ReactNode, forwardRef } from "react";
 
 type CardProps = {
   children: ReactNode;
   className?: string;
-} & React.ComponentPropsWithoutRef<typeof motion.div>;
+} & React.ComponentPropsWithoutRef<"div">;
 
 const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
   { children, className, ...props },
   ref
 ) {
-  const isDesktop = useDesktopMediaQuery();
-
   return (
-    <motion.div
+    <div
       ref={ref}
       {...props}
-      whileHover={isDesktop ? { y: -4 } : undefined}
-      transition={{ type: "spring", stiffness: 240, damping: 22 }}
-      layout
-      style={{ willChange: "transform" }}
       className={cn(
         "group relative overflow-hidden",
         "rounded-[var(--radius)]",
@@ -57,7 +33,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/[0.02] to-transparent dark:from-white/[0.03]" />
 
       <div className="relative z-10">{children}</div>
-    </motion.div>
+    </div>
   );
 });
 

@@ -2,15 +2,12 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
 import { Sparkles, ArrowUpRight } from "lucide-react";
 
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
-
-import { fadeUpSoft, staggerSlow } from "@/app/animations";
 
 type BlogListItem = {
   id: string;
@@ -87,14 +84,9 @@ export default function BlogsClient({
           <div className="mt-10">
             <SectionHeading title="Featured Blogs" className="mb-6" />
 
-            <motion.div
-              variants={staggerSlow}
-              initial="hidden"
-              animate="show"
-              className="grid gap-6 lg:grid-cols-3"
-            >
+            <div className="grid gap-6 lg:grid-cols-3">
               {featuredBlogs.map((b) => (
-                <motion.div key={b.id} variants={fadeUpSoft} className="group">
+                <div key={b.id} className="group">
                   <Link
                     href={`/blogs/${encodeURIComponent(b.slug)}`}
                     prefetch={false}
@@ -138,9 +130,9 @@ export default function BlogsClient({
                       </div>
                     </Card>
                   </Link>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
+            </div>
           </div>
         )}
 
@@ -148,15 +140,12 @@ export default function BlogsClient({
         <div className="mt-16">
           <SectionHeading title="Latest Articles" className="mb-6" />
 
-          <motion.div
+          <div
             key={`blogs-page-${page}`}
-            variants={staggerSlow}
-            initial="hidden"
-            animate="show"
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           >
             {newBlogs.map((b) => (
-              <motion.div key={b.id} variants={fadeUpSoft} className="group">
+              <div key={b.id} className="group">
                 <Link
                   href={`/blogs/${encodeURIComponent(b.slug)}`}
                   prefetch={false}
@@ -200,9 +189,9 @@ export default function BlogsClient({
                     </div>
                   </Card>
                 </Link>
-              </motion.div>
+              </div>
             ))}
-          </motion.div>
+          </div>
 
           {newBlogs.length === 0 && (
             <div className="mt-10 flex justify-center">

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useState, useEffect } from "react";
+import { AnimatePresence, m } from "framer-motion";
 import Image from "next/image";
 import {
   BadgeCheck,
@@ -13,7 +13,6 @@ import {
   ChevronDown,
 } from "lucide-react";
 
-import { fadeUp, staggerFast } from "@/app/animations";
 import Card from "@/components/public/ui/Card";
 import PageHeader from "@/components/public/ui/PageHeader";
 
@@ -107,52 +106,11 @@ function EditorialAuthorityCard({ title, body, icon: Icon }: typeof featureCards
 
 // --- MAIN COMPONENT ---
 export default function Philosophy() {
-  const [centerIndex, setCenterIndex] = useState(1); // Track active card inside mobile fan view
   const [selectedCard, setSelectedCard] = useState<typeof interactiveCards[0] | null>(null);
   const [isOverlayOpen, setIsOverlayOpen] = useState(false);
   const [row3Expanded, setRow3Expanded] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
 
-  const totalCards = interactiveCards.length;
-
-  // Compute active contextual cards for the mobile DOM window (Prev, Center, Next)
-  const mobileVisibleCards = useMemo(() => {
-    const prevIndex = (centerIndex - 1 + totalCards) % totalCards;
-    const nextIndex = (centerIndex + 1) % totalCards;
-    
-    return [
-      { item: interactiveCards[prevIndex], index: prevIndex, position: "prev" },
-      { item: interactiveCards[centerIndex], index: centerIndex, position: "center" },
-      { item: interactiveCards[nextIndex], index: nextIndex, position: "next" },
-    ];
-  }, [centerIndex, totalCards]);
-
-  // Optimized style map calculation for the 3 active Mobile Fan items
-  const getMobileFanStyles = (position: string) => {
-    if (position === "center") {
-      return { rotate: 0, zIndex: 30, scale: 1.05, y: -10, x: 0 };
-    }
-    if (position === "prev") {
-      return { rotate: -8, zIndex: 20, scale: 0.92, y: 10, x: -35 };
-    }
-    if (position === "next") {
-      return { rotate: 8, zIndex: 20, scale: 0.92, y: 10, x: 35 };
-    }
-    return { rotate: 0, scale: 0.8, opacity: 0, pointerEvents: "none" };
-  };
-
-  const handleMobileFanClick = (index: number) => {
-    if (isDragging) return;
-
-    if (index === centerIndex) {
-      setSelectedCard(interactiveCards[index]);
-      setIsOverlayOpen(true);
-    } else {
-      setCenterIndex(index);
-    }
-  };
-
-  const handleDesktopCardClick = (item: typeof interactiveCards[0]) => {
+  const handleCardClick = (item: typeof interactiveCards[0]) => {
     setSelectedCard(item);
     setIsOverlayOpen(true);
   };
@@ -165,63 +123,46 @@ export default function Philosophy() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 py-14 md:px-6 md:py-20 overflow-x-hidden">
-      <motion.div
-        variants={staggerFast}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.05 }}
-        className="space-y-16 md:space-y-24"
-      >
+      <div className="space-y-16 md:space-y-24">
         {/* HEADER */}
-        <motion.header variants={fadeUp} className="text-center max-w-5xl mx-auto">
+        <header className="text-center max-w-5xl mx-auto">
           <PageHeader
             title="Why Vedic Wellness Ayurvedic Franchise Partners Grow Faster"
             subtitle="Ancient Ayurvedic wisdom combined with modern pharmaceutical standards."
           />
-        </motion.header>
+        </header>
 
         {/* ── ROW 1: AUTHORITY CARDS ── */}
         <div className="grid md:grid-cols-2 gap-6 items-stretch">
           {featureCards.map((card) => (
-            <motion.div key={card.id} variants={fadeUp} className="group h-full">
+            <div key={card.id} className="group h-full">
               <EditorialAuthorityCard {...card} />
-            </motion.div>
+            </div>
           ))}
         </div>
 
-        {/* ── ROW 2: INTERACTIVE FEATURED CAROUSEL ── */}
-        <motion.div variants={fadeUp} className="w-full">
-
-          {/* DESKTOP HORIZONTAL SCROLL RAIL (md: and above) */}
-          <div className="carousel-scrollbar hidden md:flex overflow-y-visible pt-4 overflow-x-auto snap-x snap-mandatory scroll-smooth pb-6 gap-6 w-full">
+        {/* ── ROW 2: INTERACTIVE FEATURED CARDS (HORIZONTAL SCROLL RAIL) ── */}
+        <div className="w-full">
+          <div className="carousel-scrollbar flex overflow-x-auto snap-x snap-mandatory scroll-smooth pt-4 pb-6 gap-6 w-full">
             {interactiveCards.map((item) => (
-              <motion.div
+              <div
                 key={item.title}
-                whileHover={{ scale: 1.015 }}
-                transition={{
-                  duration: 0.28,
-                  ease: premiumEase 
-                }}
-                onClick={() => handleDesktopCardClick(item)}
-                className="snap-start shrink-0 cursor-pointer w-[290px] lg:w-[320px]"
+                onClick={() => handleCardClick(item)}
+                className="snap-start shrink-0 cursor-pointer w-[265px] sm:w-[290px] lg:w-[320px] group"
               >
                 <Card className="!p-0 overflow-hidden bg-white dark:bg-[#0c0f0e] border-0 dark:border-0 shadow-md transition-shadow duration-300">
                   <div className="relative aspect-[3/4] w-full overflow-hidden p-3 bg-slate-50 dark:bg-zinc-900">
-
-                    {/* Image Frame */}
                     <div className="w-full h-full relative rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
                       <Image
                         src={item.image}
                         alt={item.title}
                         fill
-                        sizes="(min-width: 1024px) 320px, 290px"
+                        sizes="(min-width: 1024px) 320px, (min-width: 640px) 290px, 265px"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />
-                      {/* Edge Gradient Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                     </div>
 
-                    {/* Overlaid Title Bar */}
                     <div className="absolute bottom-6 left-6 right-6 z-10 space-y-1">
                       <div className="flex items-center gap-2 text-[color:var(--brand-primary)]">
                         <item.icon size={16} className="text-[color:var(--brand-accent)] brightness-125" />
@@ -238,90 +179,13 @@ export default function Philosophy() {
                     </div>
                   </div>
                 </Card>
-              </motion.div>
+              </div>
             ))}
           </div>
-
-          {/* MOBILE FAN / UNO STYLE CAROUSEL (Below md) */}
-          <motion.div
-            layout="position"
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.08}
-            onDragStart={() => setIsDragging(true)}
-            onDragEnd={(e, info) => {
-              setTimeout(() => setIsDragging(false), 50);
-              
-              // Swipe Right (positive offset) -> Previous item
-              if (info.offset.x > 80) {
-                setCenterIndex((prev) => (prev - 1 + totalCards) % totalCards);
-              }
-              // Swipe Left (negative offset) -> Next item
-              if (info.offset.x < -80) {
-                setCenterIndex((prev) => (prev + 1) % totalCards);
-              }
-            }}
-            className="md:hidden relative flex justify-center items-center h-[430px] w-full select-none touch-pan-y"
-          >
-            {mobileVisibleCards.map(({ item, index, position }) => {
-              const styles = getMobileFanStyles(position);
-              const isCenter = position === "center";
-
-              return (
-                <motion.div
-                  key={item.title}
-                  animate={styles}
-                  transition={{
-                    duration: 0.24,
-                    ease: premiumEase 
-                  }}
-                  onClick={() => handleMobileFanClick(index)}
-                  className="absolute cursor-pointer origin-bottom w-[265px] sm:w-[290px] transform-gpu"
-                  style={{ 
-                    willChange: "transform",
-                    contain: "layout paint"
-                  }}
-                >
-                  <Card className={`!p-0 overflow-hidden bg-white dark:bg-[#0c0f0e] border-0 dark:border-0 transition-shadow duration-300 ${isCenter ? "shadow-[0_12px_30px_rgba(2,101,54,0.20)]" : "shadow-md filter brightness-[0.88] dark:brightness-[0.7]"}`}>
-                    <div className="relative aspect-[3/4] w-full overflow-hidden p-3 bg-slate-50 dark:bg-zinc-900">
-
-                      {/* Image Frame */}
-                      <div className="w-full h-full relative rounded-xl overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-                        <Image
-                          src={item.image}
-                          alt={item.title}
-                          fill
-                          sizes="(min-width: 640px) 290px, 265px"
-                          className="object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
-                      </div>
-
-                      {/* Overlaid Title Bar */}
-                      <div className="absolute bottom-6 left-6 right-6 z-10 space-y-1">
-                        <div className="flex items-center gap-2 text-[color:var(--brand-primary)]">
-                          <item.icon size={16} className="text-[color:var(--brand-accent)] brightness-125" />
-                          <span className="text-[10px] uppercase font-bold tracking-widest text-slate-300">
-                            {isCenter ? "Active Module" : "View Details"}
-                          </span>
-                        </div>
-                        <h3 className="font-heading font-bold text-base text-white uppercase tracking-wide">
-                          {item.title}
-                        </h3>
-                        <p className="text-xs text-slate-300 line-clamp-1 opacity-90">
-                          {item.summary}
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </motion.div>
+        </div>
 
         {/* ── ROW 3: SEO / AUTHORITY CONTENT CARD ── */}
-        <motion.div variants={fadeUp} className="group w-full">
+        <div className="group w-full">
           <Card className="bg-white/75 dark:bg-black/45 p-6 md:p-8 border border-[var(--border-soft)]">
             <div className="space-y-4">
               <h3 className="font-heading font-bold text-lg md:text-xl text-slate-900 dark:text-slate-100">
@@ -329,7 +193,7 @@ export default function Philosophy() {
               </h3>
 
               <div className="relative overflow-hidden">
-                <motion.div
+                <m.div
                   animate={{ maxHeight: row3Expanded ? 500 : 72 }}
                   transition={{
                     duration: 0.35,
@@ -342,7 +206,7 @@ export default function Philosophy() {
                     <br /><br />
                     This structural optimization ensures minimal turnaround bottlenecks, protecting immediate operational margins while expanding geographical footprints. Dedicated account technicians actively manage distribution parameters across connected territories to ensure scalable compound development alongside long-term commercial compliance.
                   </p>
-                </motion.div>
+                </m.div>
               </div>
 
               <button
@@ -354,20 +218,20 @@ export default function Philosophy() {
               </button>
             </div>
           </Card>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
       {/* ── BLURRED OVERLAY BOTTOM SHEET MODAL (SHARED REUSE) ── */}
       <AnimatePresence>
         {isOverlayOpen && selectedCard && (
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsOverlayOpen(false)}
             className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/40 backdrop-blur-md p-4"
           >
-            <motion.div
+            <m.div
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
@@ -406,8 +270,8 @@ export default function Philosophy() {
                   </p>
                 </div>
               </div>
-            </motion.div>
-          </motion.div>
+            </m.div>
+          </m.div>
         )}
       </AnimatePresence>
     </section>

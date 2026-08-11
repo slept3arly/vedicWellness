@@ -1,10 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Phone, MessageCircle, FileText, Info } from "lucide-react";
 
-import { fadeUp, staggerFast } from "@/app/animations";
 import Card from "@/components/public/ui/Card";
 import Button from "@/components/public/ui/Button";
 import SectionHeading from "@/components/public/ui/SectionHeading";
@@ -20,13 +18,8 @@ export default function FranchiseCTA() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-6 md:pb-20">
-      <motion.div
-        variants={staggerFast}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true }}
-      >
-        <motion.div variants={fadeUp}>
+      <div>
+        <div>
           <Card className="bg-white/80 dark:bg-black/50">
             <div className="flex flex-col items-center space-y-10 py-4">
               <div className="w-full">
@@ -71,8 +64,8 @@ export default function FranchiseCTA() {
               </div>
             </div>
           </Card>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </section>
   );
 }

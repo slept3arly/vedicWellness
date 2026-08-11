@@ -1,8 +1,6 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
-import { staggerFast, reveal } from "@/app/animations";
 import { cn } from "@/lib/cn";
 
 type Props = {
@@ -23,21 +21,10 @@ export default function PageHeader({
   const alignment = align === "center" ? "text-center mx-auto" : "text-left";
 
   return (
-    <motion.div
-      variants={staggerFast}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true }}
-      className={cn("max-w-5xl space-y-4", alignment, className)}
-    >
-      {badge && (
-        <motion.div variants={reveal} className="flex justify-center">
-          {badge}
-        </motion.div>
-      )}
+    <div className={cn("max-w-5xl space-y-4", alignment, className)}>
+      {badge && <div className="flex justify-center">{badge}</div>}
 
-      <motion.h1
-        variants={reveal}
+      <h1
         className="
           font-display
           text-4xl sm:text-5xl lg:text-6xl
@@ -47,11 +34,10 @@ export default function PageHeader({
         "
       >
         {title}
-      </motion.h1>
+      </h1>
 
       {subtitle && (
-        <motion.p
-          variants={reveal}
+        <p
           className="
             font-body
             text-base sm:text-lg
@@ -60,8 +46,8 @@ export default function PageHeader({
           "
         >
           {subtitle}
-        </motion.p>
+        </p>
       )}
-    </motion.div>
+    </div>
   );
 }

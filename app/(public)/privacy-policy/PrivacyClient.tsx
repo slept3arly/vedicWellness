@@ -1,7 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { fadeUp } from "@/app/animations";
 import { useRef } from "react";
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
@@ -72,11 +70,8 @@ export default function PrivacyClient() {
           </aside>
 
           {/* SCROLLABLE POLICY CARD */}
-          <motion.div
+          <div
             ref={contentRef}
-            variants={fadeUp}
-            initial="hidden"
-            animate="show"
             className="
               surface
               rounded-2xl
@@ -290,7 +285,7 @@ export default function PrivacyClient() {
                 Email: vedicwellnessid@gmail.com
               </p>
             </section>
-          </motion.div>
+          </div>
         </div>
       </div>
     </section>

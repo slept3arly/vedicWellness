@@ -1,19 +1,17 @@
 "use client";
 
 import React from "react";
-import { motion, MotionProps } from "framer-motion";
 import { useFormStatus } from "react-dom";
 import { cn } from "@/lib/cn";
 
 type ButtonVariant = "primary" | "secondary" | "ghost";
 
-type ButtonProps = React.ComponentPropsWithoutRef<"button"> &
-  MotionProps & {
-    variant?: ButtonVariant;
-    isLoading?: boolean;
-    autoLoading?: boolean;
-    iconOnly?: boolean;
-  };
+type ButtonProps = React.ComponentPropsWithoutRef<"button"> & {
+  variant?: ButtonVariant;
+  isLoading?: boolean;
+  autoLoading?: boolean;
+  iconOnly?: boolean;
+};
 
 // Extracted variant styles for maintainability
 const VARIANT_STYLES: Record<ButtonVariant, string[]> = {
@@ -50,9 +48,7 @@ export default function Button({
   const loading = isLoading || (autoLoading && pending);
 
   return (
-    <motion.button
-      whileTap={!loading ? { scale: 0.97 } : undefined}
-      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+    <button
       disabled={loading || disabled}
       aria-busy={loading}
       className={cn(
@@ -62,6 +58,7 @@ export default function Button({
         "text-[13px] font-semibold tracking-wide uppercase",
         "whitespace-nowrap select-none",
         "transition-colors duration-150",
+        "active:scale-[0.97]",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         "focus-visible:ring-[#84eb4b]/60",
         "disabled:opacity-50 disabled:cursor-not-allowed",
@@ -89,6 +86,6 @@ export default function Button({
           />
         </span>
       )}
-    </motion.button>
+    </button>
   );
 }

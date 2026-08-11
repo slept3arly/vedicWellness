@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { useState } from "react";
 import {
   Info,
@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 
 import Card from "@/components/public/ui/Card";
-import { fadeUpSoft, staggerFast } from "@/app/animations";
 import { Product } from "./types";
 
 function AccordionItem({
@@ -30,7 +29,7 @@ function AccordionItem({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <motion.div variants={fadeUpSoft}>
+    <div>
       <Card className="p-0">
         <button
           onClick={() => setOpen((v) => !v)}
@@ -60,7 +59,7 @@ function AccordionItem({
 
         <AnimatePresence initial={false}>
           {open && (
-            <motion.div
+            <m.div
               key="body"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
@@ -71,11 +70,11 @@ function AccordionItem({
               <div className="px-5 pb-5 pt-2 border-t border-[color:var(--border-soft)] text-sm font-body text-[color:var(--text-muted)] leading-relaxed">
                 {children}
               </div>
-            </motion.div>
+            </m.div>
           )}
         </AnimatePresence>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
@@ -93,13 +92,7 @@ export default function ProductDetailsAccordion({
   if (!hasAny) return null;
 
   return (
-    <motion.div
-      variants={staggerFast}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true }}
-      className="space-y-3"
-    >
+    <div className="space-y-3">
       {product.longDescription && (
         <AccordionItem
           title="Product Description"
@@ -168,6 +161,6 @@ export default function ProductDetailsAccordion({
           </ul>
         </AccordionItem>
       )}
-    </motion.div>
+    </div>
   );
 }

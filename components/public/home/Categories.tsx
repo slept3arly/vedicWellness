@@ -1,16 +1,8 @@
 "use client";
 
-import { motion } from "framer-motion";
-import {
-  ShieldPlus,
-  Leaf,
-  Droplet,
-  Sparkles,
-  Flame,
-  HeartPulse,
-} from "lucide-react";
+import { ShieldPlus, Leaf, Droplet, Sparkles, Flame, HeartPulse } from "lucide-react";
+import Link from "next/link";
 
-import { fadeUp, staggerFast } from "@/app/animations";
 import Card from "@/components/public/ui/Card";
 import PageHeader from "@/components/public/ui/PageHeader";
 
@@ -26,26 +18,19 @@ const categories = [
 export default function Categories() {
   return (
     <section className="max-w-7xl mx-auto px-4 py-16 md:px-6 md:py-20">
-      <motion.div
-        variants={staggerFast}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true }}
-        className="space-y-12"
-      >
-        <motion.header variants={fadeUp} className="text-center max-w-5xl mx-auto">
+      <div className="space-y-12">
+        <header className="text-center max-w-5xl mx-auto">
           <PageHeader
             title="Product Categories"
             subtitle="High-demand Ayurvedic ranges designed to drive repeat sales and long-term franchise growth."
           />
-        </motion.header>
+        </header>
 
         <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6">
           {categories.map(({ title, count, icon: Icon, num }) => (
-            <motion.a
+            <Link
               key={title}
               href="/products"
-              variants={fadeUp}
               className="group"
             >
               <Card className="bg-white/75 dark:bg-black/45 !p-0 overflow-hidden h-full">
@@ -92,10 +77,10 @@ export default function Categories() {
                 </div>
 
               </Card>
-            </motion.a>
+            </Link>
           ))}
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

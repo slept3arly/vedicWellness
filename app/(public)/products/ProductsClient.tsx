@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Search, ArrowUpDown, ArrowUpRight, X, ArrowLeft, Building2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,7 +9,6 @@ import Link from "next/link";
 import PageHeader from "@/components/public/ui/PageHeader";
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
-import { fadeUpSoft, staggerSlow } from "@/app/animations";
 
 type Product = {
   id: string;
@@ -193,18 +191,10 @@ export default function ProductsClient({
         </div>
 
         {/* PRODUCT GRID */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`grid-${query}-${sort}-${page}`}
-            variants={staggerSlow}
-            initial="hidden"
-            animate="show"
-            exit="hidden"
-            className="grid grid-cols-2 gap-4 lg:grid-cols-3"
-          >
+        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
             {products.length > 0 ? (
               products.map((p) => (
-                <motion.div key={p.id} variants={fadeUpSoft} className="group">
+                <div key={p.id} className="group">
                   <Link href={`/products/${p.slug}`} prefetch={false} className="block h-full">
                     <Card className="h-full p-3 flex flex-col border-neutral-200 dark:border-neutral-800">
                       {p.imageUrl && (
@@ -244,14 +234,10 @@ export default function ProductsClient({
                       </div>
                     </Card>
                   </Link>
-                </motion.div>
+                </div>
               ))
             ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="col-span-full py-24 text-center"
-              >
+              <div className="col-span-full py-24 text-center">
                 <Search size={48} className="mx-auto text-muted/20 mb-4" />
                 <h3 className="text-lg font-heading">No products found</h3>
                 <p className="text-sm text-muted mt-1">
@@ -263,10 +249,9 @@ export default function ProductsClient({
                 >
                   Clear all filters
                 </button>
-              </motion.div>
+              </div>
             )}
-          </motion.div>
-        </AnimatePresence>
+          </div>
 
         {/* PAGINATION */}
         {totalPages > 1 && (

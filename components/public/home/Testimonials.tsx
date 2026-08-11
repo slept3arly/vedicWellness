@@ -1,8 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { Star } from "lucide-react";
-import { fadeUp, staggerFast } from "@/app/animations";
 import Card from "@/components/public/ui/Card";
 import PageHeader from "@/components/public/ui/PageHeader";
 
@@ -60,28 +58,19 @@ const reviews = [
 export default function Testimonials() {
   return (
     <section className="max-w-7xl mx-auto px-4 py-16 md:px-6 md:py-20">
-      <motion.div
-        variants={staggerFast}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true }}
-        className="space-y-12"
-      >
+      <div className="space-y-12">
         {/* Header */}
-        <motion.header
-          variants={fadeUp}
-          className="text-center max-w-5xl mx-auto"
-        >
+        <header className="text-center max-w-5xl mx-auto">
           <PageHeader
             title="Trusted by Growing Partners"
             subtitle="Real results from franchise owners across India."
           />
-        </motion.header>
+        </header>
 
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
           {reviews.map((r) => (
-            <motion.div key={r.city} variants={fadeUp} className="group h-full">
+            <div key={r.city} className="group h-full">
               <Card className="bg-white/75 dark:bg-black/45 h-full flex flex-col justify-between p-3 md:p-5">
 
                 {/* TOP */}
@@ -134,10 +123,10 @@ export default function Testimonials() {
                 </div>
 
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

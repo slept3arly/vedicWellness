@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   Factory,
   Globe,
@@ -16,7 +15,6 @@ import {
 
 import Card from "@/components/public/ui/Card";
 import SectionHeading from "@/components/public/ui/SectionHeading";
-import { staggerFast, fadeUpSoft } from "@/app/animations";
 import { Product } from "./types";
 
 type Row = { label: string; value: string | null | undefined; icon: React.ElementType };
@@ -34,7 +32,7 @@ function SpecTable({
   if (!filled.length) return null;
 
   return (
-    <motion.div variants={fadeUpSoft}>
+    <div>
       <Card className="p-0 overflow-hidden">
         <div className="px-5 py-4 border-b border-[color:var(--border-soft)] flex items-center gap-2">
           <HeaderIcon size={15} className="text-[color:var(--brand-primary)]" aria-hidden="true" />
@@ -69,7 +67,7 @@ function SpecTable({
           </tbody>
         </table>
       </Card>
-    </motion.div>
+    </div>
   );
 }
 
@@ -100,13 +98,7 @@ export default function ProductSpecification({ product }: { product: Product }) 
   if (!hasAny) return null;
 
   return (
-    <motion.div
-      variants={staggerFast}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true }}
-      className="space-y-4"
-    >
+    <div className="space-y-4">
       <SectionHeading title="Product Specifications" align="left" />
 
       <div className="grid md:grid-cols-2 gap-4">
@@ -115,7 +107,7 @@ export default function ProductSpecification({ product }: { product: Product }) 
       </div>
 
       {extras.length > 0 && (
-        <motion.div variants={fadeUpSoft}>
+        <div>
           <Card className="p-0 overflow-hidden">
             <div className="px-5 py-4 border-b border-[color:var(--border-soft)]">
               <span className="font-heading font-semibold text-sm tracking-tight text-[color:var(--text-main)]">
@@ -139,8 +131,8 @@ export default function ProductSpecification({ product }: { product: Product }) 
               </tbody>
             </table>
           </Card>
-        </motion.div>
+        </div>
       )}
-    </motion.div>
+    </div>
   );
 }

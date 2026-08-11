@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 import Navbar from "@/components/public/layout/Navbar";
+import ScrollAwareHeader from "@/components/public/layout/ScrollAwareHeader";
 import BottomNavbar from "@/components/public/layout/BottomNavbarClient";
 import { playfair, montserrat, lato, cormorant } from "./fonts";
 import MarqueeBanner from "@/components/public/layout/MarqueeBanner";
@@ -124,10 +125,10 @@ export default async function RootLayout({
           <PromotionModal banner={banner} />
           <RouteLoader />
 
-          <div className="fixed top-0 left-0 right-0 z-40">
+          <ScrollAwareHeader>
             <Navbar />
             <MarqueeBanner />
-          </div>
+          </ScrollAwareHeader>
 
           <main className="flex-1 pt-[7.5rem] pb-28 md:pb-0 space-y-6 md:space-y-10">
             {children}

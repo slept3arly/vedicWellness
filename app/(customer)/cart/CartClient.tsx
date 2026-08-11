@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { staggerFast, fadeUpSoft } from "@/app/animations";
 import { ShoppingCart } from "lucide-react";
 import CartItemsCard from "@/components/customer/cart/CartItemsCard";
@@ -20,14 +20,14 @@ export default function CartClient({ cart }: Props) {
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
-    <motion.div
+    <m.div
       variants={staggerFast}
       initial="hidden"
       animate="show"
       className="max-w-7xl mx-auto flex flex-col gap-5 sm:gap-7 w-full py-6 px-4 sm:px-6"
     >
       {/* ── Page heading ── */}
-      <motion.div variants={fadeUpSoft}>
+      <m.div variants={fadeUpSoft}>
         <div className="flex items-center gap-3">
           <div
             className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0"
@@ -55,19 +55,19 @@ export default function CartClient({ cart }: Props) {
             </p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* ── Two-column layout ── */}
       <div className="grid gap-5 sm:gap-6 lg:grid-cols-[1fr_380px] items-start">
-        <motion.div variants={fadeUpSoft}>
+        <m.div variants={fadeUpSoft}>
           <CartItemsCard items={items} />
-        </motion.div>
+        </m.div>
 
         {/* Sticky on desktop, natural flow on mobile (sits below items) */}
-        <motion.div variants={fadeUpSoft} className="lg:sticky lg:top-6">
+        <m.div variants={fadeUpSoft} className="lg:sticky lg:top-6">
           <CartSummaryCard cart={cart} />
-        </motion.div>
+        </m.div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

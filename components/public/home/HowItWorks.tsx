@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   ClipboardList,
   BookOpen,
@@ -10,7 +9,6 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { fadeUp, staggerFast } from "@/app/animations";
 import Card from "@/components/public/ui/Card";
 import PageHeader from "@/components/public/ui/PageHeader";
 
@@ -56,23 +54,17 @@ const steps = [
 export default function HowItWorks() {
   return (
     <section className="max-w-7xl mx-auto px-4 py-16 md:px-6 md:py-20">
-      <motion.div
-        variants={staggerFast}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true }}
-        className="space-y-12"
-      >
-        <motion.header variants={fadeUp} className="text-center max-w-5xl mx-auto">
+      <div className="space-y-12">
+        <header className="text-center max-w-5xl mx-auto">
           <PageHeader
             title="How It Works"
             subtitle="A simple, transparent onboarding process designed for fast franchise activation."
           />
-        </motion.header>
+        </header>
 
         <div className="grid grid-cols-2 md:grid-cols-2 gap-3 md:gap-6">
           {steps.map(({ icon: Icon, title, desc, num }) => (
-            <motion.div key={title} variants={fadeUp} className="group">
+            <div key={title} className="group">
               <Card className="bg-white/75 dark:bg-black/45 !p-0 overflow-hidden h-full">
 
                 {/* ── MOBILE: vertical 2-col card ── */}
@@ -113,10 +105,10 @@ export default function HowItWorks() {
                 </div>
 
               </Card>
-            </motion.div>
+            </div>
           ))}
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 }

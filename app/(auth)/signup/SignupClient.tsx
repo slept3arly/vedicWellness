@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Sparkles } from "lucide-react";
 
 import { fadeUpSoft, staggerFast } from "@/app/animations";
@@ -38,7 +38,7 @@ export default function SignupClient() {
         />
 
         {/* TRUST CHIPS */}
-        <motion.div
+        <m.div
           variants={staggerFast}
           initial="hidden"
           animate="show"
@@ -50,14 +50,14 @@ export default function SignupClient() {
             "Partner Benefits",
             "Secure Access",
           ].map((t) => (
-            <motion.div key={t} variants={fadeUpSoft}>
+            <m.div key={t} variants={fadeUpSoft}>
               <Chip>{t}</Chip>
-            </motion.div>
+            </m.div>
           ))}
-        </motion.div>
+        </m.div>
 
         {/* SIGNUP CARD */}
-        <motion.div
+        <m.div
           variants={fadeUpSoft}
           initial="hidden"
           animate="show"
@@ -90,7 +90,7 @@ export default function SignupClient() {
               By signing up, you agree to our terms & privacy policy.
             </p>
           </Card>
-        </motion.div>
+        </m.div>
       </div>
     </section>
   );

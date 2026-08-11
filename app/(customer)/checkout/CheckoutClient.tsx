@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { staggerFast, fadeUpSoft } from "@/app/animations";
 import {
   MapPin,
@@ -81,7 +81,7 @@ export default function CheckoutClient({
   }
 
   return (
-    <motion.div
+    <m.div
       variants={staggerFast}
       initial="hidden"
       animate="show"
@@ -89,7 +89,7 @@ export default function CheckoutClient({
       aria-label="Checkout"
     >
       {/* ── Page heading ── */}
-      <motion.div variants={fadeUpSoft}>
+      <m.div variants={fadeUpSoft}>
         <div className="flex items-center gap-3">
           <div
             className="w-9 h-9 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0"
@@ -106,14 +106,14 @@ export default function CheckoutClient({
             </p>
           </div>
         </div>
-      </motion.div>
+      </m.div>
 
       {/* ── Two-column layout ── */}
       <div className="grid gap-5 sm:gap-6 lg:grid-cols-[1fr_380px] items-start">
         {/* LEFT: Address + Order items */}
         <div className="flex flex-col gap-5">
           {/* ── Shipping address ── */}
-          <motion.div variants={fadeUpSoft}>
+          <m.div variants={fadeUpSoft}>
             <Card className="p-0" aria-labelledby="shipping-heading">
               <div className="px-5 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-[var(--border-soft)] flex items-center justify-between gap-3">
                 <SectionHeading
@@ -198,10 +198,10 @@ export default function CheckoutClient({
                 )}
               </div>
             </Card>
-          </motion.div>
+          </m.div>
 
           {/* ── Order items ── */}
-          <motion.div variants={fadeUpSoft}>
+          <m.div variants={fadeUpSoft}>
             <Card className="p-0" aria-labelledby="order-items-heading">
               <div className="px-5 sm:px-6 pt-5 sm:pt-6 pb-3 border-b border-[var(--border-soft)]">
                 <SectionHeading
@@ -251,11 +251,11 @@ export default function CheckoutClient({
                 })}
               </ul>
             </Card>
-          </motion.div>
+          </m.div>
         </div>
 
         {/* RIGHT: Unified Price Summary Card */}
-        <motion.div variants={fadeUpSoft} className="lg:sticky lg:top-6">
+        <m.div variants={fadeUpSoft} className="lg:sticky lg:top-6">
           <CartSummaryCard cart={cart} showCheckoutButton={false} />
           
           {/* Checkout CTA block - specific to this page */}
@@ -276,8 +276,8 @@ export default function CheckoutClient({
                 </p>
               )}
           </div>
-        </motion.div>
+        </m.div>
       </div>
-    </motion.div>
+    </m.div>
   );
 }

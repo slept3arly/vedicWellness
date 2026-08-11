@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import type { Address } from "@prisma/client";
 import { ShoppingCart, History } from "lucide-react";
 import Link from "next/link";
@@ -56,7 +56,7 @@ export default function AccountClient({
   };
 
   return (
-    <motion.div
+    <m.div
       variants={staggerFast}
       initial="hidden"
       animate="show"
@@ -86,7 +86,7 @@ export default function AccountClient({
       </div>
 
       {/* ── 1. Profile Core Section (Mobile Optimized) ── */}
-      <motion.div variants={fadeUpSoft} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-stretch">
+      <m.div variants={fadeUpSoft} className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 items-stretch">
         {/* Profile Card spans full width on mobile, top of the stack */}
         <div className="col-span-2 lg:col-span-2 order-first lg:order-none">
           <AccountProfileCard email={user.email} defaultAddress={defaultAddress} />
@@ -95,25 +95,25 @@ export default function AccountClient({
         {/* Stats cards sit side-by-side on mobile */}
         <AccountStatsCard variant="orders" label="Total Orders" value={orderCount} />
         <AccountStatsCard variant="spent" label="Order Value" value={formatSpent(totalOrderValue)} />
-      </motion.div>
+      </m.div>
 
       {/* ── 2. Alerts Row ── */}
-      <motion.div variants={fadeUpSoft} className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+      <m.div variants={fadeUpSoft} className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
         <PendingOrdersCard count={pendingCount} />
         <LastOrderBanner order={lastOrder} />
-      </motion.div>
+      </m.div>
 
-      <motion.div variants={fadeUpSoft}>
+      <m.div variants={fadeUpSoft}>
         <AddressList addresses={addresses} />
-      </motion.div>
+      </m.div>
 
-      <motion.div variants={fadeUpSoft}>
+      <m.div variants={fadeUpSoft}>
         <AccountActivityChart orders={orders} />
-      </motion.div>
+      </m.div>
 
-      <motion.div variants={fadeUpSoft}>
+      <m.div variants={fadeUpSoft}>
         <RecentOrdersCard orders={orders} />
-      </motion.div>
-    </motion.div>
+      </m.div>
+    </m.div>
   );
 }
