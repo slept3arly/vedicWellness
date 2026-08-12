@@ -24,7 +24,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(function Card(
         "shadow-sm",
         "lg:transition-shadow lg:duration-300",
         "lg:group-hover:shadow-[0_20px_50px_rgba(2,101,54,0.25),0_8px_20px_rgba(0,0,0,0.12)]",
-        "p-6",
+        "p-4 sm:p-6",
         className
       )}
     >

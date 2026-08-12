@@ -52,11 +52,11 @@ export default function SignupClient() {
           variants={fadeUpSoft}
           initial="hidden"
           animate="show"
-          className="w-full max-w-2xl mx-auto lg:mx-0"
+          className="w-full min-w-0 max-w-2xl mx-auto lg:mx-0"
         >
           <Card
             className="
-              px-6 py-5 md:p-10 lg:px-8 lg:py-7
+              p-4 sm:p-6 md:p-10 lg:px-8 lg:py-7
               bg-white/75 dark:bg-black/45
                
               shadow-[0_24px_60px_rgba(2,101,54,0.25)]

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useSyncExternalStore } from "react";
+import { useState, useRef } from "react";
 import {
   PhoneCall,
   MessagesSquare,
@@ -8,13 +8,13 @@ import {
   MapPin,
   Clock,
 } from "lucide-react";
-import { Turnstile } from "@marsidev/react-turnstile";
 import { toast } from "@/lib/toast";
 
 import PageHeader from "@/components/public/ui/PageHeader";
 import Card from "@/components/public/ui/Card";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 import Button from "@/components/public/ui/Button";
+import TurnstileField from "@/components/public/ui/TurnstileField";
 
 /* ------------------------------------------------------------------ */
 /* Types */
@@ -52,37 +52,11 @@ function inputClass(hasError: boolean) {
   `;
 }
 
-const NARROW_TURNSTILE_QUERY = "(max-width: 359px)";
-
-function subscribeToNarrowViewport(onChange: () => void) {
-  if (typeof window === "undefined") return () => {};
-
-  const mediaQuery = window.matchMedia(NARROW_TURNSTILE_QUERY);
-  mediaQuery.addEventListener("change", onChange);
-  return () => mediaQuery.removeEventListener("change", onChange);
-}
-
-function isNarrowViewport() {
-  return typeof window !== "undefined" &&
-    window.matchMedia(NARROW_TURNSTILE_QUERY).matches;
-}
-
-function getServerViewportSnapshot() {
-  return false;
-}
-
 /* ------------------------------------------------------------------ */
 /* Component */
 /* ------------------------------------------------------------------ */
 
 export default function ContactClient() {
-  const useCompactTurnstile = useSyncExternalStore(
-    subscribeToNarrowViewport,
-    isNarrowViewport,
-    getServerViewportSnapshot
-  );
-  const turnstileSize = useCompactTurnstile ? "compact" : "flexible";
-
   const [form, setForm] = useState<FormState>({
     name: "",
     phone: "",
@@ -157,8 +131,8 @@ export default function ContactClient() {
   }
 
   return (
-    <section className="w-full overflow-hidden">
-      <div className="mx-auto max-w-7xl px-4 pt-10 pb-20 space-y-14 sm:px-6 lg:pt-20">
+    <section className="w-full">
+      <div className="mx-auto max-w-7xl space-y-14 px-4 pb-12 pt-10 sm:px-6 sm:pb-16 lg:pt-20">
         <PageHeader
           title={
             <>
@@ -180,7 +154,7 @@ export default function ContactClient() {
                 title="Send us an enquiry"
                 subtitle="We usually respond within a few hours."
               />
-              <form onSubmit={onSubmit} className="mt-6 grid gap-4">
+              <form onSubmit={onSubmit} className="mt-6 grid gap-4 w-full min-w-0 max-w-full">
                 <input
                   className="hidden"
                   value={form.website}
@@ -232,13 +206,10 @@ export default function ContactClient() {
                   className={inputClass(!!errors.message)}
                 />
                 
-                <div className="flex w-full min-w-0 justify-center py-2">
-                  <Turnstile
-                    siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
-                    options={{ size: turnstileSize }}
-                    onSuccess={(t) => setToken(t)}
-                  />
-                </div>
+                <TurnstileField
+                  siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                  onSuccess={(t) => setToken(t)}
+                />
 
                 {/* FIXED BUTTON LAYOUT */}
                 <div className="grid grid-cols-2 gap-2 sm:gap-4">

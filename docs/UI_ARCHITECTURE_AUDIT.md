@@ -228,6 +228,7 @@ No admin file imports framer-motion directly. Motion reach is transitive via `Ad
 
 - `public/ui/Button` — the universal button (15 importers incl. admin/customer wrappers). `useFormStatus` auto-pending + spinner + motion tap.
 - `public/ui/Card` + `PageHeader` + `SectionHeading` — most-used primitives.
+- `public/ui/TurnstileField` — width-aware Cloudflare Turnstile form field shared by Contact and Signup; preserves caller verification options/callbacks while selecting the compact widget below Turnstile's 300px minimum width.
 - `admin/AdminPagination` (9), `admin/AdminSearchFilters` (8), `admin/AdminBadge`, `admin/AdminCard`.
 - `MenuContext`, `AppProviders`, shared `animations.ts` — cross-cutting infra.
 

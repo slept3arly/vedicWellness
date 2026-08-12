@@ -2,9 +2,9 @@
 
 import { useState, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Turnstile } from "@marsidev/react-turnstile";
 import { toast } from "@/lib/toast";
 import Button from "@/components/public/ui/Button";
+import TurnstileField from "@/components/public/ui/TurnstileField";
 
 export default function SignupForm() {
   const searchParams = useSearchParams();
@@ -104,9 +104,9 @@ export default function SignupForm() {
       <form
         onSubmit={handleSubmit}
         noValidate
-        className="mx-auto mt-8 flex w-full max-w-none flex-col gap-5"
+        className="mx-auto mt-8 flex w-full min-w-0 max-w-full flex-col gap-5"
       >
-        <div className="grid gap-5 lg:grid-cols-2">
+        <div className="grid w-full min-w-0 max-w-full gap-5 lg:grid-cols-2">
         {/* NAME */}
         <div className="space-y-1">
           <label
@@ -158,7 +158,7 @@ export default function SignupForm() {
             Password (minimum 8 characters)
           </label>
 
-          <div className="relative">
+          <div className="relative w-full min-w-0">
             <input
               ref={passwordRef}
               id="signup-password"
@@ -181,7 +181,7 @@ export default function SignupForm() {
         </div>
 
         {/* CAPTCHA */}
-        <Turnstile
+        <TurnstileField
           siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
           options={{ theme: "auto" }}
           onSuccess={(token) => setTurnstileToken(token)}

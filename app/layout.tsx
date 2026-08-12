@@ -130,7 +130,7 @@ export default async function RootLayout({
             <MarqueeBanner />
           </ScrollAwareHeader>
 
-          <main className="flex-1 pt-[7.5rem] pb-28 md:pb-0 space-y-6 md:space-y-10">
+          <main className="flex-1 pt-[7.5rem] pb-12 md:pb-0 space-y-6 md:space-y-10">
             {children}
           </main>
 

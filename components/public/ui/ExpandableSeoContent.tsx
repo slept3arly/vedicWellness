@@ -18,22 +18,20 @@ export default function ExpandableSeoContent({
   const contentId = useId();
 
   return (
-    <Card className="h-fit bg-white/80 p-4 dark:bg-black/45 sm:p-5">
-      <div className="lg:flex lg:items-center lg:justify-between lg:gap-10">
-        <div className="min-w-0 flex-1">
-          <h2 className="font-heading text-xl font-semibold leading-tight text-[var(--text-main)] sm:text-2xl">
-            {title}
-          </h2>
-          <p className="mt-2 line-clamp-3 max-w-3xl text-sm leading-6 text-[var(--text-muted)] sm:line-clamp-2 sm:text-base sm:leading-7">
-            {preview}
-          </p>
-        </div>
+    <Card className="w-full min-w-0 max-w-7xl mx-auto bg-white/80 p-4 dark:bg-black/45 sm:p-5">
+      <div className="w-full min-w-0 md:max-w-3xl">
+        <h2 className="font-heading text-xl font-semibold leading-tight text-[var(--text-main)] sm:text-2xl">
+          {title}
+        </h2>
+        <p className="mt-2 line-clamp-3 text-sm leading-6 text-[var(--text-muted)] sm:line-clamp-2 sm:text-base sm:leading-7">
+          {preview}
+        </p>
         <button
           type="button"
           aria-controls={contentId}
           aria-expanded={expanded}
           onClick={() => setExpanded((value) => !value)}
-          className="mt-2 min-h-10 shrink-0 text-left text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--brand-primary)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-primary)]/50 lg:mb-0 lg:mt-0 lg:min-h-10 lg:text-right"
+          className="mt-3 inline-flex items-center text-xs font-semibold uppercase tracking-[0.14em] text-[color:var(--brand-primary)] underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:var(--brand-primary)]/50"
         >
           {expanded ? "Read less ↑" : "Read more →"}
         </button>
@@ -46,7 +44,7 @@ export default function ExpandableSeoContent({
             : "grid-rows-[0fr] opacity-0"
         }`}
       >
-        <div className="min-h-0 max-w-4xl overflow-hidden space-y-3 text-sm leading-7 text-[var(--text-muted)] sm:text-base">
+        <div className="min-h-0 w-full md:max-w-4xl overflow-hidden space-y-3 text-sm leading-7 text-[var(--text-muted)] sm:text-base">
           {children}
         </div>
       </div>
