@@ -22,7 +22,7 @@ export default function SignupClient() {
             className="space-y-2 text-center lg:text-left"
             title={
               <>
-                <span className="lg:hidden">Create your account</span>
+                <span className="lg:hidden">Create account</span>
                 <span className="hidden lg:inline">
                   Create your account at{" "}
                   <span className="text-brand-accent">Vedic Wellness</span>
@@ -31,7 +31,7 @@ export default function SignupClient() {
             }
             subtitle={
               <span className="font-body text-sm font-normal leading-5 text-slate-500 dark:text-slate-400">
-                Create an account to access catalogs, products, and partner tools.
+                Create an account to access products, and partner tools.
               </span>
             }
           />
@@ -63,7 +63,7 @@ export default function SignupClient() {
             "
           >
             <SectionHeading 
-              title="Create your account" 
+              title="Sign Up" 
               className="text-center" 
             />
 
