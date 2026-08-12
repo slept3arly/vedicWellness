@@ -127,7 +127,7 @@ export default function LoginForm() {
           <button
             type="button"
             onClick={() => setShowPassword((p) => !p)}
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-3 py-2 text-sm font-semibold text-[#039751]"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-white/90 px-3 py-2 text-sm font-semibold text-[#039751] dark:bg-slate-950/90"
             aria-pressed={showPassword}
             aria-label={showPassword ? "Hide password" : "Show password"}
             disabled={isLoading}

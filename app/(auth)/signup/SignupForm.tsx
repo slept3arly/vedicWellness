@@ -104,8 +104,9 @@ export default function SignupForm() {
       <form
         onSubmit={handleSubmit}
         noValidate
-        className="mx-auto mt-10 flex w-full max-w-md flex-col gap-5"
+        className="mx-auto mt-8 flex w-full max-w-none flex-col gap-5"
       >
+        <div className="grid gap-5 lg:grid-cols-2">
         {/* NAME */}
         <div className="space-y-1">
           <label
@@ -146,6 +147,8 @@ export default function SignupForm() {
           />
         </div>
 
+        </div>
+
         {/* PASSWORD */}
         <div className="space-y-1">
           <label
@@ -170,7 +173,7 @@ export default function SignupForm() {
               type="button"
               onClick={() => setShowPassword((p) => !p)}
               disabled={isLoading}
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md px-3 py-2 text-sm font-semibold text-[#039751]"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md bg-white/90 px-3 py-2 text-sm font-semibold text-[#039751] dark:bg-slate-950/90"
             >
               {showPassword ? "Hide" : "View"}
             </button>
@@ -195,15 +198,6 @@ export default function SignupForm() {
           Create account
         </Button>
 
-        <div className="text-center text-sm text-black/70 dark:text-white/70">
-          Already have an account?{" "}
-          <a
-            href="/login"
-            className="font-semibold text-[#039751] hover:text-[#84eb4b]"
-          >
-            Log In
-          </a>
-        </div>
       </form>
     </>
   );

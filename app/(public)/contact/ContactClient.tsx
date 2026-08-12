@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useSyncExternalStore } from "react";
 import {
-  Sparkles,
   PhoneCall,
   MessagesSquare,
   Mail,
@@ -16,7 +15,6 @@ import PageHeader from "@/components/public/ui/PageHeader";
 import Card from "@/components/public/ui/Card";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 import Button from "@/components/public/ui/Button";
-import Chip from "@/components/public/ui/Chip";
 
 /* ------------------------------------------------------------------ */
 /* Types */
@@ -54,11 +52,37 @@ function inputClass(hasError: boolean) {
   `;
 }
 
+const NARROW_TURNSTILE_QUERY = "(max-width: 359px)";
+
+function subscribeToNarrowViewport(onChange: () => void) {
+  if (typeof window === "undefined") return () => {};
+
+  const mediaQuery = window.matchMedia(NARROW_TURNSTILE_QUERY);
+  mediaQuery.addEventListener("change", onChange);
+  return () => mediaQuery.removeEventListener("change", onChange);
+}
+
+function isNarrowViewport() {
+  return typeof window !== "undefined" &&
+    window.matchMedia(NARROW_TURNSTILE_QUERY).matches;
+}
+
+function getServerViewportSnapshot() {
+  return false;
+}
+
 /* ------------------------------------------------------------------ */
 /* Component */
 /* ------------------------------------------------------------------ */
 
 export default function ContactClient() {
+  const useCompactTurnstile = useSyncExternalStore(
+    subscribeToNarrowViewport,
+    isNarrowViewport,
+    getServerViewportSnapshot
+  );
+  const turnstileSize = useCompactTurnstile ? "compact" : "flexible";
+
   const [form, setForm] = useState<FormState>({
     name: "",
     phone: "",
@@ -134,14 +158,8 @@ export default function ContactClient() {
 
   return (
     <section className="w-full overflow-hidden">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 pt-10 pb-20 space-y-14">
+      <div className="mx-auto max-w-7xl px-4 pt-10 pb-20 space-y-14 sm:px-6 lg:pt-20">
         <PageHeader
-          badge={
-            <Chip className="flex items-center gap-2">
-              <Sparkles size={14} />
-              Contact • Franchise Enquiry
-            </Chip>
-          }
           title={
             <>
               Connect with{" "}
@@ -150,21 +168,8 @@ export default function ContactClient() {
               </span>
             </>
           }
-          subtitle="Need product list, franchise offer, or distributor support? Reach us below."
+          subtitle="Product, franchise and distributor enquiries — reach our team directly."
         />
-
-        <div className="flex flex-wrap justify-center gap-3">
-          {[
-            "Fast Response",
-            "Monopoly Rights",
-            "PAN India Supply",
-            "Marketing Support",
-          ].map((t) => (
-            <div key={t}>
-              <Chip className="whitespace-nowrap">{t}</Chip>
-            </div>
-          ))}
-        </div>
 
         <div className="grid gap-8 lg:grid-cols-2 w-full">
           {/* FORM CARD */}
@@ -227,18 +232,19 @@ export default function ContactClient() {
                   className={inputClass(!!errors.message)}
                 />
                 
-                <div className="py-2 max-w-full overflow-hidden">
+                <div className="flex w-full min-w-0 justify-center py-2">
                   <Turnstile
                     siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+                    options={{ size: turnstileSize }}
                     onSuccess={(t) => setToken(t)}
                   />
                 </div>
 
                 {/* FIXED BUTTON LAYOUT */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-2 sm:gap-4">
                   <Button 
                     type="submit" 
-                    className="w-full" 
+                    className="min-w-0 w-full px-1 text-[10px] sm:px-5 sm:text-[13px]"
                     isLoading={loading}
                   >
                     Submit Enquiry
@@ -246,7 +252,7 @@ export default function ContactClient() {
                   <Button
                     type="button"
                     variant="secondary"
-                    className="w-full"
+                    className="min-w-0 w-full px-1 text-[10px] sm:px-5 sm:text-[13px]"
                     onClick={() =>
                       window.open("https://wa.me/+919306025799", "_blank")
                     }
@@ -259,7 +265,7 @@ export default function ContactClient() {
           </div>
 
           {/* RIGHT SIDE INFO */}
-          <div className="space-y-6 min-w-0">
+          <div className="grid min-w-0 gap-6">
             {/* Quick Contact Card */}
             <div className="group">
               <Card className="bg-white/80 dark:bg-black/45">
@@ -268,68 +274,81 @@ export default function ContactClient() {
                   title="Quick Contact"
                   subtitle="Choose the easiest way."
                 />
-                <div className="mt-6 space-y-5">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
+                <div className="mt-6 grid gap-5">
+                  <div className="grid gap-4">
+                    <div className="flex min-w-0 items-center gap-3">
                       <PhoneCall
-                        className="text-[color:var(--brand-accent)] shrink-0 transition-transform duration-300 group-hover:scale-110"
+                        className="text-[color:var(--brand-accent)] shrink-0"
                         size={20}
                       />
-                      <span className="font-medium text-sm sm:text-base truncate">
+                      <span className="min-w-0 break-words font-medium text-sm sm:text-base">
                         +91 93060 25799
                       </span>
                     </div>
-                    <Button
-                      variant="secondary"
-                      className="min-w-[80px] sm:min-w-[100px]"
-                      onClick={() =>
-                        (window.location.href = "tel:+919306025799")
-                      }
-                    >
-                      Call
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex min-w-0 items-center gap-3">
                       <MessagesSquare
-                        className="text-[color:var(--brand-accent)] shrink-0 transition-transform duration-300 group-hover:scale-110"
+                        className="text-[color:var(--brand-accent)] shrink-0"
                         size={20}
                       />
-                      <span className="font-medium text-sm sm:text-base truncate">
+                      <span className="min-w-0 break-words font-medium text-sm sm:text-base">
                         WhatsApp Support
                       </span>
                     </div>
-                    <Button
-                      className="min-w-[80px] sm:min-w-[100px]"
-                      onClick={() =>
-                        window.open("https://wa.me/+919306025799", "_blank")
-                      }
-                    >
-                      WhatsApp
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex min-w-0 items-center gap-3">
                       <Mail
-                        className="text-[color:var(--brand-accent)] shrink-0 transition-transform duration-300 group-hover:scale-110"
+                        className="text-[color:var(--brand-accent)] shrink-0"
                         size={20}
                       />
-                      <span className="font-medium text-sm sm:text-base truncate break-all">
+                      <span className="min-w-0 break-all font-medium text-sm sm:text-base">
                         vedicwellnessid@gmail.com
                       </span>
                     </div>
-                    <Button
-                      variant="secondary"
-                      className="min-w-[80px] sm:min-w-[100px]"
-                      onClick={() =>
-                        (window.location.href =
-                          "mailto:vedicwellnessid@gmail.com")
-                      }
-                    >
-                      Email
-                    </Button>
+                  </div>
+
+                  <div className="grid gap-3">
+                    <div className="grid grid-cols-[2fr_3fr] gap-3">
+                      <Button
+                        variant="secondary"
+                        className="w-full min-w-0 px-2"
+                        onClick={() =>
+                          (window.location.href = "tel:+919306025799")
+                        }
+                      >
+                        Call
+                      </Button>
+                      <Button
+                        className="w-full min-w-0 px-2"
+                        onClick={() =>
+                          window.open("https://wa.me/+919306025799", "_blank")
+                        }
+                      >
+                        WhatsApp
+                      </Button>
+                    </div>
+                    <div className="grid grid-cols-[3fr_2fr] gap-3">
+                      <Button
+                        variant="secondary"
+                        className="w-full min-w-0 px-2"
+                        onClick={() =>
+                          window.open(
+                            "https://www.google.com/maps/search/?api=1&query=Innovia+Drugs+India",
+                            "_blank"
+                          )
+                        }
+                      >
+                        Directions
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        className="w-full min-w-0 px-2"
+                        onClick={() =>
+                          (window.location.href =
+                            "mailto:vedicwellnessid@gmail.com")
+                        }
+                      >
+                        Email
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </Card>
@@ -341,19 +360,19 @@ export default function ContactClient() {
                 <div className="mt-6 space-y-4 text-sm sm:text-base">
                   <div className="flex gap-4">
                     <MapPin
-                      className="text-[color:var(--brand-accent)] shrink-0 transition-transform duration-300 group-hover:-translate-y-1"
+                      className="text-[color:var(--brand-accent)] shrink-0"
                       size={18}
                     />
-                    <span className="leading-relaxed">
+                    <span className="min-w-0 break-words leading-relaxed">
                       Plot no. 149–150, Markanda Complex, Dhulkot, Ambala City
                     </span>
                   </div>
                   <div className="flex gap-4">
                     <Clock
-                      className="text-[color:var(--brand-accent)] shrink-0 transition-transform duration-300 group-hover:rotate-12"
+                      className="text-[color:var(--brand-accent)] shrink-0"
                       size={18}
                     />
-                    <span>Mon – Sat: 10:00 AM – 4:00 PM</span>
+                    <span className="min-w-0 break-words">Mon – Sat: 10:00 AM – 4:00 PM</span>
                   </div>
                 </div>
               </Card>
