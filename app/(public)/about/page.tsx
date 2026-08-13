@@ -7,15 +7,14 @@ const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://vedic-wellness.vercel.app";
 
 export const metadata: Metadata = {
-  title: "About Vedic Wellness | Ayurvedic PCD Pharma Franchise Company",
+  title: "About — Ayurvedic PCD Pharma Franchise Company",
   description:
     "Learn about Vedic Wellness, a division of Innovia Drugs, delivering high-quality Ayurvedic products and PCD Pharma Franchise opportunities across India with monopoly rights and strong partner support.",
   alternates: { canonical: "/about" },
   openGraph: {
     type: "website",
     url: `${SITE_URL}/about`,
-    title:
-      "About Vedic Wellness | Ayurvedic PCD Pharma Franchise Company",
+    title: "About — Ayurvedic PCD Pharma Franchise Company",
     description:
       "Learn about Vedic Wellness, a division of Innovia Drugs, delivering high-quality Ayurvedic products and PCD Pharma Franchise opportunities across India with monopoly rights and strong partner support.",
     siteName: "Vedic Wellness",
@@ -30,12 +29,20 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title:
-      "About Vedic Wellness | Ayurvedic PCD Pharma Franchise Company",
+    title: "About — Ayurvedic PCD Pharma Franchise Company",
     description:
       "Learn about Vedic Wellness, a division of Innovia Drugs, delivering high-quality Ayurvedic products and PCD Pharma Franchise opportunities across India with monopoly rights and strong partner support.",
     images: [`${SITE_URL}/og.jpg`],
   },
+};
+
+const aboutPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "AboutPage",
+  name: "About Vedic Wellness",
+  url: `${SITE_URL}/about`,
+  description:
+    "Learn about Vedic Wellness, an Ayurvedic PCD pharma franchise brand offering products, monopoly rights and distributor support across India.",
 };
 
 const faqSchema = {
@@ -44,11 +51,20 @@ const faqSchema = {
   mainEntity: [
     {
       "@type": "Question",
+      name: "What is Vedic Wellness?",
+      acceptedAnswer: {
+        "@type": "Answer",
+        text:
+          "Vedic Wellness is the Ayurvedic healthcare brand of Innovia Drugs, offering GMP-certified Ayurvedic, herbal and wellness products through a PCD pharma franchise model across India.",
+      },
+    },
+    {
+      "@type": "Question",
       name: "What is a PCD Pharma Franchise?",
       acceptedAnswer: {
         "@type": "Answer",
         text:
-          "A PCD Pharma Franchise allows you to distribute and market a company’s products in your assigned area with support such as product range, marketing tools, and guidance.",
+          "A PCD Pharma Franchise allows you to distribute and market a company's products in your assigned area with complete promotional and operational support. Browse our Ayurvedic product range to see the kind of formulations a franchise covers.",
       },
     },
     {
@@ -57,34 +73,25 @@ const faqSchema = {
       acceptedAnswer: {
         "@type": "Answer",
         text:
-          "Yes, monopoly rights are provided for selected areas depending on availability, ensuring better business potential.",
+          "Yes. Monopoly rights are provided for selected areas based on availability, so each distributor gets an exclusive territory to build their business.",
       },
     },
     {
       "@type": "Question",
-      name: "What is the minimum order requirement?",
+      name: "What distributor and franchise support do you provide?",
       acceptedAnswer: {
         "@type": "Answer",
         text:
-          "Minimum order depends on your selected product range and is designed to be distributor-friendly so partners can start with low investment.",
+          "Partners receive promotional support, visual aids, product cards, and marketing guidance along with reliable dispatch. For a specific question, contact the Vedic Wellness team.",
       },
     },
     {
       "@type": "Question",
-      name: "What is the dispatch / delivery time?",
+      name: "How do I become a franchise or distribution partner?",
       acceptedAnswer: {
         "@type": "Answer",
         text:
-          "Orders are dispatched quickly after confirmation, and delivery time depends on your location with a focus on fast processing and safe packaging.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Is promotional support included?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text:
-          "Yes, promotional support is provided including brochures, visual aids, product cards, and other marketing materials.",
+          "Start by sharing your name, city or district and the territory you are interested in through our enquiry form. You can also create an account to view the product catalogue and manage enquiries.",
       },
     },
   ],
@@ -95,7 +102,16 @@ export default function AboutPage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(aboutPageSchema),
+        }}
+      />
+
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(faqSchema),
+        }}
       />
 
       <PageClient />
