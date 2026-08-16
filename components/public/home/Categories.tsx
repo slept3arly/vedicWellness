@@ -1,5 +1,3 @@
-"use client";
-
 import { ShieldPlus, Leaf, Droplet, Sparkles, Flame, HeartPulse } from "lucide-react";
 import Link from "next/link";
 

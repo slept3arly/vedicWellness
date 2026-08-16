@@ -46,33 +46,28 @@ export default function ContactPage() {
       <section className="w-full px-4 pb-10 sm:px-6 sm:pb-20">
         <div className="mx-auto max-w-7xl">
           <ExpandableSeoContent
-            title="Business Enquiries & Distribution Opportunities"
-            preview="Explore Ayurvedic products, product enquiries, wholesale or distribution enquiries, distributor support and franchise enquiries with Vedic Wellness."
+            title="PCD Pharma Franchise & Ayurvedic Product Enquiries"
+            preview="If you're looking for the Best Ayurvedic PCD Pharma Franchise company in India or any kind of franchise oppurtunity inside your district/area, contact the Vedic Wellness team."
           >
             <p>
-              Use this page to contact Vedic Wellness about Ayurvedic products, product
-              enquiries, wholesale requirements, distribution opportunities and franchise
-              enquiries. If you are exploring our{" "}
-              <SeoLink href="/products">Ayurvedic product range</SeoLink>
-              , you can contact our team for product-related enquiries and further
-              information.
+              Vedic Wellness is an Ayurvedic PCD pharma franchise company setup in Ambala City, Haryana.
+              It offers oppurtunities in franchise and distribution pan-India. 
+              You can enquire about our {" "}
+              <SeoLink href="/products">Ayurvedic product range </SeoLink>
+               and other buisness support to directly to our team of professionals.
             </p>
 
             <p>
-              We also assist with distributor support and franchise enquiries, including
-              questions about distribution opportunities across India, territory
-              requirements and monopoly rights. Share your name, city or district and
-              details of your requirement through the enquiry form so our team can
-              understand how to assist you.
+              Vedic Wellness is located in Ambala City, Haryana and serves customers and franchise partners all across India, in every different part.
+              Distributors and entrepreneurs interested in Ayurvedic products, herbal healthcare products and other oppurtunities.
             </p>
 
             <p>
-              For more information about Vedic Wellness, you can{" "}
+              Contact us by phone, email or through enquiry form on this page.
+              Vedic Wellness publishes blogs regularly, read our insights into Ayurveda{" "}
               <SeoLink href="/blogs">
-                explore our latest Ayurveda and franchise insights
+                in our blogs.
               </SeoLink>
-              . You can also contact us directly by phone or WhatsApp for assistance
-              with your enquiry.
             </p>
           </ExpandableSeoContent>
         </div>

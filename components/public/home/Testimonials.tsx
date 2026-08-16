@@ -1,5 +1,3 @@
-"use client";
-
 import { Star } from "lucide-react";
 import Card from "@/components/public/ui/Card";
 import PageHeader from "@/components/public/ui/PageHeader";

@@ -1,0 +1,649 @@
+{
+  "generatedAt": "2026-08-16T09:06:45.858219+00:00",
+  "repository": "vedicWellness",
+  "framework": "Next.js 16.1.1 (App Router)",
+  "react": "19.2.3",
+  "assets": [
+    {
+      "path": "public/apple-touch-icon.png",
+      "type": "image",
+      "format": "png",
+      "bytes": 5547,
+      "width": 165,
+      "height": 231,
+      "aspectRatio": 0.714,
+      "animated": false,
+      "alpha": true,
+      "references": [
+        {
+          "file": "None (iOS convention)",
+          "route": "/apple-touch-icon.png",
+          "component": "None",
+          "usage": "ios-touch-icon"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "apple-touch-icon.png",
+      "recommendedName": "apple-touch-icon.png",
+      "recommendedWidth": 180,
+      "recommendedHeight": 180,
+      "recommendedFormat": "png",
+      "priority": "P2",
+      "status": "optimize",
+      "confidence": "medium",
+      "hashMd5": "c691bfeec14dd04fcfc532fad07d553f"
+    },
+    {
+      "path": "public/facebook.svg",
+      "type": "image",
+      "format": "svg",
+      "bytes": 1334,
+      "width": 1024,
+      "height": 1024,
+      "aspectRatio": 1.0,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "components/public/layout/BottomNavbar.tsx",
+          "route": "/",
+          "component": "BottomNavbar",
+          "usage": "social-icon"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "facebook.svg",
+      "recommendedName": "icons/social/facebook.svg",
+      "recommendedWidth": 26,
+      "recommendedHeight": 26,
+      "recommendedFormat": "svg",
+      "priority": "P3",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "9720a15e145b4792c9f2ae7d000e755c"
+    },
+    {
+      "path": "public/favicon.ico",
+      "type": "image",
+      "format": "ico",
+      "bytes": 181759,
+      "width": null,
+      "height": null,
+      "aspectRatio": null,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "None (browser convention)",
+          "route": "/favicon.ico",
+          "component": "None",
+          "usage": "browser-favicon"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "favicon.ico",
+      "recommendedName": "favicon/favicon.ico",
+      "recommendedWidth": 32,
+      "recommendedHeight": 32,
+      "recommendedFormat": "ico",
+      "priority": "P2",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "d10ac07d2726dc94b4b01e270ad1b7cd"
+    },
+    {
+      "path": "public/hero/1.gif",
+      "type": "image",
+      "format": "gif",
+      "bytes": 703874,
+      "width": 450,
+      "height": 334,
+      "aspectRatio": 1.347,
+      "animated": true,
+      "alpha": false,
+      "references": [
+        {
+          "file": "components/public/home/Hero.tsx",
+          "route": "/",
+          "component": "Hero",
+          "usage": "mobile-hero-slide"
+        },
+        {
+          "file": "app/(public)/about/AboutClient.tsx",
+          "route": "/about",
+          "component": "AboutClient",
+          "usage": "story-media"
+        }
+      ],
+      "referencedCount": 2,
+      "currentName": "1.gif",
+      "recommendedName": "home/hero-mobile-animation.webp",
+      "recommendedWidth": 780,
+      "recommendedHeight": 585,
+      "recommendedFormat": "webp",
+      "priority": "P1",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "2b26ee4de8f0b7f73fbf2e64018170ab"
+    },
+    {
+      "path": "public/hero/1.webp",
+      "type": "image",
+      "format": "webp",
+      "bytes": 56430,
+      "width": 4469,
+      "height": 2979,
+      "aspectRatio": 1.5,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "app/(public)/about/AboutClient.tsx",
+          "route": "/about",
+          "component": "AboutClient",
+          "usage": "journey-card"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "1.webp",
+      "recommendedName": "about/journey-01.webp",
+      "recommendedWidth": 640,
+      "recommendedHeight": 320,
+      "recommendedFormat": "webp",
+      "priority": "P1",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "c6e075f9fdd5ea78db8c2baf35f895ce"
+    },
+    {
+      "path": "public/hero/2.webp",
+      "type": "image",
+      "format": "webp",
+      "bytes": 111316,
+      "width": 3456,
+      "height": 5184,
+      "aspectRatio": 0.667,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "app/(public)/about/AboutClient.tsx",
+          "route": "/about",
+          "component": "AboutClient",
+          "usage": "journey-card"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "2.webp",
+      "recommendedName": "about/journey-02.webp",
+      "recommendedWidth": 640,
+      "recommendedHeight": 320,
+      "recommendedFormat": "webp",
+      "priority": "P1",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "312e79ea362dda011f99480602a2c95d"
+    },
+    {
+      "path": "public/hero/3.webp",
+      "type": "image",
+      "format": "webp",
+      "bytes": 111316,
+      "width": 3456,
+      "height": 5184,
+      "aspectRatio": 0.667,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "app/(public)/about/AboutClient.tsx",
+          "route": "/about",
+          "component": "AboutClient",
+          "usage": "journey-card"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "3.webp",
+      "recommendedName": "about/journey-02.webp",
+      "recommendedWidth": 640,
+      "recommendedHeight": 320,
+      "recommendedFormat": "webp",
+      "priority": "P1",
+      "status": "duplicate",
+      "confidence": "high",
+      "hashMd5": "312e79ea362dda011f99480602a2c95d"
+    },
+    {
+      "path": "public/hero/4.webp",
+      "type": "image",
+      "format": "webp",
+      "bytes": 117188,
+      "width": 5760,
+      "height": 3840,
+      "aspectRatio": 1.5,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "app/(public)/about/AboutClient.tsx",
+          "route": "/about",
+          "component": "AboutClient",
+          "usage": "journey-card"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "4.webp",
+      "recommendedName": "about/journey-03.webp",
+      "recommendedWidth": 640,
+      "recommendedHeight": 320,
+      "recommendedFormat": "webp",
+      "priority": "P1",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "892611dbac38c21af71282e61bb124a6"
+    },
+    {
+      "path": "public/hero/5.webp",
+      "type": "image",
+      "format": "webp",
+      "bytes": 125088,
+      "width": 4401,
+      "height": 6325,
+      "aspectRatio": 0.696,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "app/(public)/about/AboutClient.tsx",
+          "route": "/about",
+          "component": "AboutClient",
+          "usage": "journey-card"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "5.webp",
+      "recommendedName": "about/journey-04.webp",
+      "recommendedWidth": 640,
+      "recommendedHeight": 320,
+      "recommendedFormat": "webp",
+      "priority": "P1",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "b6b51e0b4af4fbd1e1af8809072b3480"
+    },
+    {
+      "path": "public/hero/6.webp",
+      "type": "image",
+      "format": "webp",
+      "bytes": 125088,
+      "width": 4401,
+      "height": 6325,
+      "aspectRatio": 0.696,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "app/(public)/about/AboutClient.tsx",
+          "route": "/about",
+          "component": "AboutClient",
+          "usage": "journey-card"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "6.webp",
+      "recommendedName": "about/journey-04.webp",
+      "recommendedWidth": 640,
+      "recommendedHeight": 320,
+      "recommendedFormat": "webp",
+      "priority": "P1",
+      "status": "duplicate",
+      "confidence": "high",
+      "hashMd5": "b6b51e0b4af4fbd1e1af8809072b3480"
+    },
+    {
+      "path": "public/hero/7.webp",
+      "type": "image",
+      "format": "webp",
+      "bytes": 509630,
+      "width": 6000,
+      "height": 4000,
+      "aspectRatio": 1.5,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "app/(public)/about/AboutClient.tsx",
+          "route": "/about",
+          "component": "AboutClient",
+          "usage": "journey-card"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "7.webp",
+      "recommendedName": "about/journey-05.webp",
+      "recommendedWidth": 640,
+      "recommendedHeight": 320,
+      "recommendedFormat": "webp",
+      "priority": "P1",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "69c63a7da0d9dfb390f25835814c1d37"
+    },
+    {
+      "path": "public/hero/8.webp",
+      "type": "image",
+      "format": "webp",
+      "bytes": 824638,
+      "width": 6000,
+      "height": 4000,
+      "aspectRatio": 1.5,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "app/(public)/about/AboutClient.tsx",
+          "route": "/about",
+          "component": "AboutClient",
+          "usage": "journey-card"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "8.webp",
+      "recommendedName": "about/journey-06.webp",
+      "recommendedWidth": 640,
+      "recommendedHeight": 320,
+      "recommendedFormat": "webp",
+      "priority": "P1",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "08fd1d36a403c8e5dc8acbe4c6593f9e"
+    },
+    {
+      "path": "public/humans.txt",
+      "type": "file",
+      "format": "txt",
+      "bytes": 313,
+      "width": null,
+      "height": null,
+      "aspectRatio": null,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "public/humans.txt",
+          "route": "/humans.txt",
+          "component": "None",
+          "usage": "convention-file"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "humans.txt",
+      "recommendedName": "humans.txt",
+      "recommendedWidth": null,
+      "recommendedHeight": null,
+      "recommendedFormat": "txt",
+      "priority": "P3",
+      "status": "keep",
+      "confidence": "high",
+      "hashMd5": "39609740cd9b940a32a2e9ff0554732e"
+    },
+    {
+      "path": "public/instagram.svg",
+      "type": "image",
+      "format": "svg",
+      "bytes": 3217,
+      "width": 128,
+      "height": 128,
+      "aspectRatio": 1.0,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "components/public/layout/BottomNavbar.tsx",
+          "route": "/",
+          "component": "BottomNavbar",
+          "usage": "social-icon"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "instagram.svg",
+      "recommendedName": "icons/social/instagram.svg",
+      "recommendedWidth": 34,
+      "recommendedHeight": 34,
+      "recommendedFormat": "svg",
+      "priority": "P3",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "993c122acf9d52db360bd294636ba00c"
+    },
+    {
+      "path": "public/logo.svg",
+      "type": "image",
+      "format": "svg",
+      "bytes": 7486,
+      "width": 325,
+      "height": 148,
+      "aspectRatio": 2.196,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "components/public/layout/Navbar.tsx",
+          "route": "/",
+          "component": "Navbar",
+          "usage": "navbar-logo"
+        },
+        {
+          "file": "components/public/layout/Footer.tsx",
+          "route": "/",
+          "component": "Footer",
+          "usage": "footer-logo"
+        },
+        {
+          "file": "app/layout.tsx",
+          "route": "/",
+          "component": "RootLayout",
+          "usage": "json-ld-logo"
+        },
+        {
+          "file": "app/(public)/blogs/page.tsx",
+          "route": "/blogs",
+          "component": "BlogsPage",
+          "usage": "json-ld-logo"
+        },
+        {
+          "file": "app/(public)/blogs/[slug]/page.tsx",
+          "route": "/blogs/[slug]",
+          "component": "BlogDetailsPage",
+          "usage": "json-ld-logo"
+        }
+      ],
+      "referencedCount": 5,
+      "currentName": "logo.svg",
+      "recommendedName": "brand/logo.svg",
+      "recommendedWidth": null,
+      "recommendedHeight": null,
+      "recommendedFormat": "svg",
+      "priority": "P2",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "9c52d9c7587bf4cb6e109df96004411d"
+    },
+    {
+      "path": "public/og.jpg",
+      "type": "image",
+      "format": "jpeg",
+      "bytes": 224506,
+      "width": 1688,
+      "height": 1688,
+      "aspectRatio": 1.0,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "app/layout.tsx",
+          "route": "/",
+          "component": "RootLayout",
+          "usage": "og-image"
+        },
+        {
+          "file": "app/(public)/about/page.tsx",
+          "route": "/about",
+          "component": "AboutPage",
+          "usage": "og-image"
+        },
+        {
+          "file": "app/(public)/contact/page.tsx",
+          "route": "/contact",
+          "component": "ContactPage",
+          "usage": "og-image"
+        },
+        {
+          "file": "app/(public)/products/page.tsx",
+          "route": "/products",
+          "component": "ProductsPage",
+          "usage": "og-image"
+        },
+        {
+          "file": "app/(public)/blogs/page.tsx",
+          "route": "/blogs",
+          "component": "BlogsPage",
+          "usage": "og-image"
+        },
+        {
+          "file": "app/(public)/blogs/[slug]/page.tsx",
+          "route": "/blogs/[slug]",
+          "component": "BlogDetailsPage",
+          "usage": "og-fallback"
+        }
+      ],
+      "referencedCount": 6,
+      "currentName": "og.jpg",
+      "recommendedName": "og/og.jpg",
+      "recommendedWidth": 1200,
+      "recommendedHeight": 630,
+      "recommendedFormat": "webp",
+      "priority": "P1",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "533befd0184caac0cebb3da5c2669053"
+    },
+    {
+      "path": "public/promo1.jpg",
+      "type": "image",
+      "format": "jpeg",
+      "bytes": 258573,
+      "width": 1920,
+      "height": 1320,
+      "aspectRatio": 1.455,
+      "animated": false,
+      "alpha": false,
+      "references": [],
+      "referencedCount": 0,
+      "currentName": "promo1.jpg",
+      "recommendedName": "promos/promo1.webp",
+      "recommendedWidth": 1920,
+      "recommendedHeight": 1320,
+      "recommendedFormat": "webp",
+      "priority": "P2",
+      "status": "unused",
+      "confidence": "low",
+      "hashMd5": "bbef4f644c8205dbf725b341d9689eaa"
+    },
+    {
+      "path": "public/promo2.jpg",
+      "type": "image",
+      "format": "jpeg",
+      "bytes": 276193,
+      "width": 1920,
+      "height": 1280,
+      "aspectRatio": 1.5,
+      "animated": false,
+      "alpha": false,
+      "references": [],
+      "referencedCount": 0,
+      "currentName": "promo2.jpg",
+      "recommendedName": "promos/promo2.webp",
+      "recommendedWidth": 1920,
+      "recommendedHeight": 1280,
+      "recommendedFormat": "webp",
+      "priority": "P2",
+      "status": "unused",
+      "confidence": "low",
+      "hashMd5": "dc52e0b7132e1ed711be2083ee27a36e"
+    },
+    {
+      "path": "public/promo3.jpg",
+      "type": "image",
+      "format": "jpeg",
+      "bytes": 252026,
+      "width": 1920,
+      "height": 1080,
+      "aspectRatio": 1.778,
+      "animated": false,
+      "alpha": false,
+      "references": [],
+      "referencedCount": 0,
+      "currentName": "promo3.jpg",
+      "recommendedName": "promos/promo3.webp",
+      "recommendedWidth": 1920,
+      "recommendedHeight": 1080,
+      "recommendedFormat": "webp",
+      "priority": "P2",
+      "status": "unused",
+      "confidence": "low",
+      "hashMd5": "abdae2c5b441a1c575264b83e4839430"
+    },
+    {
+      "path": "public/promo4.jpg",
+      "type": "image",
+      "format": "jpeg",
+      "bytes": 264773,
+      "width": 1920,
+      "height": 1280,
+      "aspectRatio": 1.5,
+      "animated": false,
+      "alpha": false,
+      "references": [],
+      "referencedCount": 0,
+      "currentName": "promo4.jpg",
+      "recommendedName": "promos/promo4.webp",
+      "recommendedWidth": 1920,
+      "recommendedHeight": 1280,
+      "recommendedFormat": "webp",
+      "priority": "P2",
+      "status": "unused",
+      "confidence": "low",
+      "hashMd5": "e15009c429943527051e32a0ddb29989"
+    },
+    {
+      "path": "public/whatsapp.svg",
+      "type": "image",
+      "format": "svg",
+      "bytes": 2501,
+      "width": 175,
+      "height": 176,
+      "aspectRatio": 0.994,
+      "animated": false,
+      "alpha": false,
+      "references": [
+        {
+          "file": "components/public/layout/BottomNavbar.tsx",
+          "route": "/",
+          "component": "BottomNavbar",
+          "usage": "social-icon"
+        }
+      ],
+      "referencedCount": 1,
+      "currentName": "whatsapp.svg",
+      "recommendedName": "icons/social/whatsapp.svg",
+      "recommendedWidth": 28,
+      "recommendedHeight": 28,
+      "recommendedFormat": "svg",
+      "priority": "P3",
+      "status": "optimize",
+      "confidence": "high",
+      "hashMd5": "4025a2c2826def311c3b73dfa38a9b20"
+    }
+  ]
+}

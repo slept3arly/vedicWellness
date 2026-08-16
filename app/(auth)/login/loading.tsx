@@ -1,5 +1,3 @@
-"use client";
-
 export default function LoadingPill() {
   return (
     <div className="h-dvh w-full flex items-center justify-center">

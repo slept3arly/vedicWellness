@@ -38,42 +38,42 @@ const interactiveCards = [
     summary: "Exclusive monopoly rights structured for rapid market acquisition.",
     body: "Our PCD pharma franchise model offers comprehensive district or city territory rights designed to ensure controlled competition and sustainable partner profitability. We supply detailed operational playbooks, product catalogs, and live fulfillment support to guarantee high commercial velocity from day one.",
     icon: Users,
-    image: "/hero/1.jpg",
+    image: "/hero/1.webp",
   },
   {
     title: "Manufacturing",
     summary: "WHO-GMP compliant facilities engineered for batch consistency.",
     body: "Every formulation is manufactured under strict quality checkpoints, automated temperature-controlled processing, and authenticated botanical sourcing pipelines. This rigorous industrial workflow guarantees flawless compliance documentation, long product shelf lives, and reliable batch-to-batch uniformity.",
     icon: ShieldCheck,
-    image: "/hero/2.jpg",
+    image: "/hero/2.webp",
   },
   {
     title: "Partner Growth",
     summary: "End-to-end promotional ecosystem built for conversion optimization.",
     body: "We equip our network with medical literatures, physician samples, localized visual aid folders, and automated regional advertising support. This proactive enablement infrastructure lowers marketing barriers, strengthens early customer retention, and accelerates investment recovery across target markets.",
     icon: BadgeCheck,
-    image: "/hero/3.jpg",
+    image: "/hero/3.webp",
   },
   {
     title: "Product Portfolio",
     summary: "Comprehensive healthcare options matching dynamic therapeutic needs.",
     body: "Our expansive Ayurvedic formula index spans general health tonics, customized herbal remedies, skin care solutions, and specialized metabolic capsules. Offering an extensive, certified portfolio allows partners to unlock immediate cross-selling traction and command high market discovery across multiple consumer demographics.",
     icon: BadgeCheck,
-    image: "/hero/4.jpg",
+    image: "/hero/4.webp",
   },
   {
     title: "Pan India Network",
     summary: "Robust operational distribution networks reaching crucial regional centers.",
     body: "Backed by optimized transport logistics and centralized hubs, our supply framework delivers rapid order fulfillment across urban and rural sectors. This broad infrastructural footprint guarantees immediate stock turnaround times, minimizes business backlogs, and secures commercial stability for franchise offices.",
     icon: Users,
-    image: "/hero/5.jpg",
+    image: "/hero/5.webp",
   },
   {
     title: "Marketing Support",
     summary: "Tailored advertising strategies crafted for local marketplace presence.",
     body: "We optimize regional marketing performance by supplying customized banners, seasonal product kits, and high-impact digital promotional graphics. This strategic asset allocation helps independent franchise teams build distinct, trusted authority signatures within competitive localized healthcare networks.",
     icon: Sparkles,
-    image: "/hero/6.jpg",
+    image: "/hero/6.webp",
   },
 ];
 
@@ -143,12 +143,12 @@ export default function Philosophy() {
 
         {/* ── ROW 2: INTERACTIVE FEATURED CARDS (HORIZONTAL SCROLL RAIL) ── */}
         <div className="w-full">
-          <div className="carousel-scrollbar flex overflow-x-auto snap-x snap-mandatory scroll-smooth pt-4 pb-6 gap-6 w-full">
-            {interactiveCards.map((item) => (
+          <div className="carousel-scrollbar flex overflow-x-auto scroll-smooth pt-4 pb-6 gap-6 w-full">
+            {interactiveCards.map((item, i) => (
               <div
                 key={item.title}
                 onClick={() => handleCardClick(item)}
-                className="snap-start shrink-0 cursor-pointer w-[265px] sm:w-[290px] lg:w-[320px] group"
+                className="shrink-0 cursor-pointer w-[265px] sm:w-[290px] lg:w-[320px] group"
               >
                 <Card className="!p-0 overflow-hidden bg-white dark:bg-[#0c0f0e] border-0 dark:border-0 shadow-md transition-shadow duration-300">
                   <div className="relative aspect-[3/4] w-full overflow-hidden p-3 bg-slate-50 dark:bg-zinc-900">
@@ -157,6 +157,7 @@ export default function Philosophy() {
                         src={item.image}
                         alt={item.title}
                         fill
+                        loading={i < 4 ? "eager" : "lazy"}
                         sizes="(min-width: 1024px) 320px, (min-width: 640px) 290px, 265px"
                         className="object-cover transition-transform duration-500 group-hover:scale-105"
                       />

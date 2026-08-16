@@ -101,6 +101,8 @@ export default function MediaSlider({
                 <img
                   src={slide.imageDesktopUrl}
                   alt={`Slide ${i + 1} of ${total}`}
+                  loading="lazy"
+                  decoding="async"
                   className="hidden md:block absolute inset-0 h-full w-full object-cover"
                 />
               ) : (
@@ -108,8 +110,8 @@ export default function MediaSlider({
                   src={slide.imageDesktopUrl}
                   alt={`Slide ${i + 1} of ${total}`}
                   fill
-                  priority={i === 0}
-                  sizes="(max-width: 768px) 100vw, 1200px"
+                  loading="lazy"
+                  sizes="(max-width: 768px) calc(100vw - 48px), min(calc(100vw - 48px), 1232px)"
                   className="hidden md:block object-cover"
                 />
               )}
@@ -119,6 +121,9 @@ export default function MediaSlider({
                 <img
                   src={slide.imageMobileUrl}
                   alt={`Slide ${i + 1} of ${total}`}
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                   className="block md:hidden absolute inset-0 h-full w-full object-cover"
                 />
               ) : (
@@ -126,7 +131,8 @@ export default function MediaSlider({
                   src={slide.imageMobileUrl}
                   alt={`Slide ${i + 1} of ${total}`}
                   fill
-                  sizes="(max-width: 768px) 100vw, 1200px"
+                  loading="lazy"
+                  sizes="(max-width: 768px) calc(100vw - 48px), min(calc(100vw - 48px), 1232px)"
                   className="block md:hidden object-cover"
                 />
               )}

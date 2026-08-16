@@ -6,6 +6,9 @@ import {
   HeartHandshake,
   MapPin,
   Truck,
+  Megaphone,
+  Headset,
+  PackageCheck,
   ChevronDown,
   type LucideIcon,
 } from "lucide-react";
@@ -81,36 +84,68 @@ const journey: {
 }[] = [
   {
     step: "01",
-    title: "Est. 2018",
-    desc: "Vedic Wellness began as the Ayurvedic division of Innovia Drugs, rooted in Ambala, Haryana.",
+    title: "2018 — Vedic Wellness Established",
+    desc: "Vedic Wellness began as the Ayurvedic healthcare division of Innovia Drugs, with its roots in Ambala, Haryana.",
     icon: MapPin,
     image: "/hero/1.webp",
     alt: "Vedic Wellness Ayurvedic products and company origins since 2018",
   },
   {
     step: "02",
-    title: "GMP-Certified Manufacturing",
-    desc: "The product portfolio is built on GMP-certified manufacturing and a growing range of Ayurvedic, herbal and wellness formulations.",
+    title: "GMP-Based Product Manufacturing",
+    desc: "The Vedic Wellness product portfolio is supported by GMP-certified manufacturing with a growing range of herbal formulations.",
     icon: Leaf,
     image: "/hero/2.webp",
     alt: "GMP-certified Ayurvedic manufacturing facility",
   },
   {
     step: "03",
-    title: "Distributor-First Franchise Model",
-    desc: "Partners receive exclusive monopoly rights for their territory, supported by product training and promotional materials.",
+    title: "Territory-Based PCD Franchise Model",
+    desc: "Our Partners receive exclusive monopoly rights for their area supplemented by promotional materials.",
     icon: HeartHandshake,
     image: "/hero/3.webp",
     alt: "Vedic Wellness distributor-first PCD franchise model",
   },
   {
     step: "04",
-    title: "Pan-India Reach",
-    desc: "Fast dispatch and marketing support help franchise and distribution partners serve customers across India.",
+    title: "Franchise Partnerships Across India",
+    desc: "We support our partners all over India with high availability and a reliable dispatch model with contact support.",
     icon: Truck,
     image: "/hero/4.webp",
     alt: "Vedic Wellness pan-India distribution and dispatch network",
-  },
+    },
+    {
+      step: "05",
+      title: "Growing Ayurvedic Product Portfolio",
+      desc: "Vedic Wellness offers a growing range of Ayurvedic, herbal and wellness products across everyday healthcare categories.",
+      icon: Leaf,
+      image: "/hero/5.webp",
+      alt: "Vedic Wellness Ayurvedic and herbal product portfolio",
+    },
+    {
+      step: "06",
+      title: "Marketing & Promotional Support",
+      desc: "Franchise partners receive promotional materials, product information and marketing guidance to support local business development.",
+      icon: Megaphone,
+      image: "/hero/6.webp",
+      alt: "Vedic Wellness marketing and promotional support for franchise partners",
+    },
+    {
+      step: "07",
+      title: "Dedicated Partner Assistance",
+      desc: "Our team assists franchise and distribution partners with product, territory, ordering and business-related enquiries.",
+      icon: Headset,
+      image: "/hero/7.webp",
+      alt: "Vedic Wellness support for PCD pharma franchise partners",
+    },
+    {
+      step: "08",
+      title: "Expanding Ayurvedic Product Portfolio",
+      desc: "We continue to develop and expand our range of Ayurvedic, herbal and wellness products across multiple healthcare categories.",
+      icon: PackageCheck,
+      image: "/hero/8.webp",
+      alt: "Vedic Wellness Ayurvedic and herbal product portfolio",
+    },
 ];
 
 const storyMedia = (
@@ -205,19 +240,20 @@ export default function AboutClient() {
             className="max-w-3xl"
             title={
               <>
-                A brand built on Ayurveda,{" "}
+                About{" "}
                 <span className="text-[color:var(--brand-accent)]">
-                  quality & trust
+                  Vedic Wellness 
                 </span>
+                {" "}Ayurvedic Pharma Franchise
               </>
             }
-            subtitle="Vedic Wellness (A Division of Innovia Drugs) empowers PCD partners with high-demand Ayurvedic products, monopoly rights, fast dispatch, and strong marketing support."
+            subtitle="We provide Ayurvedic, herbal and wellness products through a franchise and distribution model that supports partners across India with products, their materials and territorial oppurtunities."
           />
 
-          <div className="flex flex-col items-center gap-3 pt-2 sm:flex-row sm:justify-center">
-            <CtaLink href="/contact">Enquire About Franchise</CtaLink>
+          <div className="flex flex-row items-center gap-3 pt-2 sm:justify-center">
+            <CtaLink href="/contact">Enquire About Us</CtaLink>
             <CtaLink href="/blogs" variant="secondary">
-              Read Blogs
+              Read Our Blogs
             </CtaLink>
           </div>
         </div>
@@ -225,13 +261,13 @@ export default function AboutClient() {
         {/* Brand story */}
         <m.div variants={fadeUpSoft} initial="hidden" animate="show">
           <ExpandableSeoContent
-            title="The Vedic Wellness Story"
+            title="Our Story: Building Ayurvedic Healthcare Partnerships"
             titleClassName="font-heading text-2xl font-semibold tracking-tight text-[var(--text-main)] sm:text-3xl"
             preview="Vedic Wellness is the Ayurvedic healthcare division of Innovia Drugs, offering GMP-certified Ayurvedic and herbal products through a PCD pharma franchise model."
             media={storyMedia}
           >
             <p>
-              <SeoLink href="/">Vedic Wellness</SeoLink> is the Ayurvedic
+              Vedic Wellness is the Ayurvedic
               healthcare division of{" "}
               <a
                 href="https://www.innoviadrugs.com"
@@ -241,31 +277,23 @@ export default function AboutClient() {
               >
                 Innovia Drugs
               </a>
-              , built on GMP-certified manufacturing and a portfolio of{" "}
+                , established with a focus on providing quality{" "}
               <SeoLink href="/products">
-                Ayurvedic, herbal and wellness products
+                ayurvedic products
               </SeoLink>
-              . The range spans everyday health needs — immunity, digestive
-              care, liver tonics, personal care, women&apos;s wellness and daily
-              health supplements.
+              . Based in Ambala City, Haryana. Our portfolio ranges acorss a wide range of products
+               from digestive health to general wellness.
             </p>
             <p>
-              As an Ayurvedic PCD pharma franchise company, Vedic Wellness works
-              through a partner-first model.{" "}
+              We strive to provide best quality products at
+              cheapest rates without compromising on quality. With the help of <SeoLink href="/"> Vedic Wellness</SeoLink>'s franchise model,
+              partners can access our diverse range as we work through a partner-first model.{" "}
+            </p>
+            <p>
+              We offer the pharmaceutical experience of Innovia Drugs with goal of building long term relations with our{" "}
               <SeoLink href="/contact">
-                Franchise and distribution partners
-              </SeoLink>{" "}
-              are offered exclusive monopoly rights for their territory, along
-              with product training, visual aids, brochures and other marketing
-              support.
-            </p>
-            <p>
-              By blending traditional{" "}
-              <SeoLink href="/blogs">Ayurvedic knowledge</SeoLink> with modern
-              pharmaceutical standards, Vedic Wellness helps partners build
-              sustainable distribution businesses across India — rooted in
-              Ambala, Haryana and supported by fast, reliable dispatch
-              nationwide.
+                franchise and distribution partners.
+              </SeoLink>
             </p>
           </ExpandableSeoContent>
         </m.div>
@@ -273,15 +301,15 @@ export default function AboutClient() {
         {/* Journey */}
         <div>
           <SectionHeading
-            title="Our Journey"
-            subtitle="How Vedic Wellness is building a franchise-first Ayurvedic brand"
+            title="Our Growth & Franchise Journey"
+            subtitle="From our roots in Haryana to Ayurvedic franchise partners pan India"
           />
 
-          <div className="carousel-scrollbar mt-8 flex gap-3 overflow-x-auto snap-x snap-proximity pb-1 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-4 md:overflow-visible md:pb-0">
+          <div className="carousel-scrollbar mt-8 flex gap-3 overflow-x-auto pb-1 md:grid md:grid-cols-2 md:gap-6 lg:grid-cols-4 md:overflow-visible md:pb-0">
             {journey.map(({ step, title, desc, icon: Icon, image, alt }) => (
               <div
                 key={title}
-                className="group snap-start shrink-0 w-[250px] md:w-auto"
+                className="group shrink-0 w-[250px] md:w-auto"
               >
                 <Card className="h-full overflow-hidden !p-0 bg-white/75 dark:bg-black/45">
                   {/* Image band */}

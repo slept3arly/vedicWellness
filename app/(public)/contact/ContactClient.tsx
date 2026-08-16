@@ -136,13 +136,13 @@ export default function ContactClient() {
         <PageHeader
           title={
             <>
-              Connect with{" "}
+              Contact{" "}
               <span className="text-[color:var(--brand-accent)]">
                 Vedic Wellness
               </span>
             </>
           }
-          subtitle="Product, franchise and distributor enquiries — reach our team directly."
+          subtitle="Have a product, franchise or distribution enquiry? Get in touch with our team."
         />
 
         <div className="grid gap-8 lg:grid-cols-2 w-full">

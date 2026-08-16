@@ -16,12 +16,12 @@ const stats = [
   {
     value: "200+",
     label: "PCD Products",
-    image: "/hero/card-products.jpg",
+    image: "/hero/7.webp",
   },
   {
     value: "500+",
     label: "Active Partners",
-    image: "/hero/card-partners.jpg",
+    image: "/hero/8.webp",
   },
 ];
 
@@ -182,6 +182,7 @@ export default function Hero() {
                         src={image}
                         alt={label}
                         fill
+                        sizes="260px"
                         className="object-cover"
                       />
                     </div>
