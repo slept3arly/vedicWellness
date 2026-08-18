@@ -31,6 +31,10 @@ export default function ScrollAwareHeader({
   }, [hidden]);
 
   useEffect(() => {
+    document.documentElement.dataset.headerHidden = hidden ? "true" : "false";
+  }, [hidden]);
+
+  useEffect(() => {
     const measure = () => {
       const el = document.querySelector<HTMLElement>(".public-marquee");
       hasMarqueeRef.current = !!el;

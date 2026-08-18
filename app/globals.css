@@ -158,6 +158,27 @@ body {
 }
 
 /* ======================================================
+   STICKY FILTER BAR TOP OFFSET
+   Mirrors the scroll-aware header geometry. ScrollAwareHeader
+   mirrors its hidden state onto <html data-header-hidden> so the
+   sticky bar can sit directly below the marquee when the navbar hides.
+====================================================== */
+
+:root {
+  --filter-bar-top: 8rem; /* 128px — mobile/tablet header (navbar + marquee) */
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --filter-bar-top: 9rem; /* 144px — desktop header (lg navbar + marquee) */
+  }
+}
+
+html[data-header-hidden="true"] {
+  --filter-bar-top: 3rem; /* 48px — marquee only (navbar slid away) */
+}
+
+/* ======================================================
    RIBBON LOADER
 ====================================================== */
 

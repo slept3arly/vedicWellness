@@ -2,13 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { Sparkles, Search, ArrowUpDown, ArrowUpRight, X, ArrowLeft, Building2 } from "lucide-react";
+import { Search, ArrowUpDown, ArrowUpRight, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import PageHeader from "@/components/public/ui/PageHeader";
 import Card from "@/components/public/ui/Card";
-import Chip from "@/components/public/ui/Chip";
+import CompanySelector from "@/components/public/product/CompanySelector";
+
+const DEFAULT_COMPANY = "vedic-wellness";
 
 type Product = {
   id: string;
@@ -18,7 +20,7 @@ type Product = {
   price: number;
   imageUrl: string | null;
 };
-type Company = { id: string; name: string; slug: string };
+type Company = { id: string; name: string; slug: string; logoUrl: string };
 
 export default function ProductsClient({
   products,
@@ -47,7 +49,12 @@ export default function ProductsClient({
 
   const anchorToFilter = () => {
     if (filterBarRef.current) {
-      const stickyOffset = window.innerWidth >= 768 ? 160 : 128;
+      const raw = window
+        .getComputedStyle(document.documentElement)
+        .getPropertyValue("--filter-bar-top")
+        .trim();
+      const parsed = parseFloat(raw);
+      const stickyOffset = Number.isFinite(parsed) ? parsed : 128;
       const elementPosition =
         filterBarRef.current.getBoundingClientRect().top + window.scrollY;
 
@@ -97,13 +104,9 @@ export default function ProductsClient({
 
   return (
     <section className="relative">
-      <div className="mx-auto max-w-7xl px-6 pt-10 pb-20 space-y-10">
+      <div className="mx-auto max-w-7xl px-6 pt-10 pb-20">
         <PageHeader
-          badge={
-            <Chip className="flex items-center gap-2">
-              <Sparkles size={14} /> Ayurvedic Products
-            </Chip>
-          }
+          size="md"
           title={
             <>
               Explore our product range at{" "}<span className="text-brand-accent">{companyName}</span>
@@ -112,18 +115,29 @@ export default function ProductsClient({
           subtitle="Premium Ayurvedic formulations designed for demand, trust, and repeat customers."
         />
 
-        <div className="flex flex-wrap justify-center gap-3">
-          {["Ayurvedic", "PCD Pharma", "Capsules", "Oils"].map((t) => (
-            <Chip key={t}>{t}</Chip>
-          ))}
+        <div className="mt-4">
+          <CompanySelector
+            companies={companies}
+            activeSlug={company || DEFAULT_COMPANY}
+          />
+          {companies.some((c) => c.slug !== DEFAULT_COMPANY) && (
+            <div className="mt-3 text-center">
+              <Link
+                href="/products/companies"
+                prefetch={false}
+                className="text-xs font-semibold uppercase tracking-wide text-accent hover:underline"
+              >
+                Browse all brands
+              </Link>
+            </div>
+          )}
         </div>
-
-        {!company ? <div className="mx-auto max-w-xl rounded-2xl border border-accent/20 bg-accent/5 p-5 text-center shadow-sm"><p className="text-xs font-bold uppercase tracking-[0.18em] text-accent">More brands to explore</p><Link href={companies.filter((c) => c.slug !== "vedic-wellness").length === 1 ? `/products?company=${companies.find((c) => c.slug !== "vedic-wellness")?.slug}` : "/products/companies"} className="mt-3 inline-flex min-h-11 items-center justify-center rounded-xl bg-accent px-6 py-3 text-sm font-bold text-white transition hover:opacity-90">Browse Our Other Products</Link></div> : <div className="flex flex-col gap-3 rounded-2xl border border-border bg-muted/20 p-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><Building2 size={20} className="text-accent" /><div><p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Currently viewing</p><p className="font-heading text-lg font-bold">{companyName}</p></div></div><Link href="/products" className="inline-flex min-h-10 items-center gap-2 text-sm font-semibold text-accent hover:underline"><ArrowLeft size={16} />Back to Vedic Wellness Products</Link></div>}
 
         {/* COMPACT STICKY FILTER BAR */}
         <div
           ref={filterBarRef}
-          className="sticky top-32 md:top-36 z-20 scroll-mt-40"
+          className="sticky z-20 mt-8 scroll-mt-[var(--filter-bar-top)] transition-[top] duration-300"
+          style={{ top: "var(--filter-bar-top)" }}
         >
           <Card className="bg-white/80 dark:bg-neutral-900/80 border-neutral-200 dark:border-neutral-800 p-2 backdrop-blur-md shadow-xl shadow-black/5">
             <form onSubmit={handleFilter} className="flex items-center gap-2">
@@ -191,7 +205,7 @@ export default function ProductsClient({
         </div>
 
         {/* PRODUCT GRID */}
-        <div className="grid grid-cols-2 gap-4 lg:grid-cols-3">
+        <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
             {products.length > 0 ? (
               products.map((p) => (
                 <div key={p.id} className="group">
