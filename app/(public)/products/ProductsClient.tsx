@@ -2,15 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { Search, ArrowUpDown, ArrowUpRight, X } from "lucide-react";
+import {
+  Search,
+  ArrowUpDown,
+  ArrowUpRight,
+  X,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import PageHeader from "@/components/public/ui/PageHeader";
 import Card from "@/components/public/ui/Card";
-import CompanySelector from "@/components/public/product/CompanySelector";
-
-const DEFAULT_COMPANY = "vedic-wellness";
+import CompanyFilter from "@/components/public/product/CompanyFilter";
 
 type Product = {
   id: string;
@@ -20,7 +23,7 @@ type Product = {
   price: number;
   imageUrl: string | null;
 };
-type Company = { id: string; name: string; slug: string; logoUrl: string };
+type Company = { id: string; name: string; slug: string };
 
 export default function ProductsClient({
   products,
@@ -45,46 +48,80 @@ export default function ProductsClient({
 }) {
   const router = useRouter();
   const filterBarRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
   const [inputValue, setInputValue] = useState(query);
 
   const anchorToFilter = () => {
     if (filterBarRef.current) {
-      const raw = window
-        .getComputedStyle(document.documentElement)
-        .getPropertyValue("--filter-bar-top")
-        .trim();
-      const parsed = parseFloat(raw);
-      const stickyOffset = Number.isFinite(parsed) ? parsed : 128;
+      // Derive the offset from the bar's actual sticky geometry; the computed
+      // --header-offset keeps this in sync with the hidden-header transform.
+      const styles = window.getComputedStyle(filterBarRef.current);
+      let stickyOffset = Number.isFinite(parseFloat(styles.top))
+        ? parseFloat(styles.top)
+        : 128;
+      if (document.documentElement.dataset.headerHidden === "true") {
+        const parsed = parseFloat(styles.getPropertyValue("--header-offset"));
+        if (Number.isFinite(parsed))
+          stickyOffset = Math.max(0, stickyOffset - parsed + 8);
+      }
       const elementPosition =
         filterBarRef.current.getBoundingClientRect().top + window.scrollY;
 
       window.scrollTo({
-        top: elementPosition - stickyOffset,
+        top: Math.max(0, elementPosition - stickyOffset),
         behavior: "smooth",
       });
     }
   };
 
-  function handleFilter(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const q = (formData.get("query") as string).trim();
-    const s = formData.get("sort") as string;
+  function applyFilters(q: string, s: string, c: string) {
+    const trimmedQuery = q.trim();
+
+    // No-op when the listing wouldn't change: repeated Enter presses while
+    // focused on the input must not re-navigate or move the viewport.
+    if (
+      trimmedQuery === query.trim() &&
+      s === (sort || "name_asc") &&
+      (c || "") === (company || "") &&
+      page === 1
+    )
+      return;
 
     const params = new URLSearchParams();
     params.set("page", "1");
-    if (q) params.set("query", q);
+    if (trimmedQuery) params.set("query", trimmedQuery);
     if (s && s !== "name_asc") params.set("sort", s);
-    if (company) params.set("company", company);
+    if (c) params.set("company", c);
 
     router.push(`/products?${params.toString()}`, { scroll: false });
-    requestAnimationFrame(anchorToFilter);
   }
+
+  function handleFilter(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    applyFilters(
+      (formData.get("query") as string) ?? "",
+      (formData.get("sort") as string) ?? "name_asc",
+      (formData.get("company") as string) ?? ""
+    );
+  }
+
+  const handleCompanyChange = (slug: string) => {
+    const form = formRef.current;
+    const formData = form ? new FormData(form) : null;
+    applyFilters(
+      ((formData?.get("query") as string) ?? "").trim(),
+      (formData?.get("sort") as string) ?? "name_asc",
+      slug
+    );
+  };
 
   const handleGlobalClear = () => {
     setInputValue("");
-    router.push("/products?page=1", { scroll: false });
-    anchorToFilter();
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    if (company) params.set("company", company);
+    router.push(`/products?${params.toString()}`, { scroll: false });
   };
 
   const windowSize = 2;
@@ -103,10 +140,9 @@ export default function ProductsClient({
   }
 
   return (
-    <section className="relative">
-      <div className="mx-auto max-w-7xl px-6 pt-10 pb-20">
+    <section className="relative w-full px-4 sm:px-6 pt-12 sm:pt-20 pb-8 sm:pb-12">
+      <div className="mx-auto max-w-7xl">
         <PageHeader
-          size="md"
           title={
             <>
               Explore our product range at{" "}<span className="text-brand-accent">{companyName}</span>
@@ -115,57 +151,51 @@ export default function ProductsClient({
           subtitle="Premium Ayurvedic formulations designed for demand, trust, and repeat customers."
         />
 
-        <div className="mt-4">
-          <CompanySelector
-            companies={companies}
-            activeSlug={company || DEFAULT_COMPANY}
-          />
-          {companies.some((c) => c.slug !== DEFAULT_COMPANY) && (
-            <div className="mt-3 text-center">
-              <Link
-                href="/products/companies"
-                prefetch={false}
-                className="text-xs font-semibold uppercase tracking-wide text-accent hover:underline"
-              >
-                Browse all brands
-              </Link>
-            </div>
-          )}
-        </div>
-
         {/* COMPACT STICKY FILTER BAR */}
         <div
           ref={filterBarRef}
-          className="sticky z-20 mt-8 scroll-mt-[var(--filter-bar-top)] transition-[top] duration-300"
-          style={{ top: "var(--filter-bar-top)" }}
+          className="sticky z-20 mt-8 sm:mt-12 public-sticky-filter"
         >
-          <Card className="bg-white/80 dark:bg-neutral-900/80 border-neutral-200 dark:border-neutral-800 p-2 backdrop-blur-md shadow-xl shadow-black/5">
-            <form onSubmit={handleFilter} className="flex items-center gap-2">
+          <div className="rounded-xl sm:rounded-2xl border border-[var(--border-soft)] bg-white dark:bg-neutral-900 p-1.5 sm:p-2 shadow-md shadow-black/5">
+            <form
+              ref={formRef}
+              onSubmit={handleFilter}
+              className="flex flex-nowrap items-center gap-1.5 sm:gap-2"
+            >
               {/* Dominant Search Input */}
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-400" />
+              <div className="relative min-w-0 flex-1">
+                <Search className="absolute left-2.5 sm:left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-[var(--text-muted)]" />
                 <input
                   name="query"
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   placeholder="Search products..."
-                  className="h-11 w-full rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 pl-10 pr-10 text-sm focus:ring-2 focus:ring-accent/20 focus:border-accent outline-none transition-all"
+                  className="h-9 sm:h-10 w-full rounded-lg sm:rounded-xl border border-[var(--border-soft)] bg-[var(--bg-main)] pl-8 pr-8 sm:pl-9 sm:pr-9 text-xs sm:text-sm text-[var(--text-main)] placeholder:text-[var(--text-muted)]/70 focus:ring-1 focus:ring-brand-accent/40 focus:border-brand-accent outline-none transition-all"
                 />
                 {(inputValue || query) && (
                   <button
                     type="button"
                     onClick={handleGlobalClear}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 w-7 h-7 flex items-center justify-center rounded-lg hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-400 transition-colors"
+                    className="absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-md hover:bg-neutral-200 dark:hover:bg-neutral-800 text-[var(--text-muted)] hover:text-[var(--text-main)] transition-colors"
+                    aria-label="Clear search"
                   >
-                    <X className="h-4 w-4" />
+                    <X className="h-3.5 w-3.5" />
                   </button>
                 )}
               </div>
 
+              {/* Company Filter — custom dropdown (native select popups can't be styled) */}
+              <input type="hidden" name="company" value={company || ""} />
+              <CompanyFilter
+                companies={companies}
+                value={company || ""}
+                onChange={handleCompanyChange}
+              />
+
               {/* Square Sort Button (Hidden Select) */}
-              <div className="relative h-11 w-11 shrink-0 group/sort">
-                <div className="absolute inset-0 flex items-center justify-center rounded-xl border border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-950 text-neutral-600 dark:text-neutral-400 group-hover/sort:border-accent transition-colors pointer-events-none">
-                  <ArrowUpDown className="h-4 w-4" />
+              <div className="relative h-9 w-9 sm:h-10 sm:w-10 shrink-0 group/sort">
+                <div className="absolute inset-0 flex items-center justify-center rounded-lg sm:rounded-xl border border-[var(--border-soft)] bg-[var(--bg-main)] text-[var(--text-muted)] group-hover/sort:text-[var(--text-main)] group-hover/sort:border-brand-accent transition-colors pointer-events-none">
+                  <ArrowUpDown className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
                 </div>
                 <select
                   name="sort"
@@ -182,26 +212,27 @@ export default function ProductsClient({
                 </select>
               </div>
 
-              {/* Square Search Submit Button */}
+              {/* Square Search Submit Button (Restored original black/white brand styling) */}
               <button
                 type="submit"
-                className="h-11 w-11 shrink-0 rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center hover:opacity-80 transition-opacity active:scale-95"
+                aria-label="Submit search"
+                className="h-9 w-9 sm:h-10 sm:w-10 shrink-0 rounded-lg sm:rounded-xl bg-black dark:bg-white text-white dark:text-black flex items-center justify-center hover:opacity-80 transition-opacity active:scale-95 shadow-sm"
               >
-                <Search className="h-4 w-4" strokeWidth={2.5} />
+                <Search className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={2.5} />
               </button>
             </form>
 
-            <div className="mt-1.5 px-2 flex justify-between items-center">
-               <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-tight">
-                {totalCount} Results
+            <div className="mt-1 px-1.5 flex justify-between items-center text-[10px] sm:text-[11px] text-[var(--text-muted)]">
+              <span className="font-semibold uppercase tracking-wider">
+                {totalCount} {totalCount === 1 ? "Product" : "Products"}
               </span>
               {query && (
-                <span className="text-[10px] text-accent font-medium truncate max-w-[150px]">
+                <span className="text-brand-accent font-medium truncate max-w-[180px]">
                   &quot;{query}&quot;
                 </span>
               )}
             </div>
-          </Card>
+          </div>
         </div>
 
         {/* PRODUCT GRID */}

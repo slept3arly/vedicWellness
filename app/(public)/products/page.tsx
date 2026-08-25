@@ -3,7 +3,6 @@ import ProductsClient from "./ProductsClient";
 import { getPublicProductsService } from "@/lib/services/productService";
 import { notFound } from "next/navigation";
 import { getActiveCompanies } from "@/lib/db/company";
-import { getCompanyLogoUrl } from "@/lib/public/companyLogo";
 import ExpandableSeoContent from "@/components/public/ui/ExpandableSeoContent";
 import SeoLink from "@/components/public/ui/SeoLink";
 
@@ -123,16 +122,16 @@ export default async function ProductsPage({
   const page = rawPage;
   const query = (getParam(sp.query) ?? "").trim();
   const sort = getParam(sp.sort) ?? DEFAULT_SORT;
+  // Empty company = unfiltered listing (all active companies).
   const company = getParam(sp.company) ?? "";
-  const effectiveCompany = company || DEFAULT_COMPANY;
 
   const [result, companies] = await Promise.all([
-    getPublicProductsService({ page, query, sort, companySlug: effectiveCompany }),
+    getPublicProductsService({ page, query, sort, companySlug: company }),
     getActiveCompanies(),
   ]);
   const { products, total, totalPages } = result;
-  const selectedCompany = companies.find((item) => item.slug === effectiveCompany);
-  if (!selectedCompany) notFound();
+  const selectedCompany = companies.find((item) => item.slug === company);
+  if (company && !selectedCompany) notFound();
 
   if (totalPages > 0 && page > totalPages) {
     notFound();
@@ -140,20 +139,22 @@ export default async function ProductsPage({
 
   const renderedUrl = buildRenderedUrl({ page, query, sort, company });
 
-  // Every active company appears in the selector — logo availability only
-  // affects how the logo is rendered, never which companies are shown.
-  const selectorCompanies = companies.map((company) => ({
+  // Data for the company filter dropdown inside the search bar.
+  const filterCompanies = companies.map((company) => ({
     id: company.id,
     name: company.name,
     slug: company.slug,
-    logoUrl: getCompanyLogoUrl(company.slug) ?? "",
   }));
 
   const itemListSchema = {
     "@context": "https://schema.org",
     "@type": "ItemList",
-    name: `${selectedCompany.name} Product Catalog`,
-    description: `Catalog of Ayurvedic products offered by ${selectedCompany.name}.`,
+    name: selectedCompany
+      ? `${selectedCompany.name} Product Catalog`
+      : "Ayurvedic Product Catalog",
+    description: selectedCompany
+      ? `Catalog of Ayurvedic products offered by ${selectedCompany.name}.`
+      : "Catalog of Ayurvedic products from all active Vedic Wellness companies.",
     url: `${SITE_URL}${renderedUrl}`,
     numberOfItems: total,
 
@@ -182,7 +183,7 @@ export default async function ProductsPage({
         sort={sort}
         company={company}
         companyName={selectedCompany?.name ?? "Vedic Wellness"}
-        companies={selectorCompanies}
+        companies={filterCompanies}
       />
 
       <section className="w-full px-4 pb-10 sm:px-6 sm:pb-20">

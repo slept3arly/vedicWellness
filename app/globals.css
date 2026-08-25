@@ -158,24 +158,27 @@ body {
 }
 
 /* ======================================================
-   STICKY FILTER BAR TOP OFFSET
+   STICKY FILTER BAR
    Mirrors the scroll-aware header geometry. ScrollAwareHeader
    mirrors its hidden state onto <html data-header-hidden> so the
-   sticky bar can sit directly below the marquee when the navbar hides.
+   sticky bar can sit directly below the marquee when the navbar hides,
+   and slides smoothly via a GPU-friendly transform.
 ====================================================== */
 
-:root {
-  --filter-bar-top: 8rem; /* 128px — mobile/tablet header (navbar + marquee) */
+.public-sticky-filter {
+  top: 8rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
 }
 
 @media (min-width: 1024px) {
-  :root {
-    --filter-bar-top: 9rem; /* 144px — desktop header (lg navbar + marquee) */
+  .public-sticky-filter {
+    top: 9rem;
   }
 }
 
-html[data-header-hidden="true"] {
-  --filter-bar-top: 3rem; /* 48px — marquee only (navbar slid away) */
+html[data-header-hidden="true"] .public-sticky-filter {
+  transform: translateY(calc(var(--header-offset, 0px) * -1 + 8px));
 }
 
 /* ======================================================
@@ -249,7 +252,8 @@ html[data-header-hidden="true"] {
   .animate-route-loader,
   .animate-float,
   .public-navbar,
-  .public-marquee {
+  .public-marquee,
+  .public-sticky-filter {
     animation: none !important;
     transition: none !important;
   }

@@ -39,6 +39,12 @@ export default function ScrollAwareHeader({
       const el = document.querySelector<HTMLElement>(".public-marquee");
       hasMarqueeRef.current = !!el;
       setOffset(el ? el.offsetTop : 0);
+      // Expose the offset on <html> too: the sticky filter bar lives outside
+      // this component's subtree and cannot inherit the inline CSS variable.
+      document.documentElement.style.setProperty(
+        "--header-offset",
+        `${el ? el.offsetTop : 0}px`
+      );
     };
     measure();
     window.addEventListener("resize", measure, { passive: true });

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import PageHeader from "@/components/public/ui/PageHeader";
-import CompanySelector from "@/components/public/product/CompanySelector";
 import { getActiveCompanies } from "@/lib/db/company";
 import { getCompanyLogoUrl } from "@/lib/public/companyLogo";
 import { ArrowLeft } from "lucide-react";
@@ -47,7 +46,33 @@ export default async function ProductCompaniesPage() {
         subtitle="Choose a company to view its products."
       />
 
-      <CompanySelector companies={companies} size="lg" />
+      <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-3 lg:grid-cols-4">
+        {companies.map((company) => (
+          <li key={company.id}>
+            <Link
+              href={
+                company.slug === "vedic-wellness"
+                  ? "/products"
+                  : `/products?company=${company.slug}`
+              }
+              prefetch={false}
+              className="flex h-20 flex-col items-center justify-center gap-2 rounded-xl sm:rounded-2xl border border-[var(--border-soft)] bg-neutral-900/[0.06] px-3 transition-colors duration-200 hover:border-brand-accent/40 hover:bg-neutral-900/[0.09] dark:bg-white/[0.08] dark:hover:bg-white/[0.12] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-accent focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-main)]"
+            >
+              {company.logoUrl && (
+                <img
+                  src={company.logoUrl}
+                  alt=""
+                  loading="lazy"
+                  className="h-9 w-auto max-w-full object-contain"
+                />
+              )}
+              <span className="text-xs font-semibold text-[var(--text-muted)]">
+                {company.name}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ul>
 
       <div className="text-center">
         <Link
