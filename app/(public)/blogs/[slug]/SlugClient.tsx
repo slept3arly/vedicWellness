@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 import { useRef } from "react";
+import type { ImgHTMLAttributes } from "react";
 
 import Card from "@/components/public/ui/Card";
 import Chip from "@/components/public/ui/Chip";
@@ -107,7 +108,7 @@ export default function SlugClient({
               />
 
               {/* AUTHOR */}
-              <div className="pt-4 border-t border-border-soft mt-4">
+              <div className="pt-4 border-t border-[var(--border-soft)] mt-4">
                 <p className="text-xs text-muted">
                   By {blog.author ?? "Vedic Wellness Team"}
                 </p>
@@ -126,7 +127,7 @@ export default function SlugClient({
 <aside className="hidden lg:block sticky top-48 self-start">
   <div className="surface rounded-xl p-5 space-y-4 text-xs">
 
-    <p className="text-xs uppercase tracking-widest text-muted border-b border-border-soft pb-3">
+    <p className="text-xs uppercase tracking-widest text-muted border-b border-[var(--border-soft)] pb-3">
       On this page
     </p>
 
@@ -174,6 +175,29 @@ export default function SlugClient({
               >
                 <ReactMarkdown
                   components={{
+                    // Article-body images come from arbitrary R2/remote URLs with
+                    // unknown dimensions, so they render as plain <img> with lazy
+                    // loading instead of next/image. Author-specified dimensions
+                    // are preserved to avoid layout shift.
+                    img({
+                      src,
+                      alt,
+                      width,
+                      height,
+                    }: ImgHTMLAttributes<HTMLImageElement> & { node?: unknown }) {
+                      return (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={typeof src === "string" ? src : undefined}
+                          alt={alt ?? ""}
+                          width={width}
+                          height={height}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      );
+                    },
+
                     h2({ children }) {
                       const text = String(children);
                       return (
@@ -214,7 +238,7 @@ export default function SlugClient({
 
               {/* TAGS */}
               {blog.tags?.length ? (
-  <div className="mt-12 pt-6 border-t border-border-soft flex flex-wrap gap-2">
+  <div className="mt-12 pt-6 border-t border-[var(--border-soft)] flex flex-wrap gap-2">
     {blog.tags.map((tag) => (
       <Chip key={tag} className="text-[10px] opacity-70 hover:opacity-100">
         #{tag}
@@ -233,7 +257,7 @@ export default function SlugClient({
 
             <div className="grid gap-6 sm:grid-cols-2">
               {relatedBlogs.slice(0, 4).map((r) => (
-                <Link key={r.id} href={`/blogs/${r.slug}`}>
+                <Link key={r.id} href={`/blogs/${encodeURIComponent(r.slug)}`}>
                   <Card className="overflow-hidden p-0">
                     {r.thumbnailUrl && (
                       <div className="relative aspect-[4/3] lg:aspect-[16/9] w-full max-h-[160px]">

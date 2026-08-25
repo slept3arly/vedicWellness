@@ -1,9 +1,17 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { prisma } from "@/lib/db/prisma";
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 
 export const revalidate = 21600; // 6 hours
+
+export const metadata: Metadata = {
+  title: "Site Map",
+  description:
+    "Site map of Vedic Wellness – find all public pages, product listings and published Ayurveda blog articles in one place.",
+  alternates: { canonical: "/site-map" },
+};
 
 export default async function SiteMapPage() {
   const blogs = await prisma.blog.findMany({

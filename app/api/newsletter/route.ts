@@ -1,15 +1,18 @@
 import { prisma } from "@/lib/db/prisma";
 import { addSubscriberToBrevo } from "@/lib/email/marketing/contacts";
 import { secureMutation } from "@/lib/security/secureMutation";
+import { newsletterSchema } from "@/lib/validators/newsletter";
 
 export async function POST(req: Request) {
   try {
     await secureMutation(req, { limit: "newsletter" });
-    const { email, source } = await req.json();
 
-    if (!email) {
-      return Response.json({ error: "Email required" }, { status: 400 });
+    const parsed = newsletterSchema.safeParse(await req.json().catch(() => null));
+    if (!parsed.success) {
+      return Response.json({ error: "A valid email is required" }, { status: 400 });
     }
+
+    const { email, source } = parsed.data;
 
     // Save locally first
     const subscriber = await prisma.subscriber.upsert({

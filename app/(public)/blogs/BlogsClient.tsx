@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { Sparkles, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
 import PageHeader from "@/components/public/ui/PageHeader";
 import SectionHeading from "@/components/public/ui/SectionHeading";
 import Card from "@/components/public/ui/Card";
-import Chip from "@/components/public/ui/Chip";
 
 type BlogListItem = {
   id: string;
@@ -57,12 +56,6 @@ export default function BlogsClient({
       <div className="mx-auto max-w-7xl px-6 pt-10 pb-20 space-y-10">
         {/* HEADER */}
         <PageHeader
-          badge={
-            <Chip className="flex items-center gap-2">
-              <Sparkles size={14} />
-              Blogs & Updates
-            </Chip>
-          }
           title={
             <>
               Learn more with{" "}
@@ -71,13 +64,6 @@ export default function BlogsClient({
           }
           subtitle="Read our latest articles, Ayurveda insights, company updates, and franchise business knowledge."
         />
-
-        {/* KEYWORD CHIPS */}
-        <div className="flex flex-wrap justify-center gap-3">
-          {["Ayurveda", "Franchise", "PCD Pharma", "Updates"].map((t) => (
-            <Chip key={t}>{t}</Chip>
-          ))}
-        </div>
 
         {/* ⭐ FEATURED BLOGS */}
         {featuredBlogs.length > 0 && (
@@ -218,7 +204,7 @@ export default function BlogsClient({
                   className={`w-16 h-10 rounded-lg flex items-center justify-center text-sm font-heading transition-all ${
                     p === page
                       ? "bg-surface border border-white/50 shadow-lg shadow-brand-accent/20 scale-110"
-                      : "bg-surface border border-border-soft hover:border-brand-accent/50"
+                      : "bg-surface border border-[var(--border-soft)] hover:border-brand-accent/50"
                   }`}
                 >
                   {p}

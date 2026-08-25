@@ -108,6 +108,15 @@ export default async function BlogsPage({
   /* JSON-LD */
   /* ========================================================= */
 
+  // The structured data must mirror the visible listing, which shows the
+  // featured posts plus the paginated list. newBlogs already excludes the
+  // featured posts via its offset, but filter defensively by id so a post
+  // can never appear twice.
+  const listedBlogs = [
+    ...featuredBlogs,
+    ...newBlogs.filter((b) => !featuredBlogs.some((f) => f.id === b.id)),
+  ];
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Blog",
@@ -123,7 +132,7 @@ export default async function BlogsPage({
         url: `${SITE_URL}/logo.svg`,
       },
     },
-    blogPost: newBlogs.map((b) => {
+    blogPost: listedBlogs.map((b) => {
       const publishedDate = new Date(
         b.publishedAt ?? b.createdAt
       ).toISOString();
