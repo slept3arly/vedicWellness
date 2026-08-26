@@ -88,15 +88,14 @@ A primary architectural rule of the codebase is:
 
 ### Upstash Redis & `@upstash/ratelimit`
 * **Purpose**: Key-value data store and Rate Limiter.
-* **Used for**: Sliding window rate limits (e.g. login, contact submissions, OTP request triggers) and session/OTP temporary storage.
+* **Used for**: Sliding window rate limits (signup, contact, newsletter, order creation, admin actions). Fails closed: the app refuses to boot without Redis credentials.
 * **Evidence**:
   * [lib/redis.ts](file:///c:/Development/vedicWellness/lib/redis.ts) (Client instantiation)
   * [lib/security/rateLimit.ts](file:///c:/Development/vedicWellness/lib/security/rateLimit.ts) (Rate limit sliding window wrapper)
-  * [lib/auth/signupSession.ts](file:///c:/Development/vedicWellness/lib/auth/signupSession.ts) (Short-lived session storage)
 
 ### Resend & React Email
 * **Purpose**: Transactional email sending.
-* **Used for**: Sending sign-up OTP verification codes.
+* **Used for**: Admin notifications (e.g. new lead / new order alerts).
 * **Evidence**:
   * [lib/email/transactional/client.ts](file:///c:/Development/vedicWellness/lib/email/transactional/client.ts) (Resend client)
   * [lib/email/transactional/send.ts](file:///c:/Development/vedicWellness/lib/email/transactional/send.ts) (Transactional send handler)
@@ -137,7 +136,7 @@ Data Access Layer (Database DAL - e.g., prisma queries, custom filters)
 ### Folder Structure
 * **`app/`**: Next.js routing endpoints divided into Route Groups:
   * `(public)/`: Guest-facing pages (Home, Blogs, Category pages).
-  * `(auth)/`: Authentication screens (Login, Signup, Verify OTP).
+  * `(auth)/`: Authentication screens (Login, Signup — email/password, no OTP flow).
   * `(customer)/`: Authenticated customer pages (Cart, Checkout, Orders).
   * `(admin)/`: Authorized administrator portal (Dashboard, Banners, Blogs, Leads, Products, Slides, Users).
   * `api/`: Route Handlers for API endpoints.
@@ -325,7 +324,7 @@ Configured and validated in [lib/env.ts](file:///c:/Development/vedicWellness/li
 
 ## 16. Third-Party Integrations
 
-* **Resend**: Transactional emails (OTP verification messages). Used in [lib/email/transactional/send.ts](file:///c:/Development/vedicWellness/lib/email/transactional/send.ts).
+* **Resend**: Transactional emails (admin notifications for leads/orders). Used in [lib/email/transactional/send.ts](file:///c:/Development/vedicWellness/lib/email/transactional/send.ts).
 * **Brevo**: Newsletter signup contact management. Used in [lib/email/marketing/client.ts](file:///c:/Development/vedicWellness/lib/email/marketing/client.ts).
 * **Cloudflare Turnstile**: Bot protection for forms (signup, contact). Verified in [lib/security/turnstile.ts](file:///c:/Development/vedicWellness/lib/security/turnstile.ts).
 * **Cloudflare R2**: Admin asset uploads. Used in [lib/storage/r2/client.ts](file:///c:/Development/vedicWellness/lib/storage/r2/client.ts).

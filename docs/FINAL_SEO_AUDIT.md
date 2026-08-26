@@ -1,5 +1,31 @@
 # VedicWellness — Final SEO Audit
 
+> **STATUS: SUPERSEDED IN PART.** The findings below were accurate when written. The current, authoritative description of SEO architecture lives in [CURRENT_SYSTEM.md](./CURRENT_SYSTEM.md) (→ SEO Architecture section). A reconciliation of every P1/P2 below against the current code follows in "Reconciliation" — read that before acting on anything in the historical sections.
+
+## Reconciliation (current code vs. findings below)
+
+| Historical finding | Current status |
+|---|---|
+| P1: Products/About/Contact/Blog listing inherit homepage OG/Twitter | ✅ RESOLVED — all four emit page-specific OG/Twitter metadata |
+| P1: Live `dev only` marquee text | 🟡 OPERATIONAL — no code issue; production marquee data must be cleaned via admin panel before launch (see FUTURE_MAINTENANCE.md → Launch requirements) |
+| P1: Customer route segment lacks noindex | ✅ RESOLVED — `(customer)/layout.tsx` emits `noindex, nofollow` for account/orders/cart/checkout |
+| P1: Blog canonical overrides unrestricted | ✅ RESOLVED — overrides accepted only for the permanent origin (`blogs/[slug]/page.tsx`); JSON-LD uses the resolved canonical |
+| P2: `/products/companies` access/indexing undefined | ✅ RESOLVED BY DECISION — exempted from the product login gate in `proxy.ts`; public navigation page; intentionally excluded from indexing via `robots.ts` `Disallow: /products/*`; no page-specific metadata by design |
+| P2: HTML site-map links to login/signup | 🟡 DEFERRED — still present; harmless |
+| P2: Sitemap chunking at 500-blog cap | 🟡 DEFERRED — cap unchanged; monitor volume |
+| P2: ItemList entries omit item URLs | 🟡 DEFERRED — intentional while product details are private/login-gated |
+
+### Post-audit changes this document does NOT yet describe
+
+The sections below predate several structural changes. The current behavior is:
+
+- **Blogs**: one unified chronological listing on `/blogs` (newest → oldest, `publishedAt desc`, 15/page). There is no featured/latest split. Listing JSON-LD (`Blog.blogPost`) maps exactly the posts visible on the current page — no duplicates, no omissions. Article pages render as normal document flow with real anchor-based "On This Page" navigation (H2-only, generated server-side).
+- **Products**: `/products?company=<slug>` is a genuinely distinct listing with its own canonical URL (not folded into `/products`). Search/sort variants are noindex and canonicalize to the nearest listing. The default `/products` view is unfiltered across all active companies.
+- **`/site-map`**: now has page-specific metadata (title/description/self-canonical), matching the privacy/terms convention.
+- **Order lifecycle** (affects nothing above but is referenced in copy): CREATED → CONFIRMED → SHIPPED → DELIVERED, with CREATED → CANCELLED / EXPIRED branches.
+
+---
+
 ## Implementation Status
 
 Added after the audit was actioned. Feature-frozen; only the SEO backend items below were implemented.

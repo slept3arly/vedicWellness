@@ -22,13 +22,11 @@ type BlogListItem = {
 };
 
 export default function BlogsClient({
-  featuredBlogs,
-  newBlogs,
+  blogs,
   page,
   totalPages,
 }: {
-  featuredBlogs: BlogListItem[];
-  newBlogs: BlogListItem[];
+  blogs: BlogListItem[];
   page: number;
   totalPages: number;
 }) {
@@ -65,72 +63,15 @@ export default function BlogsClient({
           subtitle="Read our latest articles, Ayurveda insights, company updates, and franchise business knowledge."
         />
 
-        {/* ⭐ FEATURED BLOGS */}
-        {featuredBlogs.length > 0 && (
-          <div className="mt-10">
-            <SectionHeading title="Featured Blogs" className="mb-6" />
-
-            <div className="grid gap-6 lg:grid-cols-3">
-              {featuredBlogs.map((b) => (
-                <div key={b.id} className="group">
-                  <Link
-                    href={`/blogs/${encodeURIComponent(b.slug)}`}
-                    prefetch={false}
-                    className="block h-full"
-                  >
-                    <Card className="h-full">
-                      {b.thumbnailUrl && (
-                        <div className="relative mb-4 h-52 w-full overflow-hidden rounded-2xl">
-                          <Image
-                            src={b.thumbnailUrl}
-                            alt={b.title}
-                            fill
-                            className="object-cover"
-                            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                          />
-                        </div>
-                      )}
-
-                      <div className="flex items-start justify-between gap-3">
-                        <h3 className="font-heading text-lg leading-snug">
-                          {b.title}
-                        </h3>
-
-                        <ArrowUpRight
-                          size={26}
-                          strokeWidth={2.4}
-                          className="shrink-0 mt-1 text-muted transition-all duration-300 group-hover:text-brand-accent group-hover:translate-x-[2px] group-hover:-translate-y-[2px]"
-                        />
-                      </div>
-
-                      <p className="mt-3 text-sm text-muted line-clamp-3">
-                        {b.description || "Read this article to learn more."}
-                      </p>
-
-                      <div className="mt-5 text-xs text-muted flex items-center gap-2">
-                        <span className="font-accent">
-                          {b.author ?? "Vedic Wellness Team"}
-                        </span>
-                        <span>•</span>
-                        <time>{renderDate(b)}</time>
-                      </div>
-                    </Card>
-                  </Link>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* 🆕 LATEST BLOGS */}
-        <div className="mt-16">
+        {/* ALL BLOGS — single chronological listing, newest first */}
+        <div>
           <SectionHeading title="Latest Articles" className="mb-6" />
 
           <div
             key={`blogs-page-${page}`}
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"
           >
-            {newBlogs.map((b) => (
+            {blogs.map((b) => (
               <div key={b.id} className="group">
                 <Link
                   href={`/blogs/${encodeURIComponent(b.slug)}`}
@@ -179,7 +120,7 @@ export default function BlogsClient({
             ))}
           </div>
 
-          {newBlogs.length === 0 && (
+          {blogs.length === 0 && (
             <div className="mt-10 flex justify-center">
               <Card className="max-w-md text-center">
                 <p>No blogs published yet.</p>

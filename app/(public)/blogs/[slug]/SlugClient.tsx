@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
-import { useRef } from "react";
+
 import type { ImgHTMLAttributes } from "react";
 
 import Card from "@/components/public/ui/Card";
@@ -45,8 +45,6 @@ export default function SlugClient({
   const slugify = (str: string) =>
     str.toLowerCase().replace(/[^\w\s-]/g, "").trim().replace(/\s+/g, "-");
 
-  const contentRef = useRef<HTMLDivElement>(null);
-
   const formattedDate = new Date(
     blog.publishedAt ?? blog.createdAt
   ).toLocaleDateString("en-IN", {
@@ -54,17 +52,6 @@ export default function SlugClient({
     month: "long",
     year: "numeric",
   });
-
-  const handleScrollTo = (h: string) => {
-    const container = contentRef.current;
-    const el = document.getElementById(slugify(h));
-    if (!container || !el) return;
-
-    container.scrollTo({
-      top: el.offsetTop - 32,
-      behavior: "smooth",
-    });
-  };
 
   return (
     <section className="w-full pb-16">
@@ -123,47 +110,44 @@ export default function SlugClient({
         {/* ================= MAIN ================= */}
         <div className="grid lg:grid-cols-[260px_minmax(0,1fr)] gap-8 items-start">
 
-          {/* ================= TOC ================= */}
-<aside className="hidden lg:block sticky top-48 self-start">
-  <div className="surface rounded-xl p-5 space-y-4 text-xs">
+            {/* ================= TOC ================= */}
+            <aside className="hidden lg:block sticky top-48 self-start">
+              <div className="surface rounded-xl p-5 space-y-4 text-xs">
 
-    <p className="text-xs uppercase tracking-widest text-muted border-b border-[var(--border-soft)] pb-3">
-      On this page
-    </p>
+                <p className="text-xs uppercase tracking-widest text-muted border-b border-[var(--border-soft)] pb-3">
+                  On this page
+                </p>
 
-    {headings.map((h) => (
-      <button
-        key={h}
-        onClick={() => handleScrollTo(h)}
-        className="
-          group relative block w-fit text-left
-          text-neutral-500 dark:text-neutral-400
-          hover:text-neutral-900 dark:hover:text-white
-          transition-colors duration-300
-          font-medium pb-1
-        "
-      >
-        {h}
+                {headings.map((h) => (
+                  <a
+                    key={h}
+                    href={`#${slugify(h)}`}
+                    className="
+                      group relative block w-fit text-left
+                      text-neutral-500 dark:text-neutral-400
+                      hover:text-neutral-900 dark:hover:text-white
+                      transition-colors duration-300
+                      font-medium pb-1
+                    "
+                  >
+                    {h}
 
-        {/* EXACT UNDERLINE (WORKING) */}
-        <span className="
-          absolute left-0 bottom-0 h-[1.5px] w-0
-          bg-neutral-900 dark:bg-white
-          transition-all duration-300
-          group-hover:w-full
-        " />
-      </button>
-    ))}
+                    {/* EXACT UNDERLINE (WORKING) */}
+                    <span className="
+                      absolute left-0 bottom-0 h-[1.5px] w-0
+                      bg-neutral-900 dark:bg-white
+                      transition-all duration-300
+                      group-hover:w-full
+                    " />
+                  </a>
+                ))}
 
-  </div>
-</aside>
+              </div>
+            </aside>
 
           {/* ================= CONTENT ================= */}
           <div>
-            <Card
-              ref={contentRef}
-              className="p-6 md:p-10 overflow-y-auto h-[78vh] md:h-[96vh] scroll-smooth custom-scrollbar"
-            >
+            <Card className="p-6 md:p-10">
               <article
                 className="
                   prose max-w-none
@@ -203,7 +187,7 @@ export default function SlugClient({
                       return (
                         <div
                           id={slugify(text)}
-                          className="mt-12 first:mt-0 mb-6 flex items-center gap-3 scroll-mt-8"
+                          className="mt-12 first:mt-0 mb-6 flex items-center gap-3 scroll-mt-32"
                         >
                           <span className="h-6 w-1 bg-[color:var(--brand-primary)] rounded-full" />
                           <h2 className="font-heading text-xl">

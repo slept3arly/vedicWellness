@@ -1,5 +1,16 @@
 # VedicWellness — UI Architecture & Performance Audit
 
+> **STATUS: HISTORICAL SNAPSHOT (audit date 2026-08-10).** This document describes the UI as it existed at audit time. Several items have since been deliberately changed or removed; do not treat the descriptions below as current architecture. The authoritative current-system reference is [CURRENT_SYSTEM.md](./CURRENT_SYSTEM.md), and the change/maintenance rules are in [FUTURE_MAINTENANCE.md](./FUTURE_MAINTENANCE.md).
+>
+> **Known obsolete sections/statements in this document:**
+>
+> - **Blog listing split** — any description of a "featured" vs "latest" blog bifurcation is outdated. `/blogs` is now one unified chronological listing (newest → oldest, 15/page) with no featured section.
+> - **Blog article inner scrolling** — references to the fixed-height inner scroll container (`h-[78vh]`/`h-[96vh]` overflow card) and TOC `container.scrollTo` logic are outdated. Articles use normal document flow; "On This Page" uses real heading anchors.
+> - **Product company selector** — descriptions of segmented-pill/selector implementations are outdated. It is now a data-driven company `<select>` dropdown inside the search/filter bar ("All Companies" + active companies), with a custom accessible popover on open.
+> - **Decorative pills** — the blogs hero badge, keyword chip row, and decorative product category/company pills were removed as dead UI.
+> - **Order lifecycle / stock** — statements assuming orders are created `CONFIRMED`, stock-based order blocking, or stock decrement are outdated. Orders start `CREATED` (24h expiry window); stock is informational only.
+> - **OTP artifacts** — any OTP-related mentions (`signupSession`, verify-required flow, OTP emails) describe removed functionality. Auth is email/password only.
+
 Audit date: 2026-08-10. Read-only audit of the current repository. No code was modified.
 
 Stack: Next.js 16.1.1 (App Router), React 19.2.3, framer-motion `^12.24.10` (classic package — `motion/react` is **not** installed), next-auth 5 beta, next-themes, lucide-react, react-markdown, Tailwind CSS v3 (`darkMode: 'selector'`), Prisma 6 + Accelerate, Cloudflare R2 (presigned uploads), sonner toasts, Vercel.

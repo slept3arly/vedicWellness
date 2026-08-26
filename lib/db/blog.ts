@@ -179,21 +179,19 @@ export async function getPublicBlogsDB(page = 1, limit = 15) {
     updatedAt: true,
     publishedAt: true,
   } as const;
-  const offset = 3 + (pagination.page - 1) * pagination.limit;
+  const offset = (pagination.page - 1) * pagination.limit;
 
-  const [featuredBlogs, data, total] = await prisma.$transaction([
-    prisma.blog.findMany({ where, orderBy: { publishedAt: "desc" }, take: 3, select }),
+  const [data, total] = await prisma.$transaction([
     prisma.blog.findMany({ where, orderBy: { publishedAt: "desc" }, skip: offset, take: pagination.limit, select }),
     prisma.blog.count({ where }),
   ]);
 
   return {
-    featuredBlogs,
     data,
     total,
     page: pagination.page,
     limit: pagination.limit,
-    totalPages: Math.ceil(Math.max(0, total - 3) / pagination.limit),
+    totalPages: Math.ceil(Math.max(0, total) / pagination.limit),
   };
 }
 

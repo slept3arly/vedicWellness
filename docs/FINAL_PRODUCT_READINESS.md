@@ -1,5 +1,21 @@
 # VedicWellness Final Product Readiness
 
+> **STATUS: LARGELY SUPERSEDED — HISTORICAL DOCUMENT.** This readiness plan was written before several deliberate architecture decisions and cleanup passes. Do not execute it as-is. Current architecture: [CURRENT_SYSTEM.md](./CURRENT_SYSTEM.md). Current rules: [FUTURE_MAINTENANCE.md](./FUTURE_MAINTENANCE.md).
+>
+> **Item-by-item reconciliation against current code:**
+>
+> - **OTP / `/verify-required` (Ship Blocker 1, Phases 1 & 4, §10)** — OBSOLETE. OTP verification was removed entirely; auth is email + password (credentials provider, JWT sessions). `proxy.ts` no longer references a verify flow, and no OTP code exists anywhere. Do not recreate.
+> - **`.env` committed to git (Ship Blocker 2)** — operational item; verify the repo/rotation state out-of-band if ever relevant.
+> - **Resend sender domain (Ship Blocker 3)** — Resend is still used, but only for admin notifications (new lead/order alerts), not customer-facing OTPs. Sender-domain configuration remains an operational check.
+> - **Production Turnstile keys (Ship Blocker 4)** — still an OPERATIONAL launch requirement; code fails closed when the secret is missing.
+> - **Heavy homepage images (Must Fix 1, Performance table)** — PARTIALLY RESOLVED: hero slides now reference `.webp`; the hero `.gif` remains. This is scoped to the planned Home page phase.
+> - **Sensitive debug logging (Must Fix 2, Ship Checklist P0)** — RESOLVED: Turnstile logs only missing-config errors (fails closed); signup logs one safe failure message.
+> - **`AnimatedCard`/`Card` setState-in-effect (Must Fix 3)** — cosmetic; deferred.
+> - **Empty `CategoryImagesField.tsx` (Must Fix 4, §7)** — STILL PRESENT (0 bytes, zero importers). Trivial cleanup candidate, intentionally left for a code-owning pass.
+> - **Mock payment action (§7 Deferred)** — RESOLVED BY REMOVAL: no payment simulation exists; orders are an unpaid request flow (CREATED → CONFIRMED → SHIPPED → DELIVERED by admin). Payment-gateway integration remains deferred.
+> - **Order lifecycle statements anywhere in this document** — OUTDATED: orders are created `CREATED` (not confirmed/paid) with a 24h expiry window; stock is informational and never blocks or changes with orders.
+> - **`/sales` dashboard deferral (§7)** — unchanged; role check retained in `proxy.ts`, no routes.
+
 ## 1. Executive Summary
 
 The **VedicWellness** codebase is in a strong, functional state. Core features—including NextAuth credential authentication, OTP verification, product catalog browsing, cart & checkout, order creation, lead submission, and admin management—are fully implemented. The project successfully builds (`npm run build`) and passes TypeScript type checking (`npm run typecheck`).

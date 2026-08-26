@@ -93,7 +93,7 @@ export default async function BlogsPage({
 
   const page = rawPage;
 
-  const { featuredBlogs, data: newBlogs, totalPages } =
+  const { data: blogs, totalPages } =
     await getPublicBlogsService(page);
 
   /* ========================================================= */
@@ -108,15 +108,8 @@ export default async function BlogsPage({
   /* JSON-LD */
   /* ========================================================= */
 
-  // The structured data must mirror the visible listing, which shows the
-  // featured posts plus the paginated list. newBlogs already excludes the
-  // featured posts via its offset, but filter defensively by id so a post
-  // can never appear twice.
-  const listedBlogs = [
-    ...featuredBlogs,
-    ...newBlogs.filter((b) => !featuredBlogs.some((f) => f.id === b.id)),
-  ];
-
+  // Single chronological listing — the structured data maps the exact posts
+  // shown on this page, newest first.
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Blog",
@@ -132,7 +125,7 @@ export default async function BlogsPage({
         url: `${SITE_URL}/logo.svg`,
       },
     },
-    blogPost: listedBlogs.map((b) => {
+    blogPost: blogs.map((b) => {
       const publishedDate = new Date(
         b.publishedAt ?? b.createdAt
       ).toISOString();
@@ -165,8 +158,7 @@ export default async function BlogsPage({
       />
 
       <BlogsClient
-        featuredBlogs={featuredBlogs}
-        newBlogs={newBlogs}
+        blogs={blogs}
         page={page}
         totalPages={totalPages}
       />

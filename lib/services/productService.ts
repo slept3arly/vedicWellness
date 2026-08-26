@@ -222,30 +222,6 @@ export async function deleteProductService(id: string, adminId: string) {
 /* Public Services (UNCHANGED — already correct)                       */
 /* ------------------------------------------------------------------ */
 
-const getCachedPublicProducts = (page: number, query: string, sort: string) =>
-  unstable_cache(
-    async () => {
-      const { total, products } = await getPublicProductsDB({
-        page,
-        limit: PUBLIC_PAGE_SIZE,
-        query,
-        sort,
-      });
-
-      return {
-        products,
-        total,
-        totalPages: Math.max(1, Math.ceil(total / PUBLIC_PAGE_SIZE)),
-        pageSize: PUBLIC_PAGE_SIZE,
-      };
-    },
-    ["public-products-list", String(page), query, sort],
-    {
-      tags: [CACHE_TAGS.PRODUCTS, CACHE_TAGS.GLOBAL],
-      revalidate: false,
-    }
-  )();
-
 export const getPublicProductsService = async ({
   page = 1,
   query = "",

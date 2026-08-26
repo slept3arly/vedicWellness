@@ -18,7 +18,7 @@ The system separates UI, business logic, and data access layers to maintain clea
 
 ### Customer System
 
-- Authentication with email/password + OTP verification
+- Authentication with email/password (credentials-based, JWT sessions)
 - Persistent cart and checkout workflows
 - Order creation with transactional consistency
 
@@ -51,8 +51,8 @@ Key design rule:
 - **Serverless-first architecture** optimized for Vercel deployment
 - **ISR + caching strategy** for read-heavy pages (products, blogs)
 - **Transactional order processing** using Prisma
-- **Redis-backed rate limiting + OTP/session handling**
-- **External integrations** (R2, email, verification) handled via service layer
+- **Redis-backed rate limiting** for public mutation endpoints
+- **External integrations** (R2, email, Turnstile) handled via service layer
 - **Separation of concerns** across routes, services, and database access
 
 ---
@@ -94,7 +94,7 @@ Key design rule:
 
 - PostgreSQL (Prisma ORM)
 - NextAuth (Auth.js)
-- Upstash Redis (rate limiting, OTP)
+- Upstash Redis (rate limiting)
 - Cloudflare R2 (file storage)
 - Resend (email)
 - Sentry (monitoring)

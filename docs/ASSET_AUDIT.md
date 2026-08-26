@@ -179,7 +179,7 @@ Product.imageUrl + Product.gallery (R2: products/<uuid>.webp|avif)
   └─ admin products list/preview (AdminProductsClient, ProductImagesField)
 
 Blog.thumbnailUrl (R2: blogs/<uuid>.*)
-  ├─ app/(public)/blogs/BlogsClient.tsx → featured + latest cards (h-52/h-44, 33vw)
+  ├─ app/(public)/blogs/BlogsClient.tsx → listing cards (h-44, 33vw; single unified chronological grid)
   ├─ app/(public)/blogs/[slug]/SlugClient.tsx → article hero (aspect 16/10, priority)
   ├─ app/(public)/blogs/[slug]/page.tsx → OG image (thumbnailUrl ?? og.jpg)
   └─ admin blogs list/preview (AdminBlogsClient, BlogImagesField)

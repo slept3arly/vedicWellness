@@ -11,6 +11,15 @@ import type {
 const MAX_ORDER_QUANTITY = 20;
 const USER_ORDER_PAGE_SIZE = 20;
 
+// New orders start as CREATED and must be confirmed by an admin.
+// Unconfirmed orders expire automatically via the existing CREATED-order
+// expiry logic (expireOldOrders), which keys off expiresAt.
+const CREATED_ORDER_TTL_HOURS = 24;
+
+function createdOrderExpiry(): Date {
+  return new Date(Date.now() + CREATED_ORDER_TTL_HOURS * 60 * 60 * 1000);
+}
+
 /* ========================================================= */
 /* SELECT CONFIGS                                             */
 /* ========================================================= */
@@ -153,10 +162,6 @@ export async function createOrderFromCart(
     ) {
       throw new Error(`Invalid quantity for ${item.product.name}.`);
     }
-
-    if (item.product.stock < item.quantity) {
-      throw new Error(`${item.product.name} does not have enough stock.`);
-    }
   }
 
   const address = await prisma.address.findUnique({
@@ -176,7 +181,7 @@ export async function createOrderFromCart(
     const newOrder = await tx.order.create({
       data: {
         userId,
-        status: "CONFIRMED",
+        status: "CREATED",
         totalAmount,
         currency: "INR",
         shippingName: address.fullName,
@@ -189,7 +194,7 @@ export async function createOrderFromCart(
           postalCode: address.postalCode,
           country: address.country,
         },
-        expiresAt: null,
+        expiresAt: createdOrderExpiry(),
       },
     });
 
@@ -240,10 +245,6 @@ export async function createOrderFromSingleProduct(
     throw new Error("Product is no longer available.");
   }
 
-  if (product.stock < quantity) {
-    throw new Error("Product does not have enough stock.");
-  }
-
   const address = await prisma.address.findUnique({
     where: { id: addressId },
   });
@@ -257,7 +258,7 @@ export async function createOrderFromSingleProduct(
   const order = await prisma.order.create({
     data: {
       userId,
-      status: "CONFIRMED",
+      status: "CREATED",
       totalAmount,
       currency: "INR",
       shippingName: address.fullName,
@@ -270,7 +271,7 @@ export async function createOrderFromSingleProduct(
         postalCode: address.postalCode,
         country: address.country,
       },
-      expiresAt: null,
+      expiresAt: createdOrderExpiry(),
       items: {
         create: [
           {

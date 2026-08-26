@@ -15,7 +15,7 @@ export async function POST(req: Request) {
     const { email, source } = parsed.data;
 
     // Save locally first
-    const subscriber = await prisma.subscriber.upsert({
+    await prisma.subscriber.upsert({
       where: { email },
       update: { optedIn: true },
       create: {
