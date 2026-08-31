@@ -1,6 +1,10 @@
 # VedicWellness Final Product Readiness
 
 > **STATUS: LARGELY SUPERSEDED — HISTORICAL DOCUMENT.** This readiness plan was written before several deliberate architecture decisions and cleanup passes. Do not execute it as-is. Current architecture: [CURRENT_SYSTEM.md](./CURRENT_SYSTEM.md). Current rules: [FUTURE_MAINTENANCE.md](./FUTURE_MAINTENANCE.md).
+
+> **Historical note:** This document was the primary ship readiness guide prior to the 2026 cleanup passes. Many ship blockers (OTP / verify-required, mock payment, heavy images) have since been addressed or explicitly deferred per FUTURE_MAINTENANCE.md rules. The item-by-item reconciliations below are annotated as resolved or obsolete; do not act on outdated items without verifying against current code.
+
+---
 >
 > **Item-by-item reconciliation against current code:**
 >

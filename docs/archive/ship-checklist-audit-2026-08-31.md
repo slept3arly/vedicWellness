@@ -1,8 +1,10 @@
 # VedicWellness Final Ship Checklist
 
-> **STATUS (post-cleanup pass).** This checklist is a historical audit snapshot. Findings were re-verified against the current codebase; resolutions are annotated inline. Current architecture lives in [CURRENT_SYSTEM.md](./CURRENT_SYSTEM.md); current maintenance rules live in [FUTURE_MAINTENANCE.md](./FUTURE_MAINTENANCE.md).
+> **STATUS: HISTORICAL AUDIT SNAPSHOT — Post-cleanup pass.** This checklist is a historical audit snapshot with findings re-verified against the current codebase. Resolutions are annotated inline. Current architecture lives in [CURRENT_SYSTEM.md](./CURRENT_SYSTEM.md); current maintenance rules live in [FUTURE_MAINTENANCE.md](./FUTURE_MAINTENANCE.md).
 
-Audit scope: current repository state, with feature-freeze changes treated as intentional. This audit does not propose new product features or architecture changes.
+> **Audit scope:** Current repository state with feature-freeze changes treated as intentional. This audit does not propose new product features or architecture changes. For ongoing maintenance, refer to [FUTURE_MAINTENANCE.md](./FUTURE_MAINTENANCE.md).
+
+---
 
 ## MUST FIX
 

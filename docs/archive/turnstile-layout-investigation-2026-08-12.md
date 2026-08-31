@@ -1,7 +1,12 @@
 # Turnstile Layout Investigation
 
-Investigation date: 2026-08-12  
-Scope: `/contact` and `/signup`; read-only application/package trace. No application code was changed for this investigation.
+> **STATUS: HISTORICAL INVESTIGATION — Completed 2026-08-12.** This investigation documented Turnstile layout behavior at that time. Current Turnstile configuration and sizing rules are documented in [FUTURE_MAINTENANCE.md](./FUTURE_MAINTENANCE.md) (auth rules section) and the codebase itself. Some technical details about package sizing behavior remain useful reference, but the investigation is not current architecture.
+
+> **Investigation date:** 2026-08-12. Scope: `/contact` and `/signup`; read-only application/package trace. No application code was changed for this investigation.
+
+> **Confidence levels noted:** High for route/card geometry and package outer sizing; Medium for exact real-device overflow cause (Cloudflare iframe is external to package source). The remaining uncertainty about iframe dimensions and runtime style mutations requires live browser verification.
+
+---
 
 ## 1. Affected routes
 

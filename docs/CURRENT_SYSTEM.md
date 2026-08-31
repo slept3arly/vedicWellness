@@ -1,6 +1,8 @@
 # Vedic Wellness — Current System
 
-**Read this document first.** It describes the production architecture as it exists today. For change rules and deliberately removed features, see [FUTURE_MAINTENANCE.md](./FUTURE_MAINTENANCE.md). Older audit documents (`FINAL_SEO_AUDIT`, `UI_ARCHITECTURE_AUDIT`, `FINAL_PRODUCT_READINESS`, `FINAL_SHIP_CHECKLIST`) are historical snapshots — their reconciliation notes explain what changed.
+**Read this document first.** It describes the production architecture as it exists today. For change rules and deliberately removed features, see [FUTURE_MAINTENANCE.md](./FUTURE_MAINTENANCE.md). Historical audit documents are stored in [`docs/archive/`](./docs/archive/) — their reconciliation notes explain what changed. Current system documentation lives in this repository under `docs/CURRENT_SYSTEM.md`.
+
+---
 
 ---
 
@@ -168,4 +170,4 @@ These are deployment/data checks owned outside the codebase:
 
 - [FUTURE_MAINTENANCE.md](./FUTURE_MAINTENANCE.md) — change rules, do-not-reintroduce list, deferred work
 - [BLOG_AUTHORING_GUIDE.md](./BLOG_AUTHORING_GUIDE.md) — how to write/publish blog posts
-- Historical audits (context only): `FINAL_SEO_AUDIT.md`, `UI_ARCHITECTURE_AUDIT.md`, `FINAL_PRODUCT_READINESS.md`, `FINAL_SHIP_CHECKLIST.md`, `ASSET_AUDIT.md`
+- Historical audits (context only): stored in [`docs/archive/`](./docs/archive/). Current active documentation is in `docs/CURRENT_SYSTEM.md`, `docs/FUTURE_MAINTENANCE.md`, `docs/TECH_STACK.md`, and `docs/BLOG_AUTHORING_GUIDE.md`.

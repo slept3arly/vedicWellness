@@ -204,7 +204,7 @@ This application chooses a lean, serverless-optimized state footprint:
 * **Server State**: Next.js App Router caching mechanisms and tags replace the need for TanStack Query.
 * **Zustand / Redux**: **Not used** in this codebase.
 * **Authentication State**: Distributed via `SessionProvider` (NextAuth).
-* **Session Cache**: Stored in Upstash Redis during registration flows (e.g., [lib/auth/signupSession.ts](file:///c:/Development/vedicWellness/lib/auth/signupSession.ts)).
+* **Session Cache**: Stored in Upstash Redis during registration flows (e.g., email verification session data).
 
 ---
 

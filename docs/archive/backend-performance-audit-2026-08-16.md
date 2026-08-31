@@ -1,8 +1,12 @@
 # VedicWellness — Final Backend Performance Audit
 
-## Executive Summary
+> **STATUS: HISTORICAL AUDIT — Completed 2026-08-16.** This audit documented the backend state at that time. Current architecture and performance rules live in [CURRENT_SYSTEM.md](./CURRENT_SYSTEM.md) and [FUTURE_MAINTENANCE.md](./FUTURE_MAINTENANCE.md). This document serves as a historical reference; some P1 items were resolved (e.g., public blog pagination), but the remaining recommendations should be tracked separately or are addressed in the current system docs.
 
-The backend is adequate for launch at modest catalog and customer volumes, but it has several concrete scaling gaps that should be addressed before traffic or data volume grows:
+> **Notable resolutions since audit:**
+> - ✅ Public blog pagination now uses DB-level skip/take + count (P1 resolved)
+> - ⚠️ Many P1/P2 recommendations remain open or partially addressed — refer to CURRENT_SYSTEM.md and FUTURE_MAINTENANCE.md for current state.
+
+---
 
 - Public blog pagination is performed in memory after loading every published blog row.
 - Public and admin page numbers are not capped, allowing arbitrarily deep `OFFSET` work and high-cardinality cache keys.

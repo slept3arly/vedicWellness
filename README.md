@@ -115,9 +115,12 @@ Key design rule:
 
 ## Documentation
 
-- ARCHITECTURE.md
-- CODEBASE_GUIDE.md
-- FLOWS.md
+- [Current Architecture](./docs/CURRENT_SYSTEM.md)
+- [Maintenance & Change Rules](./docs/FUTURE_MAINTENANCE.md)
+- [Tech Stack Reference](./TECH_STACK.md)
+- [Blog Authoring Guide](./docs/BLOG_AUTHORING_GUIDE.md)
+- [Asset Management](./docs/ASSET_MANAGEMENT.md)
+- [Historical Audits](./docs/archive/)
 
 ---
 
@@ -125,7 +128,7 @@ Key design rule:
 
 Production-ready system with:
 
-- Authentication & RBAC
+- Authentication & RBAC (email/password credentials, JWT sessions — no OTP flow)
 - End-to-end e-commerce workflow
 - Admin CMS
 - Security controls (CSRF, rate limiting, validation)
